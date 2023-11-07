@@ -1,0 +1,23 @@
+.main {
+    margin: 0 auto;
+    width: 1580px;
+}
+
+.content {
+    background-color: #111111;
+    border-radius: 25px;
+    display: flex;
+    margin-top: 10px;
+    justify-content: flex-end;
+    padding: 20px;
+}
+
+.selection {
+}
+
+.fit {
+}
+
+.statistics {
+    margin-top: 50px;
+}
