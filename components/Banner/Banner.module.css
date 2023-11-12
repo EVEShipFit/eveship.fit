@@ -1,0 +1,27 @@
+.banner {
+    background-color: #cdcdcd;
+    border-radius: 25px;
+    margin-top: 10px;
+    padding: 20px 0;
+    position: relative;
+    text-align: center;
+}
+
+.bannerLinks {
+    display: inline;
+    position: absolute;
+    right: 20px;
+    top: 13px;
+}
+
+.bannerConstruction {
+    background-color: #c84824;
+    border-radius: 25px;
+    color: #c5c5c5;
+    margin-top: 10px;
+    padding: 20px 0;
+    text-align: center;
+}
+.bannerConstruction > a {
+    color: #c5f5c5;
+}
