@@ -12,8 +12,8 @@ on:
     - main
 
 jobs:
-  storybook:
-    name: Publish storybook
+  website:
+    name: Publish website
     runs-on: ubuntu-latest
 
     steps:
