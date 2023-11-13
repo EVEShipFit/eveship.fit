@@ -17,7 +17,7 @@
   "author": "Patric Stout <eveshipfit@truebrain.nl>",
   "license": "MIT",
   "dependencies": {
-    "@eveshipfit/react": "^1.0.2",
+    "@eveshipfit/react": "^1.1.0",
     "next": "14.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
