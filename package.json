@@ -17,7 +17,7 @@
   "author": "Patric Stout <eveshipfit@truebrain.nl>",
   "license": "MIT",
   "dependencies": {
-    "@eveshipfit/react": "^1.4.0",
+    "@eveshipfit/react": "^1.5.0",
     "@eveshipfit/dogma-engine": "^2.2.1",
     "next": "14.0.1",
     "react": "^18.2.0",
