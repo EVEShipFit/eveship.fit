@@ -7,6 +7,7 @@ import type { EsiFit } from "@eveshipfit/react";
 
 import { Banner } from "@/components/Banner";
 import { Debug } from "@/components/Debug";
+import { LocationHash } from "@/components/LocationHash";
 import { Skills } from "@/components/Skills";
 
 import styles from "./page.module.css";
@@ -16,6 +17,7 @@ const Page = () => {
   const [skills, setSkills] = React.useState<Record<string, number>>({});
 
   return <ShipSnapshotProvider fit={activeFit} skills={skills}>
+    <LocationHash setFit={setActiveFit} />
     <Banner />
     <div className={styles.content}>
       <div className={styles.selection}>
