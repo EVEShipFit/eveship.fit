@@ -32,7 +32,7 @@ export const Skills = ({ setSkills }: { setSkills: (skills: Record<string, numbe
   }, [eveData, setSkills, activeSkillOptions]);
 
   return <div className={styles.skills}>
-    <select onClick={e => setActiveSkillOptions(e.currentTarget.value)} defaultValue="all-l5">
+    <select onChange={e => setActiveSkillOptions(e.currentTarget.value)} defaultValue="all-l5">
       <option value="all-l0">All skills L0</option>
       <option value="all-l5">All skills L5</option>
     </select>
