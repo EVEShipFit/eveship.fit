@@ -3,7 +3,7 @@ import React from "react";
 
 async function analyzeHash(setFit: (fit: EsiFit) => void) {
   const hash = window.location.hash;
-  window.history.replaceState(null, "", window.location.pathname);
+  window.history.replaceState(null, "", window.location.pathname + window.location.search);
 
   if (hash.startsWith("#fit:")) {
     const fitHash = hash.slice(1);

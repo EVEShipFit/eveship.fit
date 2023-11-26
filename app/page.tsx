@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { DogmaEngineProvider, EveDataProvider, ShipFitExtended, ShipSnapshotProvider, ShipStatistics } from "@eveshipfit/react";
+import { DogmaEngineProvider, EsiCharacterSelection, EsiProvider, EveDataProvider, ShipFitExtended, ShipSnapshotProvider, ShipStatistics } from "@eveshipfit/react";
 import type { EsiFit } from "@eveshipfit/react";
 
 import { Banner } from "@/components/Banner";
@@ -21,6 +21,7 @@ const Page = () => {
     <Banner />
     <div className={styles.content}>
       <div className={styles.selection}>
+        <EsiCharacterSelection />
       </div>
       <div className={styles.fit}>
         <ShipFitExtended radius={365} />
@@ -37,11 +38,13 @@ const Page = () => {
 export default function Home() {
   return (
     <main className={styles.main}>
-      <EveDataProvider>
-        <DogmaEngineProvider>
-          <Page />
-        </DogmaEngineProvider>
-      </EveDataProvider>
+      <EsiProvider>
+        <EveDataProvider>
+          <DogmaEngineProvider>
+            <Page />
+          </DogmaEngineProvider>
+        </EveDataProvider>
+      </EsiProvider>
     </main>
   )
 }
