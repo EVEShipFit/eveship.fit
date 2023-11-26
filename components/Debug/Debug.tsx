@@ -30,7 +30,7 @@ export const Debug = ({ fit, setFit }: { fit: EsiFit, setFit: (fit: EsiFit) => v
       return;
     }
 
-    if (!esiFit) {
+    if (esiFit === undefined) {
       setError("String doesn't appear to be either an ESI or an EFT fit.");
       return;
     }
