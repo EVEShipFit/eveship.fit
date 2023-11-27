@@ -31,10 +31,16 @@ export const Skills = ({ setSkills }: { setSkills: (skills: Record<string, numbe
       return;
     }
 
-    const skills = esi.characters[skillSet]?.skills;
-    if (!skills) return;
+    const esiSkills = esi.characters[skillSet]?.skills;
+    if (!esiSkills) return;
 
-    setSkills(skills);
+    /* Ensure that all skills not mentioned in ESI are set to level 0. */
+    const newSkills: Record<string, number> = {};
+    for (const typeId in eveData.typeIDs) {
+      if (eveData?.typeIDs?.[typeId].categoryID !== 16) continue;
+      newSkills[typeId] = esiSkills[typeId] ?? 0;
+    }
+    setSkills(newSkills);
   }, [eveData, esi.characters, setSkills, skillSet]);
 
   React.useEffect(() => {
