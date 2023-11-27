@@ -6,6 +6,7 @@
 .content {
     background-color: #111111;
     border-radius: 25px;
+    color: #c5c5c5;
     display: flex;
     margin-top: 10px;
     justify-content: flex-end;
@@ -15,6 +16,38 @@
 .selection {
     flex: 1;
     margin-top: 10px;
+    padding-right: 10px;
+}
+.selectionHeader {
+    display: flex;
+    margin-top: 10px;
+}
+.selectionHeader > div {
+    background-color: #4f4f4f;
+    cursor: pointer;
+    flex: 1;
+    line-height: 24px;
+    text-align: center;
+}
+.selectionHeader > div:hover {
+    background-color: #6c6c6c;
+}
+.selectionHeader > div:first-child {
+    border-bottom-left-radius: 25px;
+    margin-right: 5px;
+}
+.selectionHeader > div:last-child {
+    border-bottom-right-radius: 25px;
+    margin-left: 5px;
+}
+.selectionContent {
+    height: 755px;
+}
+.collapsed {
+    display: none;
+}
+.selectionHeader > div.selected {
+    background-color: #7a7a7a;
 }
 
 .fit {
