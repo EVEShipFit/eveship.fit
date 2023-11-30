@@ -9,7 +9,6 @@ import type { EsiFit } from "@eveshipfit/react";
 import { Banner } from "@/components/Banner";
 import { Debug } from "@/components/Debug";
 import { LocationHash } from "@/components/LocationHash";
-import { Skills } from "@/components/Skills";
 
 import styles from "./page.module.css";
 
@@ -30,44 +29,43 @@ const Page = () => {
   }, []);
 
   return <ShipSnapshotProvider fit={activeFit} skills={skills}>
-    <LocationHash setFit={setActiveFit} />
-    <Banner />
-    <div className={styles.content}>
-      <div className={styles.selection}>
-        <EsiCharacterSelection />
-        <div className={styles.selectionHeader}>
-          <div onClick={() => setSelection("hulls")} className={clsx({[styles.selected]: selection == "hulls"})}>Hull & Fits</div>
-          <div onClick={() => setSelection("hardware")} className={clsx({[styles.selected]: selection == "hardware"})}>Hardware</div>
+    <EsiProvider setSkills={setSkills}>
+      <LocationHash setFit={setActiveFit} />
+      <Banner />
+      <div className={styles.content}>
+        <div className={styles.selection}>
+          <div className={styles.selectionHeader}>
+            <div onClick={() => setSelection("hulls")} className={clsx({[styles.selected]: selection == "hulls"})}>Hull & Fits</div>
+            <div onClick={() => setSelection("hardware")} className={clsx({[styles.selected]: selection == "hardware"})}>Hardware</div>
+          </div>
+          <div className={clsx(styles.selectionContent, {[styles.collapsed]: selection != "hulls"})}>
+            <HullListing changeHull={changeHull} changeFit={setActiveFit} />
+          </div>
+          <div className={clsx(styles.selectionContent, {[styles.collapsed]: selection != "hardware"})}>
+            TODO
+          </div>
         </div>
-        <div className={clsx(styles.selectionContent, {[styles.collapsed]: selection != "hulls"})}>
-          <HullListing changeHull={changeHull} />
+        <div className={styles.fit}>
+          <ShipFitExtended radius={365} />
         </div>
-        <div className={clsx(styles.selectionContent, {[styles.collapsed]: selection != "hardware"})}>
-          TODO
+        <div className={styles.statistics}>
+          <EsiCharacterSelection />
+          <ShipStatistics />
         </div>
       </div>
-      <div className={styles.fit}>
-        <ShipFitExtended radius={365} />
-      </div>
-      <div className={styles.statistics}>
-        <Skills setSkills={setSkills} />
-        <ShipStatistics />
-      </div>
-    </div>
-    <Debug fit={activeFit} setFit={setActiveFit} />
+      <Debug fit={activeFit} setFit={setActiveFit} />
+    </EsiProvider>
   </ShipSnapshotProvider>;
 }
 
 export default function Home() {
   return (
     <main className={styles.main}>
-      <EsiProvider>
-        <EveDataProvider>
-          <DogmaEngineProvider>
-            <Page />
-          </DogmaEngineProvider>
-        </EveDataProvider>
-      </EsiProvider>
+      <EveDataProvider>
+        <DogmaEngineProvider>
+          <Page />
+        </DogmaEngineProvider>
+      </EveDataProvider>
     </main>
   )
 }
