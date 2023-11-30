@@ -20,7 +20,6 @@
 }
 .selectionHeader {
     display: flex;
-    margin-top: 10px;
 }
 .selectionHeader > div {
     background-color: #4f4f4f;
@@ -54,6 +53,10 @@
 }
 
 .statistics {
-    margin-top: 50px;
+    margin-top: 10px;
     position: relative;
+}
+
+.statistics > div:first-child {
+    margin-bottom: 10px;
 }
