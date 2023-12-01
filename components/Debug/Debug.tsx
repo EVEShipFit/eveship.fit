@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useFormatEftToEsi } from "@eveshipfit/react";
+import { CalculationDetail, useFormatEftToEsi } from "@eveshipfit/react";
 import type { EsiFit } from "@eveshipfit/react";
 
 import styles from "./Debug.module.css";
@@ -39,10 +39,20 @@ export const Debug = ({ fit, setFit }: { fit: EsiFit, setFit: (fit: EsiFit) => v
     setError("");
   }
 
-  return <div className={styles.debug}>
-    Still tool is still a work in progress; this textarea allows you, for the time being, to easily import ESI or EFT fits.<br />
-    <textarea className={styles.debugTextArea} value={fitText} onChange={(e) => setFitText(e.target.value)} />
-    <button className={styles.debugButton} onClick={() => formatFit()}>Load Fit</button>
-    <div className={styles.debugError}>{error}</div>
+  return <div>
+    <div className={styles.debug}>
+      Still tool is still a work in progress; this textarea allows you, for the time being, to easily import ESI or EFT fits.<br />
+      <textarea className={styles.debugTextArea} value={fitText} onChange={(e) => setFitText(e.target.value)} />
+      <button className={styles.debugButton} onClick={() => formatFit()}>Load Fit</button>
+      <div className={styles.debugError}>{error}</div>
+    </div>
+    <div className={styles.detail}>
+      <span className={styles.detailHeader}>
+        Detailed calculation information about the ship attributes.
+      </span>
+      <div>
+        <CalculationDetail source="Ship" />
+      </div>
+    </div>
   </div>
 }

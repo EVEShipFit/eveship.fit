@@ -15,3 +15,17 @@
 .debugError {
     color: #c84824;
 }
+
+.detail {
+    border: 1px solid #cdcdcd;
+    border-radius: 25px;
+    margin-top: 10px;
+    padding: 20px 0;
+    position: relative;
+}
+
+.detailHeader {
+    display: block;
+    margin-bottom: 10px;
+    text-align: center;
+}
