@@ -3,7 +3,7 @@
 import clsx from "clsx";
 import React from "react";
 
-import { DogmaEngineProvider, EsiCharacterSelection, EsiProvider, EveDataProvider, HullListing, ShipFitExtended, ShipSnapshotProvider, ShipStatistics } from "@eveshipfit/react";
+import { DogmaEngineProvider, EsiCharacterSelection, EsiProvider, EveDataProvider, HardwareListing, HullListing, ShipFitExtended, ShipSnapshotProvider, ShipStatistics } from "@eveshipfit/react";
 import type { EsiFit } from "@eveshipfit/react";
 
 import { Banner } from "@/components/Banner";
@@ -17,17 +17,6 @@ const Page = () => {
   const [skills, setSkills] = React.useState<Record<string, number>>({});
   const [selection, setSelection] = React.useState<"hulls" | "hardware">("hulls");
 
-  const changeHull = React.useCallback((typeId: number) => {
-    setActiveFit(
-      {
-        "name": "New Ship",
-        "description": "",
-        "ship_type_id": typeId,
-        "items": []
-      }
-    );
-  }, []);
-
   return <ShipSnapshotProvider fit={activeFit} skills={skills}>
     <EsiProvider setSkills={setSkills}>
       <LocationHash setFit={setActiveFit} />
@@ -39,14 +28,14 @@ const Page = () => {
             <div onClick={() => setSelection("hardware")} className={clsx({[styles.selected]: selection == "hardware"})}>Hardware</div>
           </div>
           <div className={clsx(styles.selectionContent, {[styles.collapsed]: selection != "hulls"})}>
-            <HullListing changeHull={changeHull} changeFit={setActiveFit} />
+            <HullListing />
           </div>
           <div className={clsx(styles.selectionContent, {[styles.collapsed]: selection != "hardware"})}>
-            TODO
+            <HardwareListing />
           </div>
         </div>
         <div className={styles.fit}>
-          <ShipFitExtended radius={365} />
+          <ShipFitExtended />
         </div>
         <div className={styles.statistics}>
           <EsiCharacterSelection />
