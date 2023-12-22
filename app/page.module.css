@@ -11,6 +11,7 @@
     justify-content: flex-end;
     margin-top: 10px;
     padding: 20px;
+    position: relative;
 }
 
 .selection {
@@ -41,7 +42,8 @@
     margin-left: 5px;
 }
 .selectionContent {
-    height: 755px;
+    height: 644px;
+    margin-bottom: 10px;
 }
 .collapsed {
     display: none;

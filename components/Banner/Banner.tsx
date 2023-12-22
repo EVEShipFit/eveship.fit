@@ -19,9 +19,5 @@ export const Banner = () => {
         </a>
       </div>
     </div>
-    <div className={styles.bannerConstruction}>
-      This website is currently a work in progress; not all functionalities are available yet.<br/>
-      Found a bug? Please <a href="https://github.com/EVEShipFit/roadmap/issues" target="_new">report it here</a>.
-    </div>
   </>
 }
