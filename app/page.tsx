@@ -3,11 +3,10 @@
 import clsx from "clsx";
 import React from "react";
 
-import { DogmaEngineProvider, EsiCharacterSelection, EsiProvider, EveDataProvider, HardwareListing, HullListing, ShipFitExtended, ShipSnapshotProvider, ShipStatistics } from "@eveshipfit/react";
+import { DogmaEngineProvider, EsiCharacterSelection, EsiProvider, EveDataProvider, FitButtonBar, HardwareListing, HullListing, LocalFitProvider, ModalDialogAnchor, ShipFitExtended, ShipSnapshotProvider, ShipStatistics } from "@eveshipfit/react";
 import type { EsiFit } from "@eveshipfit/react";
 
 import { Banner } from "@/components/Banner";
-import { Debug } from "@/components/Debug";
 import { LocationHash } from "@/components/LocationHash";
 
 import styles from "./page.module.css";
@@ -19,30 +18,33 @@ const Page = () => {
 
   return <ShipSnapshotProvider fit={activeFit} skills={skills}>
     <EsiProvider setSkills={setSkills}>
-      <LocationHash setFit={setActiveFit} />
-      <Banner />
-      <div className={styles.content}>
-        <div className={styles.selection}>
-          <div className={styles.selectionHeader}>
-            <div onClick={() => setSelection("hulls")} className={clsx({[styles.selected]: selection == "hulls"})}>Hull & Fits</div>
-            <div onClick={() => setSelection("hardware")} className={clsx({[styles.selected]: selection == "hardware"})}>Hardware</div>
+      <LocalFitProvider>
+        <LocationHash setFit={setActiveFit} />
+        <Banner />
+        <div className={styles.content}>
+          <ModalDialogAnchor />
+          <div className={styles.selection}>
+            <div className={styles.selectionHeader}>
+              <div onClick={() => setSelection("hulls")} className={clsx({[styles.selected]: selection == "hulls"})}>Hull & Fits</div>
+              <div onClick={() => setSelection("hardware")} className={clsx({[styles.selected]: selection == "hardware"})}>Hardware</div>
+            </div>
+            <div className={clsx(styles.selectionContent, {[styles.collapsed]: selection != "hulls"})}>
+              <HullListing />
+            </div>
+            <div className={clsx(styles.selectionContent, {[styles.collapsed]: selection != "hardware"})}>
+              <HardwareListing />
+            </div>
+            <FitButtonBar />
           </div>
-          <div className={clsx(styles.selectionContent, {[styles.collapsed]: selection != "hulls"})}>
-            <HullListing />
+          <div className={styles.fit}>
+            <ShipFitExtended />
           </div>
-          <div className={clsx(styles.selectionContent, {[styles.collapsed]: selection != "hardware"})}>
-            <HardwareListing />
+          <div className={styles.statistics}>
+            <EsiCharacterSelection />
+            <ShipStatistics />
           </div>
         </div>
-        <div className={styles.fit}>
-          <ShipFitExtended />
-        </div>
-        <div className={styles.statistics}>
-          <EsiCharacterSelection />
-          <ShipStatistics />
-        </div>
-      </div>
-      <Debug fit={activeFit} setFit={setActiveFit} />
+      </LocalFitProvider>
     </EsiProvider>
   </ShipSnapshotProvider>;
 }
