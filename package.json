@@ -14,7 +14,7 @@
     "type": "git",
     "url": "git+https://github.com/EVEShipFit/react.git"
   },
-  "author": "Patric Stout <eveshipfit@truebrain.nl>",
+  "author": "EVEShipFit Team <info@eveship.fit>",
   "license": "MIT",
   "dependencies": {
     "@eveshipfit/dogma-engine": "^3.0.0",
