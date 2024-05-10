@@ -18,8 +18,8 @@
   "license": "MIT",
   "dependencies": {
     "@eveshipfit/data": "^9.2.20240227",
-    "@eveshipfit/dogma-engine": "^3.2.3",
-    "@eveshipfit/react": "^2.6.3",
+    "@eveshipfit/dogma-engine": "^4.0.0",
+    "@eveshipfit/react": "^2.6.4",
     "clsx": "^2.1.1",
     "next": "^14.2.3",
     "react": "^18.3.1",
