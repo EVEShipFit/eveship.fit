@@ -5,6 +5,7 @@
 
 .content {
     background-color: #111111;
+    border: 1px solid #4f4f4f;
     border-radius: 25px;
     color: #c5c5c5;
     display: flex;
