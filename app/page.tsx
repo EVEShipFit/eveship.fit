@@ -7,11 +7,23 @@ import { DogmaEngineProvider, EsiCharacterSelection, EsiProvider, EveDataProvide
 
 import { Banner } from "@/components/Banner";
 import { LocationHash } from "@/components/LocationHash";
+import { Debug } from "@/components/Debug";
 
 import styles from "./page.module.css";
 
+declare global {
+  interface Window {
+    esf_debug: () => void;
+  }
+}
+
 const Page = () => {
   const [selection, setSelection] = React.useState<"hulls" | "hardware">("hulls");
+  const [debug, setDebug] = React.useState(false);
+
+  React.useEffect(() => {
+    window.esf_debug = () => setDebug((prev) => !prev);
+  }, []);
 
   return <ShipSnapshotProvider>
     <EsiProvider>
@@ -41,6 +53,7 @@ const Page = () => {
             <ShipStatistics />
           </div>
         </div>
+        {debug && <Debug />}
       </LocalFitProvider>
     </EsiProvider>
   </ShipSnapshotProvider>;
