@@ -1,0 +1,13 @@
+.debug {
+    background-color: #cdcdcd;
+    padding: 10px;
+}
+
+.header {
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.debug > select {
+    margin-bottom: 10px;
+}
