@@ -1,24 +1,40 @@
-import { type EsiFit, eveShipFitHash, ShipSnapshotContext, useEveShipFitLinkHash } from "@eveshipfit/react";
+import { useEveShipFitHash, ShipSnapshotContext, useEveShipFitLinkHash, EveDataContext } from "@eveshipfit/react";
 import React from "react";
 
-async function analyzeHash(changeFit: (fit: EsiFit) => void) {
-  const hash = window.location.hash;
-
-  if (hash.startsWith("#fit:")) {
-    const fitHash = hash.slice(1);
-    const esiFit = await eveShipFitHash(fitHash);
-    if (esiFit !== undefined) {
-      changeFit(esiFit);
-    }
-  }
-}
-
 export const LocationHash = () => {
+  const eveData = React.useContext(EveDataContext);
   const snapshot = React.useContext(ShipSnapshotContext);
   const eveShipFitLinkHash = useEveShipFitLinkHash();
+  const eveShipFitHash = useEveShipFitHash();
+
+  const [requestedFit, setRequestedFit] = React.useState<string | undefined>(undefined);
+
+  const analyzeHash = React.useCallback(async () => {
+    const hash = window.location.hash;
+
+    if (hash.startsWith("#fit:")) {
+      const fitHash = hash.slice(1);
+      setRequestedFit(fitHash);
+    }
+  }, []);
 
   React.useEffect(() => {
-    analyzeHash(snapshot.changeFit);
+    async function run() {
+      if (!eveData.loaded || requestedFit === undefined) return;
+
+      const esiFit = await eveShipFitHash(requestedFit);
+      setRequestedFit(undefined);
+
+      if (esiFit !== undefined) {
+        snapshot.changeFit(esiFit);
+      }
+    }
+
+    run();
+  }, [eveData, requestedFit, snapshot, eveShipFitHash]);
+
+  React.useEffect(() => {
+    analyzeHash();
 
     // We only want to analyze the hash on page-enter; never again after.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -32,7 +48,7 @@ export const LocationHash = () => {
 
   if (typeof window !== "undefined") {
     window.addEventListener("hashchange", async () => {
-      await analyzeHash(snapshot.changeFit);
+      await analyzeHash();
     });
   }
 
