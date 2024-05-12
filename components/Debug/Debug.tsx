@@ -1,11 +1,24 @@
+"use client";
+
 import React from "react";
 
 import styles from "./Debug.module.css";
 import { CalculationDetail, EveDataContext, ShipSnapshotContext } from "@eveshipfit/react";
 
+declare global {
+  interface Window {
+    esf_debug: () => void;
+  }
+}
+
 export const Debug = () => {
+  const [showDebug, setShowDebug] = React.useState(false);
   const eveData = React.useContext(EveDataContext);
   const snapshot = React.useContext(ShipSnapshotContext);
+
+  React.useEffect(() => {
+    window.esf_debug = () => setShowDebug((prev) => !prev);
+  }, []);
 
   const [tab, setTab] = React.useState<
     "JSON" | "Ship" | "Char" | "Structure" | "Target" | { Item?: number; Charge?: number }
@@ -17,6 +30,8 @@ export const Debug = () => {
         return { item, index };
       })
       .sort((a, b) => a.item.flag - b.item.flag) ?? [];
+
+  if (!showDebug) return <></>;
 
   return (
     <>
