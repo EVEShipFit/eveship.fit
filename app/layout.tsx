@@ -2,6 +2,11 @@ import React from 'react'
 import type { Metadata } from 'next'
 
 import './globals.css'
+import { Noto_Serif } from "next/font/google";
+
+const font = Noto_Serif({
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: 'EVEShip.fit',
@@ -15,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={font.className}>{children}</body>
     </html>
   )
 }
