@@ -2,7 +2,7 @@ import React from "react";
 import type { Metadata } from "next";
 import { Noto_Serif } from "next/font/google";
 
-import { FittingProviders } from "@/components/FittingProviders/FittingProviders";
+import { FittingProviders } from "@/components/FittingProviders";
 
 import styles from "./layout.module.css";
 import "./globals.css";

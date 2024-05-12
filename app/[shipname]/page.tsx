@@ -1,6 +1,6 @@
 import { Banner } from "@/components/Banner";
 import { Debug } from "@/components/Debug";
-import { FittingWindow } from "@/components/FittingWindow/FittingWindow";
+import { FittingWindow } from "@/components/FittingWindow";
 import { ESF_DATA_VERSION } from "@eveshipfit/data";
 import React from "react";
 import { Metadata } from "next";
@@ -15,7 +15,9 @@ interface PageParams {
   shipname: string;
 }
 
-const getShipTypes = async () => {
+const slugify = (text: string): string => text.toLowerCase().replace(/\s+/g, "-");
+
+const getShipTypes = async (): Promise<ShipTypeInfo[]> => {
   return (await fetch(`https://data.eveship.fit/v${ESF_DATA_VERSION}/shiptypes.json`).then((res) =>
     res.json(),
   )) as ShipTypeInfo[];
@@ -24,7 +26,7 @@ const getShipTypes = async () => {
 const getCurrentShipType = async (shipname: string): Promise<ShipTypeInfo | undefined> => {
   const shipTypes = await getShipTypes();
 
-  return shipTypes.find(({ name }) => name.toLowerCase() === shipname.toLowerCase());
+  return shipTypes.find(({ name }) => slugify(name) === shipname.toLowerCase());
 };
 
 export async function generateStaticParams() {
@@ -33,7 +35,7 @@ export async function generateStaticParams() {
   return shipTypes.map(
     ({ name }) =>
       ({
-        shipname: name.toLowerCase(),
+        shipname: slugify(name),
       }) as PageParams,
   );
 }
