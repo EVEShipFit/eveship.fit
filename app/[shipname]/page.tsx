@@ -43,7 +43,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params: { shipname } }: { params: PageParams }): Promise<Metadata> {
   const currentShipType = await getCurrentShipType(shipname);
 
-  if (!currentShipType) return {};
+  if (currentShipType === undefined) return {};
 
   const { id, name, group } = currentShipType;
 
