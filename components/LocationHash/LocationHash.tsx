@@ -53,4 +53,4 @@ export const LocationHash = () => {
   }
 
   return null;
-}
+};

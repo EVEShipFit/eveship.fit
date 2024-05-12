@@ -8,7 +8,8 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "lint": "next lint"
+    "format": "prettier -w app components",
+    "lint": "next lint && prettier -c app components"
   },
   "repository": {
     "type": "git",

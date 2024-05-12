@@ -1,36 +1,36 @@
 .banner {
-    background-color: #cdcdcd;
-    border-radius: 25px;
-    margin-top: 10px;
-    padding: 20px 0;
-    position: relative;
-    text-align: center;
+  background-color: #cdcdcd;
+  border-radius: 25px;
+  margin-top: 10px;
+  padding: 20px 0;
+  position: relative;
+  text-align: center;
 }
 
 .bannerLinks {
-    display: inline;
-    position: absolute;
-    right: 15px;
-    top: 8px;
+  display: inline;
+  position: absolute;
+  right: 15px;
+  top: 8px;
 }
 .bannerLinks > a {
-    background-color: #2a2a2a;
-    border-radius: 50%;
-    display: inline-block;
-    height: 37px;
-    margin-left: 10px;
-    padding-top: 6px;
-    width: 43px;
+  background-color: #2a2a2a;
+  border-radius: 50%;
+  display: inline-block;
+  height: 37px;
+  margin-left: 10px;
+  padding-top: 6px;
+  width: 43px;
 }
 
 .bannerConstruction {
-    background-color: #c84824;
-    border-radius: 25px;
-    color: #c5c5c5;
-    margin-top: 10px;
-    padding: 20px 0;
-    text-align: center;
+  background-color: #c84824;
+  border-radius: 25px;
+  color: #c5c5c5;
+  margin-top: 10px;
+  padding: 20px 0;
+  text-align: center;
 }
 .bannerConstruction > a {
-    color: #c5f5c5;
+  color: #c5f5c5;
 }
