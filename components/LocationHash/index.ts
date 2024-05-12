@@ -1,1 +1,1 @@
-export { LocationHash } from './LocationHash';
+export { LocationHash } from "./LocationHash";
