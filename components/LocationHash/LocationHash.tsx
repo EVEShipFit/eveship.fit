@@ -1,13 +1,16 @@
-import { useEveShipFitHash, ShipSnapshotContext, useEveShipFitLinkHash, EveDataContext } from "@eveshipfit/react";
 import React from "react";
 
+import { useEveData, useExportEveShipFitHash, useFitManager, useImportEveShipFitHash } from "@eveshipfit/react";
+
 export const LocationHash = () => {
-  const eveData = React.useContext(EveDataContext);
-  const snapshot = React.useContext(ShipSnapshotContext);
-  const eveShipFitLinkHash = useEveShipFitLinkHash();
-  const eveShipFitHash = useEveShipFitHash();
+  const eveData = useEveData();
+  const fitManager = useFitManager();
+  const importEveShipFitHash = useImportEveShipFitHash();
+  const eveShipFitHash = useExportEveShipFitHash(true);
 
   const [requestedFit, setRequestedFit] = React.useState<string | undefined>(undefined);
+  const [firstLoad, setFirstLoad] = React.useState(true);
+  const setFit = fitManager.setFit;
 
   const analyzeHash = React.useCallback(async () => {
     const hash = window.location.hash;
@@ -20,31 +23,29 @@ export const LocationHash = () => {
 
   React.useEffect(() => {
     async function run() {
-      if (!eveData.loaded || requestedFit === undefined) return;
-
-      const esiFit = await eveShipFitHash(requestedFit);
+      if (eveData === null || requestedFit === undefined) return;
       setRequestedFit(undefined);
 
-      if (esiFit !== undefined) {
-        snapshot.changeFit(esiFit);
+      const fit = await importEveShipFitHash(requestedFit);
+
+      if (fit !== undefined && fit !== null) {
+        setFit(fit);
       }
     }
 
     run();
-  }, [eveData, requestedFit, snapshot, eveShipFitHash]);
+  }, [eveData, requestedFit, setFit, importEveShipFitHash]);
 
-  React.useEffect(() => {
+  if (firstLoad) {
+    setFirstLoad(false);
     analyzeHash();
-
-    // We only want to analyze the hash on page-enter; never again after.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }
 
   React.useEffect(() => {
-    if (eveShipFitLinkHash === "") return;
+    if (eveShipFitHash === null) return;
 
-    window.history.replaceState(null, "", window.location.pathname + window.location.search + eveShipFitLinkHash);
-  }, [eveShipFitLinkHash]);
+    window.history.replaceState(null, "", window.location.pathname + window.location.search + eveShipFitHash);
+  }, [eveShipFitHash]);
 
   if (typeof window !== "undefined") {
     window.addEventListener("hashchange", async () => {
