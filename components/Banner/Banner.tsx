@@ -32,6 +32,10 @@ export const Banner = () => {
           </a>
         </div>
       </div>
+      <div className={styles.bannerWarning}>
+        This version of EVEShip.fit is a preview build with data of the upcoming expansion. Fits, modules, and/or statistics might change before release.<br/>
+        Images of new modules and new ship hulls won&apos;t load until the expansion is released. For the version of EVEShip.fit with Tranqulity data, visit <a href="https://eveship.fit">eveship.fit</a>.
+      </div>
     </>
   );
 };
