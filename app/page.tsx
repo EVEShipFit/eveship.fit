@@ -67,6 +67,12 @@ const Page = () => {
           <ShipStatistics />
         </div>
       </div>
+      <div className={styles.footer}>
+        © 2014 CCP hf. All rights reserved. &quot;EVE&quot;, &quot;EVE Online&quot;, &quot;CCP&quot;, and all related
+        logos and images are trademarks or registered trademarks of CCP hf.
+        <br />
+        Kindly hosted by <a href="https://cloudflare.com">Cloudflare</a>.
+      </div>
       {debug && <Debug />}
     </>
   );
