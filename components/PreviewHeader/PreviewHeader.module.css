@@ -1,0 +1,15 @@
+.shipName {
+  background-color: #cdcdcd;
+  border-radius: 25px;
+  color: #000000;
+  padding: 4px 0;
+  position: relative;
+  text-align: center;
+}
+
+.skills {
+  font-size: 12px;
+  padding: 4px 0;
+  position: relative;
+  text-align: center;
+}
