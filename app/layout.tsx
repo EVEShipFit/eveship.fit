@@ -13,6 +13,7 @@ const font = Noto_Serif({
 export const metadata: Metadata = {
   title: "EVEShip.fit",
   description: "View, Create, and Share your EVE Online ship fits online",
+  referrer: "origin",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
