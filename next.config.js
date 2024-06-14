@@ -1,4 +1,7 @@
 /** @type {import('next').NextConfig} */
+
+const packageJson = require('./package.json');
+
 const nextConfig = {
   output: "export",
   distDir: "dist",
@@ -10,6 +13,10 @@ const nextConfig = {
 
   images: {
     unoptimized: true,
+  },
+
+  env: {
+    APP_VERSION: packageJson.version,
   },
 
   webpack: (config) => {

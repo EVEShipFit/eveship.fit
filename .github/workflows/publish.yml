@@ -30,6 +30,14 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Set version
+      run: |
+        # Remove the "v" from the version.
+        VERSION=$(echo ${{ github.ref_name }} | cut -b2-)
+        echo "Version: ${VERSION}"
+
+        sed -i 's/"version": "0.0.0-git"/"version": "'${VERSION}'"/' package.json
+
     - name: Install dependencies
       run: npm install
 

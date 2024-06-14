@@ -11,6 +11,7 @@ import {
   ShipFitExtended,
   ShipStatistics,
 } from "@eveshipfit/react";
+import { ESF_DATA_VERSION } from "@eveshipfit/data";
 
 import { Banner } from "@/components/Banner";
 import { LocationHash } from "@/components/LocationHash";
@@ -64,6 +65,9 @@ export const PageMain = () => {
         <div className={styles.statistics}>
           <CharacterSelection />
           <ShipStatistics />
+        </div>
+        <div className={styles.version}>
+          v{process.env.APP_VERSION} / v{ESF_DATA_VERSION}
         </div>
       </div>
       <div className={styles.footer}>
