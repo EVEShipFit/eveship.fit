@@ -39,7 +39,10 @@ jobs:
         sed -i 's/"version": "0.0.0-git"/"version": "'${VERSION}'"/' package.json
 
     - name: Install dependencies
-      run: npm install
+      run: |
+        npm install
+        # Force the latest (compatible) version of the data, without bumping the lock file explicitly.
+        npm update @eveshipfit/data
 
     - name: Build website
       run: npm run build
