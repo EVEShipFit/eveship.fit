@@ -10,6 +10,7 @@ on:
   pull_request_target:
     branches:
     - main
+  workflow_dispatch:
 
 jobs:
   website:
@@ -17,10 +18,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Find latest release
+      if: github.event_name == 'workflow_dispatch'
+      id: release
+      run: |
+        RELEASE=$(curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -s https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest | jq -r '.tag_name')
+        echo "Latest release: ${RELEASE}"
+        echo "release=${RELEASE}" >> $GITHUB_OUTPUT
+
     - name: Checkout
+      if: always()
       uses: actions/checkout@v4
       with:
-        ref: ${{ github.event.pull_request.head.sha }}
+        ref: ${{ steps.release.outputs.release || github.event.pull_request.head.sha }}
 
     - name: Install NodeJS
       uses: actions/setup-node@v4
@@ -55,4 +65,4 @@ jobs:
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         projectName: ${{ vars.CLOUDFLARE_PROJECT_NAME }}
         directory: dist
-        branch: ${{ github.event_name == 'release' && 'main' || github.event_name == 'push' && 'latest' || format('pr/{0}', github.event.pull_request.number) }}
+        branch: ${{ github.event_name == 'release' && 'main' || github.event_name == 'workflow_dispatch' && 'main' || github.event_name == 'push' && 'latest' || format('pr/{0}', github.event.pull_request.number) }}
