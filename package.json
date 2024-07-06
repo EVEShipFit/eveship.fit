@@ -18,9 +18,9 @@
   "author": "EVEShipFit Team <info@eveship.fit>",
   "license": "MIT",
   "dependencies": {
-    "@eveshipfit/data": "~9.5",
-    "@eveshipfit/dogma-engine": "5.0.1",
-    "@eveshipfit/react": "4.5.3",
+    "@eveshipfit/data": "~10.0",
+    "@eveshipfit/dogma-engine": "6.0.0",
+    "@eveshipfit/react": "4.5.4",
     "clsx": "2.1.1",
     "next": "14.2.3",
     "react": "18.3.1",

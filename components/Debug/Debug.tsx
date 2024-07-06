@@ -56,10 +56,10 @@ export const Debug = () => {
           {items.map(({ item, index }) => (
             <React.Fragment key={index}>
               <option value={`{"Item":${index}}`}>
-                {item.slot.type}[{item.slot.index}] - {eveData.typeIDs[item.type_id]?.name}
+                {item.slot.type}[{item.slot.index}] - {eveData.types[item.type_id]?.name}
               </option>
               {item.charge && (
-                <option value={`{"Charge":${index}}`}>|-- {eveData.typeIDs[item.charge.type_id]?.name}</option>
+                <option value={`{"Charge":${index}}`}>|-- {eveData.types[item.charge.type_id]?.name}</option>
               )}
             </React.Fragment>
           ))}
