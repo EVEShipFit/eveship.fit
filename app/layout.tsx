@@ -2,11 +2,11 @@ import React from "react";
 import type { Metadata } from "next";
 
 import "./globals.css";
-import { Noto_Serif } from "next/font/google";
+import { Noto_Sans } from "next/font/google";
 
 import { Layout } from "@/components/Layout";
 
-const font = Noto_Serif({
+const font = Noto_Sans({
   subsets: ["latin"],
 });
 
