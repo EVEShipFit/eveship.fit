@@ -1,10 +1,18 @@
-.banner {
+.banner,
+.bannerWarning {
   background-color: #cdcdcd;
   border-radius: 25px;
   margin-top: 10px;
   padding: 20px 0;
   position: relative;
   text-align: center;
+}
+
+.bannerWarning {
+  background-color: #a94c4c;
+}
+.bannerWarning a {
+  color: #f5c5c5;
 }
 
 .bannerLinks {
