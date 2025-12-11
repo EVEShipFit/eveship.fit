@@ -22,7 +22,7 @@
     "@eveshipfit/dogma-engine": "7.0.0",
     "@eveshipfit/react": "4.7.0",
     "clsx": "2.1.1",
-    "next": "14.2.3",
+    "next": "14.2.34",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
