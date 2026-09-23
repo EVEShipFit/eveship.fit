@@ -1,0 +1,38 @@
+packages:
+  - apps/*
+  - packages/*
+
+catalog:
+  "@babel/core": ^7.29.0
+  "@changesets/cli": ^3.0.3
+  "@eveshipfit/dogma-engine": ^13.0.1
+  "@eveshipfit/sde": ^7.3539543.0
+  "@playwright/test": ^1.63.0
+  "@rolldown/plugin-babel": ^0.2.4
+  "@storybook/addon-vitest": ^10.6.0
+  "@storybook/react-vite": ^10.6.0
+  "@tanstack/react-router": ^1.170.39
+  "@tanstack/router-plugin": ^1.168.40
+  "@types/node": ^22.0.0
+  "@types/react": ^19.3.0
+  "@types/react-dom": ^19.3.0
+  "@vitejs/plugin-react": ^6.1.1
+  "@vitest/browser-playwright": ^4.1.11
+  babel-plugin-react-compiler: ^1.0.0
+  flatbuffers: ^25.9.23
+  oxfmt: ^0.70.0
+  oxlint: ^1.85.0
+  oxlint-tsgolint: ^7.0.2002
+  playwright: ^1.63.0
+  react: ^19.3.0
+  react-dom: ^19.3.0
+  storybook: ^10.6.0
+  tsdown: ^0.23.0
+  typescript: ^7.0.2
+  vite: ^8.3.0
+  vitest: ^4.1.11
+  wrangler: ^4.137.0
+
+onlyBuiltDependencies:
+  - esbuild
+  - workerd
