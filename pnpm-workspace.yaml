@@ -4,6 +4,7 @@ packages:
 
 catalog:
   "@babel/core": ^7.29.0
+  "@changesets/changelog-github": 1.0.1
   "@changesets/cli": ^3.0.3
   "@eveshipfit/dogma-engine": ^13.0.1
   "@eveshipfit/sde": ^7.3539543.0
