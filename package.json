@@ -1,0 +1,28 @@
+{
+  "name": "eveship.fit",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r --filter './packages/*' build",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "gen": "pnpm -r gen",
+    "lint": "oxlint --type-aware",
+    "release": "pnpm build && changeset publish --no-git-tag",
+    "test": "vitest run",
+    "typecheck": "tsc -b"
+  },
+  "devDependencies": {
+    "@changesets/cli": "catalog:",
+    "@types/node": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.19.0"
+}
