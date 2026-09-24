@@ -1,11 +1,16 @@
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
-import { defineConfig } from "vitest/config";
+import { defineConfig, type TestProjectInlineConfiguration } from "vitest/config";
+
+function nodePackage(name: string): TestProjectInlineConfiguration {
+  return { test: { name, root: `packages/${name}`, environment: "node" } };
+}
 
 export default defineConfig({
   test: {
     passWithNoTests: true,
     projects: [
+      nodePackage("sde-loader"),
       {
         plugins: [storybookTest({ configDir: "apps/workbench/.storybook" })],
         test: {

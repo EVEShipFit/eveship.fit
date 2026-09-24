@@ -1,4 +1,9 @@
 {
   "files": [],
-  "references": [{ "path": "./apps/web" }, { "path": "./apps/workbench" }, { "path": "./tsconfig.node.json" }]
+  "references": [
+    { "path": "./packages/sde-loader" },
+    { "path": "./apps/web" },
+    { "path": "./apps/workbench" },
+    { "path": "./tsconfig.node.json" }
+  ]
 }

@@ -1,0 +1,49 @@
+{
+  "name": "@eveshipfit/sde-loader",
+  "version": "0.0.0",
+  "description": "Typed lookups into the EVEShip.fit SDE",
+  "license": "MIT",
+  "author": "EVEShipFit Team <info@eveship.fit>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EVEShipFit/eveship.fit.git",
+    "directory": "packages/sde-loader"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      }
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "gen": "flatc --ts -o src/generated/sde node_modules/@eveshipfit/sde/specs/eve.fbs && flatc --ts -o src/generated/names node_modules/@eveshipfit/sde/specs/names.fbs"
+  },
+  "dependencies": {
+    "flatbuffers": "catalog:"
+  },
+  "devDependencies": {
+    "@eveshipfit/sde": "catalog:",
+    "@types/node": "catalog:",
+    "tsdown": "catalog:"
+  },
+  "peerDependencies": {
+    "@eveshipfit/sde": "^7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@eveshipfit/sde": {
+      "optional": true
+    }
+  }
+}
