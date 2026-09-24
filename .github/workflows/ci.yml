@@ -43,5 +43,32 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
       - name: Test
         run: pnpm test
+
+      - name: Build website
+        run: pnpm --filter @eveshipfit/web build
+
+      - name: Test website end-to-end
+        run: pnpm --filter @eveshipfit/web e2e
+
+      - name: Build workbench
+        run: pnpm --filter @eveshipfit/workbench build
+
+      - name: Upload preview
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview
+          path: apps/web/dist
+          retention-days: 7
+
+      - name: Deploy v2.eveship.fit
+        if: github.event_name == 'push' && github.ref == 'refs/heads/v2'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler deploy --config apps/web/wrangler.jsonc

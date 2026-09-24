@@ -1,0 +1,91 @@
+name: Preview
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+# This workflow has secrets, so it never runs code or config from the pull request; it only uploads the files CI built.
+permissions:
+  actions: read
+  contents: read
+  deployments: write
+  pull-requests: read
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+
+jobs:
+  pull-request:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      number: ${{ steps.pr.outputs.number }}
+      base: ${{ steps.pr.outputs.base }}
+    steps:
+      # Not from the artifact: the pull request controls its contents.
+      # Finds nothing when the pull request has moved on to a newer commit; that commit gets its own preview.
+      - name: Find the pull request
+        id: pr
+        env:
+          HEAD: ${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}
+        run: |
+          gh api -X GET "repos/$GITHUB_REPOSITORY/pulls" -f state=open -f head="$HEAD" \
+            --jq '[.[] | select(.head.sha == env.HEAD_SHA)][0] // empty | "number=\(.number)\nbase=\(.base.ref)"' \
+            >> "$GITHUB_OUTPUT"
+
+  preview:
+    needs: pull-request
+    if: needs.pull-request.outputs.number
+    runs-on: ubuntu-latest
+    # One at a time per pull request, so an older commit can't overwrite a newer preview.
+    concurrency: preview-${{ needs.pull-request.outputs.number }}
+    steps:
+      - name: Checkout the Worker config
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.pull-request.outputs.base }}
+          sparse-checkout: apps/web/wrangler.jsonc
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Download preview
+        uses: actions/download-artifact@v4
+        with:
+          name: preview
+          path: apps/web/dist
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Start deployment
+        id: deployment
+        run: |
+          # Don't wait for the commit's other checks.
+          id=$(jq -n '{ref: env.HEAD_SHA, environment: "preview", auto_merge: false, required_contexts: []}' \
+            | gh api "repos/$GITHUB_REPOSITORY/deployments" --input - --jq .id)
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+          gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses" -f state=in_progress > /dev/null
+
+      - name: Deploy preview
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          command: versions upload --config apps/web/wrangler.jsonc --preview-alias pr-${{ needs.pull-request.outputs.number }}
+
+      - name: Finish deployment
+        if: always() && steps.deployment.outputs.id
+        env:
+          ID: ${{ steps.deployment.outputs.id }}
+          PR: ${{ needs.pull-request.outputs.number }}
+          OUTPUT: ${{ steps.deploy.outputs.command-output }}
+          OUTCOME: ${{ steps.deploy.outcome }}
+        run: |
+          url=$(grep -o "https://pr-$PR-[^ ]*\.workers\.dev" <<< "$OUTPUT" | head -n1 || true)
+          state=$([ "$OUTCOME" = success ] && echo success || echo failure)
+          # Other pull requests share the environment; keep their previews active.
+          gh api "repos/$GITHUB_REPOSITORY/deployments/$ID/statuses" -f state="$state" -f environment_url="$url" \
+            -F auto_inactive=false > /dev/null
