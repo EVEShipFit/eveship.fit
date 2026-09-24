@@ -15,6 +15,7 @@
     "workbench": "pnpm --filter @eveshipfit/workbench dev"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "catalog:",
     "@changesets/cli": "catalog:",
     "@storybook/addon-vitest": "catalog:",
     "@types/node": "catalog:",
