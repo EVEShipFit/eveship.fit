@@ -4,22 +4,28 @@
   "type": "module",
   "scripts": {
     "build": "pnpm -r --filter './packages/*' build",
+    "dev": "pnpm --filter @eveshipfit/web dev",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "gen": "pnpm -r gen",
     "lint": "oxlint --type-aware",
     "release": "pnpm build && changeset publish --no-git-tag",
     "test": "vitest run",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "workbench": "pnpm --filter @eveshipfit/workbench dev"
   },
   "devDependencies": {
     "@changesets/cli": "catalog:",
+    "@storybook/addon-vitest": "catalog:",
     "@types/node": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
+    "playwright": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "wrangler": "catalog:"
   },
   "engines": {
     "node": ">=22"
