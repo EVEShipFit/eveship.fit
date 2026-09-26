@@ -6,7 +6,7 @@
 
   aspect-ratio: 1;
   container-type: inline-size;
-  /* Keeps the edges' light from adding onto the page. */
+  /* Keeps the edges' light from adding onto the page, and the hull, under the rings, inside the wheel. */
   isolation: isolate;
   position: relative;
   width: var(--esf-wheel-size);
