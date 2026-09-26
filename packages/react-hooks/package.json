@@ -1,6 +1,6 @@
 {
   "name": "@eveshipfit/react-hooks",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "React provider and hooks for EVEShip.fit",
   "license": "MIT",
   "author": "EVEShipFit Team <info@eveship.fit>",
