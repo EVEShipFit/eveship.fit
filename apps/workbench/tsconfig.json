@@ -3,5 +3,16 @@
   "compilerOptions": {
     "types": ["node", "vite/client"]
   },
-  "include": [".storybook", "vite.config.ts"]
+  "include": [".storybook", "vite.config.ts"],
+  "references": [
+    {
+      "path": "../../packages/fitting"
+    },
+    {
+      "path": "../../packages/react-hooks"
+    },
+    {
+      "path": "../../packages/sde-loader"
+    }
+  ]
 }

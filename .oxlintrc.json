@@ -12,7 +12,12 @@
     "react/react-in-jsx-scope": "off",
     "typescript/no-floating-promises": "error",
     "typescript/no-misused-promises": "error",
-    "typescript/switch-exhaustiveness-check": "error",
+    "typescript/switch-exhaustiveness-check": [
+      "error",
+      {
+        "considerDefaultExhaustiveForUnions": true
+      }
+    ],
     "import/no-unassigned-import": [
       "warn",
       {
@@ -25,7 +30,8 @@
         "ignoreRestSiblings": true
       }
     ],
-    "typescript/consistent-return": "off"
+    "typescript/consistent-return": "off",
+    "typescript/no-unsafe-type-assertion": "off"
   },
   "ignorePatterns": ["**/src/generated/**", "**/routeTree.gen.ts", "**/dist/**", "**/storybook-static/**"]
 }

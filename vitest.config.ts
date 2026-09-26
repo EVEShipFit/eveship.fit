@@ -12,6 +12,7 @@ export default defineConfig({
     projects: [
       nodePackage("sde-loader"),
       nodePackage("fitting"),
+      nodePackage("react-hooks"),
       {
         plugins: [storybookTest({ configDir: "apps/workbench/.storybook" })],
         test: {

@@ -1,0 +1,56 @@
+{
+  "name": "@eveshipfit/react-hooks",
+  "version": "0.0.0",
+  "description": "React provider and hooks for EVEShip.fit",
+  "license": "MIT",
+  "author": "EVEShipFit Team <info@eveship.fit>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EVEShipFit/eveship.fit.git",
+    "directory": "packages/react-hooks"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      }
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@eveshipfit/fitting": "workspace:*",
+    "@eveshipfit/sde-loader": "workspace:*"
+  },
+  "devDependencies": {
+    "@babel/core": "catalog:",
+    "@eveshipfit/sde": "catalog:",
+    "@rolldown/plugin-babel": "catalog:",
+    "@storybook/react-vite": "catalog:",
+    "@testing-library/dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
+    "jsdom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "storybook": "catalog:",
+    "tsdown": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  }
+}
