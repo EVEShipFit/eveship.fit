@@ -1,0 +1,41 @@
+.wheel {
+  /* One unit of the wheel's coordinates: 232 from its centre to its edge. Everything on the wheel is sized in these. */
+  --wheel-unit: calc(100cqw / 464);
+  /* How wide EVE's textures of the wheel are, as measured from EVE's fitting window; a little wider than the wheel. */
+  --wheel-texture-size: calc(519 * var(--wheel-unit));
+
+  aspect-ratio: 1;
+  container-type: inline-size;
+  /* Keeps the edges' light from adding onto the page. */
+  isolation: isolate;
+  position: relative;
+  width: var(--esf-wheel-size);
+}
+
+.rings,
+.edges,
+.scales {
+  background: var(--texture) center / 100% 100%;
+  height: var(--wheel-texture-size);
+  left: calc(50% - var(--wheel-texture-size) / 2);
+  pointer-events: none;
+  position: absolute;
+  top: calc(50% - var(--wheel-texture-size) / 2);
+  width: var(--wheel-texture-size);
+}
+
+/*
+ * The texture holds the direction each edge faces in its red and green; EVE lights the edges from the side, so only
+ * the red shows. Multiplied by red, cut to the texture's shape and made grey, that is added onto the rings.
+ */
+.edges {
+  background-blend-mode: multiply;
+  background-color: #ff0000;
+  filter: grayscale(1) brightness(3.5);
+  mask: var(--texture) center / 100% 100%;
+  mix-blend-mode: plus-lighter;
+}
+
+.scales {
+  opacity: 0.6;
+}
