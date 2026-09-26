@@ -15,3 +15,4 @@ export { Wheel, type WheelProps } from "./primitives/Wheel/Wheel";
 export { WheelRackMarker, type MarkedRack, type WheelRackMarkerProps } from "./primitives/Wheel/WheelRackMarker";
 export { WheelSlot, type SlotState, type WheelSlotProps } from "./primitives/Wheel/WheelSlot";
 export { WheelHardpoints, type Hardpoints, type WheelHardpointsProps } from "./primitives/Wheel/WheelHardpoints";
+export { WheelGauge, type WheelGaugeProps, type WheelResource } from "./primitives/Wheel/WheelGauge";

@@ -1,0 +1,29 @@
+/* As large as the Wheel's textures; the gauge's own texture covers the quarter right of and below the centre. */
+.gauge {
+  --colour: var(--esf-cpu);
+
+  background: var(--colour);
+  height: var(--wheel-texture-size);
+  left: calc(50% - var(--wheel-texture-size) / 2);
+  mask:
+    var(--texture) 100% 100% / 50% 50% no-repeat,
+    var(--used);
+  mask-composite: intersect;
+  pointer-events: none;
+  position: absolute;
+  top: calc(50% - var(--wheel-texture-size) / 2);
+  transform: var(--turn);
+  width: var(--wheel-texture-size);
+}
+
+.gauge[data-resource="powergrid"] {
+  --colour: var(--esf-powergrid);
+}
+
+.gauge[data-resource="calibration"] {
+  --colour: var(--esf-calibration);
+}
+
+.gauge[data-over] {
+  --colour: var(--esf-state-overload);
+}
