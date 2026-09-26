@@ -1,3 +1,4 @@
+export { ImagesProvider, useImages, type ImagesProviderProps } from "./images";
 export { Dialog, type DialogProps } from "./primitives/Dialog/Dialog";
 export {
   TreeGroup,

@@ -1,29 +1,27 @@
-import styles from "./TypeIcon.module.css";
+import type { CSSProperties } from "react";
 
-const imageSizes = [32, 64, 128, 256, 512, 1024];
+import { useImages } from "../../images";
+import styles from "./TypeIcon.module.css";
 
 export interface TypeIconProps {
   typeId: number;
   size?: number;
+  /** Show the tech level or faction marker; EVE leaves it off in some places, like the fitting wheel. */
+  marker?: boolean;
 }
 
-/** The icon of a ship, module or other item, from EVE's image server. */
-export function TypeIcon({ typeId, size = 32 }: TypeIconProps) {
+/** The icon of a ship, module or other item, as EVE draws it: with its tech level or faction marker. */
+export function TypeIcon({ typeId, size = 32, marker = true }: TypeIconProps) {
+  const images = useImages();
+  const layers = images.typeIcon(typeId, { marker: false }) ?? [];
+  const markerLayer = marker ? images.typeIcon(typeId)?.[layers.length] : undefined;
+
   return (
-    <img
-      className={styles.icon}
-      src={iconUrl(typeId, size)}
-      srcSet={`${iconUrl(typeId, size * 2)} 2x`}
-      width={size}
-      height={size}
-      alt=""
-      loading="lazy"
-      draggable={false}
-    />
+    <span className={styles.icon} style={{ "--size": `${size}px` } as CSSProperties}>
+      {layers.map((layer) => (
+        <img key={layer.src} src={layer.src} data-additive={layer.additive} alt="" loading="lazy" draggable={false} />
+      ))}
+      {markerLayer && <img className={styles.marker} src={markerLayer.src} alt="" loading="lazy" draggable={false} />}
+    </span>
   );
-}
-
-function iconUrl(typeId: number, size: number): string {
-  const imageSize = imageSizes.find((available) => available >= size) ?? imageSizes.at(-1);
-  return `https://images.evetech.net/types/${typeId}/icon?size=${imageSize}`;
 }

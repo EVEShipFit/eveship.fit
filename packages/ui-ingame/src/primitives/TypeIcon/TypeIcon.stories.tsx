@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect, waitFor } from "storybook/test";
 
 import { TypeIcon } from "./TypeIcon";
 
@@ -17,6 +18,18 @@ export const Ship: Story = {};
 
 export const Module: Story = {
   args: { typeId: types["Damage Control II"] },
+  play: async ({ canvasElement }) => {
+    const [icon, marker] = canvasElement.querySelectorAll("img");
+    await waitFor(() => expect(icon?.naturalWidth).toBe(64));
+    await waitFor(() => expect(marker?.naturalWidth).toBe(16));
+  },
+};
+
+export const WithoutMarker: Story = {
+  args: { typeId: types["Damage Control II"], marker: false },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelectorAll("img")).toHaveLength(1);
+  },
 };
 
 export const Drone: Story = {
