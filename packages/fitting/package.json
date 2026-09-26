@@ -1,6 +1,6 @@
 {
   "name": "@eveshipfit/fitting",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "EVE Online ship fits that recalculate themselves",
   "license": "MIT",
   "author": "EVEShipFit Team <info@eveship.fit>",
