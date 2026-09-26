@@ -1,3 +1,25 @@
 .icon {
+  display: inline-block;
   flex: none;
+  height: var(--size);
+  /* Keeps additive layers from adding onto the page. */
+  isolation: isolate;
+  position: relative;
+  width: var(--size);
+}
+
+.icon > img {
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.icon > img[data-additive] {
+  mix-blend-mode: plus-lighter;
+}
+
+/* 16 pixels wide on an icon of 64. */
+.icon > .marker {
+  width: 25%;
 }

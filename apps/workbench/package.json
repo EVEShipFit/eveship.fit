@@ -10,6 +10,7 @@
     "@babel/core": "catalog:",
     "@eveshipfit/dogma-engine": "catalog:",
     "@eveshipfit/fitting": "workspace:*",
+    "@eveshipfit/images": "catalog:",
     "@eveshipfit/react-hooks": "workspace:*",
     "@eveshipfit/sde": "catalog:",
     "@eveshipfit/sde-loader": "workspace:*",

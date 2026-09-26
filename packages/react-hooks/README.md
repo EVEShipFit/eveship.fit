@@ -7,7 +7,7 @@ Part of [EVEShip.fit](https://eveship.fit).
 ## Install
 
 ```sh
-npm install @eveshipfit/react-hooks @eveshipfit/fitting @eveshipfit/dogma-engine @eveshipfit/sde-loader @eveshipfit/sde react
+npm install @eveshipfit/react-hooks @eveshipfit/fitting @eveshipfit/dogma-engine @eveshipfit/sde-loader @eveshipfit/sde @eveshipfit/images react
 ```
 
 ## Usage
@@ -48,6 +48,17 @@ Without a `fit`, the provider starts with an empty Rifter.
 const preview = usePreview();
 
 <button onMouseEnter={() => preview.show((draft) => draft.fit(typeId))} onMouseLeave={preview.clear} />;
+```
+
+### Images
+
+To draw EVE's images, wrap the app in an `ImagesProvider` with the `Images` of `@eveshipfit/images`, and serve its
+`dist/images/` folder at the `baseUrl` given; `useImages` reads them. It needs no engine:
+
+```tsx
+const images = await loadImages({ url: "/images.dat" }, { baseUrl: "/images/" });
+
+<ImagesProvider images={images}>
 ```
 
 ### Saved fits

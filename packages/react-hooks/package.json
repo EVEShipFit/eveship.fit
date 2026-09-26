@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@babel/core": "catalog:",
+    "@eveshipfit/images": "catalog:",
     "@eveshipfit/sde": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
     "@storybook/react-vite": "catalog:",
@@ -51,6 +52,7 @@
     "tsdown": "catalog:"
   },
   "peerDependencies": {
+    "@eveshipfit/images": "^1.0.0",
     "react": "^19.0.0"
   }
 }

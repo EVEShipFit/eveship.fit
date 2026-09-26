@@ -7,7 +7,7 @@ Part of [EVEShip.fit](https://eveship.fit).
 ## Install
 
 ```sh
-npm install @eveshipfit/ui-ingame react react-dom
+npm install @eveshipfit/ui-ingame @eveshipfit/images react react-dom
 ```
 
 ## Usage
@@ -25,7 +25,8 @@ import { TreeLeaf, TreeList } from "@eveshipfit/ui-ingame";
 
 Every colour and size is a CSS variable in `theme.css`; override them, or load your own theme instead.
 
-Type icons load from `https://images.evetech.net`.
+Icons are drawn from `@eveshipfit/images`: put the components inside an `ImagesProvider` of
+`@eveshipfit/react-hooks`.
 
 ## License
 
