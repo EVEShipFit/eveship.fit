@@ -14,6 +14,9 @@
   --esf-state-online: #999999;
   --esf-state-active: #8ae04a;
   --esf-state-overload: #fd2d2d;
+  --esf-cpu: #2a504f;
+  --esf-powergrid: #541208;
+  --esf-calibration: #3d4547;
 
   --esf-wheel-size: 480px;
   --esf-radius: 4px;
