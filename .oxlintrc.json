@@ -18,7 +18,14 @@
       {
         "allow": ["**/*.css"]
       }
-    ]
+    ],
+    "no-unused-vars": [
+      "error",
+      {
+        "ignoreRestSiblings": true
+      }
+    ],
+    "typescript/consistent-return": "off"
   },
   "ignorePatterns": ["**/src/generated/**", "**/routeTree.gen.ts", "**/dist/**", "**/storybook-static/**"]
 }

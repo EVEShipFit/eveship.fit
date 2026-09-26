@@ -2,6 +2,7 @@
   "files": [],
   "references": [
     { "path": "./packages/sde-loader" },
+    { "path": "./packages/fitting" },
     { "path": "./apps/web" },
     { "path": "./apps/workbench" },
     { "path": "./tsconfig.node.json" }

@@ -15,6 +15,9 @@ catalogs:
     '@changesets/cli':
       specifier: ^3.0.3
       version: 3.0.3
+    '@eveshipfit/dogma-engine':
+      specifier: ^13.0.1
+      version: 13.0.1
     '@eveshipfit/sde':
       specifier: ^7.3539543.0
       version: 7.3542233.0
@@ -201,6 +204,25 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.3.0(@types/node@22.20.4)(esbuild@0.28.2)(yaml@2.9.1)
+
+  packages/fitting:
+    dependencies:
+      '@eveshipfit/sde-loader':
+        specifier: workspace:*
+        version: link:../sde-loader
+    devDependencies:
+      '@eveshipfit/dogma-engine':
+        specifier: 'catalog:'
+        version: 13.0.1
+      '@eveshipfit/sde':
+        specifier: 'catalog:'
+        version: 7.3542233.0
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.20.4
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.23.0(oxc-resolver@11.21.2)(typescript@7.0.2)
 
   packages/sde-loader:
     dependencies:
@@ -753,6 +775,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@eveshipfit/dogma-engine@13.0.1':
+    resolution: {integrity: sha512-Hfd6XSWTL+gU5xUdvgr5OzHq8n4lyproR9R0iTNNRhClRYeM9vf1Kdnm1+TF/oF5w7eLb8er8dAlgooQvo+Dqg==}
 
   '@eveshipfit/sde@7.3542233.0':
     resolution: {integrity: sha512-EDZdNkySFT9ALg5q3xKPYtJ/CwQ1553dtSftUNn/ok3aCSxKGuCCXBOgIiZk9/rYFmIagPmOj1muOdxy8iSqvQ==}
@@ -3427,6 +3452,8 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.2':
     optional: true
+
+  '@eveshipfit/dogma-engine@13.0.1': {}
 
   '@eveshipfit/sde@7.3542233.0': {}
 
