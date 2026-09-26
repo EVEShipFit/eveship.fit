@@ -13,6 +13,7 @@ export default defineConfig({
       nodePackage("sde-loader"),
       nodePackage("fitting"),
       nodePackage("react-hooks"),
+      nodePackage("ui-ingame"),
       {
         plugins: [storybookTest({ configDir: "apps/workbench/.storybook" })],
         test: {
