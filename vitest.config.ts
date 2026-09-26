@@ -11,6 +11,7 @@ export default defineConfig({
     passWithNoTests: true,
     projects: [
       nodePackage("sde-loader"),
+      nodePackage("fitting"),
       {
         plugins: [storybookTest({ configDir: "apps/workbench/.storybook" })],
         test: {
