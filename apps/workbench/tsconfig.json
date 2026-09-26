@@ -13,6 +13,9 @@
     },
     {
       "path": "../../packages/sde-loader"
+    },
+    {
+      "path": "../../packages/ui-ingame"
     }
   ]
 }

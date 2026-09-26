@@ -1,0 +1,15 @@
+/* Every colour and size the components use; override any of these to restyle. */
+:root {
+  --esf-font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --esf-font-size: 13px;
+
+  --esf-bg: #0b0d0f;
+  --esf-surface: #16191c;
+  --esf-surface-raised: #1f2327;
+  --esf-hover: #2c3237;
+  --esf-border: #3a3f44;
+  --esf-text: #d8dde2;
+  --esf-text-muted: #8a9096;
+
+  --esf-radius: 4px;
+}

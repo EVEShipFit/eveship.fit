@@ -13,6 +13,7 @@
     "@eveshipfit/react-hooks": "workspace:*",
     "@eveshipfit/sde": "catalog:",
     "@eveshipfit/sde-loader": "workspace:*",
+    "@eveshipfit/ui-ingame": "workspace:*",
     "@rolldown/plugin-babel": "catalog:",
     "@storybook/addon-vitest": "catalog:",
     "@storybook/react-vite": "catalog:",

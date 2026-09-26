@@ -1,7 +1,10 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 
 const config: StorybookConfig = {
-  stories: ["../../../packages/*/src/**/*.stories.tsx"],
+  stories: [
+    { directory: "../../../packages/react-hooks/src", titlePrefix: "react-hooks" },
+    { directory: "../../../packages/ui-ingame/src", titlePrefix: "ui-ingame" },
+  ],
   addons: ["@storybook/addon-vitest"],
   framework: "@storybook/react-vite",
   core: { disableTelemetry: true },

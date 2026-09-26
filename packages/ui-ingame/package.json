@@ -1,0 +1,54 @@
+{
+  "name": "@eveshipfit/ui-ingame",
+  "version": "0.0.0",
+  "description": "EVE Online ship fitting UI that looks like the in-game one",
+  "license": "MIT",
+  "author": "EVEShipFit Team <info@eveship.fit>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EVEShipFit/eveship.fit.git",
+    "directory": "packages/ui-ingame"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./theme.css": "./src/theme.css"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "./theme.css": "./dist/theme.css"
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "devDependencies": {
+    "@babel/core": "catalog:",
+    "@rolldown/plugin-babel": "catalog:",
+    "@storybook/react-vite": "catalog:",
+    "@tsdown/css": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "storybook": "catalog:",
+    "tsdown": "catalog:",
+    "vite": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

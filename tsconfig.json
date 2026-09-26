@@ -4,6 +4,7 @@
     { "path": "./packages/sde-loader" },
     { "path": "./packages/fitting" },
     { "path": "./packages/react-hooks" },
+    { "path": "./packages/ui-ingame" },
     { "path": "./apps/web" },
     { "path": "./apps/workbench" },
     { "path": "./tsconfig.node.json" }
