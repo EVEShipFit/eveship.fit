@@ -1,0 +1,11 @@
+.hull {
+  border-radius: 50%;
+  height: 94%;
+  left: 3%;
+  opacity: 0.8;
+  pointer-events: none;
+  position: absolute;
+  top: 3%;
+  width: 94%;
+  z-index: -1;
+}
