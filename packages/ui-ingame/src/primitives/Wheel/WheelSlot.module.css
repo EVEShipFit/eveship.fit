@@ -1,0 +1,111 @@
+/* The slot's texture at the top of the wheel, turned about the wheel's centre; WheelSlot.tsx gives where. */
+.slot {
+  --colour: var(--esf-state-online);
+  --reach: calc((var(--slot-centre) + var(--slot-size) / 2) * var(--wheel-unit));
+
+  /* Around the frame and the ammo bars, so that the textures of slots next to each other do not overlap. */
+  clip-path: polygon(14.9% 1%, 85.1% 1%, 79.7% 85.9%, 20.3% 85.9%);
+  height: calc(var(--slot-size) * var(--wheel-unit));
+  left: calc(50% - var(--slot-size) / 2 * var(--wheel-unit));
+  position: absolute;
+  top: calc(50% - var(--reach));
+  transform: rotate(var(--angle));
+  transform-origin: 50% var(--reach);
+  user-select: none;
+  width: calc(var(--slot-size) * var(--wheel-unit));
+}
+
+/* EVE's textures, in the slot's colour. */
+.fill,
+.frame {
+  background: var(--colour);
+  inset: 0;
+  mask: var(--texture) center / 100% 100%;
+  position: absolute;
+}
+
+.fill {
+  opacity: 0.15;
+}
+
+/* Centred 214.5 units out, turned about the wheel's centre by its offset from the middle of the slot. */
+.ammo {
+  --length: calc(8.6 * var(--wheel-unit));
+  --thickness: calc(3.6 * var(--wheel-unit));
+  --out: calc(214.5 * var(--wheel-unit) + var(--thickness) / 2);
+
+  border: calc(0.7 * var(--wheel-unit)) solid var(--esf-text-muted);
+  border-radius: calc(var(--thickness) / 2);
+  box-sizing: border-box;
+  height: var(--thickness);
+  left: calc(50% - var(--length) / 2);
+  opacity: 0.6;
+  position: absolute;
+  top: calc(var(--reach) - var(--out));
+  transform: rotate(var(--offset));
+  transform-origin: 50% var(--out);
+  width: var(--length);
+}
+
+.ammo[data-loaded] {
+  background: var(--esf-text);
+  border-color: var(--esf-text);
+  opacity: 1;
+}
+
+.icon,
+.empty {
+  left: 50%;
+  position: absolute;
+  top: calc((var(--slot-size) / 2 - var(--slot-icon-centre) + var(--slot-centre)) * var(--wheel-unit));
+  translate: -50% -50%;
+}
+
+/* Upright, whatever the slot's angle, as EVE keeps module icons; the empty slot's icon turns with the slot. */
+.icon {
+  height: calc(32 * var(--wheel-unit));
+  transform: rotate(calc(-1 * var(--angle)));
+  width: calc(32 * var(--wheel-unit));
+}
+
+.icon > span {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.empty {
+  height: calc(16 * var(--wheel-unit));
+  width: calc(16 * var(--wheel-unit));
+}
+
+.empty > img {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+/* EVE draws the frame of an empty slot a little dimmer than that of a fitted one. */
+.slot[data-state="empty"] > .frame {
+  opacity: 0.75;
+}
+
+.slot[data-state="active"] {
+  --colour: var(--esf-state-active);
+}
+
+.slot[data-state="overload"] {
+  --colour: var(--esf-state-overload);
+}
+
+.slot[data-state="offline"] {
+  opacity: 0.3;
+}
+
+.slot[data-state="unavailable"] {
+  opacity: 0.1;
+}
+
+.slot[data-preview] > .icon {
+  filter: sepia(100%) hue-rotate(190deg) saturate(200%);
+}
