@@ -1,0 +1,46 @@
+.dialog {
+  background: var(--esf-surface);
+  border: 1px solid var(--esf-border);
+  border-radius: var(--esf-radius);
+  color: var(--esf-text);
+  font-family: var(--esf-font);
+  font-size: var(--esf-font-size);
+  max-width: min(640px, 90vw);
+  padding: 0;
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 60%);
+}
+
+.header {
+  align-items: center;
+  background: var(--esf-surface-raised);
+  border-bottom: 1px solid var(--esf-border);
+  display: flex;
+  padding: 6px 10px;
+}
+
+.title {
+  flex: 1;
+  font-size: 1em;
+  font-weight: 600;
+  margin: 0;
+}
+
+.close {
+  background: none;
+  border: none;
+  color: var(--esf-text-muted);
+  cursor: pointer;
+  font-size: 1.4em;
+  line-height: 1;
+}
+
+.close:hover {
+  color: var(--esf-text);
+}
+
+.content {
+  padding: 10px;
+}

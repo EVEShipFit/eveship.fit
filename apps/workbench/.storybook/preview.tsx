@@ -3,6 +3,9 @@ import { EveShipFitProvider } from "@eveshipfit/react-hooks";
 import type { Decorator, Preview } from "@storybook/react-vite";
 import { useState, type ReactNode } from "react";
 
+import "@eveshipfit/ui-ingame/theme.css";
+import "./preview.css";
+
 import { loadEngine } from "./engine";
 
 /** Every story gets a fresh fit: `parameters.fit`, or an empty Rifter. */

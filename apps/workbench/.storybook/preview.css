@@ -1,0 +1,6 @@
+body {
+  background: var(--esf-bg);
+  color: var(--esf-text);
+  font-family: var(--esf-font);
+  font-size: var(--esf-font-size);
+}
