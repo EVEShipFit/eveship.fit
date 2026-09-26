@@ -11,6 +11,10 @@
   --esf-text: #d8dde2;
   --esf-text-muted: #8a9096;
 
+  --esf-state-online: #999999;
+  --esf-state-active: #8ae04a;
+  --esf-state-overload: #fd2d2d;
+
   --esf-wheel-size: 480px;
   --esf-radius: 4px;
 }
