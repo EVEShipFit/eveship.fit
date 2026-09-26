@@ -9,3 +9,4 @@ export {
   type TreeListProps,
 } from "./primitives/TreeList/TreeList";
 export { TypeIcon, type TypeIconProps } from "./primitives/TypeIcon/TypeIcon";
+export { Wheel, type WheelProps } from "./primitives/Wheel/Wheel";
