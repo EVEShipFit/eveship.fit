@@ -1,4 +1,5 @@
 import type { Engine, FitStore, Preview } from "@eveshipfit/fitting";
+import type { Images } from "@eveshipfit/images";
 import { createContext, useContext, type Context } from "react";
 
 import type { LocalFits } from "./local-fits.js";
@@ -27,10 +28,11 @@ export const PreviewContext = createContext<PreviewState | undefined>(undefined)
 export const DragContext = createContext<DragState | undefined>(undefined);
 export const CharacterContext = createContext<CharacterState | undefined>(undefined);
 export const LocalFitsContext = createContext<LocalFits | undefined>(undefined);
+export const ImagesContext = createContext<Images | undefined>(undefined);
 
 /** Like `useContext`, but throws outside the provider instead of returning `undefined`. */
-export function useRequiredContext<T>(context: Context<T | undefined>): T {
+export function useRequiredContext<T>(context: Context<T | undefined>, provider = "EveShipFitProvider"): T {
   const value = useContext(context);
-  if (value === undefined) throw new Error("This hook needs to be inside an <EveShipFitProvider>");
+  if (value === undefined) throw new Error(`This hook needs to be inside an <${provider}>`);
   return value;
 }

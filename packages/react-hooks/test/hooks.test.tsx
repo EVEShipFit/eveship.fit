@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import type { Engine, FitStore } from "@eveshipfit/fitting";
+import type { Images } from "@eveshipfit/images";
 import type { MarketGroupNode, SdeType } from "@eveshipfit/sde-loader";
 import { act, renderHook } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -7,6 +8,7 @@ import { beforeAll, expect, test, vi } from "vitest";
 
 import {
   EveShipFitProvider,
+  ImagesProvider,
   LocalFits,
   useAttribute,
   useCharacters,
@@ -17,6 +19,7 @@ import {
   useFitStore,
   useHardpoints,
   useHullTree,
+  useImages,
   useLocalFits,
   useMarketTree,
   usePreview,
@@ -213,6 +216,17 @@ test("saved fits", () => {
 
   act(() => result.current.localFits.remove(result.current.fit));
   expect(result.current.localFits.fits).toEqual([]);
+});
+
+test("images need no engine, only their own provider", () => {
+  const images = {} as Images;
+  const { result } = renderHook(() => useImages(), {
+    wrapper: ({ children }: { children: ReactNode }) => <ImagesProvider images={images}>{children}</ImagesProvider>,
+  });
+  expect(result.current).toBe(images);
+
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  expect(() => render(() => useImages())).toThrow("This hook needs to be inside an <ImagesProvider>");
 });
 
 test("types", () => {

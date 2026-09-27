@@ -5,6 +5,7 @@ const config: StorybookConfig = {
     { directory: "../../../packages/react-hooks/src", titlePrefix: "react-hooks" },
     { directory: "../../../packages/ui-ingame/src", titlePrefix: "ui-ingame" },
   ],
+  staticDirs: [{ from: "../node_modules/@eveshipfit/images/dist/images", to: "/images" }],
   addons: ["@storybook/addon-vitest"],
   framework: "@storybook/react-vite",
   core: { disableTelemetry: true },

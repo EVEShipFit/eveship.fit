@@ -33,8 +33,12 @@
   "scripts": {
     "build": "tsdown"
   },
+  "dependencies": {
+    "@eveshipfit/react-hooks": "workspace:*"
+  },
   "devDependencies": {
     "@babel/core": "catalog:",
+    "@eveshipfit/images": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
     "@storybook/react-vite": "catalog:",
     "@tsdown/css": "catalog:",
@@ -48,6 +52,7 @@
     "vite": "catalog:"
   },
   "peerDependencies": {
+    "@eveshipfit/images": "^1.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   }

@@ -7,6 +7,7 @@ catalog:
   "@changesets/changelog-github": 1.0.1
   "@changesets/cli": ^3.0.3
   "@eveshipfit/dogma-engine": ^13.0.1
+  "@eveshipfit/images": ^1.3542233.1
   "@eveshipfit/sde": ^7.3539543.0
   "@playwright/test": ^1.63.0
   "@rolldown/plugin-babel": ^0.2.4

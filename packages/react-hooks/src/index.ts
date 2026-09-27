@@ -13,8 +13,10 @@ export {
   type FitHistory,
   type PreviewControls,
 } from "./hooks/fit.js";
+export { useImages } from "./hooks/images.js";
 export { useLocalFits, type LocalFitsControls } from "./hooks/local-fits.js";
 export { useEngine, useHullTree, useMarketTree, useSde, useType } from "./hooks/sde.js";
 export { useHardpoints, useRackUsage, useSlots, type SlotContent } from "./hooks/slots.js";
+export { ImagesProvider, type ImagesProviderProps } from "./images.js";
 export { LocalFits, type FitStorage } from "./local-fits.js";
 export { EveShipFitProvider, type EveShipFitProviderProps } from "./provider.js";
