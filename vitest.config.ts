@@ -15,7 +15,7 @@ export default defineConfig({
       nodePackage("react-hooks"),
       nodePackage("ui-ingame"),
       {
-        plugins: [storybookTest({ configDir: "apps/workbench/.storybook" })],
+        plugins: [storybookTest({ configDir: "apps/storybook/.storybook" })],
         test: {
           name: "storybook",
           browser: {

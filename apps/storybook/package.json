@@ -1,9 +1,9 @@
 {
-  "name": "@eveshipfit/workbench",
+  "name": "@eveshipfit/storybook",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "storybook build",
+    "build": "storybook build -o dist",
     "dev": "storybook dev -p 6006 --no-open"
   },
   "devDependencies": {

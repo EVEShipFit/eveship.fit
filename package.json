@@ -12,7 +12,7 @@
     "release": "pnpm build && changeset publish --no-git-tag",
     "test": "vitest run",
     "typecheck": "tsc -b",
-    "workbench": "pnpm --filter @eveshipfit/workbench dev"
+    "storybook": "pnpm --filter @eveshipfit/storybook dev"
   },
   "devDependencies": {
     "@changesets/changelog-github": "catalog:",

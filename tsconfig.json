@@ -6,7 +6,7 @@
     { "path": "./packages/react-hooks" },
     { "path": "./packages/ui-ingame" },
     { "path": "./apps/web" },
-    { "path": "./apps/workbench" },
+    { "path": "./apps/storybook" },
     { "path": "./tsconfig.node.json" }
   ]
 }
