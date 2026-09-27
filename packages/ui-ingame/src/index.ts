@@ -21,6 +21,7 @@ export { WheelHull, type WheelHullProps } from "./primitives/Wheel/WheelHull";
 export { Stat, type StatProps } from "./primitives/Stat/Stat";
 export { StatsSection, type StatsSectionProps } from "./primitives/StatsSection/StatsSection";
 export { ResistanceBar, type DamageType, type ResistanceBarProps } from "./primitives/ResistanceBar/ResistanceBar";
+export { CapacitorRing, type CapacitorRingProps } from "./primitives/CapacitorRing/CapacitorRing";
 export { FittingWheel, type FittingWheelProps } from "./components/FittingWheel/FittingWheel";
 export { FittingWindow, type FittingWindowProps } from "./components/FittingWindow/FittingWindow";
 export { ShipStatistics, type ShipStatisticsProps } from "./components/ShipStatistics/ShipStatistics";

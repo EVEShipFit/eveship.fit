@@ -20,6 +20,10 @@ type Story = StoryObj<typeof meta>;
 export const Stable: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("button", { name: /^Capacitor/ })).toHaveTextContent("Stable");
+    await expect(canvas.getByRole("meter", { name: "Capacitor" })).toHaveAttribute(
+      "aria-valuetext",
+      "Stable at 100.0%",
+    );
     await expect(canvas.getByRole("group", { name: "Capacity / Recharge Time" })).toHaveTextContent(
       "312.5 GJ / 1m 34s",
     );
@@ -42,5 +46,6 @@ export const Depletes: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("button", { name: /^Capacitor/ })).toHaveTextContent(/Depletes in \d\d:\d\d:\d\d$/);
     await expect(canvas.getByRole("group", { name: "Peak Recharge Minus Usage" })).toHaveTextContent(/^Δ -/);
+    await expect(canvas.getByRole("meter", { name: "Capacitor" })).toHaveAttribute("aria-valuenow", "0");
   },
 };

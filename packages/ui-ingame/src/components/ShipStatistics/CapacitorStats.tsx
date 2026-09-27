@@ -1,5 +1,6 @@
 import { formatClock, formatDuration, useAttribute } from "@eveshipfit/react-hooks";
 
+import { CapacitorRing } from "../../primitives/CapacitorRing/CapacitorRing";
 import { Stat } from "../../primitives/Stat/Stat";
 import { StatsSection } from "../../primitives/StatsSection/StatsSection";
 import { AttributeText } from "./AttributeText";
@@ -23,6 +24,7 @@ export function CapacitorStats() {
   });
   const delta = useAttribute("capacitorPeakDelta", { decimals: 1, fixed: true, format: unit(" GJ/s") });
   const deltaPercentage = useAttribute("capacitorPeakDeltaPercentage", { decimals: 1, fixed: true, format: unit("%") });
+  const stableLevel = useAttribute("capacitorStablePercentage", { decimals: 1, fixed: true, format: unit("%") });
 
   const stable = (depletesIn.value ?? -1) < 0;
 
@@ -37,20 +39,30 @@ export function CapacitorStats() {
         )
       }
     >
-      <Stat
-        label="Capacity / Recharge Time"
-        tooltip={
-          <>
-            <AttributeTooltip attribute="capacitorCapacity" />
-            <AttributeTooltip attribute="rechargeRate" />
-          </>
-        }
-      >
-        <AttributeText value={capacity} /> / <AttributeText value={rechargeTime} />
-      </Stat>
-      <Stat label="Peak Recharge Minus Usage">
-        Δ <AttributeText value={delta} /> (<AttributeText value={deltaPercentage} />)
-      </Stat>
+      <div className={styles.capacitor}>
+        <CapacitorRing
+          capacity={capacity.value ?? 0}
+          level={stable ? (stableLevel.value ?? 0) / 100 : 0}
+          label={stable ? `Stable at ${stableLevel.text}` : `Depletes in ${depletesIn.text}`}
+        />
+        <div className={styles.lines}>
+          <Stat
+            icon={null}
+            label="Capacity / Recharge Time"
+            tooltip={
+              <>
+                <AttributeTooltip attribute="capacitorCapacity" />
+                <AttributeTooltip attribute="rechargeRate" />
+              </>
+            }
+          >
+            <AttributeText value={capacity} /> / <AttributeText value={rechargeTime} />
+          </Stat>
+          <Stat icon={null} label="Peak Recharge Minus Usage">
+            Δ <AttributeText value={delta} /> (<AttributeText value={deltaPercentage} />)
+          </Stat>
+        </div>
+      </div>
     </StatsSection>
   );
 }

@@ -5,8 +5,8 @@ import { Tooltip } from "../Tooltip/Tooltip";
 import styles from "./Stat.module.css";
 
 export interface StatProps {
-  /** Without one, the value still lines up with those that have one. */
-  icon?: IconName;
+  /** Without one, the value still lines up with those that have one; `null` leaves that space out. */
+  icon?: IconName | null;
   label: string;
   /** `label` when left out. */
   tooltip?: ReactNode;
@@ -22,7 +22,7 @@ export function Stat({ icon, label, tooltip = label, children }: StatProps) {
         role="group"
         aria-label={label}
       >
-        {icon ? <Icon name={icon} /> : <span className={styles.noIcon} />}
+        {icon ? <Icon name={icon} /> : icon === undefined && <span className={styles.noIcon} />}
         <span className={styles.value}>{children}</span>
       </div>
     </Tooltip>

@@ -37,6 +37,9 @@
   --esf-damage-kinetic: #858585;
   --esf-damage-explosive: #9f6f1e;
   --esf-resistance-bg: #1f2326;
+  --esf-capacitor-cell-empty: rgb(64 64 64 / 75%);
+  --esf-capacitor-cell-low: #461a0d;
+  --esf-capacitor-cell-high: #f05a32;
   --esf-menu-bg: #0a0a0a;
   --esf-menu-hover: #292929;
 

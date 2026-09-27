@@ -38,6 +38,15 @@
   display: grid;
 }
 
+.capacitor {
+  --capacitor-unit: calc(1px * var(--esf-scale, 1));
+
+  align-items: center;
+  display: flex;
+  gap: calc(10 * var(--capacitor-unit));
+  padding-left: calc(5 * var(--capacitor-unit));
+}
+
 .price {
   align-items: center;
   align-self: end;

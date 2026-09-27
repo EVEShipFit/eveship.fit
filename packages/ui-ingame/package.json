@@ -53,7 +53,7 @@
     "vite": "catalog:"
   },
   "peerDependencies": {
-    "@eveshipfit/images": "^1.3542233.4",
+    "@eveshipfit/images": "^1.3542233.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   }

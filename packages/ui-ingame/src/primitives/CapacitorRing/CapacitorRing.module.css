@@ -1,0 +1,39 @@
+/* Lengths are EVE's pixels at 100%, measured on the client. */
+.ring {
+  --ring-unit: calc(1px * var(--esf-scale, 1));
+  --lit: color-mix(in srgb, var(--esf-capacitor-cell-high) calc(var(--level) * 100%), var(--esf-capacitor-cell-low));
+
+  flex: none;
+  height: calc(30 * var(--ring-unit));
+  position: relative;
+  width: calc(30 * var(--ring-unit));
+}
+
+.column {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  inset: 0;
+  position: absolute;
+  transform: rotate(var(--angle));
+}
+
+.cell {
+  background: var(--esf-capacitor-cell-empty);
+  flex: none;
+  height: calc(4 * var(--ring-unit));
+  mask: var(--texture) center / 100% 100%;
+  width: calc(8 * var(--ring-unit));
+}
+
+.cell:nth-child(2) {
+  width: calc(6 * var(--ring-unit));
+}
+
+.cell:nth-child(3) {
+  width: calc(4 * var(--ring-unit));
+}
+
+.cell[data-lit] {
+  background: var(--lit);
+}
