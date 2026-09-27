@@ -1,4 +1,3 @@
-/* As large as the wheel, so the actions can be placed on it; only its parts take the pointer. */
 .slot {
   --colour: var(--esf-state-online);
   --reach: calc((var(--slot-centre) + var(--slot-size) / 2) * var(--wheel-unit));
@@ -8,7 +7,6 @@
   position: absolute;
 }
 
-/* Puts the actions over the neighbouring slots and the scales. */
 .slot:hover,
 .slot:focus-within {
   z-index: 1;
@@ -138,11 +136,10 @@
   filter: sepia(100%) hue-rotate(190deg) saturate(200%);
 }
 
-/* Hidden, not removed, so keyboards and screen readers still reach the actions. */
+/* Not `display: none`, so the keyboard still reaches them. */
 .actions {
   border: none;
   margin: 0;
-  min-inline-size: 0;
   opacity: 0;
   padding: 0;
 }
@@ -157,21 +154,19 @@
   pointer-events: auto;
 }
 
-/* Under the slot and the actions, it keeps the pointer on the slot on its way from one to the other. */
+/* Keeps the slot hovered while the pointer goes from it to the actions. */
 .bridge {
-  --from: var(--slot-centre);
-
-  height: calc((var(--from) - var(--innermost)) * var(--wheel-unit));
+  height: calc((var(--slot-centre) - var(--innermost)) * var(--wheel-unit));
   left: calc(50% - var(--action-size) / 2 * var(--wheel-unit));
   position: absolute;
-  top: calc(50% - var(--from) * var(--wheel-unit));
+  top: calc(50% - var(--slot-centre) * var(--wheel-unit));
   transform: rotate(var(--angle));
-  transform-origin: 50% calc(var(--from) * var(--wheel-unit));
+  transform-origin: 50% calc(var(--slot-centre) * var(--wheel-unit));
   width: calc(var(--action-size) * var(--wheel-unit));
   z-index: -1;
 }
 
-/* Centred with margins, not a transform: Firefox anchors the tooltips as if there were none. */
+/* Centred with margins: Firefox anchors tooltips as if there were no transform. */
 .action {
   height: calc(var(--action-size) * var(--wheel-unit));
   margin: calc(var(--action-size) / -2 * var(--wheel-unit));
@@ -179,15 +174,13 @@
   width: calc(var(--action-size) * var(--wheel-unit));
 }
 
+.button,
 .button {
   background: none;
   border: none;
   cursor: pointer;
-  display: block;
-  height: 100%;
   opacity: 0.8;
   padding: 0;
-  width: 100%;
 }
 
 .button:hover,
@@ -201,12 +194,6 @@
 
 .button > img,
 .module > span {
-  display: block;
-  height: 100%;
-  width: 100%;
-}
-
-.module {
   display: block;
   height: 100%;
   width: 100%;

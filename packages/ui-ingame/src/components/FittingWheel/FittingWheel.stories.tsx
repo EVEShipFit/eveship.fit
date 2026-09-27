@@ -107,10 +107,7 @@ export const RigsStayOnline: Story = {
   },
 };
 
-/**
- * The button `action` next to the slot of `module`, focused: it only takes the pointer while its slot is hovered, which
- * a test cannot do.
- */
+/** Focused, as it only takes the pointer while its slot is hovered, which a test cannot do. */
 function focusAction(canvas: ReturnType<typeof within>, module: string, action: string, nth = 0): HTMLElement {
   const group = canvas.getAllByRole("group", { name: module })[nth]!;
   const button = within(group).getByRole("button", { name: action });

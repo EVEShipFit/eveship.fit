@@ -77,9 +77,9 @@ function FittingSlot({ rack, index, content, available }: FittingSlotProps) {
   const charges = useCharges(item?.type_id);
   const ref = content?.ref;
 
-  const switched = ref !== undefined && stats !== undefined && switchedRacks.includes(rack);
+  const switchable = ref !== undefined && stats !== undefined && switchedRacks.includes(rack);
 
-  const onPress: WheelSlotProps["onPress"] = switched
+  const onPress: WheelSlotProps["onPress"] = switchable
     ? (event) => store.setState(ref, nextState(stats.state, stats.maxState, event.shiftKey))
     : undefined;
 
@@ -99,7 +99,7 @@ function FittingSlot({ rack, index, content, available }: FittingSlotProps) {
       onUnfit={ref === undefined ? undefined : () => store.remove(ref)}
       onRemoveCharge={ref === undefined ? undefined : () => store.setCharge(ref, undefined)}
       onTogglePower={
-        switched && stats.maxState !== "offline"
+        switchable && stats.maxState !== "offline"
           ? () => store.setState(ref, stats.state === "offline" ? "online" : "offline")
           : undefined
       }

@@ -17,7 +17,7 @@ const box = {
   "--slot-icon-centre": 195,
 };
 
-/** Measured from EVE: the actions go inward from the slot, one every `step`. */
+/** Measured from EVE, in wheel units: the radius of the first action, and the step inward to the next. */
 const actions = { size: 16, first: 156.5, step: 20 };
 
 const ammoBars = [-3.6, -1.2, 1.2, 3.6];
@@ -29,7 +29,6 @@ export interface WheelSlotProps extends HTMLAttributes<HTMLDivElement> {
   /** In degrees clockwise from the top. */
   angle: number;
   typeId?: number;
-  /** Shown on the module's own icon, next to the slot, while a charge is loaded. */
   typeName?: string;
   chargeTypeId?: number;
   chargeable?: boolean;
@@ -42,11 +41,8 @@ export interface WheelSlotProps extends HTMLAttributes<HTMLDivElement> {
   /** Makes the slot a button, named `label`. */
   onPress?: MouseEventHandler<HTMLButtonElement>;
   label?: string;
-  /** The buttons next to a fitted slot, while it is hovered or has keyboard focus. */
   onUnfit?: () => void;
-  /** Only shown while a charge is loaded. */
   onRemoveCharge?: () => void;
-  /** Puts an offline module online, and any other module offline. */
   onTogglePower?: () => void;
 }
 
