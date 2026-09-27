@@ -7,6 +7,7 @@ const types = {
   Rifter: 587,
   "1MN Afterburner II": 438,
   "Small Armor Repairer II": 1183,
+  "Cap Recharger II": 2032,
 };
 
 const meta = {
@@ -30,6 +31,23 @@ export const Stable: Story = {
     await expect(canvas.getByRole("group", { name: "Peak Recharge Minus Usage" })).toHaveTextContent(
       "Δ 8.3 GJ/s (100.0%)",
     );
+  },
+};
+
+export const StableBelowFull: Story = {
+  parameters: {
+    fit: {
+      ship: { type_id: types.Rifter },
+      items: [
+        { type_id: types["Cap Recharger II"], slot: { type: "medium", index: 0 }, state: "online" },
+        { type_id: types["Small Armor Repairer II"], slot: { type: "low", index: 0 }, state: "active" },
+      ],
+    },
+  },
+  play: async ({ canvas, canvasElement }) => {
+    await expect(canvas.getByRole("button", { name: /^Capacitor/ })).toHaveTextContent("Stable");
+    await expect(canvas.getByRole("meter", { name: "Capacitor" })).toHaveAttribute("aria-valuetext", "Stable at 47.8%");
+    await expect(canvasElement.querySelectorAll("[data-lit]")).toHaveLength(8);
   },
 };
 
