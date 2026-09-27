@@ -1,6 +1,6 @@
 import type { Images } from "@eveshipfit/images";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, fn } from "storybook/test";
+import { expect, fn, within } from "storybook/test";
 
 import { onAWheel } from "./onAWheel";
 import { WheelSlot, type WheelSlotProps } from "./WheelSlot";
@@ -104,6 +104,102 @@ export const Pressable: Story = {
   play: async ({ args, canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "1MN Afterburner II" }));
     await expect(args.onPress).toHaveBeenCalledOnce();
+  },
+};
+
+/** Keyboard users reach the actions after the slot. */
+export const Actions: Story = {
+  args: {
+    typeId: types["1MN Afterburner II"],
+    typeName: "1MN Afterburner II",
+    activatable: true,
+    state: "active",
+    label: "1MN Afterburner II, active",
+    onPress: fn(),
+    onUnfit: fn(),
+    onTogglePower: fn(),
+  },
+  play: async ({ args, canvas, userEvent }) => {
+    const actions = canvas.getByRole("group", { name: "1MN Afterburner II" });
+    await expect(actions).not.toBeVisible();
+    await expect(canvas.queryByRole("button", { name: "Remove Charge" })).toBeNull();
+
+    await userEvent.tab();
+    await expect(actions).toBeVisible();
+    await userEvent.tab();
+    const unfit = canvas.getByRole("button", { name: "Unfit Module" });
+    await expect(unfit).toHaveFocus();
+    // 13.5 of the wheel's 464 units.
+    await expect(unfit.getBoundingClientRect().width).toBeCloseTo((13.5 / 464) * 730, 0);
+    await userEvent.keyboard("{Enter}");
+    await expect(args.onUnfit).toHaveBeenCalledOnce();
+
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Show Info" })).toHaveAttribute("aria-disabled", "true");
+    await expect(canvas.getByText("Show Info (not implemented yet)")).toBeVisible();
+
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Put Offline" })).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await expect(args.onTogglePower).toHaveBeenCalledOnce();
+  },
+};
+
+/** With a charge loaded, the slot shows the charge; the actions show the module, and can remove the charge. */
+export const ActionsWithCharge: Story = {
+  args: {
+    typeId: types["200mm AutoCannon II"],
+    typeName: "200mm AutoCannon II",
+    chargeTypeId: types["EMP S"],
+    chargeable: true,
+    activatable: true,
+    state: "active",
+    label: "200mm AutoCannon II, active",
+    onPress: fn(),
+    onUnfit: fn(),
+    onRemoveCharge: fn(),
+    onTogglePower: fn(),
+  },
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.tab();
+    const names = within(canvas.getByRole("group", { name: "200mm AutoCannon II" }))
+      .getAllByRole("button")
+      .map((button) => button.getAttribute("aria-label"));
+    await expect(names).toEqual(["Remove Charge", "Show Info", "Unfit Module", "Show Info", "Put Offline"]);
+    await expect(canvas.getByText("200mm AutoCannon II")).toBeInTheDocument();
+
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+    await expect(args.onRemoveCharge).toHaveBeenCalledOnce();
+  },
+};
+
+export const ActionsOffline: Story = {
+  args: {
+    typeId: types["Gyrostabilizer II"],
+    typeName: "Gyrostabilizer II",
+    state: "offline",
+    onUnfit: fn(),
+    onTogglePower: fn(),
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("button", { name: "Put Online" })).toBeInTheDocument();
+  },
+};
+
+/** Without an `onPress`, like a rig, the actions are the first to get keyboard focus. */
+export const ActionsOnly: Story = {
+  args: {
+    rack: "rig",
+    angle: -73.25,
+    typeId: types["Gyrostabilizer II"],
+    typeName: "Gyrostabilizer II",
+    onUnfit: fn(),
+  },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Unfit Module" })).toHaveFocus();
+    await expect(canvas.getByRole("group", { name: "Gyrostabilizer II" })).toBeVisible();
   },
 };
 

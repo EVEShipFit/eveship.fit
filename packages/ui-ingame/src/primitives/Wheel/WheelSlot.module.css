@@ -2,10 +2,22 @@
   --colour: var(--esf-state-online);
   --reach: calc((var(--slot-centre) + var(--slot-size) / 2) * var(--wheel-unit));
 
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.slot:hover,
+.slot:has(:focus-visible) {
+  z-index: 1;
+}
+
+.body {
   /* Keeps the textures of neighbouring slots from overlapping. */
   clip-path: polygon(14.9% 1%, 85.1% 1%, 79.7% 85.9%, 20.3% 85.9%);
   height: calc(var(--slot-size) * var(--wheel-unit));
   left: calc(50% - var(--slot-size) / 2 * var(--wheel-unit));
+  pointer-events: auto;
   position: absolute;
   top: calc(50% - var(--reach));
   transform: rotate(var(--angle));
@@ -95,12 +107,12 @@
   outline: none;
 }
 
-.slot:has(> .press:hover) > .fill,
-.slot:has(> .press:focus-visible) > .fill {
+.body:has(> .press:hover) > .fill,
+.body:has(> .press:focus-visible) > .fill {
   opacity: 0.3;
 }
 
-.slot[data-state="empty"] > .frame {
+.slot[data-state="empty"] .frame {
   opacity: 0.75;
 }
 
@@ -112,14 +124,81 @@
   --colour: var(--esf-state-overload);
 }
 
-.slot[data-state="offline"] {
+.slot[data-state="offline"] > .body {
   opacity: 0.3;
 }
 
-.slot[data-state="unavailable"] {
+.slot[data-state="unavailable"] > .body {
   opacity: 0.1;
 }
 
-.slot[data-preview] > .icon {
+.slot[data-preview] .icon {
   filter: sepia(100%) hue-rotate(190deg) saturate(200%);
+}
+
+/* Not `display: none`, so the keyboard still reaches them. */
+.actions {
+  border: none;
+  margin: 0;
+  opacity: 0;
+  padding: 0;
+}
+
+.slot:hover > .actions,
+.slot:has(:focus-visible) > .actions {
+  opacity: 1;
+}
+
+.slot:hover > .actions > *,
+.slot:has(:focus-visible) > .actions > * {
+  pointer-events: auto;
+}
+
+/* Keeps the slot hovered while the pointer goes from it to the actions. */
+.bridge {
+  height: calc((var(--slot-centre) - var(--innermost)) * var(--wheel-unit));
+  left: calc(50% - var(--action-size) / 2 * var(--wheel-unit));
+  position: absolute;
+  top: calc(50% - var(--slot-centre) * var(--wheel-unit));
+  transform: rotate(var(--angle));
+  transform-origin: 50% calc(var(--slot-centre) * var(--wheel-unit));
+  width: calc(var(--action-size) * var(--wheel-unit));
+  z-index: -1;
+}
+
+/* Centred with margins: Firefox anchors tooltips as if there were no transform. */
+.action {
+  height: calc(var(--action-size) * var(--wheel-unit));
+  margin: calc(var(--action-size) / -2 * var(--wheel-unit));
+  position: absolute;
+  width: calc(var(--action-size) * var(--wheel-unit));
+}
+
+.button,
+.module {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.button[aria-disabled="true"] {
+  cursor: default;
+}
+
+.button:focus-visible {
+  outline: 1px solid var(--esf-text);
+}
+
+.button > img,
+.module > span {
+  display: block;
+  height: 100%;
+  width: 100%;
 }

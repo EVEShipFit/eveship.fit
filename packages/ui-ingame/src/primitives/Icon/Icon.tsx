@@ -10,6 +10,9 @@ const textures = {
   "slot-low": "classes/fitting/filtericonlowslot",
   "slot-rig": "classes/fitting/filtericonrigslot",
   "slot-subsystem": "windowicons/subsystems",
+  "module-unfit": "icons/38_16_200",
+  "module-power": "icons/38_16_207",
+  "module-info": "icons/38_16_208",
 } satisfies Record<string, string>;
 
 export type IconName = keyof typeof textures;

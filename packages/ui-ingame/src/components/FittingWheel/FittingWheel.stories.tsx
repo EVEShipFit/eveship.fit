@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { CSSProperties } from "react";
-import { expect } from "storybook/test";
+import { expect, within } from "storybook/test";
 
 import { FittingWheel } from "./FittingWheel";
 
@@ -101,5 +101,56 @@ export const RigsStayOnline: Story = {
   parameters: { fit: rifter },
   play: async ({ canvas }) => {
     await expect(canvas.queryByRole("button", { name: /^Small Projectile Burst Aerator I/ })).toBeNull();
+    const rig = within(canvas.getByRole("group", { name: "Small Projectile Burst Aerator I" }));
+    await expect(rig.getByRole("button", { name: "Unfit Module" })).toBeInTheDocument();
+    await expect(rig.queryByRole("button", { name: /^Put / })).toBeNull();
+  },
+};
+
+/** Focused, as it only takes the pointer while its slot is hovered, which a test cannot do. */
+function focusAction(canvas: ReturnType<typeof within>, module: string, action: string, nth = 0): HTMLElement {
+  const group = canvas.getAllByRole("group", { name: module })[nth]!;
+  const button = within(group).getByRole("button", { name: action });
+  button.focus();
+  return button;
+}
+
+export const Unfit: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    focusAction(canvas, "1MN Afterburner II", "Unfit Module");
+    await userEvent.keyboard("{Enter}");
+    await expect(canvas.queryByRole("button", { name: /^1MN Afterburner II/ })).toBeNull();
+    await expect(canvas.queryByRole("group", { name: "1MN Afterburner II" })).toBeNull();
+
+    focusAction(canvas, "Small Projectile Burst Aerator I", "Unfit Module");
+    await userEvent.keyboard("{Enter}");
+    await expect(canvas.queryByRole("group", { name: "Small Projectile Burst Aerator I" })).toBeNull();
+  },
+};
+
+export const RemoveCharge: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    focusAction(canvas, "200mm AutoCannon II", "Remove Charge");
+    await userEvent.keyboard("{Enter}");
+    await expect(canvasElement.querySelectorAll("[data-loaded]")).toHaveLength(0);
+    await expect(canvas.queryByRole("button", { name: "Remove Charge" })).toBeNull();
+    await expect(canvas.getAllByRole("button", { name: /^200mm AutoCannon II/ })).toHaveLength(2);
+  },
+};
+
+export const PutOfflineAndOnline: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    const afterburner = () => canvas.getByRole("button", { name: /^1MN Afterburner II/ });
+
+    focusAction(canvas, "1MN Afterburner II", "Put Offline");
+    await userEvent.keyboard("{Enter}");
+    await expect(afterburner()).toHaveAccessibleName("1MN Afterburner II, offline");
+
+    focusAction(canvas, "1MN Afterburner II", "Put Online");
+    await userEvent.keyboard("{Enter}");
+    await expect(afterburner()).toHaveAccessibleName("1MN Afterburner II, online");
   },
 };

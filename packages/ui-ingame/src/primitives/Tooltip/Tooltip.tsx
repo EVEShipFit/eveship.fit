@@ -9,8 +9,6 @@ export interface TooltipProps {
 }
 
 /**
- * Shows `label` above `children` while it is hovered or has keyboard focus; below it when there is no room above.
- *
  * Screen readers do not get the tooltip; name `children` itself, like with `aria-label`.
  *
  * Firefox places the tooltip as if `children` had no CSS transform, so do not rotate or scale it, or its parents.
