@@ -1,0 +1,142 @@
+import { useCanFit, useImages, useMissingSkills, useModuleTree, usePlacement } from "@eveshipfit/react-hooks";
+import type { MetaFolder, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
+import { useState } from "react";
+
+import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
+import { Icon, type IconName } from "../../primitives/Icon/Icon";
+import { Tooltip } from "../../primitives/Tooltip/Tooltip";
+import { TreeGroup, TreeLeaf, TreeList } from "../../primitives/TreeList/TreeList";
+import styles from "./ItemBrowser.module.css";
+import { Search } from "./Search";
+
+type SlotFilter = "low" | "medium" | "high" | "rig" | "drones";
+
+const slotFilters: { filter: SlotFilter; icon: IconName; label: string; places: readonly string[] }[] = [
+  { filter: "low", icon: "filter-low-slot", label: "Low Slot", places: ["low"] },
+  { filter: "medium", icon: "filter-medium-slot", label: "Mid Slot", places: ["medium"] },
+  { filter: "high", icon: "filter-high-slot", label: "High Slot", places: ["high"] },
+  { filter: "rig", icon: "filter-rig-slot", label: "Rig & Subsystem Slots", places: ["rig", "subsystem"] },
+  { filter: "drones", icon: "filter-drones", label: "Drones", places: ["drone_bay", "fighter_bay"] },
+];
+
+const folders: Record<MetaFolder, { label: string; metaGroupId: number }> = {
+  faction: { label: "Faction & Storyline", metaGroupId: 4 },
+  officer: { label: "Officer", metaGroupId: 5 },
+  deadspace: { label: "Deadspace", metaGroupId: 6 },
+};
+
+/** The Modules tab of the `ItemBrowser`: what goes on a ship, by market group. */
+export function Modules() {
+  const placement = usePlacement();
+  const canFit = useCanFit();
+  const missingSkills = useMissingSkills();
+  const [search, setSearch] = useState("");
+  const [slots, setSlots] = useState<ReadonlySet<SlotFilter>>(new Set());
+  const [hullRestrictions, setHullRestrictions] = useState(false);
+  const [flyable, setFlyable] = useState(false);
+  // A new key mounts the tree again, with every group open or closed.
+  const [tree, setTree] = useState({ key: 0, open: false });
+
+  const query = search.trim().toLowerCase();
+  const places = new Set(slotFilters.filter(({ filter }) => slots.has(filter)).flatMap((slot) => slot.places));
+
+  const groups = useModuleTree(
+    query !== "" || places.size > 0 || hullRestrictions || flyable
+      ? (type) => {
+          if (places.size > 0 && !places.has(placement(type)?.type ?? "")) return false;
+          if (hullRestrictions && !canFit(type)) return false;
+          if (flyable && missingSkills([type.id]).length > 0) return false;
+          return type.name.toLowerCase().includes(query);
+        }
+      : undefined,
+  );
+
+  const changeSearch = (next: string) => {
+    const searching = next.trim() !== "";
+    if (searching !== (query !== "")) setTree({ key: tree.key + 1, open: searching });
+    setSearch(next);
+  };
+
+  const toggleSlot = (filter: SlotFilter, pressed: boolean) => {
+    const next = new Set(slots);
+    if (pressed) next.add(filter);
+    else next.delete(filter);
+    setSlots(next);
+  };
+
+  return (
+    <>
+      <Search value={search} onChange={changeSearch} onCollapse={() => setTree({ key: tree.key + 1, open: false })} />
+      <div className={styles.filters} role="toolbar" aria-label="Filters">
+        {slotFilters.map(({ filter, icon, label }) => (
+          <FilterToggle
+            key={filter}
+            icon={icon}
+            label={label}
+            pressed={slots.has(filter)}
+            onPressedChange={(pressed) => toggleSlot(filter, pressed)}
+          />
+        ))}
+        <FilterToggle
+          icon="filter-hull-restrictions"
+          label="Hull Restrictions"
+          pressed={hullRestrictions}
+          onPressedChange={setHullRestrictions}
+        />
+        <FilterToggle icon="filter-resources" label="Resources" />
+        <FilterToggle icon="skills" label="Skills" pressed={flyable} onPressedChange={setFlyable} />
+      </div>
+      <div className={styles.tree}>
+        <TreeList key={tree.key} label="Modules">
+          {groups.map((node) => (
+            <ModuleGroup key={node.group.id} node={node} open={tree.open} />
+          ))}
+        </TreeList>
+      </div>
+    </>
+  );
+}
+
+function ModuleGroup({ node, open }: { node: ModuleGroupNode; open: boolean }) {
+  const images = useImages();
+
+  return (
+    <TreeGroup label={node.group.name} icon={images.marketGroupIcon(node.group.id)} defaultOpen={open}>
+      {() => (
+        <>
+          {node.children.map((child) => (
+            <ModuleGroup key={child.group.id} node={child} open={open} />
+          ))}
+          {node.types.map((type) => (
+            <Module key={type.id} type={type} />
+          ))}
+          {node.folders.map(({ folder, types }) => (
+            <TreeGroup
+              key={folder}
+              label={folders[folder].label}
+              icon={images.metaGroupIcon(folders[folder].metaGroupId)}
+              defaultOpen={open}
+            >
+              {() => types.map((type) => <Module key={type.id} type={type} />)}
+            </TreeGroup>
+          ))}
+        </>
+      )}
+    </TreeGroup>
+  );
+}
+
+function Module({ type }: { type: SdeType }) {
+  return (
+    <TreeLeaf
+      label={type.name}
+      after={
+        <Tooltip label="Show Info (not implemented yet)">
+          <button type="button" className={styles.info} aria-label={`Show Info on ${type.name}`} aria-disabled>
+            <Icon name="module-info" />
+          </button>
+        </Tooltip>
+      }
+    />
+  );
+}

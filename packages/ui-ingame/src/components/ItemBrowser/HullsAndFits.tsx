@@ -1,5 +1,6 @@
 import type { Fit } from "@eveshipfit/fitting";
-import { useFit, useFitStore, useHullTree, useLocalFits, useMissingSkills } from "@eveshipfit/react-hooks";
+import { useFit, useFitStore, useHullTree, useImages, useLocalFits, useMissingSkills } from "@eveshipfit/react-hooks";
+import type { ShipRace } from "@eveshipfit/sde-loader";
 import { useState, type CSSProperties } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
@@ -7,12 +8,21 @@ import { Icon, useIconUrl, type IconName } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import { TreeGroup, TreeLeaf, TreeList } from "../../primitives/TreeList/TreeList";
 import styles from "./ItemBrowser.module.css";
+import { Search } from "./Search";
 
 const noFits: readonly Fit[] = [];
+
+const raceFactions: Partial<Record<ShipRace, number>> = {
+  amarr: 500003,
+  caldari: 500001,
+  gallente: 500004,
+  minmatar: 500002,
+};
 
 /** The Hulls & Fits tab of the `ItemBrowser`: EVE's hulls by group and race, with the fits saved for each. */
 export function HullsAndFits() {
   const currentShipId = useFit().ship.type_id;
+  const images = useImages();
   const store = useFitStore();
   const missingSkills = useMissingSkills();
   const { fits } = useLocalFits();
@@ -57,29 +67,12 @@ export function HullsAndFits() {
 
   return (
     <>
-      <div className={styles.search}>
-        <Tooltip label="Collapse All Groups">
-          <button
-            type="button"
-            className={styles.collapse}
-            aria-label="Collapse All Groups"
-            onClick={() => setTree({ key: tree.key + 1, open: false })}
-          >
-            <Icon name="collapse" />
-          </button>
-        </Tooltip>
-        <label className={styles.field}>
-          <Icon name="search" />
-          <input
-            type="search"
-            placeholder="Search"
-            aria-label="Search"
-            value={search}
-            onChange={(event) => narrow(event.target.value, currentHull)}
-          />
-        </label>
-      </div>
-      <div className={styles.filters}>
+      <Search
+        value={search}
+        onChange={(value) => narrow(value, currentHull)}
+        onCollapse={() => setTree({ key: tree.key + 1, open: false })}
+      />
+      <div className={styles.filters} role="toolbar" aria-label="Filters">
         <FilterToggle
           icon="fits-browser"
           label="Browser Fittings"
@@ -104,7 +97,12 @@ export function HullsAndFits() {
             <TreeGroup key={group.id} label={group.name} defaultOpen={tree.open}>
               {() =>
                 races.map(({ race, ships }) => (
-                  <TreeGroup key={race} label={`${raceName(race)} [${ships.length}]`} defaultOpen={tree.open}>
+                  <TreeGroup
+                    key={race}
+                    label={`${raceName(race)} [${ships.length}]`}
+                    icon={raceFactions[race] === undefined ? undefined : images.factionIcon(raceFactions[race])}
+                    defaultOpen={tree.open}
+                  >
                     {() =>
                       ships.map((ship) => {
                         const shown = shownFits(ship);

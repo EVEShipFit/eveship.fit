@@ -20,6 +20,8 @@ export interface TreeGroupProps {
   label: ReactNode;
   /** Shows the type's icon in front of the label. */
   typeId?: number;
+  /** The URL of a small image in front of the label, like a market group's icon. */
+  icon?: string;
   /** A second line under the label. */
   description?: ReactNode;
   defaultOpen?: boolean;
@@ -29,7 +31,7 @@ export interface TreeGroupProps {
   children: () => ReactNode;
 }
 
-export function TreeGroup({ label, typeId, description, defaultOpen = false, after, children }: TreeGroupProps) {
+export function TreeGroup({ label, typeId, icon, description, defaultOpen = false, after, children }: TreeGroupProps) {
   const [open, setOpen] = useState(defaultOpen);
   const descriptionId = useId();
 
@@ -47,6 +49,7 @@ export function TreeGroup({ label, typeId, description, defaultOpen = false, aft
             <path d="M3 1.5 9.5 6 3 10.5Z" fill="currentColor" />
           </svg>
           {typeId !== undefined && <RowIcon typeId={typeId} />}
+          {icon !== undefined && <img className={styles.smallIcon} src={icon} alt="" draggable={false} />}
           <span className={styles.text}>
             <span className={styles.label}>{label}</span>
             {description !== undefined && (

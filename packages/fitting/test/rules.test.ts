@@ -56,4 +56,16 @@ describe("filters", () => {
     expect(canFit(engine.sde, type("Loki Core - Augmented Nuclear Reactor"), rifter)).toBe(false);
     expect(canFit(engine.sde, type("Loki Core - Augmented Nuclear Reactor"), type("Loki"))).toBe(true);
   });
+
+  test("capital modules go on capital ships only", () => {
+    expect(canFit(engine.sde, type("Capital Armor Repairer II"), type("Rifter"))).toBe(false);
+    expect(canFit(engine.sde, type("Capital Armor Repairer II"), type("Archon"))).toBe(true);
+    expect(canFit(engine.sde, type("Capital Trimark Armor Pump I"), type("Archon"))).toBe(true);
+  });
+
+  test("structure fighters go on structures only", () => {
+    expect(canFit(engine.sde, type("Templar II"), type("Archon"))).toBe(true);
+    expect(canFit(engine.sde, type("Standup Templar II"), type("Archon"))).toBe(false);
+    expect(canFit(engine.sde, type("Standup Templar II"), type("Astrahus"))).toBe(true);
+  });
 });

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import type { Engine, FitStore } from "@eveshipfit/fitting";
 import type { Images } from "@eveshipfit/images";
-import type { MarketGroupNode, SdeType } from "@eveshipfit/sde-loader";
+import type { MarketGroupNode, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
 import { act, renderHook } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeAll, expect, test, vi } from "vitest";
@@ -14,6 +14,7 @@ import {
   useAttribute,
   useAttributeTooltip,
   useBayUsage,
+  useCanFit,
   useCharacters,
   useCharges,
   useDrag,
@@ -27,6 +28,8 @@ import {
   useLocalFits,
   useMarketTree,
   useMissingSkills,
+  useModuleTree,
+  usePlacement,
   usePreview,
   useRackUsage,
   useSde,
@@ -338,4 +341,40 @@ test("the hulls keep only the groups and races of what the filter keeps", () => 
   expect(result.current).toHaveLength(1);
   expect(result.current[0]?.group.name).toBe("Frigate");
   expect(result.current[0]?.races).toEqual([{ race: "minmatar", ships: [engine.sde.type(RIFTER)] }]);
+});
+
+const onlyRepublicFleet = (type: SdeType) => type.name.startsWith("Republic Fleet Large Shield Extender");
+
+test("the modules keep only the groups and folders of what the filter keeps", () => {
+  const { result } = render(() => useModuleTree(onlyRepublicFleet));
+  const groups = allModuleGroups(result.current);
+
+  expect(groups.flatMap((node) => node.types)).toEqual([]);
+  expect(groups.flatMap((node) => node.folders.map((folder) => folder.folder))).toEqual(["faction"]);
+  expect(groups.filter((node) => node.children.length === 0 && node.folders.length === 0)).toEqual([]);
+});
+
+function allModuleGroups(nodes: readonly ModuleGroupNode[]): ModuleGroupNode[] {
+  return nodes.flatMap((node) => [node, ...allModuleGroups(node.children)]);
+}
+
+const byName = (name: string) => engine.sde.typeByName(name)!;
+
+test("where a type goes, and whether it may go on the fit's ship", () => {
+  const { result } = render(() => ({ placement: usePlacement(), canFit: useCanFit() }));
+
+  expect(result.current.placement(byName("Damage Control II"))).toEqual({ type: "low" });
+  expect(result.current.canFit(byName("Damage Control II"))).toBe(true);
+  expect(result.current.canFit(byName("Medium Projectile Burst Aerator I"))).toBe(false);
+  expect(result.current.canFit(byName("Loki Core - Augmented Nuclear Reactor"))).toBe(false);
+  expect(result.current.canFit(byName("Warrior II"))).toBe(false);
+  expect(result.current.canFit(byName("Templar II"))).toBe(false);
+  expect(result.current.canFit(byName("EMP S"))).toBe(true);
+});
+
+test("a ship with a drone bay takes drones", () => {
+  const { result } = render(() => useCanFit(), {
+    fit: engine.createFit({ ship: { type_id: engine.sde.typeByName("Tristan")!.id }, items: [] }),
+  });
+  expect(result.current(engine.sde.typeByName("Warrior II")!)).toBe(true);
 });

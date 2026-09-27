@@ -72,6 +72,11 @@ const texts = await loadTexts({ url: "/texts.dat" });
 <TextsProvider texts={texts}>
 ```
 
+### Browsing
+
+`useMarketTree`, `useHullTree` and `useModuleTree` give EVE's market, its ships and what goes on a ship, cut down to what
+a filter keeps. `usePlacement` says where a type goes, and `useCanFit` whether it may go on the fit's ship.
+
 ### Skills
 
 `useCharacters` picks who flies the fit; `useMissingSkills` says which skills that character lacks to use some types, or

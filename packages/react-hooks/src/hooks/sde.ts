@@ -1,5 +1,5 @@
 import { chargesFor, type Engine } from "@eveshipfit/fitting";
-import type { MarketGroupNode, Sde, SdeType, ShipGroupNode } from "@eveshipfit/sde-loader";
+import type { MarketGroupNode, ModuleGroupNode, Sde, SdeType, ShipGroupNode } from "@eveshipfit/sde-loader";
 import { useMemo } from "react";
 
 import { EngineContext, useRequiredContext } from "../context.js";
@@ -48,6 +48,19 @@ export function useMarketTree(filter?: (type: SdeType) => boolean): readonly Mar
 }
 
 /**
+ * What goes on a ship, cut down to the types `filter` keeps; groups and
+ * folders left empty are dropped. Keep `filter` stable between renders, as
+ * the tree is rebuilt when it changes.
+ */
+export function useModuleTree(filter?: (type: SdeType) => boolean): readonly ModuleGroupNode[] {
+  const sde = useSde();
+  return useMemo(() => {
+    const tree = sde.moduleTree();
+    return filter === undefined ? tree : pruneModules(tree, filter);
+  }, [sde, filter]);
+}
+
+/**
  * The ships by group and race, cut down to those `filter` keeps; groups left
  * empty are dropped. Keep `filter` stable between renders, as the tree is
  * rebuilt when it changes.
@@ -75,6 +88,21 @@ function pruneMarket(nodes: readonly MarketGroupNode[], filter: (type: SdeType) 
     const children = pruneMarket(node.children, filter);
     const types = node.types.filter(filter);
     if (children.length > 0 || types.length > 0) pruned.push({ group: node.group, children, types });
+  }
+  return pruned;
+}
+
+function pruneModules(nodes: readonly ModuleGroupNode[], filter: (type: SdeType) => boolean): ModuleGroupNode[] {
+  const pruned: ModuleGroupNode[] = [];
+  for (const node of nodes) {
+    const children = pruneModules(node.children, filter);
+    const types = node.types.filter(filter);
+    const folders = node.folders
+      .map((folder) => ({ folder: folder.folder, types: folder.types.filter(filter) }))
+      .filter((folder) => folder.types.length > 0);
+    if (children.length > 0 || types.length > 0 || folders.length > 0) {
+      pruned.push({ group: node.group, children, types, folders });
+    }
   }
   return pruned;
 }

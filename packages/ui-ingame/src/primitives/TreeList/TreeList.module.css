@@ -77,6 +77,12 @@
   width: 100%;
 }
 
+.smallIcon {
+  flex: none;
+  height: calc(16 * var(--tree-unit));
+  width: calc(16 * var(--tree-unit));
+}
+
 .text {
   display: grid;
   flex: 1;

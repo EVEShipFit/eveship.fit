@@ -8,6 +8,8 @@ export const Category = {
   Drone: 18,
   Implant: 20,
   Subsystem: 32,
+  Structure: 65,
+  StructureModule: 66,
   Fighter: 87,
 } as const;
 

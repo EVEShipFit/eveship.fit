@@ -1,11 +1,19 @@
 import type { Sde, SdeType } from "@eveshipfit/sde-loader";
 
-import { Category } from "../ids.js";
+import { Category, Effect } from "../ids.js";
 import { baseValue, baseValues } from "./attributes.js";
 
 const chargeGroups = ["chargeGroup1", "chargeGroup2", "chargeGroup3", "chargeGroup4", "chargeGroup5"];
 const shipGroups = Array.from({ length: 20 }, (_, i) => `canFitShipGroup${String(i + 1).padStart(2, "0")}`);
 const shipTypes = Array.from({ length: 12 }, (_, i) => `canFitShipType${i + 1}`);
+const standupFighters = [
+  "fighterSquadronIsStandupLight",
+  "fighterSquadronIsStandupSupport",
+  "fighterSquadronIsStandupHeavy",
+];
+
+/** Anything bigger is a capital module, which only a capital ship takes. */
+const CAPITAL_VOLUME = 3500;
 
 /** Whether `module` can load `charge`: the right group, the right size, and room for at least one. */
 export function acceptsCharge(sde: Sde, module: SdeType, charge: SdeType): boolean {
@@ -31,9 +39,10 @@ export function chargesFor(sde: Sde, module: SdeType): SdeType[] {
 }
 
 /**
- * Whether `type` may go on `ship` at all: hull restrictions, rig size and
- * subsystems of the right hull. Whether there is room left is the
- * calculation's job, as that depends on the rest of the fit.
+ * Whether `type` may go on `ship` at all: hull restrictions, rig size,
+ * capital size, structure or ship, and subsystems of the right hull. Whether
+ * there is room left is the calculation's job, as that depends on the rest of
+ * the fit.
  */
 export function canFit(sde: Sde, type: SdeType, ship: SdeType): boolean {
   const groups = baseValues(sde, type, shipGroups);
@@ -48,5 +57,11 @@ export function canFit(sde: Sde, type: SdeType, ship: SdeType): boolean {
   const hull = baseValue(sde, type, "fitsToShipType");
   if (hull !== undefined && hull !== ship.id) return false;
 
-  return true;
+  const structure = ship.categoryId === Category.Structure;
+  const capital = (type.volume ?? 0) > CAPITAL_VOLUME && !type.effectIds.has(Effect.RigSlot);
+  if (capital && !structure && !baseValue(sde, ship, "isCapitalSize")) return false;
+
+  const standup =
+    type.categoryId === Category.StructureModule || baseValues(sde, type, standupFighters).some((value) => value !== 0);
+  return standup === structure;
 }
