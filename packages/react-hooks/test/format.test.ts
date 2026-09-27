@@ -29,6 +29,10 @@ test("numbers round the way asked", () => {
   expect(formatNumber(-2.5, { decimals: 0 })).toBe("-3");
   // (1 - 0.63) * 100 is 37.00000000000001.
   expect(formatNumber((1 - 0.63) * 100, { decimals: 0, rounding: "up" })).toBe("37");
+  // 0.8 as a 32-bit float.
+  expect(formatNumber((1 - 0.800000011920929) * 100, { decimals: 0, rounding: "down" })).toBe("20");
+  expect(formatNumber(2.1600000321865083, { decimals: 4, rounding: "up" })).toBe("2.16");
+  expect(formatNumber(0.9999, { decimals: 0, rounding: "down" })).toBe("0");
 });
 
 test("durations", () => {
