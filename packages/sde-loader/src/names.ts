@@ -1,12 +1,15 @@
 import { ByteBuffer, Encoding } from "flatbuffers";
 
 import { Names as RawNames } from "./generated/names/eve.js";
+import { toDate } from "./records.js";
 import { readSource, type Source } from "./source.js";
 
 /** The name of every type in every language EVE supports; the other way round from `Sde.type()`. */
 export class Names {
   readonly bytes: Uint8Array;
   readonly buildNumber: number;
+  /** Missing from files before `@eveshipfit/sde` 8.3542233.1. */
+  readonly releaseDate: Date | undefined;
 
   readonly #raw: RawNames;
   readonly #encoder = new TextEncoder();
@@ -20,6 +23,7 @@ export class Names {
     this.bytes = bytes;
     this.#raw = RawNames.getRootAsNames(buffer);
     this.buildNumber = this.#raw.buildNumber();
+    this.releaseDate = toDate(this.#raw.releaseDate());
   }
 
   /** Case-insensitive, in any language. */

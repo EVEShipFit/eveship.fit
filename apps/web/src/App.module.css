@@ -1,0 +1,128 @@
+.header {
+  align-items: center;
+  background: rgb(11 13 15 / 80%);
+  border-bottom: 1px solid rgb(255 255 255 / 6%);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  justify-content: space-between;
+  padding: 10px 20px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: normal;
+  margin: 0;
+}
+
+.brand {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.dash,
+.tagline {
+  color: var(--esf-text-muted);
+}
+
+.links {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.link {
+  align-items: center;
+  border-radius: 999px;
+  color: var(--esf-text);
+  display: flex;
+  gap: 6px;
+  padding: 5px 10px;
+  text-decoration: none;
+}
+
+.link:hover,
+.link:focus-visible {
+  background: var(--esf-surface-raised);
+}
+
+.link > svg {
+  height: 16px;
+  width: 16px;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.stage {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+}
+
+.panel {
+  backdrop-filter: blur(6px);
+  background: rgb(22 25 28 / 70%);
+  border: 1px solid rgb(255 255 255 / 7%);
+  border-radius: 8px;
+  box-shadow: 0 24px 64px rgb(0 0 0 / 50%);
+  padding: calc(12px * var(--esf-scale));
+}
+
+.panels {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
+
+/* Where the FittingWindow puts it, the ItemBrowser is 595 high. */
+.browser {
+  height: calc(595px * var(--esf-scale));
+}
+
+.message {
+  color: var(--esf-text-muted);
+}
+
+.footer {
+  color: var(--esf-text-muted);
+  font-size: 11px;
+  text-align: center;
+}
+
+.footer p {
+  margin: 0;
+}
+
+.footer a {
+  color: inherit;
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 10px 12px;
+  }
+
+  .dash {
+    display: none;
+  }
+
+  .tagline {
+    display: block;
+  }
+
+  .main {
+    padding: 12px 8px;
+  }
+}

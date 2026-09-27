@@ -1,5 +1,6 @@
 {
   "name": "@eveshipfit/web",
+  "version": "0.0.0-git",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,6 +10,13 @@
     "e2e": "playwright test"
   },
   "dependencies": {
+    "@eveshipfit/dogma-engine": "catalog:",
+    "@eveshipfit/fitting": "workspace:*",
+    "@eveshipfit/images": "catalog:",
+    "@eveshipfit/react-hooks": "workspace:*",
+    "@eveshipfit/sde": "catalog:",
+    "@eveshipfit/sde-loader": "workspace:*",
+    "@eveshipfit/ui-ingame": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:"
   },

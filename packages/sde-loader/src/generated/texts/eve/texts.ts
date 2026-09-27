@@ -44,8 +44,15 @@ dogmaAttributesLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+releaseDate():string|null
+releaseDate(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+releaseDate(optionalEncoding?:any):string|Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+}
+
 static startTexts(builder:flatbuffers.Builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 }
 
 static addBuildNumber(builder:flatbuffers.Builder, buildNumber:number) {
@@ -68,6 +75,10 @@ static startDogmaAttributesVector(builder:flatbuffers.Builder, numElems:number) 
   builder.startVector(4, numElems, 4);
 }
 
+static addReleaseDate(builder:flatbuffers.Builder, releaseDateOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, releaseDateOffset, 0);
+}
+
 static endTexts(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 6) // dogma_attributes
@@ -82,10 +93,11 @@ static finishSizePrefixedTextsBuffer(builder:flatbuffers.Builder, offset:flatbuf
   builder.finish(offset, 'ESFT', true);
 }
 
-static createTexts(builder:flatbuffers.Builder, buildNumber:number, dogmaAttributesOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createTexts(builder:flatbuffers.Builder, buildNumber:number, dogmaAttributesOffset:flatbuffers.Offset, releaseDateOffset:flatbuffers.Offset):flatbuffers.Offset {
   Texts.startTexts(builder);
   Texts.addBuildNumber(builder, buildNumber);
   Texts.addDogmaAttributes(builder, dogmaAttributesOffset);
+  Texts.addReleaseDate(builder, releaseDateOffset);
   return Texts.endTexts(builder);
 }
 }

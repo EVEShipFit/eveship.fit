@@ -19,6 +19,10 @@ test("keeps the bytes for the engine", () => {
   expect(sde.buildNumber).toBeGreaterThan(0);
 });
 
+test("knows when its SDE build was released", () => {
+  expect(sde.releaseDate?.getTime()).toBeGreaterThan(Date.UTC(2026, 0, 1));
+});
+
 describe("lookups", () => {
   test("type", () => {
     const rifter = sde.type(RIFTER)!;

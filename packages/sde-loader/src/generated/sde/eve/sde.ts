@@ -154,8 +154,15 @@ dogmaAttributeCategoriesLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+releaseDate():string|null
+releaseDate(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+releaseDate(optionalEncoding?:any):string|Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+}
+
 static startSde(builder:flatbuffers.Builder) {
-  builder.startObject(12);
+  builder.startObject(13);
 }
 
 static addBuildNumber(builder:flatbuffers.Builder, buildNumber:number) {
@@ -338,6 +345,10 @@ static startDogmaAttributeCategoriesVector(builder:flatbuffers.Builder, numElems
   builder.startVector(4, numElems, 4);
 }
 
+static addReleaseDate(builder:flatbuffers.Builder, releaseDateOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(12, releaseDateOffset, 0);
+}
+
 static endSde(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
@@ -351,7 +362,7 @@ static finishSizePrefixedSdeBuffer(builder:flatbuffers.Builder, offset:flatbuffe
   builder.finish(offset, 'ESF1', true);
 }
 
-static createSde(builder:flatbuffers.Builder, buildNumber:number, typesOffset:flatbuffers.Offset, groupsOffset:flatbuffers.Offset, categoriesOffset:flatbuffers.Offset, dogmaAttributesOffset:flatbuffers.Offset, dogmaEffectsOffset:flatbuffers.Offset, mutaplasmidsOffset:flatbuffers.Offset, dbuffCollectionsOffset:flatbuffers.Offset, marketGroupsOffset:flatbuffers.Offset, metaGroupsOffset:flatbuffers.Offset, dogmaUnitsOffset:flatbuffers.Offset, dogmaAttributeCategoriesOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createSde(builder:flatbuffers.Builder, buildNumber:number, typesOffset:flatbuffers.Offset, groupsOffset:flatbuffers.Offset, categoriesOffset:flatbuffers.Offset, dogmaAttributesOffset:flatbuffers.Offset, dogmaEffectsOffset:flatbuffers.Offset, mutaplasmidsOffset:flatbuffers.Offset, dbuffCollectionsOffset:flatbuffers.Offset, marketGroupsOffset:flatbuffers.Offset, metaGroupsOffset:flatbuffers.Offset, dogmaUnitsOffset:flatbuffers.Offset, dogmaAttributeCategoriesOffset:flatbuffers.Offset, releaseDateOffset:flatbuffers.Offset):flatbuffers.Offset {
   Sde.startSde(builder);
   Sde.addBuildNumber(builder, buildNumber);
   Sde.addTypes(builder, typesOffset);
@@ -365,6 +376,7 @@ static createSde(builder:flatbuffers.Builder, buildNumber:number, typesOffset:fl
   Sde.addMetaGroups(builder, metaGroupsOffset);
   Sde.addDogmaUnits(builder, dogmaUnitsOffset);
   Sde.addDogmaAttributeCategories(builder, dogmaAttributeCategoriesOffset);
+  Sde.addReleaseDate(builder, releaseDateOffset);
   return Sde.endSde(builder);
 }
 }

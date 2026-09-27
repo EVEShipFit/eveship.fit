@@ -247,3 +247,7 @@ export function toEffect(raw: DogmaEffect): SdeEffect {
 function orUndefined(id: number): number | undefined {
   return id === 0 ? undefined : id;
 }
+
+export function toDate(raw: string | null): Date | undefined {
+  return raw === null ? undefined : new Date(raw);
+}

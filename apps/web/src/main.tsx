@@ -1,8 +1,16 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+import "@eveshipfit/ui-ingame/theme.css";
+import "./global.css";
+
+import { App } from "./App";
+import { loadData } from "./data";
+
+const data = loadData();
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <h1>EVEShip.fit</h1>
+    <App data={data} />
   </StrictMode>,
 );
