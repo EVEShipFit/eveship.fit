@@ -35,6 +35,8 @@ jobs:
         with:
           publish: pnpm release
           createGithubReleases: false
+          title: Bump package versions and update changelogs
+          commit: Bump package versions and update changelogs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
