@@ -1,5 +1,5 @@
 import { useImages } from "@eveshipfit/react-hooks";
-import type { CSSProperties, HTMLAttributes } from "react";
+import type { CSSProperties, HTMLAttributes, MouseEventHandler } from "react";
 
 import { Icon } from "../Icon/Icon";
 import { TypeIcon } from "../TypeIcon/TypeIcon";
@@ -32,6 +32,9 @@ export interface WheelSlotProps extends HTMLAttributes<HTMLDivElement> {
   available?: boolean;
   /** Shown, but not fitted yet. */
   preview?: boolean;
+  /** Makes the slot a button, named `label`. */
+  onPress?: MouseEventHandler<HTMLButtonElement>;
+  label?: string;
 }
 
 export function WheelSlot({
@@ -44,6 +47,8 @@ export function WheelSlot({
   activatable = false,
   available = true,
   preview = false,
+  onPress,
+  label,
   className,
   style,
   ...props
@@ -84,6 +89,7 @@ export function WheelSlot({
           </span>
         )
       )}
+      {onPress && <button type="button" className={styles.press} aria-label={label} onClick={onPress} />}
     </div>
   );
 }

@@ -3,9 +3,11 @@ import {
   useAttribute,
   useCharges,
   useFit,
+  useFitStore,
   useHardpoints,
   useRackUsage,
   useSlots,
+  useType,
   type SlotContent,
 } from "@eveshipfit/react-hooks";
 
@@ -15,10 +17,13 @@ import { WheelGauge, type WheelResource } from "../../primitives/Wheel/WheelGaug
 import { WheelHardpoints } from "../../primitives/Wheel/WheelHardpoints";
 import { WheelHull } from "../../primitives/Wheel/WheelHull";
 import { WheelRackMarker, type MarkedRack } from "../../primitives/Wheel/WheelRackMarker";
-import { WheelSlot } from "../../primitives/Wheel/WheelSlot";
+import { WheelSlot, type WheelSlotProps } from "../../primitives/Wheel/WheelSlot";
+import { nextState } from "./states";
 
 const markedRacks: MarkedRack[] = ["high", "medium", "low"];
 const racks: WheelRack[] = ["high", "medium", "low", "rig", "subsystem"];
+/** EVE does not let rigs and subsystems be put offline. */
+const switchedRacks: WheelRack[] = ["high", "medium", "low"];
 
 export interface FittingWheelProps {
   label?: string;
@@ -65,9 +70,17 @@ interface FittingSlotProps {
 }
 
 function FittingSlot({ rack, index, content, available }: FittingSlotProps) {
+  const store = useFitStore();
   const item = content?.item;
   const stats = content?.stats;
+  const type = useType(item?.type_id);
   const charges = useCharges(item?.type_id);
+  const ref = content?.ref;
+
+  const onPress: WheelSlotProps["onPress"] =
+    ref !== undefined && stats !== undefined && switchedRacks.includes(rack)
+      ? (event) => store.setState(ref, nextState(stats.state, stats.maxState, event.shiftKey))
+      : undefined;
 
   return (
     <WheelSlot
@@ -79,6 +92,8 @@ function FittingSlot({ rack, index, content, available }: FittingSlotProps) {
       chargeable={charges.length > 0}
       state={stats?.state}
       activatable={stats?.maxState === "active" || stats?.maxState === "overload"}
+      label={type && stats && `${type.name}, ${stats.state}`}
+      onPress={onPress}
     />
   );
 }

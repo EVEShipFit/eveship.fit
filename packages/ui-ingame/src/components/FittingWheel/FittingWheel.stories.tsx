@@ -72,3 +72,34 @@ export const FittedRifter: Story = {
     await expect(canvas.getByRole("meter", { name: "Calibration" })).not.toHaveAttribute("aria-valuenow", "0");
   },
 };
+
+export const ClickToSwitch: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    const afterburner = () => canvas.getByRole("button", { name: /^1MN Afterburner II/ });
+    await expect(afterburner()).toHaveAccessibleName("1MN Afterburner II, active");
+
+    await userEvent.click(afterburner());
+    await expect(afterburner()).toHaveAccessibleName("1MN Afterburner II, overload");
+    await userEvent.click(afterburner());
+    await expect(afterburner()).toHaveAccessibleName("1MN Afterburner II, offline");
+
+    await userEvent.keyboard("{Shift>}");
+    await userEvent.click(afterburner());
+    await userEvent.keyboard("{/Shift}");
+    await expect(afterburner()).toHaveAccessibleName("1MN Afterburner II, overload");
+
+    const damageControl = () => canvas.getByRole("button", { name: /^Damage Control II/ });
+    await userEvent.click(damageControl());
+    await expect(damageControl()).toHaveAccessibleName("Damage Control II, offline");
+    await userEvent.click(damageControl());
+    await expect(damageControl()).toHaveAccessibleName("Damage Control II, online");
+  },
+};
+
+export const RigsStayOnline: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas }) => {
+    await expect(canvas.queryByRole("button", { name: /^Small Projectile Burst Aerator I/ })).toBeNull();
+  },
+};
