@@ -81,7 +81,7 @@ export function WheelSlot({
           node: <Action icon="module-unfit" label="Remove Charge" onPress={onRemoveCharge} />,
         },
       );
-      row.push(undefined); // Show Info of the charge.
+      row.push({ key: "charge-info", node: <ShowInfo /> });
       row.push(
         typeName === undefined
           ? undefined
@@ -98,7 +98,7 @@ export function WheelSlot({
       );
     }
     row.push(onUnfit && { key: "unfit", node: <Action icon="module-unfit" label="Unfit Module" onPress={onUnfit} /> });
-    row.push(undefined); // Show Info of the module.
+    row.push({ key: "info", node: <ShowInfo /> });
     const power = state === "offline" ? "Put Online" : "Put Offline";
     row.push(
       onTogglePower && { key: "power", node: <Action icon="module-power" label={power} onPress={onTogglePower} /> },
@@ -171,6 +171,16 @@ function Action({ icon, label, onPress }: { icon: IconName; label: string; onPre
     <Tooltip label={label}>
       <button type="button" className={styles.button} aria-label={label} onClick={onPress}>
         <Icon name={icon} />
+      </button>
+    </Tooltip>
+  );
+}
+
+function ShowInfo() {
+  return (
+    <Tooltip label="Show Info (not implemented yet)">
+      <button type="button" className={styles.button} aria-label="Show Info" aria-disabled>
+        <Icon name="module-info" />
       </button>
     </Tooltip>
   );

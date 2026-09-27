@@ -188,6 +188,10 @@
   padding: 0;
 }
 
+.button[aria-disabled="true"] {
+  cursor: default;
+}
+
 .button:focus-visible {
   outline: 1px solid var(--esf-text);
 }

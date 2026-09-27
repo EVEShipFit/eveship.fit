@@ -135,6 +135,10 @@ export const Actions: Story = {
     await expect(args.onUnfit).toHaveBeenCalledOnce();
 
     await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Show Info" })).toHaveAttribute("aria-disabled", "true");
+    await expect(canvas.getByText("Show Info (not implemented yet)")).toBeVisible();
+
+    await userEvent.tab();
     await expect(canvas.getByRole("button", { name: "Put Offline" })).toHaveFocus();
     await userEvent.keyboard("{Enter}");
     await expect(args.onTogglePower).toHaveBeenCalledOnce();
@@ -161,7 +165,7 @@ export const ActionsWithCharge: Story = {
     const names = within(canvas.getByRole("group", { name: "200mm AutoCannon II" }))
       .getAllByRole("button")
       .map((button) => button.getAttribute("aria-label"));
-    await expect(names).toEqual(["Remove Charge", "Unfit Module", "Put Offline"]);
+    await expect(names).toEqual(["Remove Charge", "Show Info", "Unfit Module", "Show Info", "Put Offline"]);
     await expect(canvas.getByText("200mm AutoCannon II")).toBeInTheDocument();
 
     await userEvent.tab();
