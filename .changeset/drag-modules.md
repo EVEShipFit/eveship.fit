@@ -2,4 +2,4 @@
 "@eveshipfit/ui-ingame": minor
 ---
 
-Add the Modules tab to `ItemBrowser`
+Drag and drop modules on `FittingWheel`

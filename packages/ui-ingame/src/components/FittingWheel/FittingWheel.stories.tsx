@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, within } from "storybook/test";
+import { expect, fireEvent, waitFor, within } from "storybook/test";
 
 import { FittingWheel } from "./FittingWheel";
 
@@ -152,3 +152,103 @@ export const PutOfflineAndOnline: Story = {
     await expect(afterburner()).toHaveAccessibleName("1MN Afterburner II, online");
   },
 };
+
+const lowSlots = (canvasElement: HTMLElement) =>
+  Array.from(canvasElement.querySelectorAll("[data-state]")).slice(16, 20);
+const moduleIn = (slot: Element) =>
+  slot.querySelector("[role=button]")?.getAttribute("aria-label") ?? slot.getAttribute("data-state");
+
+/** Dropping a fitted module on another of its rack swaps them; on an empty slot, it moves there. */
+export const DragToMove: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement }) => {
+    await dragAndDrop(
+      canvas.getByRole("button", { name: /^Damage Control II/ }),
+      canvas.getByRole("button", { name: /^Gyrostabilizer II/ }),
+    );
+    await expect(lowSlots(canvasElement).map(moduleIn)).toEqual([
+      "Gyrostabilizer II, offline",
+      "Damage Control II, online",
+      "empty",
+      "empty",
+    ]);
+
+    await dragAndDrop(canvas.getByRole("button", { name: /^Damage Control II/ }), lowSlots(canvasElement)[3]!);
+    await expect(lowSlots(canvasElement).map(moduleIn)).toEqual([
+      "Gyrostabilizer II, offline",
+      "empty",
+      "empty",
+      "Damage Control II, online",
+    ]);
+  },
+};
+
+/** A module does not go in a slot of another rack. */
+export const DragToOtherRack: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement }) => {
+    const dataTransfer = new DataTransfer();
+    const damageControl = canvas.getByRole("button", { name: /^Damage Control II/ });
+    await fireEvent.dragStart(damageControl, { dataTransfer });
+    const emptyMedium = canvasElement.querySelectorAll("[data-state]")[10]!;
+    await expect(emptyMedium).toHaveAttribute("data-state", "empty");
+    await waitFor(async () =>
+      expect(await fireEvent.dragOver(lowSlots(canvasElement)[2]!, { dataTransfer })).toBe(false),
+    );
+    await expect(await fireEvent.dragOver(emptyMedium, { dataTransfer })).toBe(true);
+    await fireEvent.drop(emptyMedium, { dataTransfer });
+    await fireEvent.dragEnd(damageControl, { dataTransfer });
+    await expect(moduleIn(lowSlots(canvasElement)[0]!)).toBe("Damage Control II, online");
+  },
+};
+
+/** Dragging over a slot previews the drop there, until the drag leaves the wheel. */
+export const DragPreview: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement }) => {
+    const previewed = () =>
+      Array.from(canvasElement.querySelectorAll("[data-state]"), (slot) => slot.hasAttribute("data-preview"))
+        .map((preview, index) => (preview ? index : undefined))
+        .filter((index) => index !== undefined);
+    const [, gyrostabilizer, empty] = lowSlots(canvasElement);
+    const dataTransfer = new DataTransfer();
+    const damageControl = canvas.getByRole("button", { name: /^Damage Control II/ });
+    await fireEvent.dragStart(damageControl, { dataTransfer });
+
+    await waitFor(async () => {
+      await fireEvent.dragEnter(empty!, { dataTransfer });
+      await expect(previewed()).toEqual([18]);
+    });
+
+    await fireEvent.dragEnter(gyrostabilizer!, { dataTransfer });
+    await fireEvent.dragLeave(empty!, { dataTransfer, relatedTarget: gyrostabilizer });
+    await waitFor(() => expect(previewed()).toEqual([16, 17]));
+
+    await fireEvent.dragLeave(gyrostabilizer!, { dataTransfer, relatedTarget: document.body });
+    await waitFor(() => expect(previewed()).toEqual([]));
+    await fireEvent.dragEnd(damageControl, { dataTransfer });
+  },
+};
+
+/** Dropping a fitted module, or a rig, in the middle of the wheel unfits it. */
+export const DragToUnfit: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement }) => {
+    const centre = canvasElement.querySelector("[data-centre]")!;
+    await dragAndDrop(canvas.getByRole("button", { name: /^Gyrostabilizer II/ }), centre);
+    await expect(canvas.queryByRole("button", { name: /^Gyrostabilizer II/ })).toBeNull();
+
+    const rig = canvas.getByRole("group", { name: "Small Projectile Burst Aerator I" }).closest("[data-state]")!;
+    await dragAndDrop(rig.querySelector("[draggable]")!, centre);
+    await expect(canvas.queryByRole("group", { name: "Small Projectile Burst Aerator I" })).toBeNull();
+  },
+};
+
+/** Storybook's `userEvent` cannot drag, so the events are fired as a browser would. */
+async function dragAndDrop(from: Element, to: Element) {
+  const dataTransfer = new DataTransfer();
+  await fireEvent.dragStart(from, { dataTransfer });
+  await waitFor(async () => expect(await fireEvent.dragOver(to, { dataTransfer })).toBe(false));
+  await fireEvent.drop(to, { dataTransfer });
+  await fireEvent.dragEnd(from, { dataTransfer });
+}

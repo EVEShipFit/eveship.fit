@@ -104,11 +104,8 @@
 }
 
 .press {
-  background: none;
-  border: none;
   cursor: pointer;
   inset: 0;
-  padding: 0;
   position: absolute;
 }
 

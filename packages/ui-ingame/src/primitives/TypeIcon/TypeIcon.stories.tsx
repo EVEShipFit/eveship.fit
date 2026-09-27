@@ -48,6 +48,14 @@ export const Large: Story = {
   args: { size: 128 },
 };
 
+export const Eager: Story = {
+  args: { typeId: types["Damage Control II"], loading: "eager" },
+  play: async ({ canvasElement }) => {
+    const images = Array.from(canvasElement.querySelectorAll("img"));
+    await expect(images.map((image) => image.loading)).toEqual(["eager", "eager"]);
+  },
+};
+
 export const AllCombinations: Story = {
   render: () => (
     <div

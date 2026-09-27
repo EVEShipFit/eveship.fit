@@ -1,6 +1,7 @@
 import type { Placement } from "@eveshipfit/fitting";
 import {
   useCanFit,
+  useDrag,
   useFitStore,
   useImages,
   useMissingSkills,
@@ -9,12 +10,13 @@ import {
   usePreview,
 } from "@eveshipfit/react-hooks";
 import type { MetaFolder, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
-import { useState } from "react";
+import { useRef, useState, type DragEvent } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
 import { Icon, type IconName } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import { TreeGroup, TreeLeaf, TreeList } from "../../primitives/TreeList/TreeList";
+import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
 import styles from "./ItemBrowser.module.css";
 import { Search } from "./Search";
 
@@ -41,6 +43,7 @@ const MOST_OPENED_BY_SEARCH = 200;
 export function Modules() {
   const store = useFitStore();
   const { show, clear } = usePreview();
+  const { start, end } = useDrag();
   const placement = usePlacement();
   const canFit = useCanFit();
   const missingSkills = useMissingSkills();
@@ -49,6 +52,8 @@ export function Modules() {
   const [hullRestrictions, setHullRestrictions] = useState(false);
   const [flyable, setFlyable] = useState(false);
   const [collapsed, setCollapsed] = useState<{ times: number; query?: string }>({ times: 0 });
+  const [hovered, setHovered] = useState<number>();
+  const dragImage = useRef<HTMLSpanElement>(null);
 
   const query = search.trim().toLowerCase();
   const places = new Set(slotFilters.filter(({ filter }) => slots.has(filter)).flatMap((slot) => slot.places));
@@ -72,8 +77,22 @@ export function Modules() {
   const actions: ModuleActions = {
     fit: (typeId) => void store.fit(typeId),
     hover: (typeId, hovering) => {
-      if (hovering) show((draft) => void draft.fit(typeId));
-      else clear();
+      if (hovering) {
+        setHovered(typeId);
+        show((draft) => void draft.fit(typeId));
+      } else clear();
+    },
+    drag: (event, type) => {
+      clear();
+      const image = dragImage.current;
+      if (image?.dataset.typeId === String(type.id)) event.dataTransfer.setDragImage(image, 32, 32);
+      event.dataTransfer.effectAllowed = "copy";
+      event.dataTransfer.setData("text/plain", type.name);
+      start({ type: "type", typeId: type.id });
+    },
+    dragEnd: () => {
+      end();
+      clear();
     },
   };
 
@@ -120,6 +139,11 @@ export function Modules() {
           ))}
         </TreeList>
       </div>
+      {hovered !== undefined && (
+        <span ref={dragImage} className={styles.dragImage} data-type-id={hovered} aria-hidden>
+          <TypeIcon typeId={hovered} size={64} loading="eager" />
+        </span>
+      )}
     </>
   );
 }
@@ -127,6 +151,8 @@ export function Modules() {
 interface ModuleActions {
   fit: (typeId: number) => void;
   hover: (typeId: number, hovering: boolean) => void;
+  drag: (event: DragEvent, type: SdeType) => void;
+  dragEnd: () => void;
 }
 
 interface ModuleGroupProps {
@@ -170,6 +196,8 @@ function Module({ type, actions }: { type: SdeType; actions: ModuleActions }) {
       label={type.name}
       onActivate={() => actions.fit(type.id)}
       onHover={(hovering) => actions.hover(type.id, hovering)}
+      onDragStart={(event) => actions.drag(event, type)}
+      onDragEnd={actions.dragEnd}
       after={
         <Tooltip label="Show Info (not implemented yet)">
           <button

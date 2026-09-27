@@ -104,6 +104,20 @@ export const Pressable: Story = {
   play: async ({ args, canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "1MN Afterburner II" }));
     await expect(args.onPress).toHaveBeenCalledOnce();
+
+    await userEvent.keyboard("{Shift>}{Enter}{/Shift}");
+    await expect(args.onPress).toHaveBeenCalledTimes(2);
+    await expect(args.onPress).toHaveBeenLastCalledWith(expect.objectContaining({ shiftKey: true }));
+    await userEvent.keyboard(" ");
+    await expect(args.onPress).toHaveBeenCalledTimes(3);
+  },
+};
+
+export const Draggable: Story = {
+  args: { typeId: types["Damage Control II"], activatable: true, onDragStart: fn(), onDragEnd: fn() },
+  play: async ({ canvasElement }) => {
+    const body = canvasElement.querySelector("[draggable]")!;
+    await expect(body).toHaveAttribute("draggable", "true");
   },
 };
 

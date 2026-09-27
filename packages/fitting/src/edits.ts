@@ -4,7 +4,7 @@ import { baseValue } from "./rules/attributes.js";
 import { acceptsCharge } from "./rules/filters.js";
 import { firstFreeIndex, placementOf } from "./rules/placement.js";
 import type { Stats } from "./stats.js";
-import type { Fit, FitItem, ItemRef, Slot, State } from "./types.js";
+import type { Fit, FitItem, ItemRef, Slot, SlotType, State } from "./types.js";
 
 // Edits never change the fit they are given; when nothing changes, they return that same fit.
 
@@ -78,6 +78,20 @@ export function fitType(sde: Sde, fit: Fit, stats: Stats, typeId: number, slot?:
     case "cargo":
       return addToStack(fit, { type_id: typeId, slot: { type: "cargo" }, quantity: 1, state: "offline" });
   }
+}
+
+const movableRacks: readonly SlotType[] = ["high", "medium", "low", "rig", "service"];
+
+/** Move an item to another slot of its rack, swapping places with what is there. */
+export function move(fit: Fit, ref: ItemRef, slot: Slot): Fit {
+  const item = fit.items[ref];
+  if (item === undefined || !movableRacks.includes(item.slot.type)) return fit;
+  if (slot.type !== item.slot.type || sameSlot(slot, item.slot)) return fit;
+
+  const other = fit.items.findIndex((existing) => sameSlot(existing.slot, slot));
+  let items = fit.items.with(ref, { ...item, slot });
+  if (other !== -1) items = items.with(other, { ...fit.items[other]!, slot: item.slot });
+  return { ...fit, items };
 }
 
 export function remove(fit: Fit, ref: ItemRef): Fit {

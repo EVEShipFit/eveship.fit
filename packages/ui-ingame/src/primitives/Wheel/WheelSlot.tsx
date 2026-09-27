@@ -1,5 +1,5 @@
 import { useImages } from "@eveshipfit/react-hooks";
-import type { CSSProperties, HTMLAttributes, MouseEventHandler, ReactNode } from "react";
+import type { CSSProperties, DragEventHandler, HTMLAttributes, MouseEventHandler, ReactNode } from "react";
 
 import { Icon, type IconName } from "../Icon/Icon";
 import { Tooltip } from "../Tooltip/Tooltip";
@@ -39,7 +39,10 @@ export interface WheelSlotProps extends HTMLAttributes<HTMLDivElement> {
   /** Shown, but not fitted yet. */
   preview?: boolean;
   /** Makes the slot a button, named `label`. */
-  onPress?: MouseEventHandler<HTMLButtonElement>;
+  onPress?: MouseEventHandler<HTMLElement>;
+  /** Makes the slot draggable. */
+  onDragStart?: DragEventHandler<HTMLDivElement>;
+  onDragEnd?: DragEventHandler<HTMLDivElement>;
   label?: string;
   onUnfit?: () => void;
   onRemoveCharge?: () => void;
@@ -58,6 +61,8 @@ export function WheelSlot({
   available = true,
   preview = false,
   onPress,
+  onDragStart,
+  onDragEnd,
   label,
   onUnfit,
   onRemoveCharge,
@@ -115,7 +120,12 @@ export function WheelSlot({
       data-state={fitted ? state : available ? "empty" : "unavailable"}
       data-preview={preview || undefined}
     >
-      <div className={styles.body}>
+      <div
+        className={styles.body}
+        draggable={onDragStart !== undefined || undefined}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+      >
         {fitted && <span className={styles.fill} style={texture("classes/fitting/moduleslotfill")} />}
         <span className={styles.frame} style={texture(frameTexture(fitted, preview, state, activatable))} />
         {fitted &&
@@ -139,7 +149,21 @@ export function WheelSlot({
             </span>
           )
         )}
-        {onPress && <button type="button" className={styles.press} aria-label={label} onClick={onPress} />}
+        {onPress && (
+          <div
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Firefox does not start a drag from a <button>.
+            role="button"
+            tabIndex={0}
+            className={styles.press}
+            aria-label={label}
+            onClick={onPress}
+            onKeyDown={(event) => {
+              if (event.key !== "Enter" && event.key !== " ") return;
+              event.preventDefault();
+              event.currentTarget.dispatchEvent(new MouseEvent("click", { bubbles: true, shiftKey: event.shiftKey }));
+            }}
+          />
+        )}
       </div>
       {last >= 0 && (
         <fieldset

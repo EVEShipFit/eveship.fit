@@ -2,4 +2,4 @@
 "@eveshipfit/ui-ingame": minor
 ---
 
-Show the logo of each empire in the Hulls & Fits tab of `ItemBrowser`
+Show empire logos in Hulls & Fits

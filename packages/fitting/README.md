@@ -26,6 +26,7 @@ const engine = await createEngine(await loadSde({ url: sdeUrl }), { wasm: wasmUr
 const fit = engine.createFit({ ship: 587 }); // a Rifter
 fit.fit(engine.sde.typeByName("200mm AutoCannon II")!.id); // first free high slot
 fit.fit(engine.sde.typeByName("EMP S")!.id); // loaded into every gun that takes it
+fit.move(0, { type: "high", index: 2 }); // to another slot, swapping with what is there
 
 const { stats } = fit.getSnapshot();
 stats.ship.get("cpuLoad");

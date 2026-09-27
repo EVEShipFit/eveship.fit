@@ -115,6 +115,42 @@ describe("edits", () => {
     expect(fit.getSnapshot().fit.items).toMatchObject([{ type_id: id("Nanite Repair Paste") }]);
   });
 
+  test("moving a module swaps it with what is in the other slot", () => {
+    const fit = rifter();
+    const gun = fit.fit(id("200mm AutoCannon II"))!;
+    const launcher = fit.fit(id("Rocket Launcher II"))!;
+    fit.setCharge(gun, id("EMP S"));
+    fit.setState(gun, "offline");
+
+    fit.move(gun, { type: "high", index: 1 });
+    expect(fit.getSnapshot().fit.items).toMatchObject([
+      { type_id: id("200mm AutoCannon II"), slot: { type: "high", index: 1 }, state: "offline", charge: {} },
+      { type_id: id("Rocket Launcher II"), slot: { type: "high", index: 0 } },
+    ]);
+
+    fit.move(launcher, { type: "high", index: 2 });
+    expect(fit.getSnapshot().fit.items.map((item) => item.slot)).toEqual([
+      { type: "high", index: 1 },
+      { type: "high", index: 2 },
+    ]);
+  });
+
+  test("a module moves only within its rack, and a subsystem not at all", () => {
+    const fit = rifter();
+    const gun = fit.fit(id("200mm AutoCannon II"))!;
+    const before = fit.getSnapshot();
+    fit.move(gun, { type: "medium", index: 0 });
+    fit.move(gun, { type: "high", index: 0 });
+    fit.move(99, { type: "high", index: 1 });
+    expect(fit.getSnapshot()).toBe(before);
+
+    const loki = engine.createFit({ ship: id("Loki") });
+    const core = loki.fit(id("Loki Core - Augmented Nuclear Reactor"))!;
+    const snapshot = loki.getSnapshot();
+    loki.move(core, { type: "subsystem", index: 1 });
+    expect(loki.getSnapshot()).toBe(snapshot);
+  });
+
   test("the snapshot is new after every change, the old one untouched", () => {
     const fit = rifter();
     const before = fit.getSnapshot();
