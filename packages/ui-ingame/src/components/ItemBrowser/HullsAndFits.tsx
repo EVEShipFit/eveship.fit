@@ -12,7 +12,7 @@ const noFits: readonly Fit[] = [];
 
 /** The Hulls & Fits tab of the `ItemBrowser`: EVE's hulls by group and race, with the fits saved for each. */
 export function HullsAndFits() {
-  const fit = useFit();
+  const currentShipId = useFit().ship.type_id;
   const store = useFitStore();
   const missingSkills = useMissingSkills();
   const { fits } = useLocalFits();
@@ -34,13 +34,17 @@ export function HullsAndFits() {
     return matches(ship.name) ? kept : kept.filter((one) => matches(one.name));
   };
 
-  const groups = useHullTree((ship) => {
-    if (currentHull && ship.id !== fit.ship.type_id) return false;
-    if (flyable && missingSkills([ship.id]).length > 0) return false;
-    const shown = shownFits(ship);
-    if (browserFits && shown.length === 0) return false;
-    return matches(ship.name) || shown.length > 0;
-  });
+  const groups = useHullTree(
+    narrowed || browserFits || flyable
+      ? (ship) => {
+          if (currentHull && ship.id !== currentShipId) return false;
+          if (flyable && missingSkills([ship.id]).length > 0) return false;
+          const shown = shownFits(ship);
+          if (browserFits && shown.length === 0) return false;
+          return matches(ship.name) || shown.length > 0;
+        }
+      : undefined,
+  );
 
   const narrow = (nextSearch: string, nextCurrentHull: boolean) => {
     const nextNarrowed = nextSearch.trim() !== "" || nextCurrentHull;
