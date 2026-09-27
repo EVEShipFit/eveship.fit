@@ -75,7 +75,7 @@
   cursor: pointer;
   display: flex;
   justify-content: center;
-  opacity: 0.8;
+  opacity: 0.6;
   padding: 0;
   width: calc(28 * var(--browser-unit));
 }
