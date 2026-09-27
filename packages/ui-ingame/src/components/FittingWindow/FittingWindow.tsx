@@ -20,27 +20,55 @@ const oneDecimal = new Intl.NumberFormat("en-US", { minimumFractionDigits: 1, ma
 
 export interface FittingWindowProps {
   label?: string;
+  /** Like `ItemBrowser`; slid out by the Item Browser button, which is only there with it. */
+  browser?: ReactNode;
   /** Like `ShipStatistics`; slid out by the Statistics button, which is only there with it. */
   statistics?: ReactNode;
 }
 
 /** EVE's fitting window around the `FittingWheel`. */
-export function FittingWindow({ label = "Fitting Window", statistics }: FittingWindowProps) {
+export function FittingWindow({ label = "Fitting Window", browser, statistics }: FittingWindowProps) {
+  const [browserOpen, setBrowserOpen] = useState(true);
   const [statisticsOpen, setStatisticsOpen] = useState(true);
+  const browserId = useId();
   const statisticsId = useId();
-  const open = statistics !== undefined && statisticsOpen;
+  const browserShown = browser !== undefined && browserOpen;
+  const statisticsShown = statistics !== undefined && statisticsOpen;
 
   return (
-    <section className={styles.window} aria-label={label} data-statistics={open || undefined}>
+    <section
+      className={styles.window}
+      aria-label={label}
+      data-browser={browserShown || undefined}
+      data-statistics={statisticsShown || undefined}
+    >
+      {browser !== undefined && (
+        <div id={browserId} className={styles.browser} inert={!browserShown}>
+          <div className={styles.slide}>{browser}</div>
+        </div>
+      )}
       <div className={styles.frame}>
         <div className={styles.wheel}>
           <FittingWheel />
         </div>
         <FitName />
         <Violations />
-        <div className={styles.tools}>
-          <NotImplementedButton className={styles.tool} icon="hardware" label="Item Browser" />
-        </div>
+        {browser !== undefined && (
+          <div className={styles.tools}>
+            <Tooltip label="Item Browser">
+              <button
+                type="button"
+                className={styles.tool}
+                aria-label="Item Browser"
+                aria-expanded={browserShown}
+                aria-controls={browserId}
+                onClick={() => setBrowserOpen(!browserShown)}
+              >
+                <Icon name="hardware" />
+              </button>
+            </Tooltip>
+          </div>
+        )}
         {statistics !== undefined && (
           <div className={styles.panels}>
             <Tooltip label="Statistics">
@@ -48,9 +76,9 @@ export function FittingWindow({ label = "Fitting Window", statistics }: FittingW
                 type="button"
                 className={styles.tool}
                 aria-label="Statistics"
-                aria-expanded={open}
+                aria-expanded={statisticsShown}
                 aria-controls={statisticsId}
-                onClick={() => setStatisticsOpen(!open)}
+                onClick={() => setStatisticsOpen(!statisticsShown)}
               >
                 <Icon name="statistics" />
               </button>
@@ -70,7 +98,7 @@ export function FittingWindow({ label = "Fitting Window", statistics }: FittingW
         </div>
       </div>
       {statistics !== undefined && (
-        <div id={statisticsId} className={styles.statistics} inert={!open}>
+        <div id={statisticsId} className={styles.statistics} inert={!statisticsShown}>
           <div className={styles.slide}>{statistics}</div>
         </div>
       )}

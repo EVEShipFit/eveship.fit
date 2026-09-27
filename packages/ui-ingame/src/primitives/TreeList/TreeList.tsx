@@ -29,7 +29,7 @@ export function TreeGroup({ label, defaultOpen = false, children }: TreeGroupPro
   return (
     <li>
       <button type="button" className={styles.row} aria-expanded={open} onClick={() => setOpen(!open)}>
-        <svg className={styles.chevron} viewBox="0 0 12 12" width={12} height={12} aria-hidden>
+        <svg className={styles.chevron} viewBox="0 0 12 12" aria-hidden>
           <path d="M3 1.5 9.5 6 3 10.5Z" fill="currentColor" />
         </svg>
         {label}
@@ -60,7 +60,7 @@ export function TreeLeaf({ label, typeId, title, onActivate, onHover, onDragStar
         // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Firefox does not start a drag from a <button>.
         role="button"
         tabIndex={0}
-        className={styles.row}
+        className={`${styles.row} ${styles.leaf}`}
         title={title}
         draggable={onDragStart !== undefined}
         onDoubleClick={onActivate}
@@ -72,7 +72,11 @@ export function TreeLeaf({ label, typeId, title, onActivate, onHover, onDragStar
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
-        {typeId !== undefined && <TypeIcon typeId={typeId} size={20} />}
+        {typeId !== undefined && (
+          <span className={styles.icon}>
+            <TypeIcon typeId={typeId} />
+          </span>
+        )}
         <span className={styles.label}>{label}</span>
         {after}
       </div>
