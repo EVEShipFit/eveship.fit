@@ -34,6 +34,14 @@ test("slots, hardpoints and cargo", () => {
   expect(stats.cargo.total).toBe(140);
 });
 
+test("drone bay", () => {
+  const fit = engine.createFit({ ship: id("Tristan") });
+  const drones = fit.fit(id("Warrior II"))!;
+  fit.setQuantity(drones, 3);
+
+  expect(fit.getSnapshot().stats.droneBay).toEqual({ used: 15, total: 40 });
+});
+
 test("items are index-parallel to the fit", () => {
   const fit = engine.createFit({ ship: id("Rifter") });
   fit.fit(id("200mm AutoCannon II"));

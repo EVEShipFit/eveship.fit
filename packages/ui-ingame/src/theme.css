@@ -17,8 +17,18 @@
   --esf-cpu: #2a504f;
   --esf-powergrid: #541208;
   --esf-calibration: #3d4547;
+  --esf-violation-notice: var(--esf-text);
+  --esf-violation-skill: #ff7f00;
+  --esf-violation-error: #fd2d2d;
+  --esf-button: #141e21;
+  --esf-button-edge: #27424a;
+  --esf-history-bg: #070707;
+  --esf-history-border: #1f1f1f;
+  --esf-history-entry: #636363;
+  --esf-history-entry-alt: #888888;
+  --esf-history-current: #bfbfbf;
 
   /* EVE's UI scale; 1 is 100%. */
-  --esf-wheel-scale: 1;
+  --esf-scale: 1;
   --esf-radius: 4px;
 }

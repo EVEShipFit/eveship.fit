@@ -1,0 +1,226 @@
+/* Lengths are EVE's pixels at 100%, measured on the client. */
+.window {
+  --window-unit: calc(1px * var(--esf-scale, 1));
+
+  color: var(--esf-text);
+  font-family: var(--esf-font);
+  font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
+  height: calc(630 * var(--window-unit));
+  position: relative;
+  user-select: none;
+  width: calc(700 * var(--window-unit));
+}
+
+.icon > img,
+.tool > img,
+.bay > img {
+  display: block;
+}
+
+.wheel {
+  --esf-wheel-size: calc(572 * var(--window-unit));
+
+  left: calc(68 * var(--window-unit));
+  position: absolute;
+  top: 0;
+}
+
+.name,
+.violations,
+.tools,
+.panels,
+.bays,
+.history,
+.resources {
+  position: absolute;
+}
+
+.name {
+  align-items: center;
+  display: flex;
+  gap: calc(2 * var(--window-unit));
+  left: calc(20 * var(--window-unit));
+  max-width: calc(200 * var(--window-unit));
+  top: calc(40 * var(--window-unit));
+  white-space: nowrap;
+}
+
+.fitName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.icon {
+  background: none;
+  border: none;
+  cursor: default;
+  padding: 0;
+}
+
+.icon > img {
+  height: calc(16 * var(--window-unit));
+  width: calc(16 * var(--window-unit));
+}
+
+/* EVE draws the link smaller and dimmer. */
+.icon > img[data-icon="link"] {
+  height: calc(12 * var(--window-unit));
+  margin: 0 calc(2 * var(--window-unit));
+  opacity: 0.6;
+  width: calc(12 * var(--window-unit));
+}
+
+.icon:focus-visible,
+.tool:focus-visible {
+  outline: var(--window-unit) solid var(--esf-text);
+}
+
+.violations {
+  display: flex;
+  gap: calc(14 * var(--window-unit));
+  left: calc(20 * var(--window-unit));
+  top: calc(62 * var(--window-unit));
+}
+
+.violation {
+  --colour: var(--esf-violation-notice);
+
+  height: calc(28 * var(--window-unit));
+  position: relative;
+  width: calc(28 * var(--window-unit));
+}
+
+.violation::before {
+  background: var(--colour);
+  content: "";
+  inset: 0;
+  mask: var(--texture) center / 100% 100%;
+  position: absolute;
+}
+
+.violation[data-kind="error"] {
+  --colour: var(--esf-violation-error);
+}
+
+.violation[data-kind="skill"] {
+  --colour: var(--esf-violation-skill);
+}
+
+.count {
+  font-size: 0.85em;
+  left: calc(100% - 2 * var(--window-unit));
+  line-height: 1;
+  position: absolute;
+  top: calc(-2 * var(--window-unit));
+}
+
+.tools {
+  left: calc(16 * var(--window-unit));
+  top: calc(125 * var(--window-unit));
+}
+
+.panels {
+  right: calc(11 * var(--window-unit));
+  top: calc(167 * var(--window-unit));
+}
+
+.tool {
+  align-items: center;
+  background: var(--esf-button);
+  border: none;
+  border-radius: 0 calc(5 * var(--window-unit)) calc(5 * var(--window-unit)) 0;
+  box-shadow: inset calc(-1 * var(--window-unit)) 0 var(--esf-button-edge);
+  cursor: default;
+  display: flex;
+  height: calc(39 * var(--window-unit));
+  justify-content: center;
+  padding: 0;
+  width: calc(45 * var(--window-unit));
+}
+
+.panels .tool {
+  border-radius: calc(5 * var(--window-unit)) 0 0 calc(5 * var(--window-unit));
+  box-shadow: inset var(--window-unit) 0 var(--esf-button-edge);
+  width: calc(42 * var(--window-unit));
+}
+
+.tool > img {
+  height: calc(36 * var(--window-unit));
+  width: calc(36 * var(--window-unit));
+}
+
+.panels .tool > img {
+  height: calc(20 * var(--window-unit));
+  width: calc(20 * var(--window-unit));
+}
+
+.bays {
+  display: grid;
+  gap: calc(4 * var(--window-unit));
+  left: calc(19 * var(--window-unit));
+  top: calc(560 * var(--window-unit));
+}
+
+.bay {
+  align-items: center;
+  column-gap: calc(5 * var(--window-unit));
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  justify-content: start;
+  line-height: calc(13 * var(--window-unit));
+}
+
+.bay > img {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  height: calc(32 * var(--window-unit));
+  width: calc(32 * var(--window-unit));
+}
+
+.used,
+.total {
+  grid-column: 3;
+  justify-self: end;
+}
+
+.used {
+  grid-row: 1;
+}
+
+.slash,
+.total,
+.unit {
+  grid-row: 2;
+}
+
+.slash {
+  grid-column: 2;
+}
+
+.history {
+  left: calc(199 * var(--window-unit));
+  top: calc(590 * var(--window-unit));
+}
+
+.resources {
+  display: grid;
+  gap: calc(10 * var(--window-unit));
+  line-height: calc(16 * var(--window-unit));
+  right: calc(13 * var(--window-unit));
+  text-align: right;
+  top: calc(546 * var(--window-unit));
+}
+
+.resource {
+  display: grid;
+  gap: calc(2 * var(--window-unit));
+}
+
+.title {
+  font-weight: 600;
+}
+
+.bay[data-over],
+.resource[data-over] > :last-child {
+  color: var(--esf-violation-error);
+}

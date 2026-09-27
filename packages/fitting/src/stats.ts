@@ -65,6 +65,8 @@ export class Stats {
   readonly hardpoints: { readonly turret: Usage; readonly launcher: Usage };
   /** In m³. */
   readonly cargo: Usage;
+  /** In m³. */
+  readonly droneBay: Usage;
 
   constructor(sde: Sde, fit: Fit, calculation: Calculation) {
     this.calculation = calculation;
@@ -79,7 +81,18 @@ export class Stats {
     }));
     this.violations = calculation.violations ?? [];
 
-    const used = { high: 0, medium: 0, low: 0, rig: 0, subsystem: 0, service: 0, turret: 0, launcher: 0, cargo: 0 };
+    const used = {
+      high: 0,
+      medium: 0,
+      low: 0,
+      rig: 0,
+      subsystem: 0,
+      service: 0,
+      turret: 0,
+      launcher: 0,
+      cargo: 0,
+      droneBay: 0,
+    };
     for (const item of fit.items) {
       const type = sde.type(item.type_id);
       switch (item.slot.type) {
@@ -98,9 +111,11 @@ export class Stats {
         case "cargo":
           used.cargo += (type?.volume ?? 0) * (item.quantity ?? 1);
           break;
+        case "drone_bay":
+          used.droneBay += (type?.volume ?? 0) * (item.quantity ?? 1);
+          break;
         case "fighter_tube":
         case "fighter_bay":
-        case "drone_bay":
         case "implant":
         case "booster":
           break;
@@ -122,5 +137,6 @@ export class Stats {
       launcher: { used: used.launcher, total: total("launcherSlotsLeft") },
     };
     this.cargo = { used: used.cargo, total: total("capacity") };
+    this.droneBay = { used: used.droneBay, total: total("droneCapacity") };
   }
 }

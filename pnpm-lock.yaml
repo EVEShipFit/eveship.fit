@@ -19,8 +19,8 @@ catalogs:
       specifier: ^13.0.1
       version: 13.0.1
     '@eveshipfit/images':
-      specifier: ^1.3542233.3
-      version: 1.3542233.3
+      specifier: ^1.3542233.4
+      version: 1.3542233.4
     '@eveshipfit/sde':
       specifier: ^7.3539543.0
       version: 7.3542233.0
@@ -160,7 +160,7 @@ importers:
         version: link:../../packages/fitting
       '@eveshipfit/images':
         specifier: 'catalog:'
-        version: 1.3542233.3
+        version: 1.3542233.4
       '@eveshipfit/react-hooks':
         specifier: workspace:*
         version: link:../../packages/react-hooks
@@ -274,7 +274,7 @@ importers:
         version: 7.29.7
       '@eveshipfit/images':
         specifier: 'catalog:'
-        version: 1.3542233.3
+        version: 1.3542233.4
       '@eveshipfit/sde':
         specifier: 'catalog:'
         version: 7.3542233.0
@@ -343,9 +343,12 @@ importers:
       '@babel/core':
         specifier: 'catalog:'
         version: 7.29.7
+      '@eveshipfit/fitting':
+        specifier: workspace:*
+        version: link:../fitting
       '@eveshipfit/images':
         specifier: 'catalog:'
-        version: 1.3542233.3
+        version: 1.3542233.4
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7)(@babel/runtime@7.29.7)(rolldown@1.2.10)(vite@8.3.0(@types/node@22.20.4)(esbuild@0.28.2)(yaml@2.9.1))
@@ -967,8 +970,8 @@ packages:
   '@eveshipfit/dogma-engine@13.0.1':
     resolution: {integrity: sha512-Hfd6XSWTL+gU5xUdvgr5OzHq8n4lyproR9R0iTNNRhClRYeM9vf1Kdnm1+TF/oF5w7eLb8er8dAlgooQvo+Dqg==}
 
-  '@eveshipfit/images@1.3542233.3':
-    resolution: {integrity: sha512-+8MYs0kLTR6pJLU3PejlB9jEYXfw5rmHXtAC1QdTXPbkikPrspvx8d+UuKCA1HOv6R+0A0rnxHaRNUMI0f9p8w==}
+  '@eveshipfit/images@1.3542233.4':
+    resolution: {integrity: sha512-RQxVRgIbfwDBLNVvXYvs6taa5a2RQvlwcI+1xbWLO9BQbuX8vcFhqbC2AUQ5qk3tC/fPSBBSmW/6FVsiKp+SUw==}
 
   '@eveshipfit/sde@7.3542233.0':
     resolution: {integrity: sha512-EDZdNkySFT9ALg5q3xKPYtJ/CwQ1553dtSftUNn/ok3aCSxKGuCCXBOgIiZk9/rYFmIagPmOj1muOdxy8iSqvQ==}
@@ -3855,7 +3858,7 @@ snapshots:
 
   '@eveshipfit/dogma-engine@13.0.1': {}
 
-  '@eveshipfit/images@1.3542233.3':
+  '@eveshipfit/images@1.3542233.4':
     dependencies:
       flatbuffers: 25.9.23
 

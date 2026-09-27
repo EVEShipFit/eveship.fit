@@ -32,7 +32,7 @@ export const Small: Story = {
 };
 
 export const AtUiScale150: Story = {
-  decorators: [(Story) => <div style={{ "--esf-wheel-scale": 1.5 } as CSSProperties}>{Story()}</div>],
+  decorators: [(Story) => <div style={{ "--esf-scale": 1.5 } as CSSProperties}>{Story()}</div>],
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("region", { name: "Fitting" }).getBoundingClientRect().width).toBe(858);
   },

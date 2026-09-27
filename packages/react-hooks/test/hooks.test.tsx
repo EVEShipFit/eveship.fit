@@ -11,6 +11,7 @@ import {
   ImagesProvider,
   LocalFits,
   useAttribute,
+  useBayUsage,
   useCharacters,
   useCharges,
   useDrag,
@@ -30,6 +31,7 @@ import {
   useSnapshot,
   useStats,
   useType,
+  useViolations,
   type EveShipFitProviderProps,
   type FitStorage,
 } from "../src/index.js";
@@ -147,6 +149,28 @@ test("undo and redo", () => {
 
   act(() => result.current.history.redo());
   expect(result.current.fit.items).toHaveLength(1);
+});
+
+test("going back in the history", () => {
+  const { result } = render(() => ({ store: useFitStore(), history: useFitHistory(), fit: useFit() }));
+  act(() => void result.current.store.fit(DAMAGE_CONTROL_II));
+  act(() => void result.current.store.fit(DAMAGE_CONTROL_II));
+  expect(result.current.history).toMatchObject({ length: 3, position: 2 });
+
+  act(() => result.current.history.goTo(0));
+  expect(result.current.fit.items).toEqual([]);
+  expect(result.current.history).toMatchObject({ length: 3, position: 0 });
+});
+
+test("violations and bays", () => {
+  const fit = withDamageControl();
+  fit.setCharacter({ skills: {} });
+  const { result } = render(() => ({ violations: useViolations(), cargo: useBayUsage("cargo") }), { fit });
+
+  expect(result.current.violations).toContainEqual(
+    expect.objectContaining({ rule: expect.objectContaining({ type: "skill" }) }),
+  );
+  expect(result.current.cargo).toEqual({ used: 0, total: 140 });
 });
 
 test("slots list every slot of a rack, empty ones included", () => {

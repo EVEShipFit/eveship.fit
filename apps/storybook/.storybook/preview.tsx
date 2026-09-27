@@ -1,4 +1,4 @@
-import type { Engine, Fit } from "@eveshipfit/fitting";
+import type { Character, Engine, Fit } from "@eveshipfit/fitting";
 import type { Images } from "@eveshipfit/images";
 import { EveShipFitProvider, ImagesProvider } from "@eveshipfit/react-hooks";
 import type { Decorator, Preview } from "@storybook/react-vite";
@@ -10,9 +10,9 @@ import "./preview.css";
 import { loadEngine } from "./engine";
 import { loadAllImages } from "./images";
 
-/** Every story gets a fresh fit: `parameters.fit`, or an empty Rifter. */
+/** Every story gets a fresh fit: `parameters.fit`, or an empty Rifter, flown by `parameters.character`. */
 const withFit: Decorator = (Story, { loaded, parameters }) => (
-  <WithFit engine={loaded.engine as Engine} fit={parameters.fit}>
+  <WithFit engine={loaded.engine as Engine} fit={parameters.fit} character={parameters.character}>
     <Story />
   </WithFit>
 );
@@ -23,8 +23,15 @@ const withImages: Decorator = (Story, { loaded }) => (
   </ImagesProvider>
 );
 
-function WithFit({ engine, fit, children }: { engine: Engine; fit?: Fit | { ship: number }; children: ReactNode }) {
-  const [store] = useState(() => engine.createFit(fit ?? { ship: 587 }));
+interface WithFitProps {
+  engine: Engine;
+  fit?: Fit | { ship: number };
+  character?: Character;
+  children: ReactNode;
+}
+
+function WithFit({ engine, fit, character, children }: WithFitProps) {
+  const [store] = useState(() => engine.createFit(fit ?? { ship: 587 }, character));
   return (
     <EveShipFitProvider engine={engine} fit={store}>
       {children}
