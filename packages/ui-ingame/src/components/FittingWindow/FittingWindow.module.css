@@ -1,6 +1,8 @@
 /* Lengths are EVE's pixels at 100%, measured on the client. */
 .window {
   --window-unit: calc(1px * var(--esf-scale, 1));
+  --browser-width: 0px;
+  --statistics-width: 0px;
 
   color: var(--esf-text);
   font-family: var(--esf-font);
@@ -9,17 +11,22 @@
   position: relative;
   transition: width 200ms ease;
   user-select: none;
-  width: calc(700 * var(--window-unit));
+  width: calc(700 * var(--window-unit) + var(--browser-width) + var(--statistics-width));
+}
+
+.window[data-browser] {
+  --browser-width: calc(400 * var(--window-unit));
 }
 
 .window[data-statistics] {
-  width: calc(972 * var(--window-unit));
+  --statistics-width: calc(272 * var(--window-unit));
 }
 
 /* Keeps what is aligned to the right in place when the window widens. */
 .frame {
-  inset: 0 auto 0 0;
+  inset: 0 auto 0 var(--browser-width);
   position: absolute;
+  transition: left 200ms ease;
   width: calc(700 * var(--window-unit));
 }
 
@@ -156,22 +163,23 @@
   width: calc(42 * var(--window-unit));
 }
 
+.tools .tool[aria-expanded="true"] {
+  background: var(--esf-button-active);
+  box-shadow: inset calc(-1 * var(--window-unit)) 0 var(--esf-button-active-edge);
+}
+
 .panels .tool[aria-expanded="true"] {
   background: var(--esf-button-active);
   box-shadow: inset var(--window-unit) 0 var(--esf-button-active-edge);
 }
 
-.tool > img {
-  height: calc(36 * var(--window-unit));
-  width: calc(36 * var(--window-unit));
+/* The hardware texture is half empty space. */
+.tools .tool > img {
+  height: calc(40 * var(--window-unit));
+  width: calc(40 * var(--window-unit));
 }
 
-.panels .panels .tool[aria-expanded="true"] {
-  background: var(--esf-button-active);
-  box-shadow: inset var(--window-unit) 0 var(--esf-button-active-edge);
-}
-
-.tool > img {
+.panels .tool > img {
   height: calc(20 * var(--window-unit));
   width: calc(20 * var(--window-unit));
 }
@@ -247,32 +255,50 @@
   color: var(--esf-violation-error);
 }
 
+.browser,
 .statistics {
   bottom: 0;
-  /* Just right of the Statistics button. */
-  left: calc(692 * var(--window-unit));
   overflow: hidden;
   position: absolute;
   top: calc(35 * var(--window-unit));
+}
+
+/* Just left of the Item Browser button. */
+.browser {
+  left: calc(15 * var(--window-unit));
+  width: calc(393 * var(--window-unit));
+}
+
+/* Just right of the Statistics button. */
+.statistics {
+  left: calc(692 * var(--window-unit) + var(--browser-width));
+  transition: left 200ms ease;
   width: calc(280 * var(--window-unit));
 }
 
 .slide {
   height: 100%;
-  transform: translateX(-100%);
   transition:
     transform 200ms ease,
     visibility 200ms;
   visibility: hidden;
 }
 
-.window[data-statistics] .slide {
+.browser > .slide,
+.statistics > .slide {
+  transform: translateX(-100%);
+}
+
+.window[data-browser] > .browser > .slide,
+.window[data-statistics] > .statistics > .slide {
   transform: none;
   visibility: visible;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .window,
+  .frame,
+  .statistics,
   .slide {
     transition: none;
   }

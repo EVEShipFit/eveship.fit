@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { CSSProperties } from "react";
 import { expect, waitFor, within } from "storybook/test";
 
+import { ItemBrowser } from "../ItemBrowser/ItemBrowser";
 import { ShipStatistics } from "../ShipStatistics/ShipStatistics";
 import { FittingWindow } from "./FittingWindow";
 
@@ -71,6 +72,39 @@ export const EmptyRifter: Story = {
     await expect(canvas.queryByRole("img", { name: /^Fitting|^Missing/ })).toBeNull();
     await expect(canvas.getAllByRole("button", { name: /of 1$/ })).toHaveLength(1);
     await expect(canvas.queryByRole("button", { name: "Statistics" })).toBeNull();
+    await expect(canvas.queryByRole("button", { name: "Item Browser" })).toBeNull();
+  },
+};
+
+export const WithItemBrowser: Story = {
+  args: { browser: <ItemBrowser /> },
+  play: async ({ canvas, userEvent }) => {
+    const window = canvas.getByRole("region", { name: "Fitting Window" });
+    const fitting = canvas.getByRole("region", { name: "Fitting" });
+    const button = canvas.getByRole("button", { name: "Item Browser" });
+    await expect(button).toHaveAttribute("aria-expanded", "true");
+    await expect(canvas.getByRole("region", { name: "Item Browser" })).toBeVisible();
+    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(1100));
+    const left = fitting.getBoundingClientRect().left;
+
+    await userEvent.click(button);
+    await expect(button).toHaveAttribute("aria-expanded", "false");
+    await waitFor(() => expect(canvas.queryByRole("region", { name: "Item Browser" })).toBeNull());
+    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(700));
+    await expect(fitting.getBoundingClientRect().left).toBe(left - 400);
+
+    await userEvent.click(button);
+    await waitFor(() => expect(canvas.getByRole("region", { name: "Item Browser" })).toBeVisible());
+  },
+};
+
+export const WithBoth: Story = {
+  args: { browser: <ItemBrowser />, statistics: <ShipStatistics /> },
+  play: async ({ canvas }) => {
+    const window = canvas.getByRole("region", { name: "Fitting Window" });
+    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(1372));
+    await expect(canvas.getByRole("region", { name: "Item Browser" })).toBeVisible();
+    await expect(canvas.getByRole("region", { name: "Statistics" })).toBeVisible();
   },
 };
 

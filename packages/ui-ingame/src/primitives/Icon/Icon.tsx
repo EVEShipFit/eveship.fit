@@ -14,6 +14,8 @@ const textures = {
   "module-power": "icons/38_16_207",
   "module-info": "icons/38_16_208",
   link: "eveicon/system_icons/link_16px",
+  search: "eveicon/system_icons/search_16px",
+  collapse: "eveicon/system_icons/collapse_16px",
   hardware: "classes/fitting/tabhardware",
   statistics: "eveicon/system_icons/list_view_16px",
   cargo: "windowicons/ships",
