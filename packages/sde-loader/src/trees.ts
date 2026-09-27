@@ -14,11 +14,14 @@ export interface ModuleFolderNode {
   readonly types: readonly SdeType[];
 }
 
-export interface ModuleGroupNode {
-  readonly group: SdeMarketGroup;
-  readonly children: readonly ModuleGroupNode[];
+export interface MetaSortedTypes {
   readonly types: readonly SdeType[];
   readonly folders: readonly ModuleFolderNode[];
+}
+
+export interface ModuleGroupNode extends MetaSortedTypes {
+  readonly group: SdeMarketGroup;
+  readonly children: readonly ModuleGroupNode[];
 }
 
 export type ShipRace = "amarr" | "caldari" | "gallente" | "minmatar" | "other";
@@ -36,6 +39,7 @@ export interface ShipGroupNode {
 }
 
 const SHIP_CATEGORY_ID = 6;
+const CHARGE_CATEGORY_ID = 8;
 
 const empireFactions: Record<number, ShipRace> = {
   500001: "caldari",
@@ -48,6 +52,8 @@ const SHIP_EQUIPMENT_MARKET_GROUP_ID = 9;
 const DRONES_MARKET_GROUP_ID = 157;
 const RIGS_MARKET_GROUP_ID = 1111;
 const SUBSYSTEMS_MARKET_GROUP_ID = 1112;
+const CHARGES_MARKET_GROUP_ID = 11;
+const FESTIVAL_MARKET_GROUP_ID = 1663;
 
 /** Structure meta groups sort and go in folders as their ship counterparts do. */
 const shipMetaGroups: Partial<Record<number, number>> = { 52: 4, 53: 2, 54: 1 };
@@ -89,29 +95,26 @@ export function buildMarketTree(
   return (children.get(undefined) ?? []).toSorted(byName).map(build);
 }
 
-export function buildModuleTree(
-  market: readonly MarketGroupNode[],
-  metaLevel: (type: SdeType) => number,
-): readonly ModuleGroupNode[] {
-  const byId = new Map<number, MarketGroupNode>();
-  const index = (nodes: readonly MarketGroupNode[]) => {
-    for (const node of nodes) {
-      byId.set(node.group.id, node);
-      index(node.children);
-    }
-  };
-  index(market);
+export type MetaLevel = (type: SdeType) => number;
 
-  const byMeta = (a: SdeType, b: SdeType) => metaGroup(a) - metaGroup(b) || metaLevel(a) - metaLevel(b) || byName(a, b);
+export function sortByMeta(types: Iterable<SdeType>, metaLevel: MetaLevel): MetaSortedTypes {
+  const byFolder = Map.groupBy(types, (type) => metaFolders[metaGroup(type)]);
+  const byMeta = byMetaOf(metaLevel);
+  return {
+    types: (byFolder.get(undefined) ?? []).toSorted(byMeta),
+    folders: folderOrder.flatMap((folder) => {
+      const folderTypes = byFolder.get(folder);
+      return folderTypes === undefined ? [] : [{ folder, types: folderTypes.toSorted(byMeta) }];
+    }),
+  };
+}
+
+export function buildModuleTree(market: readonly MarketGroupNode[], metaLevel: MetaLevel): readonly ModuleGroupNode[] {
+  const byId = indexMarket(market);
 
   const build = (node: MarketGroupNode): ModuleGroupNode[] => {
     const children = node.children.flatMap(build);
-    const byFolder = Map.groupBy(node.types, (type) => metaFolders[metaGroup(type)]);
-    const types = (byFolder.get(undefined) ?? []).toSorted(byMeta);
-    const folders = folderOrder.flatMap((folder) => {
-      const folderTypes = byFolder.get(folder);
-      return folderTypes === undefined ? [] : [{ folder, types: folderTypes.toSorted(byMeta) }];
-    });
+    const { types, folders } = sortByMeta(node.types, metaLevel);
     if (children.length === 0 && types.length === 0 && folders.length === 0) return [];
     return [{ group: node.group, children, types, folders }];
   };
@@ -121,6 +124,42 @@ export function buildModuleTree(
     ...[DRONES_MARKET_GROUP_ID, RIGS_MARKET_GROUP_ID, SUBSYSTEMS_MARKET_GROUP_ID].flatMap((id) => byId.get(id) ?? []),
   ];
   return roots.flatMap(build).toSorted((a, b) => byName(a.group, b.group));
+}
+
+export function buildChargeTree(market: readonly MarketGroupNode[], metaLevel: MetaLevel): readonly MarketGroupNode[] {
+  const byId = indexMarket(market);
+  const byMeta = byMetaOf(metaLevel);
+
+  const build = (node: MarketGroupNode): MarketGroupNode[] => {
+    const children = node.children.flatMap(build).toSorted(groupsFirst);
+    const types = node.types.filter((type) => type.categoryId === CHARGE_CATEGORY_ID).toSorted(byMeta);
+    if (children.length === 0 && types.length === 0) return [];
+    return [{ group: node.group, children, types }];
+  };
+
+  const charges = byId.get(CHARGES_MARKET_GROUP_ID)?.children.flatMap(build).toSorted(groupsFirst) ?? [];
+  const festival = byId.get(FESTIVAL_MARKET_GROUP_ID);
+  return [...charges, ...(festival === undefined ? [] : build(festival))];
+}
+
+function groupsFirst(a: MarketGroupNode, b: MarketGroupNode): number {
+  return Number(a.children.length === 0) - Number(b.children.length === 0) || byName(a.group, b.group);
+}
+
+function byMetaOf(metaLevel: MetaLevel): (a: SdeType, b: SdeType) => number {
+  return (a, b) => metaGroup(a) - metaGroup(b) || metaLevel(a) - metaLevel(b) || byName(a, b);
+}
+
+function indexMarket(market: readonly MarketGroupNode[]): Map<number, MarketGroupNode> {
+  const byId = new Map<number, MarketGroupNode>();
+  const index = (nodes: readonly MarketGroupNode[]) => {
+    for (const node of nodes) {
+      byId.set(node.group.id, node);
+      index(node.children);
+    }
+  };
+  index(market);
+  return byId;
 }
 
 export function buildShipTree(

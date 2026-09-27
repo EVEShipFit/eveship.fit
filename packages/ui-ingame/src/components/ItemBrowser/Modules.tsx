@@ -1,24 +1,14 @@
 import type { Placement } from "@eveshipfit/fitting";
-import {
-  useCanFit,
-  useDrag,
-  useFitStore,
-  useImages,
-  useMissingSkills,
-  useModuleTree,
-  usePlacement,
-  usePreview,
-} from "@eveshipfit/react-hooks";
-import type { MetaFolder, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
-import { useRef, useState, type DragEvent } from "react";
+import { useCanFit, useImages, useMissingSkills, useModuleTree, usePlacement } from "@eveshipfit/react-hooks";
+import type { ModuleGroupNode } from "@eveshipfit/sde-loader";
+import { useState } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
-import { Icon, type IconName } from "../../primitives/Icon/Icon";
-import { Tooltip } from "../../primitives/Tooltip/Tooltip";
-import { TreeGroup, TreeLeaf, TreeList } from "../../primitives/TreeList/TreeList";
-import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
+import type { IconName } from "../../primitives/Icon/Icon";
+import { TreeGroup, TreeList } from "../../primitives/TreeList/TreeList";
 import styles from "./ItemBrowser.module.css";
-import { Search } from "./Search";
+import { MOST_OPENED_BY_SEARCH, Search } from "./Search";
+import { countLeaves, TypeLeaves, useTypeActions, type TypeActions } from "./TypeLeaf";
 
 type SlotFilter = "low" | "medium" | "high" | "rig" | "drones";
 type Place = Placement["type"];
@@ -31,19 +21,9 @@ const slotFilters: { filter: SlotFilter; icon: IconName; label: string; places: 
   { filter: "drones", icon: "filter-drones", label: "Drones", places: ["drone_bay", "fighter_bay"] },
 ];
 
-const folders: Record<MetaFolder, { label: string; metaGroupId: number }> = {
-  faction: { label: "Faction & Storyline", metaGroupId: 4 },
-  officer: { label: "Officer", metaGroupId: 5 },
-  deadspace: { label: "Deadspace", metaGroupId: 6 },
-};
-
-const MOST_OPENED_BY_SEARCH = 200;
-
 /** The Modules tab of the `ItemBrowser`: what goes on a ship, by market group. */
 export function Modules() {
-  const store = useFitStore();
-  const { show, clear } = usePreview();
-  const { start, end } = useDrag();
+  const { actions, clear, dragImage } = useTypeActions();
   const placement = usePlacement();
   const canFit = useCanFit();
   const missingSkills = useMissingSkills();
@@ -52,8 +32,6 @@ export function Modules() {
   const [hullRestrictions, setHullRestrictions] = useState(false);
   const [flyable, setFlyable] = useState(false);
   const [collapsed, setCollapsed] = useState<{ times: number; query?: string }>({ times: 0 });
-  const [hovered, setHovered] = useState<number>();
-  const dragImage = useRef<HTMLSpanElement>(null);
 
   const query = search.trim().toLowerCase();
   const places = new Set(slotFilters.filter(({ filter }) => slots.has(filter)).flatMap((slot) => slot.places));
@@ -73,28 +51,6 @@ export function Modules() {
   );
 
   const open = query !== "" && query !== collapsed.query && countTypes(groups) <= MOST_OPENED_BY_SEARCH;
-
-  const actions: ModuleActions = {
-    fit: (typeId) => void store.fit(typeId),
-    hover: (typeId, hovering) => {
-      if (hovering) {
-        setHovered(typeId);
-        show((draft) => void draft.fit(typeId));
-      } else clear();
-    },
-    drag: (event, type) => {
-      clear();
-      const image = dragImage.current;
-      if (image?.dataset.typeId === String(type.id)) event.dataTransfer.setDragImage(image, 32, 32);
-      event.dataTransfer.effectAllowed = "copy";
-      event.dataTransfer.setData("text/plain", type.name);
-      start({ type: "type", typeId: type.id });
-    },
-    dragEnd: () => {
-      end();
-      clear();
-    },
-  };
 
   const toggleSlot = (filter: SlotFilter, pressed: boolean) => {
     const next = new Set(slots);
@@ -139,26 +95,15 @@ export function Modules() {
           ))}
         </TreeList>
       </div>
-      {hovered !== undefined && (
-        <span ref={dragImage} className={styles.dragImage} data-type-id={hovered} aria-hidden>
-          <TypeIcon typeId={hovered} size={64} loading="eager" />
-        </span>
-      )}
+      {dragImage}
     </>
   );
-}
-
-interface ModuleActions {
-  fit: (typeId: number) => void;
-  hover: (typeId: number, hovering: boolean) => void;
-  drag: (event: DragEvent, type: SdeType) => void;
-  dragEnd: () => void;
 }
 
 interface ModuleGroupProps {
   node: ModuleGroupNode;
   open: boolean;
-  actions: ModuleActions;
+  actions: TypeActions;
 }
 
 function ModuleGroup({ node, open, actions }: ModuleGroupProps) {
@@ -171,55 +116,13 @@ function ModuleGroup({ node, open, actions }: ModuleGroupProps) {
           {node.children.map((child) => (
             <ModuleGroup key={child.group.id} node={child} open={open} actions={actions} />
           ))}
-          {node.types.map((type) => (
-            <Module key={type.id} type={type} actions={actions} />
-          ))}
-          {node.folders.map(({ folder, types }) => (
-            <TreeGroup
-              key={folder}
-              label={folders[folder].label}
-              icon={images.metaGroupIcon(folders[folder].metaGroupId)}
-              defaultOpen={open}
-            >
-              {() => types.map((type) => <Module key={type.id} type={type} actions={actions} />)}
-            </TreeGroup>
-          ))}
+          <TypeLeaves sorted={node} open={open} actions={actions} />
         </>
       )}
     </TreeGroup>
   );
 }
 
-function Module({ type, actions }: { type: SdeType; actions: ModuleActions }) {
-  return (
-    <TreeLeaf
-      label={type.name}
-      onActivate={() => actions.fit(type.id)}
-      onHover={(hovering) => actions.hover(type.id, hovering)}
-      onDragStart={(event) => actions.drag(event, type)}
-      onDragEnd={actions.dragEnd}
-      after={
-        <Tooltip label="Show Info (not implemented yet)">
-          <button
-            type="button"
-            className={styles.info}
-            aria-label={`Show Info on ${type.name}`}
-            aria-disabled
-            tabIndex={-1}
-          >
-            <Icon name="module-info" />
-          </button>
-        </Tooltip>
-      }
-    />
-  );
-}
-
 function countTypes(nodes: readonly ModuleGroupNode[]): number {
-  let count = 0;
-  for (const node of nodes) {
-    count += countTypes(node.children) + node.types.length;
-    for (const folder of node.folders) count += folder.types.length;
-  }
-  return count;
+  return nodes.reduce((count, node) => count + countTypes(node.children) + countLeaves(node), 0);
 }

@@ -87,6 +87,7 @@ export function Icon({ name, size = 16 }: IconProps) {
   return <img className={styles.icon} src={src} width={size} height={size} alt="" data-icon={name} draggable={false} />;
 }
 
-export function useIconUrl(name: IconName): string | undefined {
-  return useImages().uiTexture(textures[name]);
+export function useIconUrl(name: IconName | undefined): string | undefined {
+  const images = useImages();
+  return name === undefined ? undefined : images.uiTexture(textures[name]);
 }

@@ -28,7 +28,7 @@ export const HullsAndFits: Story = {
     await expect(canvas.getByRole("tab", { name: "Hulls & Fits" })).toHaveAttribute("aria-selected", "true");
     await expect(canvas.getByRole("tab", { name: "Modules" })).toHaveAttribute("aria-selected", "false");
     await expect(canvas.getByRole("tab", { name: "Modules" })).not.toHaveAttribute("aria-disabled");
-    await expect(canvas.getByRole("tab", { name: "Charges" })).toHaveAttribute("aria-disabled", "true");
+    await expect(canvas.getByRole("tab", { name: "Charges" })).toHaveAttribute("aria-selected", "false");
 
     const hulls = within(canvas.getByRole("list", { name: "Hulls" }));
     await expect(hulls.getByRole("button", { name: "Frigate" })).toHaveAttribute("aria-expanded", "false");
@@ -413,5 +413,81 @@ export const AtUiScale150: Story = {
   decorators: [(Story) => <div style={{ "--esf-scale": 1.5 } as CSSProperties}>{Story()}</div>],
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("region", { name: "Item Browser" }).getBoundingClientRect().width).toBe(589.5);
+  },
+};
+
+const charges = (canvas: ReturnType<typeof within>) => within(canvas.getByRole("list", { name: "Charges" }));
+
+const armed = {
+  ship: { type_id: 587 },
+  items: [
+    { type_id: 10631, slot: { type: "high", index: 1 }, state: "active" },
+    { type_id: 2889, slot: { type: "high", index: 0 }, state: "active" },
+    { type_id: 2889, slot: { type: "high", index: 2 }, state: "active" },
+    { type_id: 2048, slot: { type: "low", index: 0 }, state: "active" },
+  ],
+};
+
+/** Charges by market group, groups with groups in them first; without modules that load charges, nothing to filter by. */
+export const Charges: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("tab", { name: "Charges" }));
+    const panel = within(canvas.getByRole("tabpanel"));
+    await expect(within(panel.getByRole("group", { name: "Filters" })).queryAllByRole("button")).toEqual([]);
+
+    const groups = charges(canvas)
+      .getAllByRole("button", { expanded: false })
+      .map((row) => row.textContent);
+    await expect(groups.slice(0, 2)).toEqual(["Command Burst Charges", "Condenser Packs"]);
+    await expect(groups.slice(-2)).toEqual(["Structure Guided Bombs", "Special Edition Festival Assets"]);
+  },
+};
+
+/** A fitted module filters the charges to those it loads, flat; one module at a time. */
+export const ChargesForModule: Story = {
+  parameters: { fit: armed },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("tab", { name: "Charges" }));
+    const filters = within(within(canvas.getByRole("tabpanel")).getByRole("group", { name: "Filters" }));
+    await expect(filters.getAllByRole("button").map((button) => button.getAttribute("aria-label"))).toEqual([
+      "200mm AutoCannon II",
+      "Rocket Launcher II",
+    ]);
+
+    await userEvent.click(filters.getByRole("button", { name: "200mm AutoCannon II" }));
+    await expect(filters.getByRole("button", { name: "200mm AutoCannon II" })).toHaveAttribute("aria-pressed", "true");
+    await expect(charges(canvas).queryByRole("button", { name: "Projectile Ammo" })).toBeNull();
+    const rows = charges(canvas)
+      .getAllByRole("button", { name: /^(?!Show Info).* S$/ })
+      .map((row) => row.textContent);
+    await expect(rows.slice(0, 2)).toEqual(["Carbonized Lead S", "Depleted Uranium S"]);
+    await expect(rows).toContain("Barrage S");
+    await expect(rows).not.toContain("EMP M");
+    await expect(charges(canvas).getByRole("button", { name: "Faction & Storyline" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+
+    await userEvent.click(filters.getByRole("button", { name: "Rocket Launcher II" }));
+    await expect(filters.getByRole("button", { name: "200mm AutoCannon II" })).toHaveAttribute("aria-pressed", "false");
+    await expect(charges(canvas).getByRole("button", { name: "Mjolnir Rocket" })).toBeVisible();
+    await expect(charges(canvas).queryByRole("button", { name: "EMP S" })).toBeNull();
+
+    await userEvent.click(filters.getByRole("button", { name: "Rocket Launcher II" }));
+    await expect(charges(canvas).getByRole("button", { name: "Missiles" })).toBeVisible();
+  },
+};
+
+export const SearchCharges: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("tab", { name: "Charges" }));
+    await userEvent.type(within(canvas.getByRole("tabpanel")).getByRole("searchbox"), "emp s");
+
+    await expect(charges(canvas).getByRole("button", { name: "EMP S" })).toBeVisible();
+    await expect(charges(canvas).getByRole("button", { name: "Projectile Ammo" })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+    await expect(charges(canvas).queryByRole("button", { name: "Missiles" })).toBeNull();
   },
 };

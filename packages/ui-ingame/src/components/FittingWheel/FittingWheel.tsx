@@ -158,7 +158,9 @@ function FittingSlot({ rack, index, content, available, dropPreview }: FittingSl
     if (!available || drop === undefined) return false;
     if (drop.type === "item") return movesTo(fit, drop.ref, rack, index);
     const dropped = sde.type(drop.typeId);
-    const place = dropped && placement(dropped);
+    if (dropped === undefined) return false;
+    const place = placement(dropped);
+    if (place?.type === "charge") return ref !== undefined && charges.includes(dropped);
     return place?.type === rack && (place.type !== "subsystem" || place.index === index);
   };
 

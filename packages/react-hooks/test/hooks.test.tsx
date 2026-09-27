@@ -16,6 +16,8 @@ import {
   useBayUsage,
   useCanFit,
   useCharacters,
+  useChargedModules,
+  useChargeTree,
   useCharges,
   useDrag,
   useEngine,
@@ -425,4 +427,39 @@ test("a ship with a drone bay takes drones", () => {
     fit: engine.createFit({ ship: { type_id: engine.sde.typeByName("Tristan")!.id }, items: [] }),
   });
   expect(result.current(engine.sde.typeByName("Warrior II")!)).toBe(true);
+});
+
+test("the charges keep only the groups of what the filter keeps", () => {
+  const { result } = render(() => useChargeTree(onlyEmpS));
+
+  expect(result.current.map((node) => node.group.name)).toEqual(["Projectile Ammo"]);
+  expect(allMarketTypes(result.current).map((type) => type.name)).toEqual(["EMP S"]);
+});
+
+const onlyEmpS = (type: SdeType) => type.name === "EMP S";
+
+function allMarketTypes(nodes: readonly MarketGroupNode[]): SdeType[] {
+  return nodes.flatMap((node) => [...allMarketTypes(node.children), ...node.types]);
+}
+
+test("the fitted modules that load charges, each once, in slot order", () => {
+  const { result } = render(() => useChargedModules(), {
+    fit: engine.createFit({
+      ship: { type_id: RIFTER },
+      items: [
+        { type_id: byName("Light Missile Launcher II").id, slot: { type: "high", index: 2 }, state: "active" },
+        { type_id: byName("200mm AutoCannon II").id, slot: { type: "high", index: 1 }, state: "active" },
+        { type_id: byName("200mm AutoCannon II").id, slot: { type: "high", index: 0 }, state: "active" },
+        { type_id: byName("Medium Capacitor Booster II").id, slot: { type: "medium", index: 0 }, state: "active" },
+        { type_id: DAMAGE_CONTROL_II, slot: { type: "low", index: 0 }, state: "active" },
+        { type_id: byName("EMP S").id, slot: { type: "cargo" }, quantity: 100, state: "offline" },
+      ],
+    }),
+  });
+
+  expect(result.current.map((type) => type.name)).toEqual([
+    "200mm AutoCannon II",
+    "Light Missile Launcher II",
+    "Medium Capacitor Booster II",
+  ]);
 });

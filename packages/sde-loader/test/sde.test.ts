@@ -124,6 +124,45 @@ describe("trees", () => {
     expect(folders.flatMap((node) => node.types).every((type) => type.metaGroupId === 52)).toBe(true);
   });
 
+  test("charges, groups with groups in them first", () => {
+    const roots = sde.chargeTree();
+    expect(roots.map((node) => node.group.name)).toEqual([
+      "Command Burst Charges",
+      "Condenser Packs",
+      "Exotic Plasma Charges",
+      "Frequency Crystals",
+      "Hybrid Charges",
+      "Mining Crystals",
+      "Missiles",
+      "Probes",
+      "Projectile Ammo",
+      "Bombs",
+      "Breacher Pods",
+      "Cap Booster Charges",
+      "Nanite Repair Paste",
+      "Scripts",
+      "Structure Area Denial Ammunition",
+      "Structure Guided Bombs",
+      "Special Edition Festival Assets",
+    ]);
+
+    const hybrid = roots.find((node) => node.group.name === "Hybrid Charges")!;
+    expect(hybrid.children.map((node) => node.group.name)).not.toContain("Orbital Strike");
+
+    const festival = roots.at(-1)!;
+    expect(festival.types.length).toBeGreaterThan(0);
+    expect(festival.types.every((type) => type.categoryId === 8)).toBe(true);
+  });
+
+  test("types sorted by meta, with faction ones in a folder", () => {
+    const names = ["Republic Fleet EMP S", "Barrage S", "EMP S", "Carbonized Lead S"];
+    const sorted = sde.sortByMeta(names.map((name) => sde.typeByName(name)!));
+    expect(sorted.types.map((type) => type.name)).toEqual(["Carbonized Lead S", "EMP S", "Barrage S"]);
+    expect(sorted.folders.map((node) => [node.folder, node.types.map((type) => type.name)])).toEqual([
+      ["faction", ["Republic Fleet EMP S"]],
+    ]);
+  });
+
   test("ships by group and race", () => {
     const frigates = sde.shipTree().find((node) => node.group.name === "Frigate")!;
     expect(frigates.races.map((node) => node.race)).toEqual(["amarr", "caldari", "gallente", "minmatar", "other"]);

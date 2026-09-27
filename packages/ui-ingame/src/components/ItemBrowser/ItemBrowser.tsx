@@ -1,6 +1,6 @@
 import { useId, useState, type ReactNode } from "react";
 
-import { Tooltip } from "../../primitives/Tooltip/Tooltip";
+import { Charges } from "./Charges";
 import { HullsAndFits } from "./HullsAndFits";
 import styles from "./ItemBrowser.module.css";
 import { Modules } from "./Modules";
@@ -9,7 +9,7 @@ export interface ItemBrowserProps {
   label?: string;
 }
 
-type Tab = "hulls" | "modules";
+type Tab = "hulls" | "modules" | "charges";
 
 /** EVE's browser of hulls and fits, modules and charges, left of the fitting wheel. */
 export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
@@ -19,6 +19,7 @@ export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
   const tabs: { tab: Tab; label: string; panel: ReactNode }[] = [
     { tab: "hulls", label: "Hulls & Fits", panel: <HullsAndFits /> },
     { tab: "modules", label: "Modules", panel: <Modules /> },
+    { tab: "charges", label: "Charges", panel: <Charges /> },
   ];
 
   return (
@@ -38,7 +39,6 @@ export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
             {each.label}
           </button>
         ))}
-        <NotImplementedTab label="Charges" />
       </div>
       {tabs.map((each) => (
         <div
@@ -53,15 +53,5 @@ export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
         </div>
       ))}
     </section>
-  );
-}
-
-function NotImplementedTab({ label }: { label: string }) {
-  return (
-    <Tooltip label={`${label} (not implemented yet)`}>
-      <button type="button" className={styles.tab} role="tab" aria-selected={false} aria-disabled>
-        {label}
-      </button>
-    </Tooltip>
   );
 }

@@ -35,6 +35,16 @@ export const Pressed: Story = {
   args: { pressed: true, onPressedChange: () => {} },
 };
 
+/** A fitted module, by its own icon. */
+export const WithType: Story = {
+  args: { icon: undefined, typeId: 2889, label: "200mm AutoCannon II", pressed: true, onPressedChange: () => {} },
+  play: async ({ canvas }) => {
+    const filter = canvas.getByRole("button", { name: "200mm AutoCannon II" });
+    await expect(filter.getBoundingClientRect().width).toBe(32);
+    await expect(filter.querySelectorAll("img").length).toBeGreaterThan(1);
+  },
+};
+
 export const NotImplemented: Story = {
   args: { icon: "fits-personal", label: "Personal Fittings" },
   play: async ({ canvas, userEvent }) => {

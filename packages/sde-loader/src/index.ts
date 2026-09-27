@@ -18,6 +18,7 @@ export {
   shipRace,
   type MarketGroupNode,
   type MetaFolder,
+  type MetaSortedTypes,
   type ModuleFolderNode,
   type ModuleGroupNode,
   type ShipGroupNode,
