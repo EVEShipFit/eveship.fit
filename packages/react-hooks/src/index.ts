@@ -25,7 +25,17 @@ export {
 export { useImages } from "./hooks/images.js";
 export { useLocalFits, type LocalFitsControls } from "./hooks/local-fits.js";
 export { useCanFit, usePlacement } from "./hooks/rules.js";
-export { useCharges, useEngine, useHullTree, useMarketTree, useModuleTree, useSde, useType } from "./hooks/sde.js";
+export {
+  useChargedModules,
+  useChargeTree,
+  useCharges,
+  useEngine,
+  useHullTree,
+  useMarketTree,
+  useModuleTree,
+  useSde,
+  useType,
+} from "./hooks/sde.js";
 export { useAttributeTooltip, useTexts } from "./hooks/texts.js";
 export { useBayUsage, useHardpoints, useRackUsage, useSlots, type SlotContent } from "./hooks/slots.js";
 export { ImagesProvider, type ImagesProviderProps } from "./images.js";

@@ -75,8 +75,9 @@ const texts = await loadTexts({ url: "/texts.dat" });
 
 ### Browsing
 
-`useMarketTree`, `useHullTree` and `useModuleTree` give EVE's market, its ships and what goes on a ship, cut down to what
-a filter keeps. `usePlacement` says where a type goes, and `useCanFit` whether it may go on the fit's ship.
+`useMarketTree`, `useHullTree`, `useModuleTree` and `useChargeTree` give EVE's market, its ships, what goes on a ship and
+its charges, cut down to what a filter keeps. `useChargedModules` lists the fitted modules that load charges.
+`usePlacement` says where a type goes, and `useCanFit` whether it may go on the fit's ship.
 
 ### Skills
 

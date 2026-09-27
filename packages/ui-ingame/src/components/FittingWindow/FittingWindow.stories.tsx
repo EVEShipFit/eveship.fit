@@ -219,6 +219,43 @@ export const DragModulePreview: Story = {
   },
 };
 
+/** A double click loads a charge in every module that takes it; a drop, in that one module. */
+export const LoadCharge: Story = {
+  args: { browser: <ItemBrowser /> },
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    const wheel = canvas.getByRole("region", { name: "Fitting" });
+    const loaded = () => wheel.querySelectorAll("[data-state]:has([data-loaded])");
+    const slots = (name: RegExp) =>
+      within(wheel)
+        .getAllByRole("button", { name })
+        .map((module) => module.closest("[data-state]")!);
+    const icons = (name: RegExp) => slots(name).map((slot) => slot.querySelector("img")!.src);
+    await userEvent.click(canvas.getByRole("tab", { name: "Charges" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Rocket Launcher II" }));
+    await expect(loaded()).toHaveLength(1);
+
+    await dragAndDrop(canvas.getByRole("button", { name: "Mjolnir Rocket" }), slots(/^Rocket Launcher II/)[0]!);
+    await expect(loaded()).toHaveLength(2);
+
+    await userEvent.click(canvas.getByRole("button", { name: "200mm AutoCannon II" }));
+    const fusion = canvas.getByRole("button", { name: "Fusion S" });
+    const dataTransfer = new DataTransfer();
+    await fireEvent.dragStart(fusion, { dataTransfer });
+    await expect(await fireEvent.dragOver(slots(/^Rocket Launcher II/)[0]!, { dataTransfer })).toBe(true);
+    await fireEvent.dragEnd(fusion, { dataTransfer });
+
+    const unloaded = slots(/^200mm AutoCannon II/).find((slot) => !slot.querySelector("[data-loaded]"))!;
+    await dragAndDrop(fusion, unloaded);
+    await expect(loaded()).toHaveLength(3);
+    const [first, second] = icons(/^200mm AutoCannon II/);
+    await expect(first).not.toBe(second);
+
+    await userEvent.dblClick(fusion);
+    await waitFor(() => expect(new Set(icons(/^200mm AutoCannon II/)).size).toBe(1));
+  },
+};
+
 export const WithBoth: Story = {
   args: { browser: <ItemBrowser />, statistics: <ShipStatistics /> },
   play: async ({ canvas }) => {

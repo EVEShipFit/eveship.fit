@@ -32,10 +32,14 @@ import {
 import { readSource, type Source } from "./source.js";
 import { Table } from "./table.js";
 import {
+  buildChargeTree,
   buildMarketTree,
   buildModuleTree,
   buildShipTree,
+  sortByMeta,
   type MarketGroupNode,
+  type MetaLevel,
+  type MetaSortedTypes,
   type ModuleGroupNode,
   type ShipGroupNode,
 } from "./trees.js";
@@ -59,6 +63,7 @@ export class Sde {
   #typesByName: Map<string, SdeType> | undefined;
   #marketTree: readonly MarketGroupNode[] | undefined;
   #moduleTree: readonly ModuleGroupNode[] | undefined;
+  #chargeTree: readonly MarketGroupNode[] | undefined;
   #shipTree: readonly ShipGroupNode[] | undefined;
 
   constructor(bytes: Uint8Array) {
@@ -162,12 +167,24 @@ export class Sde {
 
   /** What goes on a ship, by market group; types sorted by meta group, meta level and name. */
   moduleTree(): readonly ModuleGroupNode[] {
-    const metaLevel = this.attributeId("metaLevelOld");
-    this.#moduleTree ??= buildModuleTree(
-      this.marketTree(),
-      (type) => (metaLevel === undefined ? undefined : type.attributes.get(metaLevel)) ?? 0,
-    );
+    this.#moduleTree ??= buildModuleTree(this.marketTree(), this.#metaLevel());
     return this.#moduleTree;
+  }
+
+  /** Charges by market group, groups with groups in them first; types sorted by meta group, meta level and name. */
+  chargeTree(): readonly MarketGroupNode[] {
+    this.#chargeTree ??= buildChargeTree(this.marketTree(), this.#metaLevel());
+    return this.#chargeTree;
+  }
+
+  /** Sorted by meta group, meta level and name; faction, officer and deadspace types in folders, as in `moduleTree`. */
+  sortByMeta(types: Iterable<SdeType>): MetaSortedTypes {
+    return sortByMeta(types, this.#metaLevel());
+  }
+
+  #metaLevel(): MetaLevel {
+    const metaLevel = this.attributeId("metaLevelOld");
+    return (type) => (metaLevel === undefined ? undefined : type.attributes.get(metaLevel)) ?? 0;
   }
 
   /** Published ships, by group and then race; everything sorted by name. */

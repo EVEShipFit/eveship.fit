@@ -42,10 +42,6 @@
   background: var(--esf-tab-active);
 }
 
-.tab[aria-disabled="true"] {
-  color: var(--esf-text-muted);
-}
-
 .tab:focus-visible,
 .collapse:focus-visible {
   outline: var(--browser-unit) solid var(--esf-text);

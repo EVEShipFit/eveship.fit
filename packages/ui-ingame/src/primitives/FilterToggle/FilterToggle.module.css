@@ -17,7 +17,8 @@
   width: calc(32 * var(--toggle-unit));
 }
 
-.toggle > img {
+.toggle > img,
+.toggle > span:first-child {
   flex: none;
   height: calc(32 * var(--toggle-unit));
   width: calc(32 * var(--toggle-unit));
