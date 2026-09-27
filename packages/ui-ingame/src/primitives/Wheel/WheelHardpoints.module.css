@@ -1,0 +1,20 @@
+.dots {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.icon,
+.dot {
+  height: calc(13 * var(--wheel-unit));
+  pointer-events: none;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: calc(13 * var(--wheel-unit));
+}
+
+.icon > img {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
