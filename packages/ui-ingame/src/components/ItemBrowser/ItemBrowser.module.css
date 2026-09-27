@@ -143,10 +143,6 @@
   font-weight: 600;
 }
 
-.hullFits {
-  display: grid;
-}
-
 .counts {
   display: flex;
 }
@@ -163,6 +159,15 @@
   display: block;
   height: calc(12 * var(--browser-unit));
   width: calc(12 * var(--browser-unit));
+}
+
+.unseen {
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
 
 .kind {

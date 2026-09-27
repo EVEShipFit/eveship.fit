@@ -77,6 +77,12 @@
   width: 100%;
 }
 
+.text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
 .label {
   flex: 1;
   overflow: hidden;

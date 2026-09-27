@@ -1,4 +1,4 @@
-import { useState, type DragEvent, type ReactNode } from "react";
+import { useId, useState, type DragEvent, type ReactNode } from "react";
 
 import { TypeIcon } from "../TypeIcon/TypeIcon";
 import styles from "./TreeList.module.css";
@@ -20,6 +20,8 @@ export interface TreeGroupProps {
   label: ReactNode;
   /** Shows the type's icon in front of the label. */
   typeId?: number;
+  /** A second line under the label. */
+  description?: ReactNode;
   defaultOpen?: boolean;
   /** Shown at the end of the row, like a count or an action. */
   after?: ReactNode;
@@ -27,18 +29,32 @@ export interface TreeGroupProps {
   children: () => ReactNode;
 }
 
-export function TreeGroup({ label, typeId, defaultOpen = false, after, children }: TreeGroupProps) {
+export function TreeGroup({ label, typeId, description, defaultOpen = false, after, children }: TreeGroupProps) {
   const [open, setOpen] = useState(defaultOpen);
+  const descriptionId = useId();
 
   return (
     <li>
       <div className={styles.head}>
-        <button type="button" className={styles.row} aria-expanded={open} onClick={() => setOpen(!open)}>
+        <button
+          type="button"
+          className={styles.row}
+          aria-expanded={open}
+          aria-describedby={description !== undefined ? descriptionId : undefined}
+          onClick={() => setOpen(!open)}
+        >
           <svg className={styles.chevron} viewBox="0 0 12 12" aria-hidden>
             <path d="M3 1.5 9.5 6 3 10.5Z" fill="currentColor" />
           </svg>
           {typeId !== undefined && <RowIcon typeId={typeId} />}
-          <span className={styles.label}>{label}</span>
+          <span className={styles.text}>
+            <span className={styles.label}>{label}</span>
+            {description !== undefined && (
+              <span id={descriptionId} className={styles.label} aria-hidden>
+                {description}
+              </span>
+            )}
+          </span>
         </button>
         {after}
       </div>

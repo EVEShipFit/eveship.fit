@@ -127,7 +127,6 @@ export function HullsAndFits() {
                               key={ship.id}
                               label={<span className={styles.hull}>{ship.name}</span>}
                               typeId={ship.id}
-                              onActivate={() => simulate(ship.id)}
                               after={simulateShip}
                             />
                           );
@@ -136,7 +135,8 @@ export function HullsAndFits() {
                         return (
                           <TreeGroup
                             key={ship.id}
-                            label={<Hull name={ship.name} browserFits={fitsByHull.get(ship.id)?.length ?? 0} />}
+                            label={<span className={styles.hull}>{ship.name}</span>}
+                            description={<Counts browserFits={fitsByHull.get(ship.id)?.length ?? 0} />}
                             typeId={ship.id}
                             defaultOpen={tree.open}
                             after={simulateShip}
@@ -173,25 +173,22 @@ export function HullsAndFits() {
   );
 }
 
-function Hull({ name, browserFits }: { name: string; browserFits: number }) {
+function Counts({ browserFits }: { browserFits: number }) {
   return (
-    <span className={styles.hullFits}>
-      <span className={styles.hull}>{name}</span>
-      <span className={styles.counts}>
-        <Count icon="fits-browser" label="Browser Fittings" count={browserFits} />
-        <Count icon="fits-corporation" label="Corporation Fittings" count={0} />
-        <Count icon="fits-community-small" label="Community Fittings" count={0} />
-        <Count icon="fits-alliance-small" label="Alliance Fittings" count={0} />
-      </span>
+    <span className={styles.counts}>
+      <Count icon="fits-browser" label="Browser Fittings" count={browserFits} />
+      <Count icon="fits-corporation" label="Corporation Fittings" count={0} />
+      <Count icon="fits-community-small" label="Community Fittings" count={0} />
+      <Count icon="fits-alliance-small" label="Alliance Fittings" count={0} />
     </span>
   );
 }
 
 function Count({ icon, label, count }: { icon: IconName; label: string; count: number }) {
   return (
-    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- An <img> cannot hold the count.
-    <span className={styles.count} role="img" aria-label={`${label}: ${count}`}>
+    <span className={styles.count}>
       <Icon name={icon} />
+      <span className={styles.unseen}>{label}: </span>
       {count}
     </span>
   );

@@ -109,7 +109,7 @@ export const CurrentHull: Story = {
   },
 };
 
-/** Simulate Ship, or a double click on the hull, starts an empty fit of it. */
+/** Simulate Ship starts an empty fit of the hull; a double click does not. */
 export const SimulateShip: Story = {
   play: async ({ canvas, userEvent }) => {
     const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
@@ -126,7 +126,7 @@ export const SimulateShip: Story = {
     await userEvent.click(hulls().getByRole("button", { name: /^Minmatar/ }));
     await userEvent.dblClick(hulls().getByRole("button", { name: "Breacher" }));
     await userEvent.click(canvas.getByRole("button", { name: "Current Hull" }));
-    await expect(hulls().getByRole("button", { name: "Breacher" })).toBeVisible();
+    await expect(hulls().getByRole("button", { name: "Slasher" })).toBeVisible();
     await expect(hulls().getAllByRole("button", { name: /^Simulate / })).toHaveLength(1);
   },
 };
@@ -161,9 +161,10 @@ export const SavedFits: Story = {
     await userEvent.click(hulls().getByRole("button", { name: "Frigate" }));
     await userEvent.click(hulls().getByRole("button", { name: /^Minmatar/ }));
 
-    const rifter = hulls().getByRole("button", { name: /^Rifter/ });
-    await expect(within(rifter).getByRole("img", { name: "Browser Fittings: 2" })).toBeInTheDocument();
-    await expect(within(rifter).getByRole("img", { name: "Alliance Fittings: 0" })).toBeInTheDocument();
+    const rifter = hulls().getByRole("button", { name: "Rifter" });
+    await expect(rifter).toHaveAccessibleDescription(
+      "Browser Fittings: 2 Corporation Fittings: 0 Community Fittings: 0 Alliance Fittings: 0",
+    );
     await expect(hulls().getByRole("button", { name: "Simulate Rifter" })).toBeVisible();
 
     await userEvent.click(rifter);
