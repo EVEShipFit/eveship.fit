@@ -1,4 +1,4 @@
-import { missingSkills, type Character, type MissingSkill } from "@eveshipfit/fitting";
+import { missingSkills, typesInUse, type Character, type Fit, type MissingSkill } from "@eveshipfit/fitting";
 import { useSyncExternalStore } from "react";
 
 import { CharacterContext, useRequiredContext } from "../context.js";
@@ -46,10 +46,10 @@ export function useCharacters(): CharactersControls {
   };
 }
 
-/** The skills the fit's character lacks to use `typeIds`; empty when it has them all. */
-export function useMissingSkills(): (typeIds: Iterable<number>) => readonly MissingSkill[] {
+/** The skills the fit's character lacks to use some types, or a whole fit; empty when it has them all. */
+export function useMissingSkills(): (types: Iterable<number> | Fit) => readonly MissingSkill[] {
   const sde = useSde();
   const store = useFitStore();
   const character = useSyncExternalStore(store.subscribe, () => store.character);
-  return (typeIds) => missingSkills(sde, character, typeIds);
+  return (types) => missingSkills(sde, character, "ship" in types ? typesInUse(types) : types);
 }

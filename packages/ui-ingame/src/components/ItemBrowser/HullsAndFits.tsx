@@ -1,18 +1,23 @@
-import { useFit, useFitStore, useHullTree, useMissingSkills } from "@eveshipfit/react-hooks";
-import { useState } from "react";
+import type { Fit } from "@eveshipfit/fitting";
+import { useFit, useFitStore, useHullTree, useLocalFits, useMissingSkills } from "@eveshipfit/react-hooks";
+import { useState, type CSSProperties } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
-import { Icon } from "../../primitives/Icon/Icon";
+import { Icon, useIconUrl, type IconName } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import { TreeGroup, TreeLeaf, TreeList } from "../../primitives/TreeList/TreeList";
 import styles from "./ItemBrowser.module.css";
 
-/** The Hulls & Fits tab of the `ItemBrowser`: EVE's hulls by group and race. */
+const noFits: readonly Fit[] = [];
+
+/** The Hulls & Fits tab of the `ItemBrowser`: EVE's hulls by group and race, with the fits saved for each. */
 export function HullsAndFits() {
   const fit = useFit();
   const store = useFitStore();
   const missingSkills = useMissingSkills();
+  const { fits } = useLocalFits();
   const [search, setSearch] = useState("");
+  const [browserFits, setBrowserFits] = useState(false);
   const [currentHull, setCurrentHull] = useState(false);
   const [flyable, setFlyable] = useState(false);
   // A new key mounts the tree again, with every group open or closed.
@@ -20,14 +25,22 @@ export function HullsAndFits() {
 
   const query = search.trim().toLowerCase();
   const narrowed = query !== "" || currentHull;
-  const groups = useHullTree(
-    narrowed || flyable
-      ? (ship) =>
-          ship.name.toLowerCase().includes(query) &&
-          (!currentHull || ship.id === fit.ship.type_id) &&
-          (!flyable || missingSkills([ship.id]).length === 0)
-      : undefined,
-  );
+  const matches = (name: string | undefined) => (name ?? "").toLowerCase().includes(query);
+
+  const fitsByHull = Map.groupBy(fits, (saved) => saved.ship.type_id);
+  const shownFits = (ship: { id: number; name: string }) => {
+    const saved = fitsByHull.get(ship.id) ?? noFits;
+    const kept = flyable ? saved.filter((one) => missingSkills(one).length === 0) : saved;
+    return matches(ship.name) ? kept : kept.filter((one) => matches(one.name));
+  };
+
+  const groups = useHullTree((ship) => {
+    if (currentHull && ship.id !== fit.ship.type_id) return false;
+    if (flyable && missingSkills([ship.id]).length > 0) return false;
+    const shown = shownFits(ship);
+    if (browserFits && shown.length === 0) return false;
+    return matches(ship.name) || shown.length > 0;
+  });
 
   const narrow = (nextSearch: string, nextCurrentHull: boolean) => {
     const nextNarrowed = nextSearch.trim() !== "" || nextCurrentHull;
@@ -63,6 +76,12 @@ export function HullsAndFits() {
         </label>
       </div>
       <div className={styles.filters}>
+        <FilterToggle
+          icon="fits-browser"
+          label="Browser Fittings"
+          pressed={browserFits}
+          onPressedChange={setBrowserFits}
+        />
         <FilterToggle icon="fits-personal" label="Personal Fittings" />
         <FilterToggle icon="fits-corporation" label="Corporation Fittings" />
         <FilterToggle icon="fits-alliance" label="Alliance Fittings" />
@@ -83,26 +102,61 @@ export function HullsAndFits() {
                 races.map(({ race, ships }) => (
                   <TreeGroup key={race} label={`${raceName(race)} [${ships.length}]`} defaultOpen={tree.open}>
                     {() =>
-                      ships.map((ship) => (
-                        <TreeLeaf
-                          key={ship.id}
-                          label={<span className={styles.hull}>{ship.name}</span>}
-                          typeId={ship.id}
-                          onActivate={() => simulate(ship.id)}
-                          after={
-                            <Tooltip label="Simulate Ship">
-                              <button
-                                type="button"
-                                className={styles.simulate}
-                                aria-label={`Simulate ${ship.name}`}
-                                onClick={() => simulate(ship.id)}
-                              >
-                                <Icon name="simulate" />
-                              </button>
-                            </Tooltip>
-                          }
-                        />
-                      ))
+                      ships.map((ship) => {
+                        const shown = shownFits(ship);
+                        const simulateShip = (
+                          <Tooltip label="Simulate Ship">
+                            <button
+                              type="button"
+                              className={styles.simulate}
+                              aria-label={`Simulate ${ship.name}`}
+                              onClick={() => simulate(ship.id)}
+                            >
+                              <Icon name="simulate" />
+                            </button>
+                          </Tooltip>
+                        );
+
+                        if (shown.length === 0) {
+                          return (
+                            <TreeLeaf
+                              key={ship.id}
+                              label={<span className={styles.hull}>{ship.name}</span>}
+                              typeId={ship.id}
+                              onActivate={() => simulate(ship.id)}
+                              after={simulateShip}
+                            />
+                          );
+                        }
+
+                        return (
+                          <TreeGroup
+                            key={ship.id}
+                            label={<Hull name={ship.name} browserFits={fitsByHull.get(ship.id)?.length ?? 0} />}
+                            typeId={ship.id}
+                            defaultOpen={tree.open}
+                            after={simulateShip}
+                          >
+                            {() =>
+                              shown.map((saved) => (
+                                <TreeLeaf
+                                  key={saved.name ?? ""}
+                                  label={
+                                    <>
+                                      <span className={styles.kind}>
+                                        <Icon name="fits-browser" />
+                                      </span>
+                                      {saved.name || ship.name}
+                                    </>
+                                  }
+                                  onActivate={() => store.replace(saved)}
+                                  after={<Flyable fit={saved} />}
+                                />
+                              ))
+                            }
+                          </TreeGroup>
+                        );
+                      })
                     }
                   </TreeGroup>
                 ))
@@ -112,6 +166,49 @@ export function HullsAndFits() {
         </TreeList>
       </div>
     </>
+  );
+}
+
+function Hull({ name, browserFits }: { name: string; browserFits: number }) {
+  return (
+    <span className={styles.hullFits}>
+      <span className={styles.hull}>{name}</span>
+      <span className={styles.counts}>
+        <Count icon="fits-browser" label="Browser Fittings" count={browserFits} />
+        <Count icon="fits-corporation" label="Corporation Fittings" count={0} />
+        <Count icon="fits-community-small" label="Community Fittings" count={0} />
+        <Count icon="fits-alliance-small" label="Alliance Fittings" count={0} />
+      </span>
+    </span>
+  );
+}
+
+function Count({ icon, label, count }: { icon: IconName; label: string; count: number }) {
+  return (
+    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- An <img> cannot hold the count.
+    <span className={styles.count} role="img" aria-label={`${label}: ${count}`}>
+      <Icon name={icon} />
+      {count}
+    </span>
+  );
+}
+
+function Flyable({ fit }: { fit: Fit }) {
+  const missing = useMissingSkills()(fit).length;
+  const texture = useIconUrl(missing === 0 ? "checkmark" : "close");
+  const label = missing === 0 ? "Can fly" : `Missing skills: ${missing}`;
+
+  return (
+    <Tooltip label={label}>
+      <span
+        className={styles.flyable}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- An <img> cannot be tinted.
+        role="img"
+        aria-label={label}
+        data-missing={missing > 0 || undefined}
+        style={{ "--texture": `url(${texture})` } as CSSProperties}
+      />
+    </Tooltip>
   );
 }
 

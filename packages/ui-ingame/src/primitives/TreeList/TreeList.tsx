@@ -18,22 +18,30 @@ export function TreeList({ label, children }: TreeListProps) {
 
 export interface TreeGroupProps {
   label: ReactNode;
+  /** Shows the type's icon in front of the label. */
+  typeId?: number;
   defaultOpen?: boolean;
+  /** Shown at the end of the row, like a count or an action. */
+  after?: ReactNode;
   /** Only called while the group is open, so large trees stay cheap. */
   children: () => ReactNode;
 }
 
-export function TreeGroup({ label, defaultOpen = false, children }: TreeGroupProps) {
+export function TreeGroup({ label, typeId, defaultOpen = false, after, children }: TreeGroupProps) {
   const [open, setOpen] = useState(defaultOpen);
 
   return (
     <li>
-      <button type="button" className={styles.row} aria-expanded={open} onClick={() => setOpen(!open)}>
-        <svg className={styles.chevron} viewBox="0 0 12 12" aria-hidden>
-          <path d="M3 1.5 9.5 6 3 10.5Z" fill="currentColor" />
-        </svg>
-        {label}
-      </button>
+      <div className={styles.head}>
+        <button type="button" className={styles.row} aria-expanded={open} onClick={() => setOpen(!open)}>
+          <svg className={styles.chevron} viewBox="0 0 12 12" aria-hidden>
+            <path d="M3 1.5 9.5 6 3 10.5Z" fill="currentColor" />
+          </svg>
+          {typeId !== undefined && <RowIcon typeId={typeId} />}
+          <span className={styles.label}>{label}</span>
+        </button>
+        {after}
+      </div>
       {open && <ul className={styles.group}>{children()}</ul>}
     </li>
   );
@@ -55,7 +63,7 @@ export interface TreeLeafProps {
 /** Activates on double click, as EVE's own lists do; single clicks are for selecting text and dragging. */
 export function TreeLeaf({ label, typeId, title, onActivate, onHover, onDragStart, onDragEnd, after }: TreeLeafProps) {
   return (
-    <li className={styles.leaf}>
+    <li className={`${styles.head} ${styles.leaf}`}>
       <div
         // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Firefox does not start a drag from a <button>.
         role="button"
@@ -72,14 +80,18 @@ export function TreeLeaf({ label, typeId, title, onActivate, onHover, onDragStar
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
-        {typeId !== undefined && (
-          <span className={styles.icon}>
-            <TypeIcon typeId={typeId} />
-          </span>
-        )}
+        {typeId !== undefined && <RowIcon typeId={typeId} />}
         <span className={styles.label}>{label}</span>
       </div>
       {after}
     </li>
+  );
+}
+
+function RowIcon({ typeId }: { typeId: number }) {
+  return (
+    <span className={styles.icon}>
+      <TypeIcon typeId={typeId} />
+    </span>
   );
 }

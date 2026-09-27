@@ -1,6 +1,6 @@
 import { beforeAll, expect, test } from "vitest";
 
-import { missingSkills, type Engine, type Fit } from "../src/index.js";
+import { missingSkills, typesInUse, type Engine, type Fit } from "../src/index.js";
 import { testEngine, typeIdOf } from "./engine.js";
 
 let engine: Engine;
@@ -38,6 +38,8 @@ test("it finds what the engine finds", () => {
         charge: { type_id: typeIdOf(engine, "EMP S") },
       },
       { type_id: typeIdOf(engine, "Damage Control II"), slot: { type: "low", index: 0 }, state: "active" },
+      { type_id: typeIdOf(engine, "Hobgoblin II"), slot: { type: "drone_bay" }, quantity: 1, state: "active" },
+      { type_id: typeIdOf(engine, "Warp Disruptor II"), slot: { type: "cargo" }, quantity: 1, state: "offline" },
     ],
   };
 
@@ -49,10 +51,16 @@ test("it finds what the engine finds", () => {
 
   expect(engineFound.size).toBeGreaterThan(0);
 
-  const typeIds = [
-    fit.ship.type_id,
-    ...fit.items.flatMap((item) => (item.charge === undefined ? [item.type_id] : [item.type_id, item.charge.type_id])),
-  ];
-  const found = missingSkills(engine.sde, noSkills, typeIds);
+  const found = missingSkills(engine.sde, noSkills, typesInUse(fit));
   expect(new Map(found.map((skill) => [skill.type_id, skill.required]))).toEqual(engineFound);
+});
+
+test("the cargo needs no skills", () => {
+  const rifter = typeIdOf(engine, "Rifter");
+  const emp = typeIdOf(engine, "EMP S");
+  const fit: Fit = {
+    ship: { type_id: rifter },
+    items: [{ type_id: emp, slot: { type: "cargo" }, quantity: 100, state: "offline" }],
+  };
+  expect(typesInUse(fit)).toEqual([rifter]);
 });

@@ -48,6 +48,8 @@
   --esf-input-border: #222324;
   --esf-tree-header: #222324;
   --esf-tree-hover: #192024;
+  --esf-flyable: #00cef6;
+  --esf-not-flyable: #be181e;
 
   /* EVE's UI scale; 1 is 100%. */
   --esf-scale: 1;

@@ -74,7 +74,8 @@ const texts = await loadTexts({ url: "/texts.dat" });
 
 ### Skills
 
-`useCharacters` picks who flies the fit; `useMissingSkills` says which skills that character lacks to use some types.
+`useCharacters` picks who flies the fit; `useMissingSkills` says which skills that character lacks to use some types, or
+a whole fit.
 
 ### Saved fits
 
