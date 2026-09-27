@@ -58,11 +58,9 @@ export function App({ data }: { data: Promise<Data | null> }) {
   );
 }
 
-const longDate = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
-
 function DataVersion({ data }: { data: Promise<Data | null> }) {
   const releaseDate = use(data)?.sde.releaseDate;
   if (releaseDate === undefined) return null;
 
-  return <> · EVE data from {longDate.format(releaseDate)}</>;
+  return <> · EVE data from {releaseDate.toISOString().slice(0, 10)}</>;
 }
