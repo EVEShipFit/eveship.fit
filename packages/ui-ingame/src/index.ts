@@ -18,5 +18,15 @@ export { WheelSlot, type SlotState, type WheelSlotProps } from "./primitives/Whe
 export { WheelHardpoints, type Hardpoints, type WheelHardpointsProps } from "./primitives/Wheel/WheelHardpoints";
 export { WheelGauge, type WheelGaugeProps, type WheelResource } from "./primitives/Wheel/WheelGauge";
 export { WheelHull, type WheelHullProps } from "./primitives/Wheel/WheelHull";
+export { Stat, type StatProps } from "./primitives/Stat/Stat";
+export { StatsSection, type StatsSectionProps } from "./primitives/StatsSection/StatsSection";
 export { FittingWheel, type FittingWheelProps } from "./components/FittingWheel/FittingWheel";
 export { FittingWindow, type FittingWindowProps } from "./components/FittingWindow/FittingWindow";
+export { ShipStatistics, type ShipStatisticsProps } from "./components/ShipStatistics/ShipStatistics";
+export { CapacitorStats } from "./components/ShipStatistics/CapacitorStats";
+export { OffenseStats } from "./components/ShipStatistics/OffenseStats";
+export { DefenseStats } from "./components/ShipStatistics/DefenseStats";
+export { TargetingStats } from "./components/ShipStatistics/TargetingStats";
+export { NavigationStats } from "./components/ShipStatistics/NavigationStats";
+export { DroneStats } from "./components/ShipStatistics/DroneStats";
+export { FitPrice, type FitPriceProps } from "./components/ShipStatistics/FitPrice";

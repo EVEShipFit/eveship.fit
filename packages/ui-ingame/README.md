@@ -24,7 +24,10 @@ import { TreeLeaf, TreeList } from "@eveshipfit/ui-ingame";
 ```
 
 Every colour and size is a CSS variable in `theme.css`; override them, or load your own theme instead. `--esf-scale` is
-EVE's UI scale, `1` for 100%; the `FittingWindow`, `FittingWheel` and `HistoryBar` are as big as EVE's at that scale.
+EVE's UI scale, `1` for 100%; the `FittingWindow`, `FittingWheel`, `ShipStatistics` and `HistoryBar` are as big as EVE's
+at that scale.
+
+Give the `FittingWindow` its statistics to get the button that slides them out: `<FittingWindow statistics={<ShipStatistics />} />`.
 
 Icons are drawn from `@eveshipfit/images`: put the components inside an `ImagesProvider` of
 `@eveshipfit/react-hooks`.

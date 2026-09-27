@@ -109,11 +109,13 @@ test("attributes are formatted the way EVE shows them", () => {
     resonance: useAttribute("shieldEmDamageResonance"),
     custom: useAttribute("cpuOutput", { format: (value) => `${value} CPU` }),
     unknown: useAttribute("noSuchAttribute"),
+    missing: useAttribute("damagePerSecondWithoutReload", { fallback: 0, decimals: 1, fixed: true }),
   }));
 
   expect(result.current.resonance).toEqual({ value: 1, text: "0 %", change: undefined });
   expect(result.current.custom.text).toMatch(/^[\d.]+ CPU$/);
   expect(result.current.unknown).toEqual({ value: undefined, text: "–", change: undefined });
+  expect(result.current.missing).toEqual({ value: 0, text: "0.0 DPS", change: undefined });
 });
 
 test("attributes say whether a preview makes them better or worse", () => {

@@ -1,0 +1,25 @@
+/* Lengths are EVE's pixels at 100%, measured on the client. */
+.stat {
+  --stat-unit: calc(1px * var(--esf-scale, 1));
+
+  align-items: center;
+  display: flex;
+  gap: calc(3 * var(--stat-unit));
+  max-width: 100%;
+  min-height: calc(25 * var(--stat-unit));
+  white-space: nowrap;
+  /* So the tooltip points at the middle of the text, not of the column. */
+  width: fit-content;
+}
+
+.stat > img,
+.noIcon {
+  flex: none;
+  height: calc(20 * var(--stat-unit));
+  width: calc(20 * var(--stat-unit));
+}
+
+.value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -1,0 +1,75 @@
+/* Lengths are EVE's pixels at 100%, measured on the client. */
+.section {
+  --section-unit: calc(1px * var(--esf-scale, 1));
+}
+
+.section + .section {
+  margin-top: calc(4 * var(--section-unit));
+}
+
+.header {
+  align-items: center;
+  background: var(--esf-stats-header);
+  border: none;
+  color: inherit;
+  cursor: default;
+  display: flex;
+  font: inherit;
+  height: calc(20 * var(--section-unit));
+  padding: 0 calc(14 * var(--section-unit)) 0 calc(4 * var(--section-unit));
+  text-align: left;
+  width: 100%;
+}
+
+.header:focus-visible {
+  outline: var(--section-unit) solid var(--esf-text);
+}
+
+.header > img {
+  height: calc(10 * var(--section-unit));
+  margin-right: calc(4 * var(--section-unit));
+  transition: transform 150ms ease;
+  width: calc(10 * var(--section-unit));
+}
+
+.section[data-closed] .header > img {
+  transform: rotate(-90deg);
+}
+
+.title {
+  flex: 1;
+}
+
+.body {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 150ms ease;
+}
+
+.section[data-closed] .body {
+  grid-template-rows: 0fr;
+}
+
+.clip {
+  min-height: 0;
+  overflow: hidden;
+  transition: visibility 150ms;
+}
+
+.section[data-closed] .clip {
+  visibility: hidden;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  padding: calc(5 * var(--section-unit)) 0 calc(6 * var(--section-unit));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header > img,
+  .body,
+  .clip {
+    transition: none;
+  }
+}
