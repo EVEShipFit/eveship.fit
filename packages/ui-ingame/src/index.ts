@@ -16,3 +16,4 @@ export { WheelSlot, type SlotState, type WheelSlotProps } from "./primitives/Whe
 export { WheelHardpoints, type Hardpoints, type WheelHardpointsProps } from "./primitives/Wheel/WheelHardpoints";
 export { WheelGauge, type WheelGaugeProps, type WheelResource } from "./primitives/Wheel/WheelGauge";
 export { WheelHull, type WheelHullProps } from "./primitives/Wheel/WheelHull";
+export { FittingWheel, type FittingWheelProps } from "./components/FittingWheel/FittingWheel";
