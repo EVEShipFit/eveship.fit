@@ -16,6 +16,14 @@ const textures = {
   link: "eveicon/system_icons/link_16px",
   search: "eveicon/system_icons/search_16px",
   collapse: "eveicon/system_icons/collapse_16px",
+  checkmark: "eveicon/system_icons/checkmark_16px",
+  "fits-personal": "windowicons/member",
+  "fits-corporation": "windowicons/corporation",
+  "fits-alliance": "classes/fitting/taballiancefits",
+  "fits-community": "classes/fitting/tabcommunityfits",
+  "current-hull": "classes/fitting/tabfittings",
+  skills: "classes/fitting/filtericonskills",
+  simulate: "classes/fitting/iconsimulatortoggle",
   hardware: "classes/fitting/tabhardware",
   statistics: "eveicon/system_icons/list_view_16px",
   cargo: "windowicons/ships",
@@ -63,17 +71,11 @@ export interface IconProps {
 }
 
 export function Icon({ name, size = 16 }: IconProps) {
-  const images = useImages();
+  const src = useIconUrl(name);
 
-  return (
-    <img
-      className={styles.icon}
-      src={images.uiTexture(textures[name])}
-      width={size}
-      height={size}
-      alt=""
-      data-icon={name}
-      draggable={false}
-    />
-  );
+  return <img className={styles.icon} src={src} width={size} height={size} alt="" data-icon={name} draggable={false} />;
+}
+
+export function useIconUrl(name: IconName): string | undefined {
+  return useImages().uiTexture(textures[name]);
 }

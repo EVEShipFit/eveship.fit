@@ -55,12 +55,12 @@ export interface TreeLeafProps {
 /** Activates on double click, as EVE's own lists do; single clicks are for selecting text and dragging. */
 export function TreeLeaf({ label, typeId, title, onActivate, onHover, onDragStart, onDragEnd, after }: TreeLeafProps) {
   return (
-    <li>
+    <li className={styles.leaf}>
       <div
         // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Firefox does not start a drag from a <button>.
         role="button"
         tabIndex={0}
-        className={`${styles.row} ${styles.leaf}`}
+        className={styles.row}
         title={title}
         draggable={onDragStart !== undefined}
         onDoubleClick={onActivate}
@@ -78,8 +78,8 @@ export function TreeLeaf({ label, typeId, title, onActivate, onHover, onDragStar
           </span>
         )}
         <span className={styles.label}>{label}</span>
-        {after}
       </div>
+      {after}
     </li>
   );
 }

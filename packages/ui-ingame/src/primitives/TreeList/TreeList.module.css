@@ -31,17 +31,29 @@
   width: 100%;
 }
 
-/* Past where a group has its chevron. */
 .leaf {
-  padding-left: calc(21 * var(--tree-unit));
+  align-items: center;
+  display: flex;
+  gap: calc(5 * var(--tree-unit));
+  padding-right: calc(6 * var(--tree-unit));
 }
 
-.tree > li > .row {
+/* Past where a group has its chevron. */
+.leaf > .row {
+  flex: 1;
+  min-width: 0;
+  padding: 0 0 0 calc(21 * var(--tree-unit));
+}
+
+.tree > li > .row,
+.tree > .leaf {
   background: var(--esf-tree-header);
 }
 
 .tree .row:hover,
-.tree .row:focus-visible {
+.tree .row:focus-visible,
+.tree .leaf:hover,
+.tree .leaf:focus-within {
   background: var(--esf-tree-hover);
   outline: none;
 }

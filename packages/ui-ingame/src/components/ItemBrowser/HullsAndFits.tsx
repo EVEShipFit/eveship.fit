@@ -1,6 +1,7 @@
-import { useHullTree } from "@eveshipfit/react-hooks";
+import { useFit, useFitStore, useHullTree } from "@eveshipfit/react-hooks";
 import { useState } from "react";
 
+import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
 import { Icon } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import { TreeGroup, TreeLeaf, TreeList } from "../../primitives/TreeList/TreeList";
@@ -8,18 +9,29 @@ import styles from "./ItemBrowser.module.css";
 
 /** The Hulls & Fits tab of the `ItemBrowser`: EVE's hulls by group and race. */
 export function HullsAndFits() {
+  const fit = useFit();
+  const store = useFitStore();
   const [search, setSearch] = useState("");
+  const [currentHull, setCurrentHull] = useState(false);
   // A new key mounts the tree again, with every group open or closed.
   const [tree, setTree] = useState({ key: 0, open: false });
 
   const query = search.trim().toLowerCase();
-  const groups = useHullTree(query === "" ? undefined : (ship) => ship.name.toLowerCase().includes(query));
+  const narrowed = query !== "" || currentHull;
+  const groups = useHullTree(
+    narrowed
+      ? (ship) => (!currentHull || ship.id === fit.ship.type_id) && ship.name.toLowerCase().includes(query)
+      : undefined,
+  );
 
-  const onSearch = (value: string) => {
-    const searching = value.trim() !== "";
-    if (searching !== (query !== "")) setTree({ key: tree.key + 1, open: searching });
-    setSearch(value);
+  const narrow = (nextSearch: string, nextCurrentHull: boolean) => {
+    const nextNarrowed = nextSearch.trim() !== "" || nextCurrentHull;
+    if (nextNarrowed !== narrowed) setTree({ key: tree.key + 1, open: nextNarrowed });
+    setSearch(nextSearch);
+    setCurrentHull(nextCurrentHull);
   };
+
+  const simulate = (shipTypeId: number) => store.replace({ ship: { type_id: shipTypeId }, items: [] });
 
   return (
     <>
@@ -41,9 +53,22 @@ export function HullsAndFits() {
             placeholder="Search"
             aria-label="Search"
             value={search}
-            onChange={(event) => onSearch(event.target.value)}
+            onChange={(event) => narrow(event.target.value, currentHull)}
           />
         </label>
+      </div>
+      <div className={styles.filters}>
+        <FilterToggle icon="fits-personal" label="Personal Fittings" />
+        <FilterToggle icon="fits-corporation" label="Corporation Fittings" />
+        <FilterToggle icon="fits-alliance" label="Alliance Fittings" />
+        <FilterToggle icon="fits-community" label="Community Fittings" />
+        <FilterToggle
+          icon="current-hull"
+          label="Current Hull"
+          pressed={currentHull}
+          onPressedChange={(pressed) => narrow(search, pressed)}
+        />
+        <FilterToggle icon="skills" label="Skills" />
       </div>
       <div className={styles.tree}>
         <TreeList key={tree.key} label="Hulls">
@@ -58,6 +83,19 @@ export function HullsAndFits() {
                           key={ship.id}
                           label={<span className={styles.hull}>{ship.name}</span>}
                           typeId={ship.id}
+                          onActivate={() => simulate(ship.id)}
+                          after={
+                            <Tooltip label="Simulate Ship">
+                              <button
+                                type="button"
+                                className={styles.simulate}
+                                aria-label={`Simulate ${ship.name}`}
+                                onClick={() => simulate(ship.id)}
+                              >
+                                <Icon name="simulate" />
+                              </button>
+                            </Tooltip>
+                          }
                         />
                       ))
                     }
