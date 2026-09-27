@@ -30,7 +30,7 @@ export class FitStore {
   readonly #calculator: Calculator;
   #character: Character;
   #snapshot: Snapshot;
-  /** Every fit, oldest first; an edit adds one at the end, even after going back. */
+  /** Oldest first; an edit goes at the end, also after going back. */
   readonly #history: Fit[];
   #position: number;
   readonly #listeners = new Set<() => void>();
@@ -62,12 +62,11 @@ export class FitStore {
     return this.#position < this.#history.length - 1;
   }
 
-  /** How many fits the history holds, the current one included. */
   get historyLength(): number {
     return this.#history.length;
   }
 
-  /** Where in the history the current fit is; 0 is the oldest. */
+  /** 0 is the oldest. */
   get historyPosition(): number {
     return this.#position;
   }
@@ -99,7 +98,7 @@ export class FitStore {
     this.#commit(edits.setName(this.#snapshot.fit, name));
   }
 
-  /** Swap in another fit entirely, like an import; it goes in the history like any edit. */
+  /** Swap in another fit entirely, like an import. */
   replace(fit: Fit) {
     this.#commit(withoutCharacter(fit));
   }
@@ -110,17 +109,14 @@ export class FitStore {
     this.#publish(this.#calculate(this.#snapshot.fit));
   }
 
-  /** Show the fit before this one in the history, which after going back is not the one an edit was made from. */
   undo() {
     this.goTo(this.#position - 1);
   }
 
-  /** Show the fit after this one in the history. */
   redo() {
     this.goTo(this.#position + 1);
   }
 
-  /** Show the fit at `position` in the history; the history itself stays as it is. */
   goTo(position: number) {
     const fit = Number.isInteger(position) ? this.#history[position] : undefined;
     if (fit === undefined || position === this.#position) return;

@@ -1,4 +1,4 @@
-/* Laid out as EVE's window at a UI scale of 100%, without its tabs; lengths are in EVE's pixels. */
+/* Lengths are EVE's pixels at 100%, measured on the client. */
 .window {
   --window-unit: calc(1px * var(--esf-scale, 1));
 
@@ -62,7 +62,7 @@
   width: calc(16 * var(--window-unit));
 }
 
-/* EVE draws the link smaller and dimmer than the info icon beside it. */
+/* EVE draws the link smaller and dimmer. */
 .icon > img[data-icon="link"] {
   height: calc(12 * var(--window-unit));
   margin: 0 calc(2 * var(--window-unit));

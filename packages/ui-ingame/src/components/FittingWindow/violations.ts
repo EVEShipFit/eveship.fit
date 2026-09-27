@@ -1,9 +1,6 @@
 import type { Rule, Violation } from "@eveshipfit/fitting";
 
-/**
- * How EVE warns about a broken rule: `skill` is an orange book, `error` a red triangle for a fit that cannot be
- * flown as it is, `notice` a white one for a fit that flies but might get in trouble.
- */
+/** `error` is a red triangle, `notice` a white one: it flies, but may get in trouble; `skill` an orange book. */
 export type ViolationKind = "skill" | "error" | "notice";
 
 type Resource = Extract<Rule, { type: "resource" }>["resource"];
@@ -46,7 +43,7 @@ export function violationKind(rule: Rule): ViolationKind {
   return rule.type === "resource" ? byResource[rule.resource] : byRule[rule.type];
 }
 
-/** A missing skill counts once, however many items need it. */
+/** Each missing skill counts once. */
 export function countViolations(violations: readonly Violation[]): Record<ViolationKind, number> {
   const skills = new Set<number>();
   const counts: Record<ViolationKind, number> = { skill: 0, error: 0, notice: 0 };

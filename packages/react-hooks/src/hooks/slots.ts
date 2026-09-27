@@ -42,7 +42,7 @@ export function useRackUsage(rack: Rack): Usage {
   return useSnapshot().stats.slots[rack];
 }
 
-/** How full a bay of the shown fit is, in m³. */
+/** In m³; follows the preview, like `useStats`. */
 export function useBayUsage(bay: "cargo" | "droneBay"): Usage {
   return useStats()[bay];
 }

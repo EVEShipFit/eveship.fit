@@ -44,9 +44,8 @@ export function usePreview(): PreviewControls {
 export interface FitHistory {
   readonly canUndo: boolean;
   readonly canRedo: boolean;
-  /** How many fits the history holds, the current one included. */
   readonly length: number;
-  /** Where in the history the current fit is; 0 is the oldest. */
+  /** 0 is the oldest. */
   readonly position: number;
   readonly undo: () => void;
   readonly redo: () => void;
@@ -69,7 +68,7 @@ export function useFitHistory(): FitHistory {
   };
 }
 
-/** The fitting rules the shown fit breaks. */
+/** Follows the preview, like `useStats`. */
 export function useViolations(): readonly Violation[] {
   return useStats().violations;
 }

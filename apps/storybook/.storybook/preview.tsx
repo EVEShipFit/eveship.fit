@@ -10,7 +10,7 @@ import "./preview.css";
 import { loadEngine } from "./engine";
 import { loadAllImages } from "./images";
 
-/** Every story gets a fresh fit: `parameters.fit`, or an empty Rifter, flown by `parameters.character`, or one with every skill at V. */
+/** Every story gets a fresh fit: `parameters.fit`, or an empty Rifter, flown by `parameters.character`. */
 const withFit: Decorator = (Story, { loaded, parameters }) => (
   <WithFit engine={loaded.engine as Engine} fit={parameters.fit} character={parameters.character}>
     <Story />

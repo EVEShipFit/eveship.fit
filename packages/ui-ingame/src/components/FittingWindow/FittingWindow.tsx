@@ -22,7 +22,7 @@ export interface FittingWindowProps {
   label?: string;
 }
 
-/** EVE's fitting window around the `FittingWheel` of the fit in the surrounding `EveShipFitProvider`. */
+/** EVE's fitting window around the `FittingWheel`. */
 export function FittingWindow({ label = "Fitting Window" }: FittingWindowProps) {
   return (
     <section className={styles.window} aria-label={label}>
@@ -87,7 +87,7 @@ function Violations() {
           <Tooltip key={kind} label={`${label}: ${shown}`}>
             <span
               className={styles.violation}
-              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- An <img> cannot be tinted like EVE tints this texture.
+              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- An <img> cannot be tinted.
               role="img"
               aria-label={`${label}: ${shown}`}
               data-kind={kind}
@@ -119,7 +119,7 @@ function Bay({ bay, icon, label }: { bay: "cargo" | "droneBay"; icon: IconName; 
     <Tooltip label={label}>
       <div
         className={styles.bay}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- It holds text, not the form controls a <fieldset> is for.
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- A <fieldset> is for form controls.
         role="group"
         aria-label={label}
         data-over={used > total || undefined}
@@ -135,7 +135,7 @@ function Bay({ bay, icon, label }: { bay: "cargo" | "droneBay"; icon: IconName; 
 }
 
 function Resource({ title, load, output }: { title: string; load: string; output: string }) {
-  // Nothing adds to a load the fit does not use, so it is missing.
+  // A load nothing adds to is missing.
   const used = useAttribute(load).value ?? 0;
   const total = useAttribute(output).value ?? 0;
   const free = total - used;

@@ -1,5 +1,4 @@
 .history {
-  /* A pixel of EVE's at the UI scale. */
   --history-unit: calc(1px * var(--esf-scale, 1));
 
   border: none;

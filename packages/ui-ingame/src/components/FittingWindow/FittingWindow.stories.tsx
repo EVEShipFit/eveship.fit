@@ -40,7 +40,7 @@ const rifter = {
   ],
 };
 
-/** A medium rig, a cargo hold too full, and a drone on a ship without a drone bay, or skills to launch it. */
+/** One error: the rig size. Four warnings: cargo hold, drone bay, drone bandwidth and launched drones. */
 const broken = {
   ...rifter,
   items: [
@@ -107,7 +107,6 @@ export const History: Story = {
     await userEvent.click(history.getByRole("button", { name: "1 of 3" }));
     await expect(afterburner()).toHaveAccessibleName("1MN Afterburner II, active");
 
-    // A change after going back goes at the end; the fits in between stay.
     await userEvent.click(canvas.getByRole("button", { name: /^Damage Control II/ }));
     await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("4 of 4");
     await userEvent.click(history.getByRole("button", { name: "3 of 4" }));

@@ -4,12 +4,12 @@ import styles from "./HistoryBar.module.css";
 export interface HistoryBarProps {
   label: string;
   length: number;
-  /** The entry shown; 0 is the oldest. */
+  /** 0 is the oldest. */
   position: number;
   onGoTo: (position: number) => void;
 }
 
-/** EVE's Simulation History: one box per fit, oldest first, with arrows to step through them. */
+/** EVE's Simulation History. */
 export function HistoryBar({ label, length, position, onGoTo }: HistoryBarProps) {
   return (
     <fieldset className={styles.history} aria-label={label}>
