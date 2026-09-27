@@ -1,5 +1,5 @@
 import { EveShipFitProvider, ImagesProvider, TextsProvider } from "@eveshipfit/react-hooks";
-import { FittingWindow, ShipStatistics } from "@eveshipfit/ui-ingame";
+import { FittingWindow, ItemBrowser, ShipStatistics } from "@eveshipfit/ui-ingame";
 import { use, type CSSProperties } from "react";
 
 import styles from "./App.module.css";
@@ -11,7 +11,7 @@ export interface FittingProps {
   layout: Layout;
 }
 
-/** The fitting window of an empty Rifter, with its statistics. */
+/** The fitting window of an empty Rifter, with its item browser and statistics. */
 export function Fitting({ data, layout }: FittingProps) {
   const loaded = use(data);
   if (loaded === null) {
@@ -19,6 +19,7 @@ export function Fitting({ data, layout }: FittingProps) {
   }
 
   const scale = { "--esf-scale": layout.scale } as CSSProperties;
+  const panelScale = { "--esf-scale": layout.panelScale } as CSSProperties;
 
   return (
     <EveShipFitProvider engine={loaded.engine}>
@@ -29,13 +30,18 @@ export function Fitting({ data, layout }: FittingProps) {
               <div className={styles.panel} style={scale}>
                 <FittingWindow />
               </div>
-              <div className={styles.panel}>
-                <ShipStatistics />
+              <div className={styles.panels}>
+                <div className={`${styles.panel} ${styles.browser}`} style={panelScale}>
+                  <ItemBrowser />
+                </div>
+                <div className={styles.panel} style={panelScale}>
+                  <ShipStatistics />
+                </div>
               </div>
             </>
           ) : (
             <div className={styles.panel} style={scale}>
-              <FittingWindow statistics={<ShipStatistics />} />
+              <FittingWindow browser={<ItemBrowser />} statistics={<ShipStatistics />} />
             </div>
           )}
         </TextsProvider>

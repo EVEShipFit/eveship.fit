@@ -13,15 +13,18 @@ test("the fitting window shows its statistics", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("region", { name: "Fitting Window" })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("region", { name: "Statistics" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Item Browser" })).toBeVisible();
   await expect(page.getByText("Rifter", { exact: true })).toBeVisible();
   await expect(page.getByText(/^EVEShip\.fit \S+ · EVE data from \d{4}-\d{2}-\d{2}$/)).toBeVisible();
 });
 
-test("the statistics go below the window on a phone", async ({ page }) => {
+test("the item browser and statistics go below the window on a phone", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await expect(page.getByRole("region", { name: "Statistics" })).toBeAttached({ timeout: 30_000 });
+  await expect(page.getByRole("region", { name: "Item Browser" })).toBeAttached();
   await expect(page.getByRole("button", { name: "Statistics" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Item Browser" })).toHaveCount(0);
 });
 
 test("Support shows both ways to donate", async ({ page }) => {

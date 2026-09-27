@@ -78,6 +78,19 @@
   padding: calc(12px * var(--esf-scale));
 }
 
+.panels {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
+
+/* Where the FittingWindow puts it, the ItemBrowser is 595 high. */
+.browser {
+  height: calc(595px * var(--esf-scale));
+}
+
 .message {
   color: var(--esf-text-muted);
 }
