@@ -1,0 +1,81 @@
+.anchor {
+  display: contents;
+}
+
+.anchor > :first-child {
+  anchor-name: var(--tooltip-anchor);
+}
+
+.tooltip {
+  --notch-size: 10px;
+  /* Half the notch's diagonal, so its tip ends just short of the anchor. */
+  --notch-reach: calc(var(--notch-size) * 0.71 + 1px);
+
+  anchor-name: var(--tooltip-box);
+  background: none;
+  border: none;
+  color: var(--esf-text);
+  font-family: var(--esf-font);
+  font-size: var(--esf-font-size);
+  inset: auto;
+  margin: var(--notch-reach) 0;
+  max-width: 320px;
+  opacity: 0.9;
+  overflow: visible;
+  padding: 0;
+  pointer-events: none;
+  position-anchor: var(--tooltip-anchor);
+  position-area: top;
+  position-try-fallbacks: flip-block;
+}
+
+.notch,
+.label {
+  background: var(--esf-bg);
+  border: 1px solid var(--esf-border);
+}
+
+/*
+ * The notch and the gap it makes in the label's border are anchored to both the tooltip and its anchor: they sit on the
+ * edge of the tooltip that faces the anchor, across from its centre.
+ */
+.notch,
+.label::after {
+  --edge: clamp(
+    anchor(var(--tooltip-box) top),
+    anchor(var(--tooltip-anchor) center),
+    anchor(var(--tooltip-box) bottom)
+  );
+
+  left: clamp(
+    anchor(var(--tooltip-box) left) + var(--notch-size),
+    anchor(var(--tooltip-anchor) center),
+    anchor(var(--tooltip-box) right) - var(--notch-size)
+  );
+  position: fixed;
+}
+
+/* The label covers the half of the notch that is inside the tooltip. */
+.notch {
+  height: var(--notch-size);
+  rotate: 45deg;
+  top: var(--edge);
+  translate: -50% -50%;
+  width: var(--notch-size);
+}
+
+.label {
+  display: block;
+  padding: 8px 14px;
+  position: relative;
+}
+
+.label::after {
+  background: var(--esf-bg);
+  content: "";
+  height: 1px;
+  /* Over the label's top border, or its bottom one. */
+  top: clamp(anchor(var(--tooltip-box) top), var(--edge), anchor(var(--tooltip-box) bottom) - 1px);
+  translate: -50%;
+  width: calc(var(--notch-size) * 1.41 - 2px);
+}
