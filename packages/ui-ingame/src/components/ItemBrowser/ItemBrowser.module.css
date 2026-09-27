@@ -143,6 +143,51 @@
   font-weight: 600;
 }
 
+.counts {
+  display: flex;
+}
+
+.count {
+  align-items: center;
+  display: flex;
+  gap: calc(3 * var(--browser-unit));
+  min-width: calc(39 * var(--browser-unit));
+}
+
+.count > img,
+.kind > img {
+  display: block;
+  height: calc(12 * var(--browser-unit));
+  width: calc(12 * var(--browser-unit));
+}
+
+.unseen {
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.kind {
+  display: inline-block;
+  margin-right: calc(5 * var(--browser-unit));
+  vertical-align: middle;
+}
+
+.flyable {
+  background: var(--esf-flyable);
+  flex: none;
+  height: calc(12 * var(--browser-unit));
+  mask: var(--texture) center / 100% 100%;
+  width: calc(12 * var(--browser-unit));
+}
+
+.flyable[data-missing] {
+  background: var(--esf-not-flyable);
+}
+
 .simulate {
   background: none;
   border: none;

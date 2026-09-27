@@ -2,7 +2,7 @@ import type { Sde, SdeType } from "@eveshipfit/sde-loader";
 
 import { Category } from "./ids.js";
 import { baseValue } from "./rules/attributes.js";
-import type { Character } from "./types.js";
+import type { Character, Fit } from "./types.js";
 
 /** A character with every published skill at `level`. */
 export function allSkills(sde: Sde, level: number): Character {
@@ -51,6 +51,17 @@ export function missingSkills(sde: Sde, character: Character, typeIds: Iterable<
     if (level < required) missing.push({ type_id: skillId, required, level });
   }
   return missing;
+}
+
+/** The types of a fit that need skills: its ship, and every item and charge outside the cargo. */
+export function typesInUse(fit: Fit): number[] {
+  const types = [fit.ship.type_id];
+  for (const item of fit.items) {
+    if (item.slot.type === "cargo") continue;
+    types.push(item.type_id);
+    if (item.charge !== undefined) types.push(item.charge.type_id);
+  }
+  return types;
 }
 
 function trainedLevel({ skills }: Character, skillId: number): number {

@@ -4,6 +4,16 @@ import { expect, waitFor, within } from "storybook/test";
 
 import { ItemBrowser } from "./ItemBrowser";
 
+const localFits = [
+  {
+    name: "Brawler",
+    ship: { type_id: 587 },
+    items: [{ type_id: 2048, slot: { type: "low", index: 0 }, state: "active" }],
+  },
+  { name: "Kiter", ship: { type_id: 587 }, items: [] },
+  { name: "Tackle", ship: { type_id: 585 }, items: [] },
+];
+
 const meta = {
   component: ItemBrowser,
   decorators: [(Story) => <div style={{ height: 595 }}>{Story()}</div>],
@@ -61,6 +71,7 @@ export const Search: Story = {
 export const Filters: Story = {
   play: async ({ canvas }) => {
     const filters = [
+      "Browser Fittings",
       "Personal Fittings",
       "Corporation Fittings",
       "Alliance Fittings",
@@ -71,8 +82,11 @@ export const Filters: Story = {
     for (const name of filters) {
       const filter = canvas.getByRole("button", { name });
       await expect(filter).toHaveAttribute("aria-pressed", "false");
-      if (name === "Current Hull" || name === "Skills") await expect(filter).not.toHaveAttribute("aria-disabled");
-      else await expect(filter).toHaveAttribute("aria-disabled", "true");
+      if (["Browser Fittings", "Current Hull", "Skills"].includes(name)) {
+        await expect(filter).not.toHaveAttribute("aria-disabled");
+      } else {
+        await expect(filter).toHaveAttribute("aria-disabled", "true");
+      }
     }
   },
 };
@@ -95,7 +109,7 @@ export const CurrentHull: Story = {
   },
 };
 
-/** Simulate Ship, or a double click on the hull, starts an empty fit of it. */
+/** Simulate Ship starts an empty fit of the hull; a double click does not. */
 export const SimulateShip: Story = {
   play: async ({ canvas, userEvent }) => {
     const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
@@ -112,7 +126,7 @@ export const SimulateShip: Story = {
     await userEvent.click(hulls().getByRole("button", { name: /^Minmatar/ }));
     await userEvent.dblClick(hulls().getByRole("button", { name: "Breacher" }));
     await userEvent.click(canvas.getByRole("button", { name: "Current Hull" }));
-    await expect(hulls().getByRole("button", { name: "Breacher" })).toBeVisible();
+    await expect(hulls().getByRole("button", { name: "Slasher" })).toBeVisible();
     await expect(hulls().getAllByRole("button", { name: /^Simulate / })).toHaveLength(1);
   },
 };
@@ -136,6 +150,72 @@ export const Skills: Story = {
 
     await userEvent.click(canvas.getByRole("button", { name: "Skills" }));
     await waitFor(() => expect(hulls().getByRole("button", { name: "Cruiser" })).toBeVisible());
+  },
+};
+
+/** A hull with fits saved in the browser opens to them, and counts them. */
+export const SavedFits: Story = {
+  parameters: { localFits },
+  play: async ({ canvas, userEvent }) => {
+    const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.click(hulls().getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls().getByRole("button", { name: /^Minmatar/ }));
+
+    const rifter = hulls().getByRole("button", { name: "Rifter" });
+    await expect(rifter).toHaveAccessibleDescription(
+      "Browser Fittings: 2 Corporation Fittings: 0 Community Fittings: 0 Alliance Fittings: 0",
+    );
+    await expect(hulls().getByRole("button", { name: "Simulate Rifter" })).toBeVisible();
+
+    await userEvent.click(rifter);
+    await expect(hulls().getByRole("button", { name: "Brawler" })).toBeVisible();
+    await expect(hulls().getByRole("button", { name: "Kiter" })).toBeVisible();
+    await expect(hulls().getAllByRole("img", { name: "Can fly" })).toHaveLength(2);
+    await expect(hulls().getByRole("button", { name: "Breacher" })).not.toHaveAttribute("aria-expanded");
+  },
+};
+
+/** Browser Fittings keeps the hulls with a fit saved in the browser. */
+export const BrowserFittings: Story = {
+  parameters: { localFits },
+  play: async ({ canvas, userEvent }) => {
+    const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Browser Fittings" }));
+    await expect(hulls().queryByRole("button", { name: "Cruiser" })).toBeNull();
+
+    await userEvent.click(hulls().getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls().getByRole("button", { name: /^Minmatar/ }));
+    await expect(hulls().getByRole("button", { name: /^Rifter/ })).toBeVisible();
+    await expect(hulls().getByRole("button", { name: /^Slasher/ })).toBeVisible();
+    await expect(hulls().queryByRole("button", { name: /^Breacher/ })).toBeNull();
+  },
+};
+
+/** Search finds fits by their name too, and opens their hull. */
+export const SearchFits: Story = {
+  parameters: { localFits },
+  play: async ({ canvas, userEvent }) => {
+    const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "kiter");
+
+    await expect(hulls().getByRole("button", { name: "Kiter" })).toBeVisible();
+    await expect(hulls().queryByRole("button", { name: "Brawler" })).toBeNull();
+    await expect(hulls().getByRole("button", { name: /^Rifter/ })).toHaveAttribute("aria-expanded", "true");
+  },
+};
+
+/** A fit the character cannot fly gets a red cross; with Skills on, it is left out. */
+export const MissingSkills: Story = {
+  parameters: { localFits, character: { skills: { [spaceshipCommand]: 1, [minmatarFrigate]: 1 } } },
+  play: async ({ canvas, userEvent }) => {
+    const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "rifter");
+    await expect(hulls().getByRole("img", { name: "Can fly" })).toBeVisible();
+    await expect(hulls().getByRole("img", { name: /^Missing skills: \d+$/ })).toBeVisible();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Skills" }));
+    await expect(hulls().getByRole("button", { name: "Kiter" })).toBeVisible();
+    await expect(hulls().queryByRole("button", { name: "Brawler" })).toBeNull();
   },
 };
 

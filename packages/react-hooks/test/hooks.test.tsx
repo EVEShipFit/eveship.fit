@@ -229,6 +229,9 @@ test("missing skills follow the character", () => {
   expect(result.current.missingSkills([RIFTER])).toContainEqual(
     expect.objectContaining({ type_id: engine.sde.typeByName("Minmatar Frigate")!.id, required: 1, level: 0 }),
   );
+
+  const fitted = withDamageControl().getSnapshot().fit;
+  expect(result.current.missingSkills(fitted).length).toBeGreaterThan(result.current.missingSkills([RIFTER]).length);
 });
 
 test("drag and drop", () => {

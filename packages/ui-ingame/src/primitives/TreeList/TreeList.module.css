@@ -14,48 +14,44 @@
   padding-left: calc(16 * var(--tree-unit));
 }
 
-.row {
-  align-items: center;
-  background: none;
-  border: none;
-  box-sizing: border-box;
-  color: inherit;
-  cursor: default;
-  display: flex;
-  font: inherit;
-  gap: calc(5 * var(--tree-unit));
-  min-height: calc(24 * var(--tree-unit));
-  padding: 0 calc(6 * var(--tree-unit)) 0 calc(8 * var(--tree-unit));
-  text-align: left;
-  user-select: none;
-  width: 100%;
-}
-
-.leaf {
+.head {
   align-items: center;
   display: flex;
   gap: calc(5 * var(--tree-unit));
   padding-right: calc(6 * var(--tree-unit));
 }
 
-/* Past where a group has its chevron. */
-.leaf > .row {
+.row {
+  align-items: center;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: default;
+  display: flex;
   flex: 1;
+  font: inherit;
+  gap: calc(5 * var(--tree-unit));
+  min-height: calc(24 * var(--tree-unit));
   min-width: 0;
-  padding: 0 0 0 calc(21 * var(--tree-unit));
+  outline: none;
+  padding: 0 0 0 calc(8 * var(--tree-unit));
+  text-align: left;
+  user-select: none;
 }
 
-.tree > li > .row,
-.tree > .leaf {
+/* Past where a group has its chevron. */
+.leaf > .row {
+  padding-left: calc(21 * var(--tree-unit));
+}
+
+.tree > li > .head,
+.tree > .head {
   background: var(--esf-tree-header);
 }
 
-.tree .row:hover,
-.tree .row:focus-visible,
-.tree .leaf:hover,
-.tree .leaf:focus-within {
+.tree .head:hover,
+.tree .head:has(:focus-visible) {
   background: var(--esf-tree-hover);
-  outline: none;
 }
 
 .chevron {
@@ -79,6 +75,12 @@
   display: block;
   height: 100%;
   width: 100%;
+}
+
+.text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
 }
 
 .label {

@@ -110,6 +110,20 @@ export const SimulateShip: Story = {
   },
 };
 
+export const LoadFit: Story = {
+  args: { browser: <ItemBrowser /> },
+  parameters: { localFits: [{ ...rifter, name: "Saved Rifter" }] },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "saved");
+    await userEvent.dblClick(canvas.getByRole("button", { name: "Saved Rifter" }));
+
+    const history = within(canvas.getByRole("group", { name: "Simulation History" }));
+    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("2 of 2");
+    await expect(canvas.getAllByText("Saved Rifter")).toHaveLength(2);
+    await expect(canvas.getByRole("button", { name: /^Rocket Launcher II/ })).toBeInTheDocument();
+  },
+};
+
 export const WithBoth: Story = {
   args: { browser: <ItemBrowser />, statistics: <ShipStatistics /> },
   play: async ({ canvas }) => {

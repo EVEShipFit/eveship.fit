@@ -1,4 +1,4 @@
-export { allSkills, missingSkills, type MissingSkill } from "./character.js";
+export { allSkills, missingSkills, typesInUse, type MissingSkill } from "./character.js";
 export { emptyFit } from "./edits.js";
 export { createEngine, Engine, type EngineOptions } from "./engine.js";
 export { Attributes, Stats, type ItemStats, type Usage } from "./stats.js";
