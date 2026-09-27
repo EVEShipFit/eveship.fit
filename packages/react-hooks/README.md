@@ -72,6 +72,10 @@ const texts = await loadTexts({ url: "/texts.dat" });
 <TextsProvider texts={texts}>
 ```
 
+### Skills
+
+`useCharacters` picks who flies the fit; `useMissingSkills` says which skills that character lacks to use some types.
+
 ### Saved fits
 
 `useLocalFits` lists, saves and removes fits in `localStorage`; pass a `LocalFits` to the provider to store them

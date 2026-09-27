@@ -1,4 +1,4 @@
-import { useFit, useFitStore, useHullTree } from "@eveshipfit/react-hooks";
+import { useFit, useFitStore, useHullTree, useMissingSkills } from "@eveshipfit/react-hooks";
 import { useState } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
@@ -11,16 +11,21 @@ import styles from "./ItemBrowser.module.css";
 export function HullsAndFits() {
   const fit = useFit();
   const store = useFitStore();
+  const missingSkills = useMissingSkills();
   const [search, setSearch] = useState("");
   const [currentHull, setCurrentHull] = useState(false);
+  const [flyable, setFlyable] = useState(false);
   // A new key mounts the tree again, with every group open or closed.
   const [tree, setTree] = useState({ key: 0, open: false });
 
   const query = search.trim().toLowerCase();
   const narrowed = query !== "" || currentHull;
   const groups = useHullTree(
-    narrowed
-      ? (ship) => (!currentHull || ship.id === fit.ship.type_id) && ship.name.toLowerCase().includes(query)
+    narrowed || flyable
+      ? (ship) =>
+          ship.name.toLowerCase().includes(query) &&
+          (!currentHull || ship.id === fit.ship.type_id) &&
+          (!flyable || missingSkills([ship.id]).length === 0)
       : undefined,
   );
 
@@ -68,7 +73,7 @@ export function HullsAndFits() {
           pressed={currentHull}
           onPressedChange={(pressed) => narrow(search, pressed)}
         />
-        <FilterToggle icon="skills" label="Skills" />
+        <FilterToggle icon="skills" label="Skills" pressed={flyable} onPressedChange={setFlyable} />
       </div>
       <div className={styles.tree}>
         <TreeList key={tree.key} label="Hulls">

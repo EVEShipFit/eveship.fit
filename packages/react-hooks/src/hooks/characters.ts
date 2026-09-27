@@ -1,8 +1,9 @@
-import type { Character } from "@eveshipfit/fitting";
+import { missingSkills, type Character, type MissingSkill } from "@eveshipfit/fitting";
+import { useSyncExternalStore } from "react";
 
 import { CharacterContext, useRequiredContext } from "../context.js";
 import { useFitStore } from "./fit.js";
-import { useEngine } from "./sde.js";
+import { useEngine, useSde } from "./sde.js";
 
 export const ALL_SKILLS_V = "all-skills-v";
 const NO_SKILLS = "no-skills";
@@ -43,4 +44,12 @@ export function useCharacters(): CharactersControls {
       setCurrent(id);
     },
   };
+}
+
+/** The skills the fit's character lacks to use `typeIds`; empty when it has them all. */
+export function useMissingSkills(): (typeIds: Iterable<number>) => readonly MissingSkill[] {
+  const sde = useSde();
+  const store = useFitStore();
+  const character = useSyncExternalStore(store.subscribe, () => store.character);
+  return (typeIds) => missingSkills(sde, character, typeIds);
 }

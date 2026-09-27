@@ -71,7 +71,7 @@ export const Filters: Story = {
     for (const name of filters) {
       const filter = canvas.getByRole("button", { name });
       await expect(filter).toHaveAttribute("aria-pressed", "false");
-      if (name === "Current Hull") await expect(filter).not.toHaveAttribute("aria-disabled");
+      if (name === "Current Hull" || name === "Skills") await expect(filter).not.toHaveAttribute("aria-disabled");
       else await expect(filter).toHaveAttribute("aria-disabled", "true");
     }
   },
@@ -114,6 +114,28 @@ export const SimulateShip: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Current Hull" }));
     await expect(hulls().getByRole("button", { name: "Breacher" })).toBeVisible();
     await expect(hulls().getAllByRole("button", { name: /^Simulate / })).toHaveLength(1);
+  },
+};
+
+const spaceshipCommand = 3327;
+const minmatarFrigate = 3329;
+
+/** Skills keeps the hulls the character can fly. */
+export const Skills: Story = {
+  parameters: { character: { skills: { [spaceshipCommand]: 1, [minmatarFrigate]: 1 } } },
+  play: async ({ canvas, userEvent }) => {
+    const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Skills" }));
+    await expect(canvas.getByRole("button", { name: "Skills" })).toHaveAttribute("aria-pressed", "true");
+    await expect(hulls().queryByRole("button", { name: "Cruiser" })).toBeNull();
+
+    await userEvent.click(hulls().getByRole("button", { name: "Frigate" }));
+    await expect(hulls().queryByRole("button", { name: /^Amarr/ })).toBeNull();
+    await userEvent.click(hulls().getByRole("button", { name: /^Minmatar/ }));
+    await expect(hulls().getByRole("button", { name: "Rifter" })).toBeVisible();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Skills" }));
+    await waitFor(() => expect(hulls().getByRole("button", { name: "Cruiser" })).toBeVisible());
   },
 };
 

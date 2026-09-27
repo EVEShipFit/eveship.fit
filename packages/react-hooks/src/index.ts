@@ -9,7 +9,7 @@ export {
   type Rounding,
 } from "./format.js";
 export { useAttribute, type AttributeOptions, type AttributeValue } from "./hooks/attribute.js";
-export { useCharacters, type CharacterChoice, type CharactersControls } from "./hooks/characters.js";
+export { useCharacters, useMissingSkills, type CharacterChoice, type CharactersControls } from "./hooks/characters.js";
 export { useDrag, type Drag } from "./hooks/drag.js";
 export {
   useFit,

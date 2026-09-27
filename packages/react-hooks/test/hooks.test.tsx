@@ -26,6 +26,7 @@ import {
   useImages,
   useLocalFits,
   useMarketTree,
+  useMissingSkills,
   usePreview,
   useRackUsage,
   useSde,
@@ -218,6 +219,16 @@ test("a character without skills flies the fit worse", () => {
   act(() => result.current.characters.select("no-skills"));
   expect(result.current.characters.current).toBe("no-skills");
   expect(result.current.cpu.value).toBeLessThan(withSkills);
+});
+
+test("missing skills follow the character", () => {
+  const { result } = render(() => ({ characters: useCharacters(), missingSkills: useMissingSkills() }));
+  expect(result.current.missingSkills([RIFTER])).toEqual([]);
+
+  act(() => result.current.characters.select("no-skills"));
+  expect(result.current.missingSkills([RIFTER])).toContainEqual(
+    expect.objectContaining({ type_id: engine.sde.typeByName("Minmatar Frigate")!.id, required: 1, level: 0 }),
+  );
 });
 
 test("drag and drop", () => {
