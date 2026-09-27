@@ -17,8 +17,8 @@ const box = {
   "--slot-icon-centre": 195,
 };
 
-/** Measured from EVE, in wheel units: the radius of the first action, and the step inward to the next. */
-const actions = { size: 16, first: 159, step: 16 };
+/** Measured from EVE, in wheel units: the size of an action, the radius of the first, and the step inward to the next. */
+const actions = { size: 13.5, first: 166.5, step: 13.5 };
 
 const ammoBars = [-3.6, -1.2, 1.2, 3.6];
 
