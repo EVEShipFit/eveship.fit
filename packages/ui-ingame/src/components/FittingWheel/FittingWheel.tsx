@@ -88,6 +88,7 @@ function FittingSlot({ rack, index, content, available }: FittingSlotProps) {
       rack={rack}
       angle={slotAngle(rack, index)}
       available={available}
+      preview={content?.preview}
       typeId={item?.type_id}
       typeName={type?.name}
       chargeTypeId={item?.charge?.type_id}

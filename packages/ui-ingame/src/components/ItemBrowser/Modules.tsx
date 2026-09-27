@@ -1,5 +1,13 @@
 import type { Placement } from "@eveshipfit/fitting";
-import { useCanFit, useImages, useMissingSkills, useModuleTree, usePlacement } from "@eveshipfit/react-hooks";
+import {
+  useCanFit,
+  useFitStore,
+  useImages,
+  useMissingSkills,
+  useModuleTree,
+  usePlacement,
+  usePreview,
+} from "@eveshipfit/react-hooks";
 import type { MetaFolder, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
 import { useState } from "react";
 
@@ -31,6 +39,8 @@ const MOST_OPENED_BY_SEARCH = 200;
 
 /** The Modules tab of the `ItemBrowser`: what goes on a ship, by market group. */
 export function Modules() {
+  const store = useFitStore();
+  const { show, clear } = usePreview();
   const placement = usePlacement();
   const canFit = useCanFit();
   const missingSkills = useMissingSkills();
@@ -59,6 +69,14 @@ export function Modules() {
 
   const open = query !== "" && query !== collapsed.query && countTypes(groups) <= MOST_OPENED_BY_SEARCH;
 
+  const actions: ModuleActions = {
+    fit: (typeId) => void store.fit(typeId),
+    hover: (typeId, hovering) => {
+      if (hovering) show((draft) => void draft.fit(typeId));
+      else clear();
+    },
+  };
+
   const toggleSlot = (filter: SlotFilter, pressed: boolean) => {
     const next = new Set(slots);
     if (pressed) next.add(filter);
@@ -70,7 +88,10 @@ export function Modules() {
     <>
       <Search
         value={search}
-        onChange={setSearch}
+        onChange={(value) => {
+          clear();
+          setSearch(value);
+        }}
         onCollapse={() => setCollapsed({ times: collapsed.times + 1, query })}
       />
       <fieldset className={styles.filters} aria-label="Filters">
@@ -95,7 +116,7 @@ export function Modules() {
       <div className={styles.tree}>
         <TreeList key={`${collapsed.times}-${open}`} label="Modules">
           {groups.map((node) => (
-            <ModuleGroup key={node.group.id} node={node} open={open} />
+            <ModuleGroup key={node.group.id} node={node} open={open} actions={actions} />
           ))}
         </TreeList>
       </div>
@@ -103,7 +124,18 @@ export function Modules() {
   );
 }
 
-function ModuleGroup({ node, open }: { node: ModuleGroupNode; open: boolean }) {
+interface ModuleActions {
+  fit: (typeId: number) => void;
+  hover: (typeId: number, hovering: boolean) => void;
+}
+
+interface ModuleGroupProps {
+  node: ModuleGroupNode;
+  open: boolean;
+  actions: ModuleActions;
+}
+
+function ModuleGroup({ node, open, actions }: ModuleGroupProps) {
   const images = useImages();
 
   return (
@@ -111,10 +143,10 @@ function ModuleGroup({ node, open }: { node: ModuleGroupNode; open: boolean }) {
       {() => (
         <>
           {node.children.map((child) => (
-            <ModuleGroup key={child.group.id} node={child} open={open} />
+            <ModuleGroup key={child.group.id} node={child} open={open} actions={actions} />
           ))}
           {node.types.map((type) => (
-            <Module key={type.id} type={type} />
+            <Module key={type.id} type={type} actions={actions} />
           ))}
           {node.folders.map(({ folder, types }) => (
             <TreeGroup
@@ -123,7 +155,7 @@ function ModuleGroup({ node, open }: { node: ModuleGroupNode; open: boolean }) {
               icon={images.metaGroupIcon(folders[folder].metaGroupId)}
               defaultOpen={open}
             >
-              {() => types.map((type) => <Module key={type.id} type={type} />)}
+              {() => types.map((type) => <Module key={type.id} type={type} actions={actions} />)}
             </TreeGroup>
           ))}
         </>
@@ -132,10 +164,12 @@ function ModuleGroup({ node, open }: { node: ModuleGroupNode; open: boolean }) {
   );
 }
 
-function Module({ type }: { type: SdeType }) {
+function Module({ type, actions }: { type: SdeType; actions: ModuleActions }) {
   return (
     <TreeLeaf
       label={type.name}
+      onActivate={() => actions.fit(type.id)}
+      onHover={(hovering) => actions.hover(type.id, hovering)}
       after={
         <Tooltip label="Show Info (not implemented yet)">
           <button
