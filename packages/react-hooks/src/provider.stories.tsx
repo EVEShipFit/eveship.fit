@@ -25,7 +25,7 @@ function Smoke() {
 }
 
 const meta = {
-  title: "react-hooks/Provider",
+  title: "EveShipFitProvider",
   component: Smoke,
 } satisfies Meta<typeof Smoke>;
 
