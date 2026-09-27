@@ -1,6 +1,6 @@
 import type { Images } from "@eveshipfit/images";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect } from "storybook/test";
+import { expect, fn } from "storybook/test";
 
 import { onAWheel } from "./onAWheel";
 import { WheelSlot, type WheelSlotProps } from "./WheelSlot";
@@ -97,6 +97,14 @@ export const WithCharge: Story = {
 
 export const Preview: Story = {
   args: { typeId: types["Damage Control II"], activatable: true, preview: true },
+};
+
+export const Pressable: Story = {
+  args: { typeId: types["1MN Afterburner II"], activatable: true, label: "1MN Afterburner II", onPress: fn() },
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "1MN Afterburner II" }));
+    await expect(args.onPress).toHaveBeenCalledOnce();
+  },
 };
 
 const every: Omit<WheelSlotProps, "rack" | "angle">[] = [

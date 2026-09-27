@@ -82,6 +82,24 @@
   width: 100%;
 }
 
+.press {
+  background: none;
+  border: none;
+  cursor: pointer;
+  inset: 0;
+  padding: 0;
+  position: absolute;
+}
+
+.press:focus-visible {
+  outline: none;
+}
+
+.slot:has(> .press:hover) > .fill,
+.slot:has(> .press:focus-visible) > .fill {
+  opacity: 0.3;
+}
+
 .slot[data-state="empty"] > .frame {
   opacity: 0.75;
 }
