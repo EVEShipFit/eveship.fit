@@ -12,13 +12,13 @@ export type SlotState = "offline" | "online" | "active" | "overload";
 
 /** Measured from EVE. */
 const box = {
-  "--slot-size": 49,
-  "--slot-centre": 193,
-  "--slot-icon-centre": 195,
+  "--slot-size": 60.5,
+  "--slot-centre": 238,
+  "--slot-icon-centre": 239,
 };
 
-/** Measured from EVE, in wheel units: the size of an action, the radius of the first, and the step inward to the next. */
-const actions = { size: 13.5, first: 166.5, step: 13.5 };
+/** Measured from EVE: the size of an action, the radius of the first, and the step inward to the next. */
+const actions = { size: 16.5, first: 205.5, step: 16.5 };
 
 const ammoBars = [-3.6, -1.2, 1.2, 3.6];
 

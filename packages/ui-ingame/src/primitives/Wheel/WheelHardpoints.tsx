@@ -32,7 +32,7 @@ export function WheelHardpoints({ turrets, launchers }: WheelHardpointsProps) {
 
 function HardpointIcon({ name, angle }: { name: IconName; angle: number }) {
   return (
-    <span className={styles.icon} style={placeAt(angle, 223.5)}>
+    <span className={styles.icon} style={placeAt(angle, 275.5)}>
       <Icon name={name} />
     </span>
   );
@@ -45,7 +45,7 @@ function Dots({ used, total, first, step }: Hardpoints & { first: number; step: 
     <img
       key={index}
       className={styles.dot}
-      style={placeAt(first + index * step, 224.5)}
+      style={placeAt(first + index * step, 277)}
       src={images.uiTexture(index < used ? "classes/fitting/slottaken" : "classes/fitting/slotleft")}
       alt=""
       data-used={index < used || undefined}

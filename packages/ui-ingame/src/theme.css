@@ -18,6 +18,7 @@
   --esf-powergrid: #541208;
   --esf-calibration: #3d4547;
 
-  --esf-wheel-size: 480px;
+  /* EVE's UI scale; 1 is 100%. */
+  --esf-wheel-scale: 1;
   --esf-radius: 4px;
 }

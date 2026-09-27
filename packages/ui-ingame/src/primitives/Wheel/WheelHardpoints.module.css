@@ -6,11 +6,11 @@
 
 .icon,
 .dot {
-  height: calc(13 * var(--wheel-unit));
+  height: calc(16 * var(--wheel-unit));
   pointer-events: none;
   position: absolute;
   transform: translate(-50%, -50%);
-  width: calc(13 * var(--wheel-unit));
+  width: calc(16 * var(--wheel-unit));
 }
 
 .icon > img {
