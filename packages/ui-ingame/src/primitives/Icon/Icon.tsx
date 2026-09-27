@@ -11,7 +11,7 @@ const textures = {
   "slot-rig": "classes/fitting/filtericonrigslot",
   "slot-subsystem": "windowicons/subsystems",
   "module-unfit": "icons/38_16_200",
-  "module-power": "icons/38_16_201",
+  "module-power": "icons/38_16_207",
   "module-info": "icons/38_16_208",
 } satisfies Record<string, string>;
 
