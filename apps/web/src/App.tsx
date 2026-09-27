@@ -58,16 +58,11 @@ export function App({ data }: { data: Promise<Data | null> }) {
   );
 }
 
-function DataVersion({ data }: { data: Promise<Data | null> }) {
-  const loaded = use(data);
-  if (loaded === null) return null;
+const longDate = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
 
-  const { buildNumber, releaseDate } = loaded.sde;
-  return (
-    <>
-      {" "}
-      · EVE data: SDE build {buildNumber}
-      {releaseDate !== undefined && ` (${releaseDate.toISOString().slice(0, 10)})`}
-    </>
-  );
+function DataVersion({ data }: { data: Promise<Data | null> }) {
+  const releaseDate = use(data)?.sde.releaseDate;
+  if (releaseDate === undefined) return null;
+
+  return <> · EVE data from {longDate.format(releaseDate)}</>;
 }
