@@ -175,17 +175,17 @@
 }
 
 .button,
+.module {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
 .button {
   background: none;
   border: none;
   cursor: pointer;
-  opacity: 0.8;
   padding: 0;
-}
-
-.button:hover,
-.button:focus-visible {
-  opacity: 1;
 }
 
 .button:focus-visible {

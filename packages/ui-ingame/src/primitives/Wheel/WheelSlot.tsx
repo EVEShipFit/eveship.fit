@@ -18,7 +18,7 @@ const box = {
 };
 
 /** Measured from EVE, in wheel units: the radius of the first action, and the step inward to the next. */
-const actions = { size: 16, first: 156.5, step: 20 };
+const actions = { size: 16, first: 159, step: 16 };
 
 const ammoBars = [-3.6, -1.2, 1.2, 3.6];
 
@@ -71,35 +71,41 @@ export function WheelSlot({
   const fitted = typeId !== undefined;
   const iconTypeId = chargeTypeId ?? typeId;
 
-  const shown: { key: string; node: ReactNode }[] = [];
+  // Each action has its place in the row, even when it is missing, as in EVE.
+  const row: ({ key: string; node: ReactNode } | undefined)[] = [];
   if (fitted && !preview) {
-    if (chargeTypeId !== undefined && onRemoveCharge) {
-      shown.push({
-        key: "charge",
-        node: <Action icon="module-unfit" label="Remove Charge" onPress={onRemoveCharge} />,
-      });
+    if (chargeTypeId !== undefined) {
+      row.push(
+        onRemoveCharge && {
+          key: "charge",
+          node: <Action icon="module-unfit" label="Remove Charge" onPress={onRemoveCharge} />,
+        },
+      );
+      row.push(undefined); // Show Info of the charge.
+      row.push(
+        typeName === undefined
+          ? undefined
+          : {
+              key: "module",
+              node: (
+                <Tooltip label={typeName}>
+                  <span className={styles.module}>
+                    <TypeIcon typeId={typeId} size={64} marker={false} />
+                  </span>
+                </Tooltip>
+              ),
+            },
+      );
     }
-    if (chargeTypeId !== undefined && typeName !== undefined) {
-      shown.push({
-        key: "module",
-        node: (
-          <Tooltip label={typeName}>
-            <span className={styles.module}>
-              <TypeIcon typeId={typeId} size={64} marker={false} />
-            </span>
-          </Tooltip>
-        ),
-      });
-    }
-    if (onUnfit) {
-      shown.push({ key: "unfit", node: <Action icon="module-unfit" label="Unfit Module" onPress={onUnfit} /> });
-    }
-    if (onTogglePower) {
-      const power = state === "offline" ? "Put Online" : "Put Offline";
-      shown.push({ key: "power", node: <Action icon="module-power" label={power} onPress={onTogglePower} /> });
-    }
+    row.push(onUnfit && { key: "unfit", node: <Action icon="module-unfit" label="Unfit Module" onPress={onUnfit} /> });
+    row.push(undefined); // Show Info of the module.
+    const power = state === "offline" ? "Put Online" : "Put Offline";
+    row.push(
+      onTogglePower && { key: "power", node: <Action icon="module-power" label={power} onPress={onTogglePower} /> },
+    );
   }
-  const innermost = actions.first - (shown.length - 1) * actions.step - actions.size / 2;
+  const last = row.findLastIndex((action) => action !== undefined);
+  const innermost = actions.first - last * actions.step - actions.size / 2;
 
   return (
     <div
@@ -135,18 +141,25 @@ export function WheelSlot({
         )}
         {onPress && <button type="button" className={styles.press} aria-label={label} onClick={onPress} />}
       </div>
-      {shown.length > 0 && (
+      {last >= 0 && (
         <fieldset
           className={styles.actions}
           style={{ "--action-size": actions.size } as CSSProperties}
           aria-label={typeName}
         >
           <span className={styles.bridge} style={{ "--innermost": innermost } as CSSProperties} />
-          {shown.map(({ key, node }, index) => (
-            <span key={key} className={styles.action} style={placeAt(angle, actions.first - index * actions.step)}>
-              {node}
-            </span>
-          ))}
+          {row.map(
+            (action, index) =>
+              action && (
+                <span
+                  key={action.key}
+                  className={styles.action}
+                  style={placeAt(angle, actions.first - index * actions.step)}
+                >
+                  {action.node}
+                </span>
+              ),
+          )}
         </fieldset>
       )}
     </div>

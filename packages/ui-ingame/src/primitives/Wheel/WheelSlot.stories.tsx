@@ -127,7 +127,10 @@ export const Actions: Story = {
     await userEvent.tab();
     await expect(actions).toBeVisible();
     await userEvent.tab();
-    await expect(canvas.getByRole("button", { name: "Unfit Module" })).toHaveFocus();
+    const unfit = canvas.getByRole("button", { name: "Unfit Module" });
+    await expect(unfit).toHaveFocus();
+    // 16 of the wheel's 464 units.
+    await expect(unfit.getBoundingClientRect().width).toBeCloseTo((16 / 464) * 730, 0);
     await userEvent.keyboard("{Enter}");
     await expect(args.onUnfit).toHaveBeenCalledOnce();
 
