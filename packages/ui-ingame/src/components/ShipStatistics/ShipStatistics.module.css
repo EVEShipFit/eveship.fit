@@ -51,3 +51,103 @@
   height: calc(16 * var(--statistics-unit));
   width: calc(16 * var(--statistics-unit));
 }
+
+.defense {
+  --defense-unit: calc(1px * var(--esf-scale, 1));
+
+  align-items: center;
+  column-gap: calc(6 * var(--defense-unit));
+  display: grid;
+  grid-auto-rows: calc(32 * var(--defense-unit));
+  grid-template-columns: 1fr repeat(4, calc(40 * var(--defense-unit)));
+  grid-template-rows: calc(26 * var(--defense-unit));
+  padding-right: calc(10 * var(--defense-unit));
+}
+
+.defense > img {
+  height: calc(22 * var(--defense-unit));
+  margin-left: calc(4 * var(--defense-unit));
+  width: calc(22 * var(--defense-unit));
+}
+
+.repairRate {
+  --repair-rate-unit: calc(1px * var(--esf-scale, 1));
+}
+
+.picker {
+  align-items: center;
+  anchor-name: var(--repair-rate-anchor);
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: default;
+  display: flex;
+  font: inherit;
+  gap: calc(3 * var(--repair-rate-unit));
+  padding: 0;
+  position: relative;
+  white-space: nowrap;
+}
+
+.picker:focus-visible {
+  outline: var(--repair-rate-unit) solid var(--esf-text);
+}
+
+.picker > img {
+  height: calc(20 * var(--repair-rate-unit));
+  width: calc(20 * var(--repair-rate-unit));
+}
+
+/* The caret EVE puts above the icon; it points down while the menu is open. */
+.picker > img:first-child {
+  height: calc(8 * var(--repair-rate-unit));
+  left: 0;
+  position: absolute;
+  top: calc(-6 * var(--repair-rate-unit));
+  width: calc(8 * var(--repair-rate-unit));
+}
+
+.repairRate:has(:popover-open) .picker > img:first-child {
+  transform: rotate(180deg);
+}
+
+.menu {
+  background: var(--esf-menu-bg);
+  border: none;
+  color: var(--esf-text);
+  font-family: var(--esf-font);
+  font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
+  inset: auto;
+  left: calc(anchor(left) + 2 * var(--repair-rate-unit));
+  margin: 0;
+  padding: 0;
+  position-anchor: var(--repair-rate-anchor);
+  min-width: calc(172 * var(--repair-rate-unit));
+  top: calc(anchor(bottom) + 3 * var(--repair-rate-unit));
+}
+
+.menu > button {
+  align-items: center;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: default;
+  display: flex;
+  font: inherit;
+  gap: calc(3 * var(--repair-rate-unit));
+  height: calc(32 * var(--repair-rate-unit));
+  padding: 0 calc(8 * var(--repair-rate-unit)) 0 calc(2 * var(--repair-rate-unit));
+  white-space: nowrap;
+  width: 100%;
+}
+
+.menu > button:hover,
+.menu > button:focus-visible {
+  background: var(--esf-menu-hover);
+  outline: none;
+}
+
+.menu > button > img {
+  height: calc(24 * var(--repair-rate-unit));
+  width: calc(24 * var(--repair-rate-unit));
+}

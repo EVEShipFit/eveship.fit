@@ -32,6 +32,13 @@
   --esf-stats-header: #161718;
   --esf-good: #8cc068;
   --esf-bad: #fb444a;
+  --esf-damage-em: #1e71a1;
+  --esf-damage-thermal: #a01e1e;
+  --esf-damage-kinetic: #858585;
+  --esf-damage-explosive: #9f6f1e;
+  --esf-resistance-bg: #1f2326;
+  --esf-menu-bg: #0a0a0a;
+  --esf-menu-hover: #292929;
 
   /* EVE's UI scale; 1 is 100%. */
   --esf-scale: 1;

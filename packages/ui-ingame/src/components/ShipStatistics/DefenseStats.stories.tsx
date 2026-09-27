@@ -19,5 +19,25 @@ export const EmptyRifter: Story = {
     );
     await expect(canvas.getByRole("group", { name: "Armor Hitpoints" })).toHaveTextContent("562 hp");
     await expect(canvas.getByRole("group", { name: "Structure Hitpoints" })).toHaveTextContent("437 hp");
+
+    const resistances = canvas.getAllByRole("meter").map((meter) => meter.textContent);
+    await expect(resistances).toEqual(
+      [
+        ["0 %", "20 %", "40 %", "50 %"],
+        ["60 %", "35 %", "25 %", "10 %"],
+        ["33 %", "33 %", "33 %", "33 %"],
+      ].flat(),
+    );
+    const thermal = canvas.getByRole("meter", { name: "Shield Thermal Resistance" });
+    await expect(Number(thermal.getAttribute("aria-valuenow"))).toBeCloseTo(0.2);
+  },
+};
+
+export const PickARepairRate: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Passive shield recharge: 3 hp/s" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Armor repair rate" }));
+    await expect(canvas.getByRole("button", { name: "Armor repair rate: No Module" })).toHaveTextContent("No Module");
+    await expect(canvas.queryByRole("button", { name: "Hull repair rate" })).toBeNull();
   },
 };

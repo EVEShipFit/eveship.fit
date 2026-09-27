@@ -1,8 +1,11 @@
 import { useAttribute } from "@eveshipfit/react-hooks";
 
+import { Icon } from "../../primitives/Icon/Icon";
 import { Stat } from "../../primitives/Stat/Stat";
 import { StatsSection } from "../../primitives/StatsSection/StatsSection";
 import { AttributeText } from "./AttributeText";
+import { RepairRate } from "./RepairRate";
+import { damageTypes, Resistances } from "./Resistances";
 import styles from "./ShipStatistics.module.css";
 import { unit } from "./units";
 
@@ -17,18 +20,27 @@ export function DefenseStats() {
 
   return (
     <StatsSection title="Defense" summary={<AttributeText value={ehp} />}>
-      <Stat icon="stat-shield-hp" label="Shield Hitpoints / Recharge Time">
-        <span className={styles.lines}>
-          <AttributeText value={shield} />
-          <AttributeText value={shieldRecharge} />
-        </span>
-      </Stat>
-      <Stat icon="stat-armor-hp" label="Armor Hitpoints">
-        <AttributeText value={armor} />
-      </Stat>
-      <Stat icon="stat-structure-hp" label="Structure Hitpoints">
-        <AttributeText value={structure} />
-      </Stat>
+      <div className={styles.defense}>
+        <RepairRate />
+        {damageTypes.map((damage) => (
+          <Icon key={damage} name={`stat-${damage}-resistance`} />
+        ))}
+        <Stat icon="stat-shield-hp" label="Shield Hitpoints / Recharge Time">
+          <span className={styles.lines}>
+            <AttributeText value={shield} />
+            <AttributeText value={shieldRecharge} />
+          </span>
+        </Stat>
+        <Resistances layer="shield" />
+        <Stat icon="stat-armor-hp" label="Armor Hitpoints">
+          <AttributeText value={armor} />
+        </Stat>
+        <Resistances layer="armor" />
+        <Stat icon="stat-structure-hp" label="Structure Hitpoints">
+          <AttributeText value={structure} />
+        </Stat>
+        <Resistances layer="structure" />
+      </div>
     </StatsSection>
   );
 }

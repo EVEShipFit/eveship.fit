@@ -32,11 +32,11 @@ function formatterFor(decimals: number, fixed: boolean, grouping: boolean): Intl
 
 function round(value: number, decimals: number, rounding: Rounding): number {
   const scale = 10 ** decimals;
-  // Drops what floating point adds, so 37.00000000000001 does not round up to 38.
-  const scaled = Number((value * scale).toPrecision(12));
-  if (rounding === "down") return Math.floor(scaled) / scale;
-  if (rounding === "up") return Math.ceil(scaled) / scale;
-  return (Math.sign(scaled) * Math.round(Math.abs(scaled))) / scale;
+  const scaled = value * scale;
+  const nearest = Math.sign(scaled) * Math.round(Math.abs(scaled));
+  // The SDE stores 32-bit floats: 0.2 comes out as 0.19999999, which should not round down to 0.1.
+  if (rounding === "nearest" || Math.abs(scaled - nearest) <= Math.abs(scaled) * 1e-6) return nearest / scale;
+  return (rounding === "down" ? Math.floor(scaled) : Math.ceil(scaled)) / scale;
 }
 
 export function formatNumber(
