@@ -1,7 +1,8 @@
 import type { Sde, SdeType } from "@eveshipfit/sde-loader";
 
-import { Category, Effect } from "../ids.js";
+import { Category } from "../ids.js";
 import { baseValue, baseValues } from "./attributes.js";
+import { placementOf } from "./placement.js";
 
 const chargeGroups = ["chargeGroup1", "chargeGroup2", "chargeGroup3", "chargeGroup4", "chargeGroup5"];
 const shipGroups = Array.from({ length: 20 }, (_, i) => `canFitShipGroup${String(i + 1).padStart(2, "0")}`);
@@ -11,8 +12,13 @@ const standupFighters = [
   "fighterSquadronIsStandupSupport",
   "fighterSquadronIsStandupHeavy",
 ];
+const fighterTubes = [
+  ["fighterSquadronIsLight", "fighterLightSlots", "fighterStandupLightSlots"],
+  ["fighterSquadronIsSupport", "fighterSupportSlots", "fighterStandupSupportSlots"],
+  ["fighterSquadronIsHeavy", "fighterHeavySlots", "fighterStandupHeavySlots"],
+] as const;
+const racks = new Set(["high", "medium", "low", "rig", "subsystem", "service"]);
 
-/** Anything bigger is a capital module, which only a capital ship takes. */
 const CAPITAL_VOLUME = 3500;
 
 /** Whether `module` can load `charge`: the right group, the right size, and room for at least one. */
@@ -38,12 +44,7 @@ export function chargesFor(sde: Sde, module: SdeType): SdeType[] {
   return charges.toSorted((a, b) => a.name.localeCompare(b.name));
 }
 
-/**
- * Whether `type` may go on `ship` at all: hull restrictions, rig size,
- * capital size, structure or ship, and subsystems of the right hull. Whether
- * there is room left is the calculation's job, as that depends on the rest of
- * the fit.
- */
+/** Whether `type` may go on `ship` at all, however the rest of the fit looks. */
 export function canFit(sde: Sde, type: SdeType, ship: SdeType): boolean {
   const groups = baseValues(sde, type, shipGroups);
   const types = baseValues(sde, type, shipTypes);
@@ -57,11 +58,25 @@ export function canFit(sde: Sde, type: SdeType, ship: SdeType): boolean {
   const hull = baseValue(sde, type, "fitsToShipType");
   if (hull !== undefined && hull !== ship.id) return false;
 
+  const placement = placementOf(sde, type)?.type;
+  const fitted = placement !== undefined && racks.has(placement);
+  const fighter = placement === "fighter_bay";
   const structure = ship.categoryId === Category.Structure;
-  const capital = (type.volume ?? 0) > CAPITAL_VOLUME && !type.effectIds.has(Effect.RigSlot);
+
+  const capital = fitted && placement !== "rig" && (type.volume ?? 0) > CAPITAL_VOLUME;
   if (capital && !structure && !baseValue(sde, ship, "isCapitalSize")) return false;
 
-  const standup =
-    type.categoryId === Category.StructureModule || baseValues(sde, type, standupFighters).some((value) => value !== 0);
-  return standup === structure;
+  if (fighter) {
+    for (const [kind, shipTubes, structureTubes] of fighterTubes) {
+      if (baseValue(sde, type, kind) && !baseValue(sde, ship, structure ? structureTubes : shipTubes)) return false;
+    }
+  }
+
+  if (fitted || fighter) {
+    const standup =
+      type.categoryId === Category.StructureModule ||
+      baseValues(sde, type, standupFighters).some((value) => value !== 0);
+    if (standup !== structure) return false;
+  }
+  return true;
 }

@@ -106,9 +106,29 @@ describe("trees", () => {
     expect(large.folders[0]!.types.every((type) => type.metaGroupId === 3 || type.metaGroupId === 4)).toBe(true);
   });
 
+  test("structure modules sort as their ship counterparts do", () => {
+    const structureFighters = sde
+      .moduleTree()
+      .find((node) => node.group.name === "Drones")!
+      .children.find((node) => node.group.name === "Fighters")!
+      .children.find((node) => node.group.name === "Structure-based Fighters")!;
+    for (const { types } of structureFighters.children) {
+      const techs = types.map((type) => type.metaGroupId);
+      expect(techs).toEqual(techs.toSorted((a, b) => (b ?? 0) - (a ?? 0)));
+    }
+    const folders = structureFighters.children.flatMap((node) => node.folders);
+    expect(folders.map((node) => node.folder)).toContain("faction");
+    expect(
+      structureFighters.children.some(({ types }) => new Set(types.map((type) => type.metaGroupId)).size > 1),
+    ).toBe(true);
+    expect(folders.flatMap((node) => node.types).every((type) => type.metaGroupId === 52)).toBe(true);
+  });
+
   test("ships by group and race", () => {
     const frigates = sde.shipTree().find((node) => node.group.name === "Frigate")!;
     expect(frigates.races.map((node) => node.race)).toEqual(["amarr", "caldari", "gallente", "minmatar", "other"]);
+
+    expect(frigates.races.map((node) => node.factionId)).toEqual([500003, 500001, 500004, 500002, undefined]);
 
     const minmatar = frigates.races.find((node) => node.race === "minmatar")!;
     expect(minmatar.ships.map((ship) => ship.name)).toContain("Rifter");

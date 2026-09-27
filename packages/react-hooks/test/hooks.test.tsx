@@ -340,7 +340,7 @@ test("the hulls keep only the groups and races of what the filter keeps", () => 
 
   expect(result.current).toHaveLength(1);
   expect(result.current[0]?.group.name).toBe("Frigate");
-  expect(result.current[0]?.races).toEqual([{ race: "minmatar", ships: [engine.sde.type(RIFTER)] }]);
+  expect(result.current[0]?.races).toEqual([{ race: "minmatar", factionId: 500002, ships: [engine.sde.type(RIFTER)] }]);
 });
 
 const onlyRepublicFleet = (type: SdeType) => type.name.startsWith("Republic Fleet Large Shield Extender");
@@ -370,6 +370,29 @@ test("where a type goes, and whether it may go on the fit's ship", () => {
   expect(result.current.canFit(byName("Warrior II"))).toBe(false);
   expect(result.current.canFit(byName("Templar II"))).toBe(false);
   expect(result.current.canFit(byName("EMP S"))).toBe(true);
+});
+
+test("a carrier takes fighters of the kinds it has tubes for", () => {
+  const { result } = render(() => useCanFit(), {
+    fit: engine.createFit({ ship: { type_id: byName("Archon").id }, items: [] }),
+  });
+  expect(result.current(byName("Templar II"))).toBe(true);
+  expect(result.current(byName("Cyclops II"))).toBe(false);
+});
+
+test("a tech III cruiser takes its own subsystems", () => {
+  const { result } = render(() => useCanFit(), {
+    fit: engine.createFit({ ship: { type_id: byName("Loki").id }, items: [] }),
+  });
+  expect(result.current(byName("Loki Core - Augmented Nuclear Reactor"))).toBe(true);
+  expect(result.current(byName("Tengu Core - Augmented Graviton Reactor"))).toBe(false);
+});
+
+test("the fit check stays the same while the fit changes in ways it does not read", () => {
+  const { result } = render(() => ({ canFit: useCanFit(), store: useFitStore() }));
+  const first = result.current.canFit;
+  act(() => void result.current.store.fit(DAMAGE_CONTROL_II));
+  expect(result.current.canFit).toBe(first);
 });
 
 test("a ship with a drone bay takes drones", () => {

@@ -1,3 +1,4 @@
+import type { Placement } from "@eveshipfit/fitting";
 import { useCanFit, useImages, useMissingSkills, useModuleTree, usePlacement } from "@eveshipfit/react-hooks";
 import type { MetaFolder, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
 import { useState } from "react";
@@ -10,8 +11,9 @@ import styles from "./ItemBrowser.module.css";
 import { Search } from "./Search";
 
 type SlotFilter = "low" | "medium" | "high" | "rig" | "drones";
+type Place = Placement["type"];
 
-const slotFilters: { filter: SlotFilter; icon: IconName; label: string; places: readonly string[] }[] = [
+const slotFilters: { filter: SlotFilter; icon: IconName; label: string; places: readonly Place[] }[] = [
   { filter: "low", icon: "filter-low-slot", label: "Low Slot", places: ["low"] },
   { filter: "medium", icon: "filter-medium-slot", label: "Mid Slot", places: ["medium"] },
   { filter: "high", icon: "filter-high-slot", label: "High Slot", places: ["high"] },
@@ -25,17 +27,18 @@ const folders: Record<MetaFolder, { label: string; metaGroupId: number }> = {
   deadspace: { label: "Deadspace", metaGroupId: 6 },
 };
 
+const MOST_OPENED_BY_SEARCH = 200;
+
 /** The Modules tab of the `ItemBrowser`: what goes on a ship, by market group. */
 export function Modules() {
   const placement = usePlacement();
   const canFit = useCanFit();
   const missingSkills = useMissingSkills();
   const [search, setSearch] = useState("");
-  const [slots, setSlots] = useState<ReadonlySet<SlotFilter>>(new Set());
+  const [slots, setSlots] = useState<ReadonlySet<SlotFilter>>(() => new Set());
   const [hullRestrictions, setHullRestrictions] = useState(false);
   const [flyable, setFlyable] = useState(false);
-  // A new key mounts the tree again, with every group open or closed.
-  const [tree, setTree] = useState({ key: 0, open: false });
+  const [collapsed, setCollapsed] = useState<{ times: number; query?: string }>({ times: 0 });
 
   const query = search.trim().toLowerCase();
   const places = new Set(slotFilters.filter(({ filter }) => slots.has(filter)).flatMap((slot) => slot.places));
@@ -43,7 +46,10 @@ export function Modules() {
   const groups = useModuleTree(
     query !== "" || places.size > 0 || hullRestrictions || flyable
       ? (type) => {
-          if (places.size > 0 && !places.has(placement(type)?.type ?? "")) return false;
+          if (places.size > 0) {
+            const place = placement(type)?.type;
+            if (place === undefined || !places.has(place)) return false;
+          }
           if (hullRestrictions && !canFit(type)) return false;
           if (flyable && missingSkills([type.id]).length > 0) return false;
           return type.name.toLowerCase().includes(query);
@@ -51,11 +57,7 @@ export function Modules() {
       : undefined,
   );
 
-  const changeSearch = (next: string) => {
-    const searching = next.trim() !== "";
-    if (searching !== (query !== "")) setTree({ key: tree.key + 1, open: searching });
-    setSearch(next);
-  };
+  const open = query !== "" && query !== collapsed.query && countTypes(groups) <= MOST_OPENED_BY_SEARCH;
 
   const toggleSlot = (filter: SlotFilter, pressed: boolean) => {
     const next = new Set(slots);
@@ -66,8 +68,12 @@ export function Modules() {
 
   return (
     <>
-      <Search value={search} onChange={changeSearch} onCollapse={() => setTree({ key: tree.key + 1, open: false })} />
-      <div className={styles.filters} role="toolbar" aria-label="Filters">
+      <Search
+        value={search}
+        onChange={setSearch}
+        onCollapse={() => setCollapsed({ times: collapsed.times + 1, query })}
+      />
+      <fieldset className={styles.filters} aria-label="Filters">
         {slotFilters.map(({ filter, icon, label }) => (
           <FilterToggle
             key={filter}
@@ -85,11 +91,11 @@ export function Modules() {
         />
         <FilterToggle icon="filter-resources" label="Resources" />
         <FilterToggle icon="skills" label="Skills" pressed={flyable} onPressedChange={setFlyable} />
-      </div>
+      </fieldset>
       <div className={styles.tree}>
-        <TreeList key={tree.key} label="Modules">
+        <TreeList key={`${collapsed.times}-${open}`} label="Modules">
           {groups.map((node) => (
-            <ModuleGroup key={node.group.id} node={node} open={tree.open} />
+            <ModuleGroup key={node.group.id} node={node} open={open} />
           ))}
         </TreeList>
       </div>
@@ -132,11 +138,26 @@ function Module({ type }: { type: SdeType }) {
       label={type.name}
       after={
         <Tooltip label="Show Info (not implemented yet)">
-          <button type="button" className={styles.info} aria-label={`Show Info on ${type.name}`} aria-disabled>
+          <button
+            type="button"
+            className={styles.info}
+            aria-label={`Show Info on ${type.name}`}
+            aria-disabled
+            tabIndex={-1}
+          >
             <Icon name="module-info" />
           </button>
         </Tooltip>
       }
     />
   );
+}
+
+function countTypes(nodes: readonly ModuleGroupNode[]): number {
+  let count = 0;
+  for (const node of nodes) {
+    count += countTypes(node.children) + node.types.length;
+    for (const folder of node.folders) count += folder.types.length;
+  }
+  return count;
 }

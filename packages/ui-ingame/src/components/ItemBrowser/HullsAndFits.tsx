@@ -1,6 +1,5 @@
 import type { Fit } from "@eveshipfit/fitting";
 import { useFit, useFitStore, useHullTree, useImages, useLocalFits, useMissingSkills } from "@eveshipfit/react-hooks";
-import type { ShipRace } from "@eveshipfit/sde-loader";
 import { useState, type CSSProperties } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
@@ -11,13 +10,6 @@ import styles from "./ItemBrowser.module.css";
 import { Search } from "./Search";
 
 const noFits: readonly Fit[] = [];
-
-const raceFactions: Partial<Record<ShipRace, number>> = {
-  amarr: 500003,
-  caldari: 500001,
-  gallente: 500004,
-  minmatar: 500002,
-};
 
 /** The Hulls & Fits tab of the `ItemBrowser`: EVE's hulls by group and race, with the fits saved for each. */
 export function HullsAndFits() {
@@ -72,7 +64,7 @@ export function HullsAndFits() {
         onChange={(value) => narrow(value, currentHull)}
         onCollapse={() => setTree({ key: tree.key + 1, open: false })}
       />
-      <div className={styles.filters} role="toolbar" aria-label="Filters">
+      <fieldset className={styles.filters} aria-label="Filters">
         <FilterToggle
           icon="fits-browser"
           label="Browser Fittings"
@@ -90,17 +82,17 @@ export function HullsAndFits() {
           onPressedChange={(pressed) => narrow(search, pressed)}
         />
         <FilterToggle icon="skills" label="Skills" pressed={flyable} onPressedChange={setFlyable} />
-      </div>
+      </fieldset>
       <div className={styles.tree}>
         <TreeList key={tree.key} label="Hulls">
           {groups.map(({ group, races }) => (
             <TreeGroup key={group.id} label={group.name} defaultOpen={tree.open}>
               {() =>
-                races.map(({ race, ships }) => (
+                races.map(({ race, factionId, ships }) => (
                   <TreeGroup
                     key={race}
                     label={`${raceName(race)} [${ships.length}]`}
-                    icon={raceFactions[race] === undefined ? undefined : images.factionIcon(raceFactions[race])}
+                    icon={factionId === undefined ? undefined : images.factionIcon(factionId)}
                     defaultOpen={tree.open}
                   >
                     {() =>

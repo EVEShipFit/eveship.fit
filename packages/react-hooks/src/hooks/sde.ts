@@ -47,11 +47,7 @@ export function useMarketTree(filter?: (type: SdeType) => boolean): readonly Mar
   }, [sde, filter]);
 }
 
-/**
- * What goes on a ship, cut down to the types `filter` keeps; groups and
- * folders left empty are dropped. Keep `filter` stable between renders, as
- * the tree is rebuilt when it changes.
- */
+/** What goes on a ship, cut down to the types a stable `filter` keeps. */
 export function useModuleTree(filter?: (type: SdeType) => boolean): readonly ModuleGroupNode[] {
   const sde = useSde();
   return useMemo(() => {
@@ -75,7 +71,7 @@ export function useHullTree(filter?: (ship: SdeType) => boolean): readonly ShipG
       .map((node) => ({
         group: node.group,
         races: node.races
-          .map((race) => ({ race: race.race, ships: race.ships.filter(filter) }))
+          .map((race) => ({ ...race, ships: race.ships.filter(filter) }))
           .filter((race) => race.ships.length > 0),
       }))
       .filter((node) => node.races.length > 0);

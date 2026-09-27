@@ -131,9 +131,12 @@
 }
 
 .filters {
+  border: none;
   display: flex;
   gap: calc(4 * var(--browser-unit));
-  margin-top: calc(4 * var(--browser-unit));
+  margin: calc(4 * var(--browser-unit)) 0 0;
+  min-width: 0;
+  padding: 0;
 }
 
 .tree {

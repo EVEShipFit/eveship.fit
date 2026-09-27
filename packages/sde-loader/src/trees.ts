@@ -25,6 +25,8 @@ export type ShipRace = "amarr" | "caldari" | "gallente" | "minmatar" | "other";
 
 export interface ShipRaceNode {
   readonly race: ShipRace;
+  /** The empire of the race; `undefined` for `other`. */
+  readonly factionId: number | undefined;
   readonly ships: readonly SdeType[];
 }
 
@@ -47,8 +49,16 @@ const DRONES_MARKET_GROUP_ID = 157;
 const RIGS_MARKET_GROUP_ID = 1111;
 const SUBSYSTEMS_MARKET_GROUP_ID = 1112;
 
+/** Structure meta groups sort and go in folders as their ship counterparts do. */
+const shipMetaGroups: Partial<Record<number, number>> = { 52: 4, 53: 2, 54: 1 };
 const metaFolders: Partial<Record<number, MetaFolder>> = { 3: "faction", 4: "faction", 5: "officer", 6: "deadspace" };
 const folderOrder: readonly MetaFolder[] = ["faction", "officer", "deadspace"];
+
+function metaGroup(type: SdeType): number {
+  return shipMetaGroups[type.metaGroupId ?? 0] ?? type.metaGroupId ?? 0;
+}
+
+const raceFactions = new Map(Object.entries(empireFactions).map(([id, race]) => [race, Number(id)]));
 
 const raceOrder: readonly ShipRace[] = ["amarr", "caldari", "gallente", "minmatar", "other"];
 
@@ -92,12 +102,11 @@ export function buildModuleTree(
   };
   index(market);
 
-  const byMeta = (a: SdeType, b: SdeType) =>
-    (a.metaGroupId ?? 0) - (b.metaGroupId ?? 0) || metaLevel(a) - metaLevel(b) || byName(a, b);
+  const byMeta = (a: SdeType, b: SdeType) => metaGroup(a) - metaGroup(b) || metaLevel(a) - metaLevel(b) || byName(a, b);
 
   const build = (node: MarketGroupNode): ModuleGroupNode[] => {
     const children = node.children.flatMap(build);
-    const byFolder = Map.groupBy(node.types, (type) => metaFolders[type.metaGroupId ?? 0]);
+    const byFolder = Map.groupBy(node.types, (type) => metaFolders[metaGroup(type)]);
     const types = (byFolder.get(undefined) ?? []).toSorted(byMeta);
     const folders = folderOrder.flatMap((folder) => {
       const folderTypes = byFolder.get(folder);
@@ -134,7 +143,8 @@ export function buildShipTree(
       group: shipGroup,
       races: raceOrder.flatMap((race) => {
         const raceShips = byRace.get(race);
-        return raceShips === undefined ? [] : [{ race, ships: raceShips.toSorted(byName) }];
+        if (raceShips === undefined) return [];
+        return [{ race, factionId: raceFactions.get(race), ships: raceShips.toSorted(byName) }];
       }),
     });
   }
