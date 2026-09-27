@@ -12,6 +12,7 @@ import {
   LocalFits,
   useAttribute,
   useCharacters,
+  useCharges,
   useDrag,
   useEngine,
   useFit,
@@ -233,6 +234,24 @@ test("types", () => {
   const { result } = render(() => ({ rifter: useType(RIFTER), none: useType(undefined) }));
   expect(result.current.rifter?.name).toBe("Rifter");
   expect(result.current.none).toBeUndefined();
+});
+
+test("the charges a module can load", () => {
+  const autocannon = engine.sde.typeByName("200mm AutoCannon II")!.id;
+  const { result, rerender } = render(() => ({
+    autocannon: useCharges(autocannon),
+    damageControl: useCharges(DAMAGE_CONTROL_II),
+    none: useCharges(undefined),
+  }));
+  const first = result.current.autocannon;
+
+  expect(first.map((type) => type.name)).toContain("EMP S");
+  expect(first.map((type) => type.name)).not.toContain("EMP M");
+  expect(result.current.damageControl).toEqual([]);
+  expect(result.current.none).toEqual([]);
+
+  rerender();
+  expect(result.current.autocannon).toBe(first);
 });
 
 const onlyDamageControl = (type: SdeType) => type.id === DAMAGE_CONTROL_II;
