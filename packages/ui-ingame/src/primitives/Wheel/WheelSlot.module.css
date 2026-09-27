@@ -8,7 +8,7 @@
 }
 
 .slot:hover,
-.slot:focus-within {
+.slot:has(:focus-visible) {
   z-index: 1;
 }
 
@@ -145,12 +145,12 @@
 }
 
 .slot:hover > .actions,
-.slot:focus-within > .actions {
+.slot:has(:focus-visible) > .actions {
   opacity: 1;
 }
 
 .slot:hover > .actions > *,
-.slot:focus-within > .actions > * {
+.slot:has(:focus-visible) > .actions > * {
   pointer-events: auto;
 }
 
