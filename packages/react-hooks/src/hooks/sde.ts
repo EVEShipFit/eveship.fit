@@ -1,4 +1,4 @@
-import type { Engine } from "@eveshipfit/fitting";
+import { chargesFor, type Engine } from "@eveshipfit/fitting";
 import type { MarketGroupNode, Sde, SdeType, ShipGroupNode } from "@eveshipfit/sde-loader";
 import { useMemo } from "react";
 
@@ -15,6 +15,23 @@ export function useSde(): Sde {
 export function useType(typeId: number | undefined): SdeType | undefined {
   const sde = useSde();
   return typeId === undefined ? undefined : sde.type(typeId);
+}
+
+const chargeLists = new WeakMap<Sde, Map<number, readonly SdeType[]>>();
+const noCharges: readonly SdeType[] = [];
+
+/** Every published charge the module can load, sorted by name; empty for anything that takes none. */
+export function useCharges(typeId: number | undefined): readonly SdeType[] {
+  const sde = useSde();
+  const module = useType(typeId);
+  if (module === undefined) return noCharges;
+
+  let lists = chargeLists.get(sde);
+  if (lists === undefined) chargeLists.set(sde, (lists = new Map()));
+
+  let charges = lists.get(module.id);
+  if (charges === undefined) lists.set(module.id, (charges = chargesFor(sde, module)));
+  return charges;
 }
 
 /**
