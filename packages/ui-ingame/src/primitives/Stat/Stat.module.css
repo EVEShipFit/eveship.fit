@@ -5,8 +5,11 @@
   align-items: center;
   display: flex;
   gap: calc(3 * var(--stat-unit));
+  max-width: 100%;
   min-height: calc(25 * var(--stat-unit));
   white-space: nowrap;
+  /* So the tooltip points at the middle of the text, not of the column. */
+  width: fit-content;
 }
 
 .stat > img,
