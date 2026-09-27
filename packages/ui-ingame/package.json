@@ -34,11 +34,11 @@
     "build": "tsdown"
   },
   "dependencies": {
-    "@eveshipfit/fitting": "workspace:*",
     "@eveshipfit/react-hooks": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "catalog:",
+    "@eveshipfit/fitting": "workspace:*",
     "@eveshipfit/images": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
     "@storybook/react-vite": "catalog:",

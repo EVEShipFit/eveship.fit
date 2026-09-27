@@ -1,6 +1,5 @@
-import { useFitStore } from "@eveshipfit/react-hooks";
-import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
-import { useEffect, type CSSProperties, type ReactNode } from "react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { CSSProperties } from "react";
 import { expect, within } from "storybook/test";
 
 import { FittingWindow } from "./FittingWindow";
@@ -52,14 +51,6 @@ const broken = {
   ],
 };
 
-function WithoutSkills({ children }: { children: ReactNode }) {
-  const store = useFitStore();
-  useEffect(() => store.setCharacter({ skills: {} }), [store]);
-  return children;
-}
-
-const withoutSkills: Decorator = (Story) => <WithoutSkills>{Story()}</WithoutSkills>;
-
 const meta = {
   component: FittingWindow,
 } satisfies Meta<typeof FittingWindow>;
@@ -83,23 +74,22 @@ export const EmptyRifter: Story = {
 
 export const FittedRifter: Story = {
   parameters: { fit: rifter },
-  play: async ({ canvas, canvasElement }) => {
+  play: async ({ canvas }) => {
     await expect(canvas.getByText("Storybook Rifter")).toBeInTheDocument();
     await expect(canvas.getByText("CPU").parentElement).toHaveTextContent(/^CPU\d+\.\d\/\d+\.\d$/);
     await expect(canvas.getByText("Power Grid").parentElement).toHaveTextContent(/^Power Grid\d+\.\d\/\d+\.\d$/);
-    await expect(canvasElement.querySelector('[data-bay="cargo"]')).toHaveTextContent("0.3/140.0m3");
-    await expect(canvasElement.querySelector('[data-bay="droneBay"]')).toHaveTextContent("0.0/0.0m3");
+    await expect(canvas.getByRole("group", { name: "Cargo Hold" })).toHaveTextContent("0.3/140.0m3");
+    await expect(canvas.getByRole("group", { name: "Drone Bay" })).toHaveTextContent("0.0/0.0m3");
   },
 };
 
 export const Broken: Story = {
-  parameters: { fit: broken },
-  decorators: [withoutSkills],
-  play: async ({ canvas, canvasElement }) => {
-    await expect(await canvas.findByRole("img", { name: /^Missing Skills: \d+$/ })).toBeInTheDocument();
+  parameters: { fit: broken, character: { skills: {} } },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("img", { name: /^Missing Skills: \d+$/ })).toBeInTheDocument();
     await expect(canvas.getByRole("img", { name: "Fitting Errors: 1" })).toBeInTheDocument();
     await expect(canvas.getByRole("img", { name: "Fitting Warnings: 4" })).toBeInTheDocument();
-    await expect(canvasElement.querySelector('[data-bay="cargo"]')).toHaveAttribute("data-over");
+    await expect(canvas.getByRole("group", { name: "Cargo Hold" })).toHaveAttribute("data-over");
   },
 };
 

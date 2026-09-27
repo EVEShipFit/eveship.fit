@@ -22,6 +22,11 @@
   --esf-violation-error: #fd2d2d;
   --esf-button: #141e21;
   --esf-button-edge: #27424a;
+  --esf-history-bg: #070707;
+  --esf-history-border: #1f1f1f;
+  --esf-history-entry: #636363;
+  --esf-history-entry-alt: #888888;
+  --esf-history-current: #bfbfbf;
 
   /* EVE's UI scale; 1 is 100%. */
   --esf-scale: 1;

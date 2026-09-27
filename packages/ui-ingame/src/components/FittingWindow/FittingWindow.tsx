@@ -32,17 +32,17 @@ export function FittingWindow({ label = "Fitting Window" }: FittingWindowProps) 
       <FitName />
       <Violations />
       <div className={styles.tools}>
-        <ToolButton icon="hardware" label="Item Browser" />
+        <NotImplementedButton className={styles.tool} icon="hardware" label="Item Browser" />
       </div>
       <div className={styles.panels}>
-        <ToolButton icon="statistics" label="Statistics" />
+        <NotImplementedButton className={styles.tool} icon="statistics" label="Statistics" />
       </div>
       <div className={styles.bays}>
         <Bay bay="cargo" icon="cargo" label="Cargo Hold" />
         <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" />
       </div>
       <div className={styles.history}>
-        <FitHistory />
+        <SimulationHistory />
       </div>
       <div className={styles.resources}>
         <Resource title="CPU" load="cpuLoad" output="cpuOutput" />
@@ -58,9 +58,9 @@ function FitName() {
 
   return (
     <div className={styles.name}>
-      <NotImplemented icon="module-info" label="Show Info" />
-      <NotImplemented icon="link" label="Link Fit" />
-      <span>{fit.name ?? ship?.name}</span>
+      <NotImplementedButton className={styles.icon} icon="module-info" label="Show Info" />
+      <NotImplementedButton className={styles.icon} icon="link" label="Link Fit" />
+      <span className={styles.fitName}>{fit.name || ship?.name}</span>
     </div>
   );
 }
@@ -102,20 +102,10 @@ function Violations() {
   );
 }
 
-function ToolButton({ icon, label }: { icon: IconName; label: string }) {
+function NotImplementedButton({ className, icon, label }: { className?: string; icon: IconName; label: string }) {
   return (
     <Tooltip label={`${label} (not implemented yet)`}>
-      <button type="button" className={styles.tool} aria-label={label} aria-disabled>
-        <Icon name={icon} />
-      </button>
-    </Tooltip>
-  );
-}
-
-function NotImplemented({ icon, label }: { icon: IconName; label: string }) {
-  return (
-    <Tooltip label={`${label} (not implemented yet)`}>
-      <button type="button" className={styles.icon} aria-label={label} aria-disabled>
+      <button type="button" className={className} aria-label={label} aria-disabled>
         <Icon name={icon} />
       </button>
     </Tooltip>
@@ -126,13 +116,21 @@ function Bay({ bay, icon, label }: { bay: "cargo" | "droneBay"; icon: IconName; 
   const { used, total } = useBayUsage(bay);
 
   return (
-    <div className={styles.bay} title={label} data-bay={bay} data-over={used > total || undefined}>
-      <Icon name={icon} />
-      <span className={styles.used}>{oneDecimal.format(used)}</span>
-      <span className={styles.slash}>/</span>
-      <span className={styles.total}>{oneDecimal.format(total)}</span>
-      <span className={styles.unit}>m3</span>
-    </div>
+    <Tooltip label={label}>
+      <div
+        className={styles.bay}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- It holds text, not the form controls a <fieldset> is for.
+        role="group"
+        aria-label={label}
+        data-over={used > total || undefined}
+      >
+        <Icon name={icon} />
+        <span className={styles.used}>{oneDecimal.format(used)}</span>
+        <span className={styles.slash}>/</span>
+        <span className={styles.total}>{oneDecimal.format(total)}</span>
+        <span className={styles.unit}>m3</span>
+      </div>
+    </Tooltip>
   );
 }
 
@@ -152,7 +150,7 @@ function Resource({ title, load, output }: { title: string; load: string; output
   );
 }
 
-function FitHistory() {
+function SimulationHistory() {
   const history = useFitHistory();
   return (
     <HistoryBar label="Simulation History" length={history.length} position={history.position} onGoTo={history.goTo} />

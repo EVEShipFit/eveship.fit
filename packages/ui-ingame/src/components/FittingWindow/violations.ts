@@ -1,7 +1,7 @@
 import type { Rule, Violation } from "@eveshipfit/fitting";
 
 /**
- * How EVE warns about a broken rule: `skill` is a yellow book, `error` a red triangle for a fit that cannot be
+ * How EVE warns about a broken rule: `skill` is an orange book, `error` a red triangle for a fit that cannot be
  * flown as it is, `notice` a white one for a fit that flies but might get in trouble.
  */
 export type ViolationKind = "skill" | "error" | "notice";

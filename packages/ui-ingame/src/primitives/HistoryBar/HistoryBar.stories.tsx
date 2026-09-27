@@ -34,6 +34,11 @@ export const OnlyOne: Story = {
 
 export const Full: Story = {
   args: { length: 25, position: 24 },
+  play: async ({ canvas }) => {
+    const bar = canvas.getByRole("button", { name: "1 of 25" }).parentElement!.getBoundingClientRect();
+    const last = canvas.getByRole("button", { name: "25 of 25" }).getBoundingClientRect();
+    await expect(last.right).toBeLessThanOrEqual(bar.right);
+  },
 };
 
 export const AtUiScale150: Story = {

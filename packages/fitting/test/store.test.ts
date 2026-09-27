@@ -189,6 +189,29 @@ describe("history", () => {
     expect(listener).toHaveBeenCalledTimes(1);
   });
 
+  test("an edit after going back in a full history drops the oldest fit", () => {
+    const fit = rifter();
+    for (let i = 0; i < 30; i++) fit.setName(`Fit ${i}`);
+    fit.goTo(3);
+    fit.setName("Kiter");
+
+    expect(fit.historyLength).toBe(25);
+    expect(fit.historyPosition).toBe(24);
+    fit.goTo(0);
+    expect(fit.getSnapshot().fit.name).toBe("Fit 6");
+  });
+
+  test("a position not in the history goes nowhere", () => {
+    const fit = rifter();
+    fit.setName("Brawler");
+    const before = fit.getSnapshot();
+
+    fit.goTo(-1);
+    fit.goTo(0.5);
+    fit.goTo(2);
+    expect(fit.getSnapshot()).toBe(before);
+  });
+
   test("the oldest fits drop out of a full history", () => {
     const fit = rifter();
     for (let i = 0; i < 30; i++) fit.setName(`Fit ${i}`);

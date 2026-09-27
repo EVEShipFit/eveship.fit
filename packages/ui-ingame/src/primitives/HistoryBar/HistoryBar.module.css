@@ -1,26 +1,26 @@
 .history {
   /* A pixel of EVE's at the UI scale. */
-  --unit: calc(1px * var(--esf-scale, 1));
+  --history-unit: calc(1px * var(--esf-scale, 1));
 
   border: none;
   color: var(--esf-text);
   display: grid;
   font-family: var(--esf-font);
   font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
-  gap: calc(4 * var(--unit));
+  gap: calc(4 * var(--history-unit));
   margin: 0;
   padding: 0;
   user-select: none;
 }
 
 .title {
-  margin-left: calc(14 * var(--unit));
+  margin-left: calc(14 * var(--history-unit));
 }
 
 .row {
   align-items: center;
   display: flex;
-  gap: calc(4 * var(--unit));
+  gap: calc(4 * var(--history-unit));
 }
 
 .arrow {
@@ -38,42 +38,43 @@
 
 .arrow > img {
   display: block;
-  height: calc(10 * var(--unit));
-  width: calc(10 * var(--unit));
+  height: calc(10 * var(--history-unit));
+  width: calc(10 * var(--history-unit));
 }
 
 .entries {
   align-items: center;
-  background: #070707;
-  border: var(--unit) solid #1f1f1f;
+  background: var(--esf-history-bg);
+  border: var(--history-unit) solid var(--esf-history-border);
   box-sizing: border-box;
   display: flex;
-  gap: calc(3 * var(--unit));
-  height: calc(17 * var(--unit));
-  padding: 0 calc(2 * var(--unit));
-  width: calc(282 * var(--unit));
+  gap: calc(3 * var(--history-unit));
+  height: calc(17 * var(--history-unit));
+  overflow: hidden;
+  padding: 0 calc(2 * var(--history-unit));
+  width: calc(282 * var(--history-unit));
 }
 
 .entry {
-  background: #636363;
+  background: var(--esf-history-entry);
   border: none;
   cursor: pointer;
   flex: none;
-  height: calc(11 * var(--unit));
+  height: calc(11 * var(--history-unit));
   padding: 0;
-  width: calc(7 * var(--unit));
+  width: calc(7 * var(--history-unit));
 }
 
 .entry:nth-child(even) {
-  background: #888888;
+  background: var(--esf-history-entry-alt);
 }
 
 .entry[aria-current="true"] {
-  background: #bfbfbf;
+  background: var(--esf-history-current);
   height: 100%;
 }
 
 .arrow:focus-visible,
 .entry:focus-visible {
-  outline: var(--unit) solid var(--esf-text);
+  outline: var(--history-unit) solid var(--esf-text);
 }
