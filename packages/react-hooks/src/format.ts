@@ -5,11 +5,11 @@ export type Rounding = "down" | "up" | "nearest";
 export interface NumberFormat {
   /** The most decimals to show. */
   decimals?: number;
-  /** Show every one of `decimals`, trailing zeros too. */
+  /** Keep trailing zeros. */
   fixed?: boolean;
-  /** Group thousands with commas; on when left out. */
+  /** Group thousands with commas; on by default. */
   grouping?: boolean;
-  /** Which way to round to `decimals`; to the nearest when left out. */
+  /** To the nearest by default. */
   rounding?: Rounding;
 }
 
@@ -30,13 +30,13 @@ function formatterFor(decimals: number, fixed: boolean, grouping: boolean): Intl
   return formatter;
 }
 
-/** Every number shown is rounded here. */
 function round(value: number, decimals: number, rounding: Rounding): number {
   const scale = 10 ** decimals;
   // Drops what floating point adds, so 37.00000000000001 does not round up to 38.
   const scaled = Number((value * scale).toPrecision(12));
-  const whole = rounding === "down" ? Math.floor(scaled) : rounding === "up" ? Math.ceil(scaled) : Math.round(scaled);
-  return whole / scale;
+  if (rounding === "down") return Math.floor(scaled) / scale;
+  if (rounding === "up") return Math.ceil(scaled) / scale;
+  return (Math.sign(scaled) * Math.round(Math.abs(scaled))) / scale;
 }
 
 export function formatNumber(
@@ -46,7 +46,7 @@ export function formatNumber(
   return formatterFor(decimals, fixed, grouping).format(round(value, decimals, rounding));
 }
 
-/** Like "1h 2m 3s"; a part that is zero is left out. */
+/** Like "1h 2m 3s". */
 export function formatDuration(seconds: number, rounding: Rounding = "nearest"): string {
   const { hours, minutes, secs } = split(seconds, rounding);
   const parts = [hours && `${hours}h`, minutes && `${minutes}m`, secs && `${secs}s`].filter(Boolean);
@@ -78,15 +78,14 @@ const Unit = {
   Boolean: 137,
 } as const;
 
+/** Shown as 1 - value, so better stored is worse shown. */
 const invertedUnits = new Set<number>([Unit.InverseAbsolutePercent, Unit.InversedModifierPercent]);
 
-/** Towards worse, so a fit never looks better than it is; `formatAttribute` rounds this way. */
+/** Towards worse, so a fit never looks better than it is. */
 export function roundingOf(sde: Sde, attributeId: number): Rounding {
   const attribute = sde.attribute(attributeId);
   if (attribute === undefined) return "nearest";
-  // These show 1 - value, so what is better stored is worse shown.
-  const inverted = invertedUnits.has(attribute.unitId);
-  return attribute.highIsGood !== inverted ? "down" : "up";
+  return attribute.highIsGood !== invertedUnits.has(attribute.unitId) ? "down" : "up";
 }
 
 const sizeClasses: Record<number, string> = { 1: "Small", 2: "Medium", 3: "Large", 4: "X-Large" };

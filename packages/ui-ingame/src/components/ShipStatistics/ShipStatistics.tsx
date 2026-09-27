@@ -11,7 +11,7 @@ export interface ShipStatisticsProps {
   label?: string;
 }
 
-/** EVE's statistics of the current fit, as the fitting window shows them next to the wheel. */
+/** EVE's statistics of the fit, as its fitting window shows them. */
 export function ShipStatistics({ label = "Statistics" }: ShipStatisticsProps) {
   return (
     <section className={styles.statistics} aria-label={label}>

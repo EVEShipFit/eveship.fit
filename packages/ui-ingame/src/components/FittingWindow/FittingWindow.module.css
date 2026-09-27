@@ -16,7 +16,7 @@
   width: calc(972 * var(--window-unit));
 }
 
-/* What is right-aligned stays with the wheel while the statistics slide out. */
+/* Keeps what is aligned to the right in place when the window widens. */
 .frame {
   inset: 0 auto 0 0;
   position: absolute;

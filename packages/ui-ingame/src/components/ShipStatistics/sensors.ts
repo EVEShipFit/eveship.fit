@@ -9,7 +9,7 @@ export const sensorAttributes = {
 
 const races = Object.keys(sensorAttributes) as SensorRace[];
 
-/** The race whose sensor is strongest, which is the one EVE shows; the first of a tie. */
-export function strongestSensor(strengths: Record<SensorRace, number | undefined>): SensorRace {
-  return races.reduce((best, race) => ((strengths[race] ?? 0) > (strengths[best] ?? 0) ? race : best));
+/** EVE shows the strongest; the first of a tie. */
+export function strongestSensor(strengths: Record<SensorRace, { value: number | undefined }>): SensorRace {
+  return races.reduce((best, race) => ((strengths[race].value ?? 0) > (strengths[best].value ?? 0) ? race : best));
 }

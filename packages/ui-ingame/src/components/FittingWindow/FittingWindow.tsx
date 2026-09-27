@@ -20,7 +20,7 @@ const oneDecimal = new Intl.NumberFormat("en-US", { minimumFractionDigits: 1, ma
 
 export interface FittingWindowProps {
   label?: string;
-  /** Slides out to the right with the Statistics button, like `ShipStatistics`; without it, there is no button. */
+  /** Like `ShipStatistics`; slid out by the Statistics button, which is only there with it. */
   statistics?: ReactNode;
 }
 

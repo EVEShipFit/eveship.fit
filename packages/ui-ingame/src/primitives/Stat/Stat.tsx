@@ -11,7 +11,6 @@ export interface StatProps {
   children: ReactNode;
 }
 
-/** One line of EVE's fitting statistics: an icon, and a value that names itself on hover. */
 export function Stat({ icon, label, children }: StatProps) {
   return (
     <Tooltip label={label}>

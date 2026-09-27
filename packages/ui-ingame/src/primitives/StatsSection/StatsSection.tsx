@@ -5,14 +5,12 @@ import styles from "./StatsSection.module.css";
 
 export interface StatsSectionProps {
   title: string;
-  /** At the end of the header, so it shows while the section is closed too. */
   summary?: ReactNode;
   /** How many `Stat`s go next to each other. */
   columns?: 1 | 2;
   children: ReactNode;
 }
 
-/** A category of EVE's fitting statistics, which opens and closes with a click on its header. */
 export function StatsSection({ title, summary, columns = 1, children }: StatsSectionProps) {
   const [open, setOpen] = useState(true);
   const bodyId = useId();

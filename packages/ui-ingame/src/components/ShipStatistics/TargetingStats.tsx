@@ -20,12 +20,7 @@ export function TargetingStats() {
   const signature = useAttribute("signatureRadius", { decimals: 0, format: unit(" m") });
   const targets = useAttribute("maxTargets", { decimals: 0, format: unit("x") });
 
-  const race = strongestSensor({
-    amarr: sensors.amarr.value,
-    caldari: sensors.caldari.value,
-    gallente: sensors.gallente.value,
-    minmatar: sensors.minmatar.value,
-  });
+  const race = strongestSensor(sensors);
 
   return (
     <StatsSection title="Targeting" summary={<AttributeText value={range} />} columns={2}>

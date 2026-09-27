@@ -26,6 +26,7 @@ test("numbers round the way asked", () => {
   expect(formatNumber(1.99, { decimals: 1, rounding: "down" })).toBe("1.9");
   expect(formatNumber(1.91, { decimals: 1, rounding: "up" })).toBe("2");
   expect(formatNumber(-1.91, { decimals: 1, rounding: "down" })).toBe("-2");
+  expect(formatNumber(-2.5, { decimals: 0 })).toBe("-3");
   // (1 - 0.63) * 100 is 37.00000000000001.
   expect(formatNumber((1 - 0.63) * 100, { decimals: 0, rounding: "up" })).toBe("37");
 });

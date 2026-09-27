@@ -11,7 +11,7 @@ export interface AttributeOptions extends NumberFormat {
   charge?: boolean;
   /** The value when nothing sets the attribute, like a load nothing adds to. */
   fallback?: number;
-  /** How to show the value; `formatAttribute` when left out. `format` has `rounding` set as `formatAttribute` would. */
+  /** How to show the value; `formatAttribute` when left out. */
   format?: (value: number, format: NumberFormat) => string;
 }
 
@@ -31,9 +31,9 @@ export function useAttribute(name: string, options: AttributeOptions = {}): Attr
   const value = attribute && (attributesOf(shown, options)?.get(attribute.id) ?? options.fallback);
   if (attribute === undefined || value === undefined) return { value: undefined, text: "–", change: undefined };
 
-  const text = options.format
-    ? options.format(value, { ...options, rounding: options.rounding ?? roundingOf(sde, attribute.id) })
-    : formatAttribute(sde, attribute.id, value, options);
+  const { decimals, fixed, grouping, rounding = roundingOf(sde, attribute.id) } = options;
+  const format = { decimals, fixed, grouping, rounding };
+  const text = options.format?.(value, format) ?? formatAttribute(sde, attribute.id, value, format);
   const before = shown === current ? value : (attributesOf(current, options)?.get(attribute.id) ?? options.fallback);
   if (before === undefined || before === value) return { value, text, change: undefined };
 
