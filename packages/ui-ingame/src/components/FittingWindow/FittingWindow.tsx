@@ -93,8 +93,8 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
           <SimulationHistory />
         </div>
         <div className={styles.resources}>
-          <Resource title="CPU" load="cpuLoad" output="cpuOutput" />
-          <Resource title="Power Grid" load="powerLoad" output="powerOutput" />
+          <Resource title="CPU" free="cpuFree" output="cpuOutput" />
+          <Resource title="Power Grid" free="powerFree" output="powerOutput" />
         </div>
       </div>
       {statistics !== undefined && (
@@ -188,17 +188,16 @@ function Bay({ bay, icon, label }: { bay: "cargo" | "droneBay"; icon: IconName; 
   );
 }
 
-function Resource({ title, load, output }: { title: string; load: string; output: string }) {
-  // A load nothing adds to is missing.
-  const used = useAttribute(load).value ?? 0;
+function Resource({ title, free, output }: { title: string; free: string; output: string }) {
+  const left = useAttribute(free);
   const total = useAttribute(output).value ?? 0;
-  const free = total - used;
+  const value = left.value ?? 0;
 
   return (
-    <div className={styles.resource} data-over={free < 0 || undefined}>
+    <div className={styles.resource} data-over={value < 0 || undefined} data-change={left.change}>
       <span className={styles.title}>{title}</span>
       <span>
-        {oneDecimal.format(free)}/{oneDecimal.format(total)}
+        {oneDecimal.format(value)}/{oneDecimal.format(total)}
       </span>
     </div>
   );
