@@ -1,15 +1,14 @@
 .wheel {
-  /* Everything on the wheel is sized in these units, measured from EVE. */
-  --wheel-unit: calc(100cqw / 464);
+  /* Everything on the wheel is sized in these units: a pixel of EVE's wheel at a UI scale of 100%. */
+  --wheel-unit: calc(100cqw / 572);
   /* EVE's textures are a little wider than the wheel. */
-  --wheel-texture-size: calc(519 * var(--wheel-unit));
+  --wheel-texture-size: calc(640 * var(--wheel-unit));
 
   aspect-ratio: 1;
   container-type: inline-size;
   /* Keeps the edges' light, and the hull under the rings, inside the wheel. */
   isolation: isolate;
   position: relative;
-  /* EVE's wheel is 572px at a UI scale of 100%. */
   width: var(--esf-wheel-size, calc(572px * var(--esf-wheel-scale, 1)));
 }
 

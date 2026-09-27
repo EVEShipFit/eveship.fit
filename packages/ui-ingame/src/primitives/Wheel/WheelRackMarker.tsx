@@ -23,7 +23,7 @@ export function WheelRackMarker({ rack }: WheelRackMarkerProps) {
   return (
     <img
       className={styles.marker}
-      style={placeAt(angle, 197)}
+      style={placeAt(angle, 243)}
       src={images.uiTexture(texture)}
       alt=""
       data-marker={rack}

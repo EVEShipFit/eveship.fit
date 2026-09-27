@@ -15,6 +15,6 @@ test("points are rounded to keep them short", () => {
 
 test("an element is placed as a share of the wheel", () => {
   expect(placeAt(0, 0)).toEqual({ left: "50%", top: "50%" });
-  expect(placeAt(90, 232)).toEqual({ left: "100%", top: "50%" });
-  expect(placeAt(180, 116)).toEqual({ left: "50%", top: "75%" });
+  expect(placeAt(90, 286)).toEqual({ left: "100%", top: "50%" });
+  expect(placeAt(180, 143)).toEqual({ left: "50%", top: "75%" });
 });

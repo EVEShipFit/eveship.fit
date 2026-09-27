@@ -1,4 +1,4 @@
-export const wheelRadius = 232;
+export const wheelRadius = 286;
 
 export interface Point {
   x: number;

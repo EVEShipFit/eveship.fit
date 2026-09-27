@@ -48,11 +48,11 @@
 }
 
 .ammo {
-  --length: calc(8.6 * var(--wheel-unit));
-  --thickness: calc(3.6 * var(--wheel-unit));
-  --out: calc(214.5 * var(--wheel-unit) + var(--thickness) / 2);
+  --length: calc(10.5 * var(--wheel-unit));
+  --thickness: calc(4.5 * var(--wheel-unit));
+  --out: calc(264.5 * var(--wheel-unit) + var(--thickness) / 2);
 
-  border: calc(0.7 * var(--wheel-unit)) solid var(--esf-text-muted);
+  border: var(--wheel-unit) solid var(--esf-text-muted);
   border-radius: calc(var(--thickness) / 2);
   box-sizing: border-box;
   height: var(--thickness);
@@ -81,9 +81,9 @@
 
 /* EVE keeps module icons upright; an empty slot's icon turns with the slot. */
 .icon {
-  height: calc(39 * var(--wheel-unit));
+  height: calc(48 * var(--wheel-unit));
   transform: rotate(calc(-1 * var(--angle)));
-  width: calc(39 * var(--wheel-unit));
+  width: calc(48 * var(--wheel-unit));
 }
 
 .icon > span {
@@ -93,8 +93,8 @@
 }
 
 .empty {
-  height: calc(16 * var(--wheel-unit));
-  width: calc(16 * var(--wheel-unit));
+  height: calc(20 * var(--wheel-unit));
+  width: calc(20 * var(--wheel-unit));
 }
 
 .empty > img {
