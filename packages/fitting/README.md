@@ -63,6 +63,8 @@ after.stats.ship.get("cpuLoad")! - before.stats.ship.get("cpuLoad")!;
 `placementOf`, `canFit`, `acceptsCharge` and `chargesFor` say where a type goes, whether a module fits a hull, and
 which charges go in a module; for example to filter a market browser.
 
+`missingSkills` says which skills a character lacks to use some types, with the skills those skills need.
+
 ## License
 
 MIT
