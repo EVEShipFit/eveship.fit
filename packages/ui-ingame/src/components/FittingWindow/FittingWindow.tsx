@@ -197,7 +197,7 @@ function Resource({ title, free, output }: { title: string; free: string; output
     <div className={styles.resource} data-over={value < 0 || undefined} data-change={left.change}>
       <span className={styles.title}>{title}</span>
       <span>
-        {oneDecimal.format(value)}/{oneDecimal.format(total)}
+        <span className={styles.free}>{oneDecimal.format(value)}</span>/{oneDecimal.format(total)}
       </span>
     </div>
   );
