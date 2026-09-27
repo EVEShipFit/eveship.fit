@@ -62,6 +62,10 @@
   min-height: 0;
 }
 
+.panel[hidden] {
+  display: none;
+}
+
 .search {
   align-items: center;
   display: flex;
@@ -127,9 +131,12 @@
 }
 
 .filters {
+  border: none;
   display: flex;
   gap: calc(4 * var(--browser-unit));
-  margin-top: calc(4 * var(--browser-unit));
+  margin: calc(4 * var(--browser-unit)) 0 0;
+  min-width: 0;
+  padding: 0;
 }
 
 .tree {
@@ -210,4 +217,27 @@
 .simulate > img {
   height: calc(22 * var(--browser-unit));
   width: calc(22 * var(--browser-unit));
+}
+
+.info {
+  background: none;
+  border: none;
+  display: flex;
+  flex: none;
+  opacity: 0.6;
+  padding: 0;
+}
+
+.info:hover,
+.info:focus-visible {
+  opacity: 1;
+}
+
+.info:focus-visible {
+  outline: var(--browser-unit) solid var(--esf-text);
+}
+
+.info > img {
+  height: calc(16 * var(--browser-unit));
+  width: calc(16 * var(--browser-unit));
 }

@@ -14,4 +14,13 @@ export {
 export { loadSde, Sde } from "./sde.js";
 export type { Source } from "./source.js";
 export { loadTexts, Texts, type SdeTooltip } from "./texts.js";
-export { shipRace, type MarketGroupNode, type ShipGroupNode, type ShipRace, type ShipRaceNode } from "./trees.js";
+export {
+  shipRace,
+  type MarketGroupNode,
+  type MetaFolder,
+  type ModuleFolderNode,
+  type ModuleGroupNode,
+  type ShipGroupNode,
+  type ShipRace,
+  type ShipRaceNode,
+} from "./trees.js";

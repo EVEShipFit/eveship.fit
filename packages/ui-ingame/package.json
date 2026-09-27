@@ -40,6 +40,7 @@
     "@babel/core": "catalog:",
     "@eveshipfit/fitting": "workspace:*",
     "@eveshipfit/images": "catalog:",
+    "@eveshipfit/sde-loader": "workspace:*",
     "@rolldown/plugin-babel": "catalog:",
     "@storybook/react-vite": "catalog:",
     "@tsdown/css": "catalog:",
@@ -53,7 +54,7 @@
     "vite": "catalog:"
   },
   "peerDependencies": {
-    "@eveshipfit/images": "^1.3542233.5",
+    "@eveshipfit/images": "^1.3542233.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   }

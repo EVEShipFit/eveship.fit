@@ -1,30 +1,57 @@
-import { useId } from "react";
+import { useId, useState, type ReactNode } from "react";
 
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import { HullsAndFits } from "./HullsAndFits";
 import styles from "./ItemBrowser.module.css";
+import { Modules } from "./Modules";
 
 export interface ItemBrowserProps {
   label?: string;
 }
 
+type Tab = "hulls" | "modules";
+
 /** EVE's browser of hulls and fits, modules and charges, left of the fitting wheel. */
 export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
-  const tabId = useId();
-  const panelId = useId();
+  const [tab, setTab] = useState<Tab>("hulls");
+  const id = useId();
+
+  const tabs: { tab: Tab; label: string; panel: ReactNode }[] = [
+    { tab: "hulls", label: "Hulls & Fits", panel: <HullsAndFits /> },
+    { tab: "modules", label: "Modules", panel: <Modules /> },
+  ];
 
   return (
     <section className={styles.browser} aria-label={label}>
       <div className={styles.tabs} role="tablist">
-        <button type="button" id={tabId} className={styles.tab} role="tab" aria-selected aria-controls={panelId}>
-          Hulls &amp; Fits
-        </button>
-        <NotImplementedTab label="Modules" />
+        {tabs.map((each) => (
+          <button
+            key={each.tab}
+            type="button"
+            id={`${id}-${each.tab}-tab`}
+            className={styles.tab}
+            role="tab"
+            aria-selected={tab === each.tab}
+            aria-controls={`${id}-${each.tab}-panel`}
+            onClick={() => setTab(each.tab)}
+          >
+            {each.label}
+          </button>
+        ))}
         <NotImplementedTab label="Charges" />
       </div>
-      <div id={panelId} className={styles.panel} role="tabpanel" aria-labelledby={tabId}>
-        <HullsAndFits />
-      </div>
+      {tabs.map((each) => (
+        <div
+          key={each.tab}
+          id={`${id}-${each.tab}-panel`}
+          className={styles.panel}
+          role="tabpanel"
+          aria-labelledby={`${id}-${each.tab}-tab`}
+          hidden={tab !== each.tab}
+        >
+          {each.panel}
+        </div>
+      ))}
     </section>
   );
 }

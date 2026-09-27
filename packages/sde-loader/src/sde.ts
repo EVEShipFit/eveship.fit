@@ -31,7 +31,14 @@ import {
 } from "./records.js";
 import { readSource, type Source } from "./source.js";
 import { Table } from "./table.js";
-import { buildMarketTree, buildShipTree, type MarketGroupNode, type ShipGroupNode } from "./trees.js";
+import {
+  buildMarketTree,
+  buildModuleTree,
+  buildShipTree,
+  type MarketGroupNode,
+  type ModuleGroupNode,
+  type ShipGroupNode,
+} from "./trees.js";
 
 export class Sde {
   readonly bytes: Uint8Array;
@@ -51,6 +58,7 @@ export class Sde {
   #attributeIds: Map<string, number> | undefined;
   #typesByName: Map<string, SdeType> | undefined;
   #marketTree: readonly MarketGroupNode[] | undefined;
+  #moduleTree: readonly ModuleGroupNode[] | undefined;
   #shipTree: readonly ShipGroupNode[] | undefined;
 
   constructor(bytes: Uint8Array) {
@@ -150,6 +158,16 @@ export class Sde {
   marketTree(): readonly MarketGroupNode[] {
     this.#marketTree ??= buildMarketTree(this.#marketGroups.all(), this.#types.all());
     return this.#marketTree;
+  }
+
+  /** What goes on a ship, by market group; types sorted by meta group, meta level and name. */
+  moduleTree(): readonly ModuleGroupNode[] {
+    const metaLevel = this.attributeId("metaLevelOld");
+    this.#moduleTree ??= buildModuleTree(
+      this.marketTree(),
+      (type) => (metaLevel === undefined ? undefined : type.attributes.get(metaLevel)) ?? 0,
+    );
+    return this.#moduleTree;
   }
 
   /** Published ships, by group and then race; everything sorted by name. */
