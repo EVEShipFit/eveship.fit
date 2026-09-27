@@ -77,10 +77,11 @@ function FittingSlot({ rack, index, content, available }: FittingSlotProps) {
   const charges = useCharges(item?.type_id);
   const ref = content?.ref;
 
-  const onPress: WheelSlotProps["onPress"] =
-    ref !== undefined && stats !== undefined && switchedRacks.includes(rack)
-      ? (event) => store.setState(ref, nextState(stats.state, stats.maxState, event.shiftKey))
-      : undefined;
+  const switched = ref !== undefined && stats !== undefined && switchedRacks.includes(rack);
+
+  const onPress: WheelSlotProps["onPress"] = switched
+    ? (event) => store.setState(ref, nextState(stats.state, stats.maxState, event.shiftKey))
+    : undefined;
 
   return (
     <WheelSlot
@@ -88,12 +89,20 @@ function FittingSlot({ rack, index, content, available }: FittingSlotProps) {
       angle={slotAngle(rack, index)}
       available={available}
       typeId={item?.type_id}
+      typeName={type?.name}
       chargeTypeId={item?.charge?.type_id}
       chargeable={charges.length > 0}
       state={stats?.state}
       activatable={stats?.maxState === "active" || stats?.maxState === "overload"}
       label={type && stats && `${type.name}, ${stats.state}`}
       onPress={onPress}
+      onUnfit={ref === undefined ? undefined : () => store.remove(ref)}
+      onRemoveCharge={ref === undefined ? undefined : () => store.setCharge(ref, undefined)}
+      onTogglePower={
+        switched && stats.maxState !== "offline"
+          ? () => store.setState(ref, stats.state === "offline" ? "online" : "offline")
+          : undefined
+      }
     />
   );
 }

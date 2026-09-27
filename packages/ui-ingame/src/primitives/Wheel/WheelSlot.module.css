@@ -1,11 +1,25 @@
+/* As large as the wheel, so the actions can be placed on it; only its parts take the pointer. */
 .slot {
   --colour: var(--esf-state-online);
   --reach: calc((var(--slot-centre) + var(--slot-size) / 2) * var(--wheel-unit));
 
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* Puts the actions over the neighbouring slots and the scales. */
+.slot:hover,
+.slot:focus-within {
+  z-index: 1;
+}
+
+.body {
   /* Keeps the textures of neighbouring slots from overlapping. */
   clip-path: polygon(14.9% 1%, 85.1% 1%, 79.7% 85.9%, 20.3% 85.9%);
   height: calc(var(--slot-size) * var(--wheel-unit));
   left: calc(50% - var(--slot-size) / 2 * var(--wheel-unit));
+  pointer-events: auto;
   position: absolute;
   top: calc(50% - var(--reach));
   transform: rotate(var(--angle));
@@ -95,12 +109,12 @@
   outline: none;
 }
 
-.slot:has(> .press:hover) > .fill,
-.slot:has(> .press:focus-visible) > .fill {
+.body:has(> .press:hover) > .fill,
+.body:has(> .press:focus-visible) > .fill {
   opacity: 0.3;
 }
 
-.slot[data-state="empty"] > .frame {
+.slot[data-state="empty"] .frame {
   opacity: 0.75;
 }
 
@@ -112,14 +126,88 @@
   --colour: var(--esf-state-overload);
 }
 
-.slot[data-state="offline"] {
+.slot[data-state="offline"] > .body {
   opacity: 0.3;
 }
 
-.slot[data-state="unavailable"] {
+.slot[data-state="unavailable"] > .body {
   opacity: 0.1;
 }
 
-.slot[data-preview] > .icon {
+.slot[data-preview] .icon {
   filter: sepia(100%) hue-rotate(190deg) saturate(200%);
+}
+
+/* Hidden, not removed, so keyboards and screen readers still reach the actions. */
+.actions {
+  border: none;
+  margin: 0;
+  min-inline-size: 0;
+  opacity: 0;
+  padding: 0;
+}
+
+.slot:hover > .actions,
+.slot:focus-within > .actions {
+  opacity: 1;
+}
+
+.slot:hover > .actions > *,
+.slot:focus-within > .actions > * {
+  pointer-events: auto;
+}
+
+/* Under the slot and the actions, it keeps the pointer on the slot on its way from one to the other. */
+.bridge {
+  --from: var(--slot-centre);
+
+  height: calc((var(--from) - var(--innermost)) * var(--wheel-unit));
+  left: calc(50% - var(--action-size) / 2 * var(--wheel-unit));
+  position: absolute;
+  top: calc(50% - var(--from) * var(--wheel-unit));
+  transform: rotate(var(--angle));
+  transform-origin: 50% calc(var(--from) * var(--wheel-unit));
+  width: calc(var(--action-size) * var(--wheel-unit));
+  z-index: -1;
+}
+
+/* Centred with margins, not a transform: Firefox anchors the tooltips as if there were none. */
+.action {
+  height: calc(var(--action-size) * var(--wheel-unit));
+  margin: calc(var(--action-size) / -2 * var(--wheel-unit));
+  position: absolute;
+  width: calc(var(--action-size) * var(--wheel-unit));
+}
+
+.button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  opacity: 0.8;
+  padding: 0;
+  width: 100%;
+}
+
+.button:hover,
+.button:focus-visible {
+  opacity: 1;
+}
+
+.button:focus-visible {
+  outline: 1px solid var(--esf-text);
+}
+
+.button > img,
+.module > span {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.module {
+  display: block;
+  height: 100%;
+  width: 100%;
 }
