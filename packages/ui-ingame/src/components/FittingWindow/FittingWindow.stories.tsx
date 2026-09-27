@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { CSSProperties } from "react";
-import { expect, waitFor, within } from "storybook/test";
+import { expect, fireEvent, waitFor, within } from "storybook/test";
 
 import { ItemBrowser } from "../ItemBrowser/ItemBrowser";
 import { ShipStatistics } from "../ShipStatistics/ShipStatistics";
@@ -148,6 +148,26 @@ export const FitModule: Story = {
   },
 };
 
+/** Dragging a module to a slot fits it there; to the middle of the wheel, in the first free slot. */
+export const DragModule: Story = {
+  args: { browser: <ItemBrowser /> },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const wheel = canvas.getByRole("region", { name: "Fitting" });
+    const lowSlots = () => Array.from(wheel.querySelectorAll("[data-state]")).slice(16, 20);
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "damage control ii");
+
+    await dragAndDrop(canvas.getByRole("button", { name: "Damage Control II" }), lowSlots()[2]!);
+    await expect(lowSlots()[2]!.querySelector("[role=button]")).toHaveAccessibleName(/^Damage Control II,/);
+
+    await dragAndDrop(
+      canvas.getByRole("button", { name: "Damage Control II" }),
+      canvasElement.querySelector("[data-centre]")!,
+    );
+    await expect(lowSlots()[0]!.querySelector("[role=button]")).toHaveAccessibleName(/^Damage Control II,/);
+  },
+};
+
 export const WithBoth: Story = {
   args: { browser: <ItemBrowser />, statistics: <ShipStatistics /> },
   play: async ({ canvas }) => {
@@ -228,3 +248,12 @@ export const AtUiScale150: Story = {
     await expect(canvas.getByRole("region", { name: "Fitting" }).getBoundingClientRect().width).toBe(858);
   },
 };
+
+/** Storybook's `userEvent` cannot drag, so the events are fired as a browser would. */
+async function dragAndDrop(from: Element, to: Element) {
+  const dataTransfer = new DataTransfer();
+  await fireEvent.dragStart(from, { dataTransfer });
+  await waitFor(async () => expect(await fireEvent.dragOver(to, { dataTransfer })).toBe(false));
+  await fireEvent.drop(to, { dataTransfer });
+  await fireEvent.dragEnd(from, { dataTransfer });
+}

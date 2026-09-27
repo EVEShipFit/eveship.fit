@@ -1,0 +1,6 @@
+/* Inside the slots, which start 208 of EVE's pixels from the middle. */
+.centre {
+  border-radius: 50%;
+  inset: calc(86 * var(--wheel-unit));
+  position: absolute;
+}

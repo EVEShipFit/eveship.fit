@@ -1,6 +1,7 @@
 import type { Placement } from "@eveshipfit/fitting";
 import {
   useCanFit,
+  useDrag,
   useFitStore,
   useImages,
   useMissingSkills,
@@ -9,7 +10,7 @@ import {
   usePreview,
 } from "@eveshipfit/react-hooks";
 import type { MetaFolder, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
-import { useState } from "react";
+import { useState, type DragEvent } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
 import { Icon, type IconName } from "../../primitives/Icon/Icon";
@@ -41,6 +42,7 @@ const MOST_OPENED_BY_SEARCH = 200;
 export function Modules() {
   const store = useFitStore();
   const { show, clear } = usePreview();
+  const { start, end } = useDrag();
   const placement = usePlacement();
   const canFit = useCanFit();
   const missingSkills = useMissingSkills();
@@ -75,6 +77,13 @@ export function Modules() {
       if (hovering) show((draft) => void draft.fit(typeId));
       else clear();
     },
+    drag: (event, type) => {
+      clear();
+      event.dataTransfer.effectAllowed = "copy";
+      event.dataTransfer.setData("text/plain", type.name);
+      start({ type: "type", typeId: type.id });
+    },
+    dragEnd: end,
   };
 
   const toggleSlot = (filter: SlotFilter, pressed: boolean) => {
@@ -127,6 +136,8 @@ export function Modules() {
 interface ModuleActions {
   fit: (typeId: number) => void;
   hover: (typeId: number, hovering: boolean) => void;
+  drag: (event: DragEvent, type: SdeType) => void;
+  dragEnd: () => void;
 }
 
 interface ModuleGroupProps {
@@ -170,6 +181,8 @@ function Module({ type, actions }: { type: SdeType; actions: ModuleActions }) {
       label={type.name}
       onActivate={() => actions.fit(type.id)}
       onHover={(hovering) => actions.hover(type.id, hovering)}
+      onDragStart={(event) => actions.drag(event, type)}
+      onDragEnd={actions.dragEnd}
       after={
         <Tooltip label="Show Info (not implemented yet)">
           <button
