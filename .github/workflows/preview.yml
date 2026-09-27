@@ -39,30 +39,41 @@ jobs:
     needs: pull-request
     if: needs.pull-request.outputs.number
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # `name` is both the CI artifact and the GitHub environment.
+        include:
+          - app: web
+            name: preview
+          - app: storybook
+            name: storybook-preview
     # One at a time per pull request, so an older commit can't overwrite a newer preview.
-    concurrency: preview-${{ needs.pull-request.outputs.number }}
+    concurrency: ${{ matrix.name }}-${{ needs.pull-request.outputs.number }}
     steps:
       - name: Checkout the Worker config
         uses: actions/checkout@v5
         with:
           ref: ${{ needs.pull-request.outputs.base }}
-          sparse-checkout: apps/web/wrangler.jsonc
+          sparse-checkout: apps/${{ matrix.app }}/wrangler.jsonc
           sparse-checkout-cone-mode: false
           persist-credentials: false
 
       - name: Download preview
         uses: actions/download-artifact@v4
         with:
-          name: preview
-          path: apps/web/dist
+          name: ${{ matrix.name }}
+          path: apps/${{ matrix.app }}/dist
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
 
       - name: Start deployment
         id: deployment
+        env:
+          ENVIRONMENT: ${{ matrix.name }}
         run: |
           # Don't wait for the commit's other checks.
-          id=$(jq -n '{ref: env.HEAD_SHA, environment: "preview", auto_merge: false, required_contexts: []}' \
+          id=$(jq -n '{ref: env.HEAD_SHA, environment: env.ENVIRONMENT, auto_merge: false, required_contexts: []}' \
             | gh api "repos/$GITHUB_REPOSITORY/deployments" --input - --jq .id)
           echo "id=$id" >> "$GITHUB_OUTPUT"
           gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses" -f state=in_progress > /dev/null
@@ -74,7 +85,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "4"
-          command: versions upload --config apps/web/wrangler.jsonc --preview-alias pr-${{ needs.pull-request.outputs.number }}
+          command: versions upload --config apps/${{ matrix.app }}/wrangler.jsonc --preview-alias pr-${{ needs.pull-request.outputs.number }}
 
       - name: Finish deployment
         if: always() && steps.deployment.outputs.id

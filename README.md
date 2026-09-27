@@ -15,6 +15,6 @@ This repository holds the website and the packages it is built from.
 ```sh
 pnpm install
 pnpm dev         # the website
-pnpm workbench   # Storybook
+pnpm storybook
 pnpm test
 ```
