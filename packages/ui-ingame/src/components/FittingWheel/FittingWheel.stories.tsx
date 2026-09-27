@@ -202,6 +202,34 @@ export const DragToOtherRack: Story = {
   },
 };
 
+/** Dragging over a slot previews the drop there, until the drag leaves the wheel. */
+export const DragPreview: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement }) => {
+    const previewed = () =>
+      Array.from(canvasElement.querySelectorAll("[data-state]"), (slot) => slot.hasAttribute("data-preview"))
+        .map((preview, index) => (preview ? index : undefined))
+        .filter((index) => index !== undefined);
+    const [, gyrostabilizer, empty] = lowSlots(canvasElement);
+    const dataTransfer = new DataTransfer();
+    const damageControl = canvas.getByRole("button", { name: /^Damage Control II/ });
+    await fireEvent.dragStart(damageControl, { dataTransfer });
+
+    await waitFor(async () => {
+      await fireEvent.dragEnter(empty!, { dataTransfer });
+      await expect(previewed()).toEqual([18]);
+    });
+
+    await fireEvent.dragEnter(gyrostabilizer!, { dataTransfer });
+    await fireEvent.dragLeave(empty!, { dataTransfer, relatedTarget: gyrostabilizer });
+    await waitFor(() => expect(previewed()).toEqual([16, 17]));
+
+    await fireEvent.dragLeave(gyrostabilizer!, { dataTransfer, relatedTarget: document.body });
+    await waitFor(() => expect(previewed()).toEqual([]));
+    await fireEvent.dragEnd(damageControl, { dataTransfer });
+  },
+};
+
 /** Dropping a fitted module, or a rig, in the middle of the wheel unfits it. */
 export const DragToUnfit: Story = {
   parameters: { fit: rifter },

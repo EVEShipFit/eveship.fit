@@ -1,4 +1,4 @@
-import type { Fit, ItemRef } from "@eveshipfit/fitting";
+import type { Fit, FitStore, ItemRef } from "@eveshipfit/fitting";
 import {
   formatNumber,
   useAttribute,
@@ -16,7 +16,7 @@ import {
   type DragItem,
   type SlotContent,
 } from "@eveshipfit/react-hooks";
-import type { DragEvent } from "react";
+import { useRef, type DragEvent } from "react";
 
 import { rackSize, slotAngle, type WheelRack } from "../../primitives/Wheel/layout";
 import { Wheel } from "../../primitives/Wheel/Wheel";
@@ -41,16 +41,30 @@ export interface FittingWheelProps {
 export function FittingWheel({ label = "Fitting" }: FittingWheelProps) {
   const ship = useFit().ship.type_id;
   const { turret, launcher } = useHardpoints();
+  const { show, clear } = usePreview();
+  const previewing = useRef<string>(undefined);
+
+  const dropPreview: DropPreview = {
+    show: (target, edit) => {
+      previewing.current = target;
+      show(edit);
+    },
+    hide: (target) => {
+      if (previewing.current !== target) return;
+      previewing.current = undefined;
+      clear();
+    },
+  };
 
   return (
     <Wheel label={label}>
       <WheelHull typeId={ship} />
-      <FittingCentre />
+      <FittingCentre dropPreview={dropPreview} />
       {markedRacks.map((rack) => (
         <WheelRackMarker key={rack} rack={rack} />
       ))}
       {racks.map((rack) => (
-        <FittingRack key={rack} rack={rack} />
+        <FittingRack key={rack} rack={rack} dropPreview={dropPreview} />
       ))}
       <WheelHardpoints turrets={turret} launchers={launcher} />
       <FittingGauge resource="cpu" load="cpuLoad" output="cpuOutput" />
@@ -60,23 +74,35 @@ export function FittingWheel({ label = "Fitting" }: FittingWheelProps) {
   );
 }
 
-function FittingRack({ rack }: { rack: WheelRack }) {
+/** What a drop would do, shown while dragging over a target. */
+interface DropPreview {
+  show: (target: string, edit: (draft: FitStore) => void) => void;
+  hide: (target: string) => void;
+}
+
+function FittingRack({ rack, dropPreview }: { rack: WheelRack; dropPreview: DropPreview }) {
   const slots = useSlots(rack);
   const { total } = useRackUsage(rack);
   // EVE draws the high, medium and low slots a ship does not have as a faint outline; the others it leaves out.
   const shown = markedRacks.includes(rack as MarkedRack) ? rackSize(rack) : Math.min(slots.length, rackSize(rack));
 
   return Array.from({ length: shown }, (_, index) => (
-    <FittingSlot key={index} rack={rack} index={index} content={slots[index]} available={index < total} />
+    <FittingSlot
+      key={index}
+      rack={rack}
+      index={index}
+      content={slots[index]}
+      available={index < total}
+      dropPreview={dropPreview}
+    />
   ));
 }
 
-/** Fits a type dropped in the middle of the wheel, previewing where it goes, and unfits a fitted item. */
-function FittingCentre() {
+/** Fits a type dropped in the middle of the wheel, and unfits a fitted item. */
+function FittingCentre({ dropPreview }: { dropPreview: DropPreview }) {
   const store = useFitStore();
   const fit = useFit();
   const { dragging, end } = useDrag();
-  const { show, clear } = usePreview();
   const takes = (item: DragItem | undefined): item is DragItem =>
     item !== undefined && (item.type === "type" || fit.items[item.ref] !== undefined);
 
@@ -87,16 +113,16 @@ function FittingCentre() {
       onDragEnter={() => {
         if (dragging?.type !== "type") return;
         const { typeId } = dragging;
-        show((draft) => void draft.fit(typeId));
+        dropPreview.show("centre", (draft) => void draft.fit(typeId));
       }}
-      onDragLeave={clear}
+      onDragLeave={() => dropPreview.hide("centre")}
       onDragOver={(event) => {
         if (takes(dragging)) allowDrop(event, dragging);
       }}
       onDrop={(event) => {
         if (!takes(dragging)) return;
         event.preventDefault();
-        clear();
+        dropPreview.hide("centre");
         if (dragging.type === "type") store.fit(dragging.typeId);
         else store.remove(dragging.ref);
         end();
@@ -110,9 +136,10 @@ interface FittingSlotProps {
   index: number;
   content: SlotContent | undefined;
   available: boolean;
+  dropPreview: DropPreview;
 }
 
-function FittingSlot({ rack, index, content, available }: FittingSlotProps) {
+function FittingSlot({ rack, index, content, available, dropPreview }: FittingSlotProps) {
   const store = useFitStore();
   const sde = useSde();
   const fit = useFit();
@@ -126,6 +153,7 @@ function FittingSlot({ rack, index, content, available }: FittingSlotProps) {
 
   const switchable = ref !== undefined && stats !== undefined && switchedRacks.includes(rack);
 
+  const target = `${rack}-${index}`;
   const takes = (drop: DragItem | undefined): drop is DragItem => {
     if (!available || drop === undefined) return false;
     if (drop.type === "item") return movesTo(fit, drop.ref, rack, index);
@@ -162,12 +190,28 @@ function FittingSlot({ rack, index, content, available }: FittingSlotProps) {
             }
       }
       onDragEnd={end}
+      onDragEnter={() => {
+        if (!takes(dragging)) return;
+        const slot = { type: rack, index };
+        if (dragging.type === "type") {
+          const { typeId } = dragging;
+          dropPreview.show(target, (draft) => void draft.fit(typeId, slot));
+        } else {
+          const { ref: moved } = dragging;
+          dropPreview.show(target, (draft) => draft.move(moved, slot));
+        }
+      }}
+      onDragLeave={(event) => {
+        if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+        dropPreview.hide(target);
+      }}
       onDragOver={(event) => {
         if (takes(dragging)) allowDrop(event, dragging);
       }}
       onDrop={(event) => {
         if (!takes(dragging)) return;
         event.preventDefault();
+        dropPreview.hide(target);
         if (dragging.type === "type") store.fit(dragging.typeId, { type: rack, index });
         else store.move(dragging.ref, { type: rack, index });
         end();
