@@ -124,6 +124,30 @@ export const LoadFit: Story = {
   },
 };
 
+/** Hovering a module shows it in the wheel; a double click fits it. */
+export const FitModule: Story = {
+  args: { browser: <ItemBrowser /> },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const wheel = canvas.getByRole("region", { name: "Fitting" });
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "damage control ii");
+    const row = canvas.getByRole("button", { name: "Damage Control II" });
+
+    await userEvent.hover(row);
+    await waitFor(() => expect(wheel.querySelectorAll("[data-preview]")).toHaveLength(1));
+    await expect(within(wheel).queryByRole("button", { name: /^Damage Control II/ })).toBeNull();
+
+    await userEvent.unhover(row);
+    await waitFor(() => expect(wheel.querySelectorAll("[data-preview]")).toHaveLength(0));
+
+    await userEvent.dblClick(row);
+    await expect(within(wheel).getByRole("button", { name: /^Damage Control II,/ })).toBeInTheDocument();
+    await expect(canvasElement.querySelectorAll("[data-preview]")).toHaveLength(0);
+    const history = within(canvas.getByRole("group", { name: "Simulation History" }));
+    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("2 of 2");
+  },
+};
+
 export const WithBoth: Story = {
   args: { browser: <ItemBrowser />, statistics: <ShipStatistics /> },
   play: async ({ canvas }) => {

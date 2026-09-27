@@ -200,6 +200,31 @@ test("slots list every slot of a rack, empty ones included", () => {
   expect(result.current.hardpoints).toEqual({ turret: { used: 0, total: 3 }, launcher: { used: 0, total: 2 } });
 });
 
+test("slots follow the preview, and tell what only the preview fills", () => {
+  const { result } = render(
+    () => ({ preview: usePreview(), lows: useSlots("low"), usage: useRackUsage("low"), hardpoints: useHardpoints() }),
+    { fit: withDamageControl() },
+  );
+
+  act(() => result.current.preview.show((draft) => void draft.fit(DAMAGE_CONTROL_II)));
+  expect(result.current.lows.map((slot) => slot.item?.type_id)).toEqual([
+    DAMAGE_CONTROL_II,
+    undefined,
+    DAMAGE_CONTROL_II,
+    undefined,
+  ]);
+  expect(result.current.lows[0]).toMatchObject({ ref: undefined, preview: true });
+  expect(result.current.lows[2]).toMatchObject({ ref: 0, preview: false });
+  expect(result.current.usage).toEqual({ used: 2, total: 4 });
+
+  act(() => result.current.preview.show((draft) => void draft.fit(engine.sde.typeByName("200mm AutoCannon II")!.id)));
+  expect(result.current.hardpoints.turret).toEqual({ used: 1, total: 3 });
+
+  act(() => result.current.preview.clear());
+  expect(result.current.lows.map((slot) => slot.preview)).toEqual([false, false, false, false]);
+  expect(result.current.usage).toEqual({ used: 1, total: 4 });
+});
+
 test("slots the ship does not have come after the real ones", () => {
   const fit = engine.createFit({
     ship: { type_id: RIFTER },

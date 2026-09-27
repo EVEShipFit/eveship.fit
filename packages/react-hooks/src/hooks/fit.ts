@@ -74,7 +74,7 @@ export function useViolations(): readonly Violation[] {
 }
 
 /** The snapshot of the preview if there is one, else the current one. */
-function useShownSnapshot(): Snapshot {
+export function useShownSnapshot(): Snapshot {
   const snapshot = useSnapshot();
   const { preview } = useRequiredContext(PreviewContext);
   // A preview of an older snapshot is stale: the fit changed underneath it.
