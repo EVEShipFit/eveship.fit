@@ -1,6 +1,6 @@
 import type { FitItem, ItemRef, ItemStats, Rack, Stats, Usage } from "@eveshipfit/fitting";
 
-import { useSnapshot } from "./fit.js";
+import { useSnapshot, useStats } from "./fit.js";
 
 export interface SlotContent {
   readonly index: number;
@@ -40,4 +40,9 @@ export function useHardpoints(): Stats["hardpoints"] {
 
 export function useRackUsage(rack: Rack): Usage {
   return useSnapshot().stats.slots[rack];
+}
+
+/** How full a bay of the shown fit is, in m³. */
+export function useBayUsage(bay: "cargo" | "droneBay"): Usage {
+  return useStats()[bay];
 }

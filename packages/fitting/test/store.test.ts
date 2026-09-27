@@ -155,12 +155,47 @@ describe("history", () => {
     expect(fit.canRedo).toBe(true);
   });
 
-  test("a new edit drops what could be redone", () => {
+  test("an edit after going back goes at the end, keeping every fit in between", () => {
     const fit = rifter();
     fit.fit(id("Damage Control II"));
-    fit.undo();
     fit.fit(id("Gyrostabilizer II"));
+    fit.goTo(1);
+    fit.fit(id("200mm AutoCannon II"));
+
+    expect(fit.historyLength).toBe(4);
+    expect(fit.historyPosition).toBe(3);
     expect(fit.canRedo).toBe(false);
+    const types = () => fit.getSnapshot().fit.items.map((item) => item.type_id);
+    expect(types()).toEqual([id("Damage Control II"), id("200mm AutoCannon II")]);
+
+    fit.undo();
+    expect(types()).toEqual([id("Damage Control II"), id("Gyrostabilizer II")]);
+  });
+
+  test("going to a fit in the history", () => {
+    const fit = rifter();
+    fit.fit(id("Damage Control II"));
+    fit.fit(id("Gyrostabilizer II"));
+    const listener = vi.fn<() => void>();
+    fit.subscribe(listener);
+
+    fit.goTo(0);
+    expect(fit.getSnapshot().fit.items).toEqual([]);
+    expect(fit.historyPosition).toBe(0);
+    expect(fit.canRedo).toBe(true);
+
+    fit.goTo(0);
+    fit.goTo(5);
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  test("the oldest fits drop out of a full history", () => {
+    const fit = rifter();
+    for (let i = 0; i < 30; i++) fit.setName(`Fit ${i}`);
+
+    expect(fit.historyLength).toBe(25);
+    fit.goTo(0);
+    expect(fit.getSnapshot().fit.name).toBe("Fit 5");
   });
 
   test("an edit that changes nothing is not in the history", () => {

@@ -34,6 +34,7 @@
     "build": "tsdown"
   },
   "dependencies": {
+    "@eveshipfit/fitting": "workspace:*",
     "@eveshipfit/react-hooks": "workspace:*"
   },
   "devDependencies": {
@@ -52,7 +53,7 @@
     "vite": "catalog:"
   },
   "peerDependencies": {
-    "@eveshipfit/images": "^1.3542233.3",
+    "@eveshipfit/images": "^1.3542233.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   }

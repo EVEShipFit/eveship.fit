@@ -20,7 +20,7 @@ export interface Calculator {
   calculate(fit: Fit, character: Character): Stats;
 }
 
-const HISTORY_LIMIT = 100;
+const HISTORY_LIMIT = 25;
 
 /**
  * A fit that recalculates itself on every change. `subscribe` and
@@ -30,14 +30,17 @@ export class FitStore {
   readonly #calculator: Calculator;
   #character: Character;
   #snapshot: Snapshot;
-  readonly #undo: Fit[] = [];
-  readonly #redo: Fit[] = [];
+  /** Every fit, oldest first; an edit adds one at the end, even after going back. */
+  readonly #history: Fit[];
+  #position: number;
   readonly #listeners = new Set<() => void>();
 
   constructor(calculator: Calculator, fit: Fit, character: Character) {
     this.#calculator = calculator;
     this.#character = character;
     this.#snapshot = this.#calculate(withoutCharacter(fit));
+    this.#history = [this.#snapshot.fit];
+    this.#position = 0;
   }
 
   getSnapshot = (): Snapshot => this.#snapshot;
@@ -52,11 +55,21 @@ export class FitStore {
   }
 
   get canUndo(): boolean {
-    return this.#undo.length > 0;
+    return this.#position > 0;
   }
 
   get canRedo(): boolean {
-    return this.#redo.length > 0;
+    return this.#position < this.#history.length - 1;
+  }
+
+  /** How many fits the history holds, the current one included. */
+  get historyLength(): number {
+    return this.#history.length;
+  }
+
+  /** Where in the history the current fit is; 0 is the oldest. */
+  get historyPosition(): number {
+    return this.#position;
   }
 
   /** Picks the rack and the first free slot, unless `slot` says where. */
@@ -98,16 +111,18 @@ export class FitStore {
   }
 
   undo() {
-    const fit = this.#undo.pop();
-    if (fit === undefined) return;
-    this.#redo.push(this.#snapshot.fit);
-    this.#publish(this.#calculate(fit));
+    this.goTo(this.#position - 1);
   }
 
   redo() {
-    const fit = this.#redo.pop();
-    if (fit === undefined) return;
-    this.#undo.push(this.#snapshot.fit);
+    this.goTo(this.#position + 1);
+  }
+
+  /** Show the fit at `position` in the history; the history itself stays as it is. */
+  goTo(position: number) {
+    const fit = this.#history[position];
+    if (fit === undefined || position === this.#position) return;
+    this.#position = position;
     this.#publish(this.#calculate(fit));
   }
 
@@ -121,9 +136,9 @@ export class FitStore {
   #commit(fit: Fit) {
     if (fit === this.#snapshot.fit) return;
 
-    this.#undo.push(this.#snapshot.fit);
-    if (this.#undo.length > HISTORY_LIMIT) this.#undo.shift();
-    this.#redo.length = 0;
+    this.#history.push(fit);
+    if (this.#history.length > HISTORY_LIMIT) this.#history.shift();
+    this.#position = this.#history.length - 1;
     this.#publish(this.#calculate(fit));
   }
 

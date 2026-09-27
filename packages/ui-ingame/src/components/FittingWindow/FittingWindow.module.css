@@ -1,0 +1,217 @@
+/* Laid out as EVE's window at a UI scale of 100%, without its tabs; lengths are in EVE's pixels. */
+.window {
+  --unit: calc(1px * var(--esf-scale, 1));
+
+  color: var(--esf-text);
+  font-family: var(--esf-font);
+  font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
+  height: calc(630 * var(--unit));
+  position: relative;
+  user-select: none;
+  width: calc(700 * var(--unit));
+}
+
+.window img {
+  display: block;
+}
+
+.wheel {
+  --esf-wheel-size: calc(572 * var(--unit));
+
+  left: calc(68 * var(--unit));
+  position: absolute;
+  top: 0;
+}
+
+.name,
+.violations,
+.tools,
+.panels,
+.bays,
+.history,
+.resources {
+  position: absolute;
+}
+
+.name {
+  align-items: center;
+  display: flex;
+  gap: calc(2 * var(--unit));
+  left: calc(20 * var(--unit));
+  top: calc(40 * var(--unit));
+  white-space: nowrap;
+}
+
+.icon {
+  background: none;
+  border: none;
+  cursor: default;
+  padding: 0;
+}
+
+.icon > img {
+  height: calc(16 * var(--unit));
+  width: calc(16 * var(--unit));
+}
+
+/* EVE draws the link smaller and dimmer than the info icon beside it. */
+.icon > img[data-icon="link"] {
+  height: calc(12 * var(--unit));
+  margin: 0 calc(2 * var(--unit));
+  opacity: 0.6;
+  width: calc(12 * var(--unit));
+}
+
+.icon:focus-visible,
+.tool:focus-visible {
+  outline: var(--unit) solid var(--esf-text);
+}
+
+.violations {
+  display: flex;
+  gap: calc(8 * var(--unit));
+  left: calc(20 * var(--unit));
+  top: calc(62 * var(--unit));
+}
+
+.violation {
+  --colour: var(--esf-violation-notice);
+
+  height: calc(28 * var(--unit));
+  position: relative;
+  width: calc(28 * var(--unit));
+}
+
+.violation::before {
+  background: var(--colour);
+  content: "";
+  inset: 0;
+  mask: var(--texture) center / 100% 100%;
+  position: absolute;
+}
+
+.violation[data-kind="error"] {
+  --colour: var(--esf-violation-error);
+}
+
+.violation[data-kind="skill"] {
+  --colour: var(--esf-violation-skill);
+}
+
+.count {
+  font-size: 0.85em;
+  left: calc(100% - 2 * var(--unit));
+  line-height: 1;
+  position: absolute;
+  top: calc(-2 * var(--unit));
+}
+
+.tools {
+  left: calc(16 * var(--unit));
+  top: calc(125 * var(--unit));
+}
+
+.panels {
+  right: calc(11 * var(--unit));
+  top: calc(167 * var(--unit));
+}
+
+.tool {
+  align-items: center;
+  background: var(--esf-button);
+  border: none;
+  border-radius: 0 calc(5 * var(--unit)) calc(5 * var(--unit)) 0;
+  box-shadow: inset calc(-1 * var(--unit)) 0 var(--esf-button-edge);
+  cursor: default;
+  display: flex;
+  height: calc(39 * var(--unit));
+  justify-content: center;
+  padding: 0;
+  width: calc(45 * var(--unit));
+}
+
+.panels .tool {
+  border-radius: calc(5 * var(--unit)) 0 0 calc(5 * var(--unit));
+  box-shadow: inset var(--unit) 0 var(--esf-button-edge);
+  width: calc(42 * var(--unit));
+}
+
+.tool > img {
+  height: calc(36 * var(--unit));
+  width: calc(36 * var(--unit));
+}
+
+.panels .tool > img {
+  height: calc(20 * var(--unit));
+  width: calc(20 * var(--unit));
+}
+
+.bays {
+  display: grid;
+  gap: calc(4 * var(--unit));
+  left: calc(19 * var(--unit));
+  top: calc(560 * var(--unit));
+}
+
+.bay {
+  align-items: center;
+  column-gap: calc(5 * var(--unit));
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  justify-content: start;
+  line-height: calc(13 * var(--unit));
+}
+
+.bay > img {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  height: calc(32 * var(--unit));
+  width: calc(32 * var(--unit));
+}
+
+.used,
+.total {
+  grid-column: 3;
+  justify-self: end;
+}
+
+.used {
+  grid-row: 1;
+}
+
+.slash,
+.total,
+.unit {
+  grid-row: 2;
+}
+
+.slash {
+  grid-column: 2;
+}
+
+.history {
+  left: calc(199 * var(--unit));
+  top: calc(590 * var(--unit));
+}
+
+.resources {
+  display: grid;
+  gap: calc(10 * var(--unit));
+  right: calc(13 * var(--unit));
+  text-align: right;
+  top: calc(543 * var(--unit));
+}
+
+.resource {
+  display: grid;
+  gap: calc(6 * var(--unit));
+}
+
+.title {
+  font-weight: 600;
+}
+
+.bay[data-over],
+.resource[data-over] > :last-child {
+  color: var(--esf-violation-error);
+}
