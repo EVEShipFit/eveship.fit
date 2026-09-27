@@ -7,6 +7,18 @@
   "references": [
     {
       "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "../../packages/fitting"
+    },
+    {
+      "path": "../../packages/react-hooks"
+    },
+    {
+      "path": "../../packages/sde-loader"
+    },
+    {
+      "path": "../../packages/ui-ingame"
     }
   ]
 }

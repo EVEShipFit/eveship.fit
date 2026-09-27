@@ -209,6 +209,27 @@ importers:
 
   apps/web:
     dependencies:
+      '@eveshipfit/dogma-engine':
+        specifier: 'catalog:'
+        version: 13.0.1
+      '@eveshipfit/fitting':
+        specifier: workspace:*
+        version: link:../../packages/fitting
+      '@eveshipfit/images':
+        specifier: 'catalog:'
+        version: 1.3542233.5
+      '@eveshipfit/react-hooks':
+        specifier: workspace:*
+        version: link:../../packages/react-hooks
+      '@eveshipfit/sde':
+        specifier: 'catalog:'
+        version: 8.3542233.0
+      '@eveshipfit/sde-loader':
+        specifier: workspace:*
+        version: link:../../packages/sde-loader
+      '@eveshipfit/ui-ingame':
+        specifier: workspace:*
+        version: link:../../packages/ui-ingame
       react:
         specifier: 'catalog:'
         version: 19.3.0
