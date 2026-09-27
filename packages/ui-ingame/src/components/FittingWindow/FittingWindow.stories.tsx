@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { CSSProperties } from "react";
-import { expect, fireEvent, waitFor, within } from "storybook/test";
+import { expect, fireEvent, spyOn, waitFor, within } from "storybook/test";
 
 import { ItemBrowser } from "../ItemBrowser/ItemBrowser";
 import { ShipStatistics } from "../ShipStatistics/ShipStatistics";
@@ -165,6 +165,37 @@ export const DragModule: Story = {
       canvasElement.querySelector("[data-centre]")!,
     );
     await expect(lowSlots()[0]!.querySelector("[role=button]")).toHaveAccessibleName(/^Damage Control II,/);
+  },
+};
+
+/** A module drags its own icon, and previews where it goes over the middle of the wheel. */
+export const DragModulePreview: Story = {
+  args: { browser: <ItemBrowser /> },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const wheel = canvas.getByRole("region", { name: "Fitting" });
+    const previews = () => wheel.querySelectorAll("[data-preview]");
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "damage control ii");
+    const row = canvas.getByRole("button", { name: "Damage Control II" });
+    await userEvent.hover(row);
+    await waitFor(() => expect(previews()).toHaveLength(1));
+
+    const dataTransfer = new DataTransfer();
+    const setDragImage = spyOn(dataTransfer, "setDragImage");
+    await fireEvent.dragStart(row, { dataTransfer });
+    await expect(setDragImage).toHaveBeenCalledWith(expect.any(HTMLElement), 32, 32);
+    const image = setDragImage.mock.calls[0]![0] as HTMLElement;
+    await expect(Array.from(image.querySelectorAll("img"), (layer) => layer.loading)).toEqual(["eager", "eager"]);
+    await waitFor(() => expect(previews()).toHaveLength(0));
+
+    const centre = canvasElement.querySelector("[data-centre]")!;
+    await waitFor(async () => {
+      await fireEvent.dragEnter(centre, { dataTransfer });
+      await expect(previews()).toHaveLength(1);
+    });
+    await fireEvent.dragLeave(centre, { dataTransfer });
+    await waitFor(() => expect(previews()).toHaveLength(0));
+    await fireEvent.dragEnd(row, { dataTransfer });
   },
 };
 

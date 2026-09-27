@@ -241,3 +241,10 @@
   height: calc(16 * var(--browser-unit));
   width: calc(16 * var(--browser-unit));
 }
+
+.dragImage {
+  left: -1000px;
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+}

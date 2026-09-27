@@ -8,9 +8,10 @@ export interface TypeIconProps {
   size?: number;
   /** The tech level or faction marker. */
   marker?: boolean;
+  loading?: "lazy" | "eager";
 }
 
-export function TypeIcon({ typeId, size = 32, marker = true }: TypeIconProps) {
+export function TypeIcon({ typeId, size = 32, marker = true, loading = "lazy" }: TypeIconProps) {
   const images = useImages();
   const layers = images.typeIcon(typeId, { marker: false }) ?? [];
   const markerLayer = marker ? images.typeIcon(typeId)?.[layers.length] : undefined;
@@ -18,9 +19,18 @@ export function TypeIcon({ typeId, size = 32, marker = true }: TypeIconProps) {
   return (
     <span className={styles.icon} style={{ "--size": `${size}px` } as CSSProperties}>
       {layers.map((layer) => (
-        <img key={layer.src} src={layer.src} data-additive={layer.additive} alt="" loading="lazy" draggable={false} />
+        <img
+          key={layer.src}
+          src={layer.src}
+          data-additive={layer.additive}
+          alt=""
+          loading={loading}
+          draggable={false}
+        />
       ))}
-      {markerLayer && <img className={styles.marker} src={markerLayer.src} alt="" loading="lazy" draggable={false} />}
+      {markerLayer && (
+        <img className={styles.marker} src={markerLayer.src} alt="" loading={loading} draggable={false} />
+      )}
     </span>
   );
 }

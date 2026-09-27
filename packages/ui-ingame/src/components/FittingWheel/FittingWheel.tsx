@@ -8,6 +8,7 @@ import {
   useFitStore,
   useHardpoints,
   usePlacement,
+  usePreview,
   useRackUsage,
   useSde,
   useSlots,
@@ -70,11 +71,12 @@ function FittingRack({ rack }: { rack: WheelRack }) {
   ));
 }
 
-/** Fits a type dropped in the middle of the wheel, and unfits a fitted item. */
+/** Fits a type dropped in the middle of the wheel, previewing where it goes, and unfits a fitted item. */
 function FittingCentre() {
   const store = useFitStore();
   const fit = useFit();
   const { dragging, end } = useDrag();
+  const { show, clear } = usePreview();
   const takes = (item: DragItem | undefined): item is DragItem =>
     item !== undefined && (item.type === "type" || fit.items[item.ref] !== undefined);
 
@@ -82,12 +84,19 @@ function FittingCentre() {
     <div
       className={styles.centre}
       data-centre
+      onDragEnter={() => {
+        if (dragging?.type !== "type") return;
+        const { typeId } = dragging;
+        show((draft) => void draft.fit(typeId));
+      }}
+      onDragLeave={clear}
       onDragOver={(event) => {
         if (takes(dragging)) allowDrop(event, dragging);
       }}
       onDrop={(event) => {
         if (!takes(dragging)) return;
         event.preventDefault();
+        clear();
         if (dragging.type === "type") store.fit(dragging.typeId);
         else store.remove(dragging.ref);
         end();
