@@ -9,6 +9,7 @@ export {
 } from "./primitives/TreeList/TreeList";
 export { Icon, iconNames, type IconName, type IconProps } from "./primitives/Icon/Icon";
 export { TypeIcon, type TypeIconProps } from "./primitives/TypeIcon/TypeIcon";
+export { FilterToggle, type FilterToggleProps } from "./primitives/FilterToggle/FilterToggle";
 export { Tooltip, TooltipText, type TooltipProps, type TooltipTextProps } from "./primitives/Tooltip/Tooltip";
 export { HistoryBar, type HistoryBarProps } from "./primitives/HistoryBar/HistoryBar";
 export { rackSize, slotAngle, type WheelRack } from "./primitives/Wheel/layout";

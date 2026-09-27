@@ -126,13 +126,43 @@
   border-color: var(--esf-text-muted);
 }
 
+.filters {
+  display: flex;
+  gap: calc(4 * var(--browser-unit));
+  margin-top: calc(4 * var(--browser-unit));
+}
+
 .tree {
   flex: 1;
-  margin-top: calc(12 * var(--browser-unit));
+  margin-top: calc(8 * var(--browser-unit));
   min-height: 0;
   overflow-y: auto;
 }
 
 .hull {
   font-weight: 600;
+}
+
+.simulate {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex: none;
+  opacity: 0.9;
+  padding: 0;
+}
+
+.simulate:hover,
+.simulate:focus-visible {
+  opacity: 1;
+}
+
+.simulate:focus-visible {
+  outline: var(--browser-unit) solid var(--esf-text);
+}
+
+.simulate > img {
+  height: calc(22 * var(--browser-unit));
+  width: calc(22 * var(--browser-unit));
 }

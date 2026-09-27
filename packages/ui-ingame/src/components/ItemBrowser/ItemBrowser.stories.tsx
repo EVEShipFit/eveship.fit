@@ -58,6 +58,65 @@ export const Search: Story = {
   },
 };
 
+export const Filters: Story = {
+  play: async ({ canvas }) => {
+    const filters = [
+      "Personal Fittings",
+      "Corporation Fittings",
+      "Alliance Fittings",
+      "Community Fittings",
+      "Current Hull",
+      "Skills",
+    ];
+    for (const name of filters) {
+      const filter = canvas.getByRole("button", { name });
+      await expect(filter).toHaveAttribute("aria-pressed", "false");
+      if (name === "Current Hull") await expect(filter).not.toHaveAttribute("aria-disabled");
+      else await expect(filter).toHaveAttribute("aria-disabled", "true");
+    }
+  },
+};
+
+/** Current Hull keeps only the hull of the fit, with its groups open. */
+export const CurrentHull: Story = {
+  play: async ({ canvas, userEvent }) => {
+    const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
+    const filter = canvas.getByRole("button", { name: "Current Hull" });
+
+    await userEvent.click(filter);
+    await expect(filter).toHaveAttribute("aria-pressed", "true");
+    await expect(hulls().getByRole("button", { name: "Rifter" })).toBeVisible();
+    await expect(hulls().getAllByRole("button", { name: /^Simulate / })).toHaveLength(1);
+
+    await userEvent.click(filter);
+    await expect(filter).toHaveAttribute("aria-pressed", "false");
+    await waitFor(() => expect(hulls().getByRole("button", { name: "Battleship" })).toBeVisible());
+    await expect(hulls().queryByRole("button", { name: "Rifter" })).toBeNull();
+  },
+};
+
+/** Simulate Ship, or a double click on the hull, starts an empty fit of it. */
+export const SimulateShip: Story = {
+  play: async ({ canvas, userEvent }) => {
+    const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.click(hulls().getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls().getByRole("button", { name: /^Minmatar/ }));
+
+    await userEvent.click(hulls().getByRole("button", { name: "Simulate Slasher" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Current Hull" }));
+    await expect(hulls().getByRole("button", { name: "Slasher" })).toBeVisible();
+    await expect(hulls().getAllByRole("button", { name: /^Simulate / })).toHaveLength(1);
+
+    await userEvent.click(canvas.getByRole("button", { name: "Current Hull" }));
+    await userEvent.click(hulls().getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls().getByRole("button", { name: /^Minmatar/ }));
+    await userEvent.dblClick(hulls().getByRole("button", { name: "Breacher" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Current Hull" }));
+    await expect(hulls().getByRole("button", { name: "Breacher" })).toBeVisible();
+    await expect(hulls().getAllByRole("button", { name: /^Simulate / })).toHaveLength(1);
+  },
+};
+
 export const AtUiScale150: Story = {
   decorators: [(Story) => <div style={{ "--esf-scale": 1.5 } as CSSProperties}>{Story()}</div>],
   play: async ({ canvas }) => {

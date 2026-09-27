@@ -1,0 +1,64 @@
+/* Lengths are EVE's pixels at 100%, measured on the client. */
+.toggle {
+  --toggle-unit: calc(1px * var(--esf-scale, 1));
+
+  align-items: center;
+  background: none;
+  border: var(--toggle-unit) solid transparent;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  flex: none;
+  height: calc(32 * var(--toggle-unit));
+  isolation: isolate;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  width: calc(32 * var(--toggle-unit));
+}
+
+.toggle > img {
+  flex: none;
+  height: calc(32 * var(--toggle-unit));
+  width: calc(32 * var(--toggle-unit));
+}
+
+.toggle[aria-pressed="true"] {
+  border-color: var(--esf-button-active-edge);
+}
+
+.toggle[aria-pressed="true"]::after {
+  background: var(--esf-button-active-edge);
+  content: "";
+  inset: calc(-1 * var(--toggle-unit));
+  mask: var(--texture) center / 100% 100%;
+  mix-blend-mode: multiply;
+  position: absolute;
+}
+
+.check {
+  align-items: center;
+  background: var(--esf-button-active);
+  bottom: 0;
+  display: flex;
+  height: calc(12 * var(--toggle-unit));
+  justify-content: center;
+  position: absolute;
+  right: 0;
+  width: calc(12 * var(--toggle-unit));
+  z-index: 1;
+}
+
+.check > img {
+  height: calc(10 * var(--toggle-unit));
+  width: calc(10 * var(--toggle-unit));
+}
+
+.toggle[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.toggle:focus-visible {
+  outline: var(--toggle-unit) solid var(--esf-text);
+}

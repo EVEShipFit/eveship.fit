@@ -98,6 +98,18 @@ export const WithItemBrowser: Story = {
   },
 };
 
+export const SimulateShip: Story = {
+  args: { browser: <ItemBrowser /> },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "slasher");
+    await userEvent.click(canvas.getByRole("button", { name: "Simulate Slasher" }));
+
+    const history = within(canvas.getByRole("group", { name: "Simulation History" }));
+    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("2 of 2");
+    await expect(canvas.getAllByText("Slasher")).toHaveLength(2);
+  },
+};
+
 export const WithBoth: Story = {
   args: { browser: <ItemBrowser />, statistics: <ShipStatistics /> },
   play: async ({ canvas }) => {
