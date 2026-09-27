@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import type { CSSProperties } from "react";
 import { expect, within } from "storybook/test";
 
 import { FittingWheel } from "./FittingWheel";
@@ -37,7 +36,6 @@ const rifter = {
 
 const meta = {
   component: FittingWheel,
-  decorators: [(Story) => <div style={{ "--esf-wheel-size": "730px" } as CSSProperties}>{Story()}</div>],
 } satisfies Meta<typeof FittingWheel>;
 
 export default meta;

@@ -14,7 +14,7 @@ export type SlotState = "offline" | "online" | "active" | "overload";
 const box = {
   "--slot-size": 49,
   "--slot-centre": 193,
-  "--slot-icon-centre": 195,
+  "--slot-icon-centre": 194,
 };
 
 /** Measured from EVE, in wheel units: the size of an action, the radius of the first, and the step inward to the next. */

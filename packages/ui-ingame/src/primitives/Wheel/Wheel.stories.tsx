@@ -22,7 +22,7 @@ export const Empty: Story = {
   play: async ({ canvas }) => {
     const wheel = canvas.getByRole("region", { name: "Fitting" });
     const { width, height } = wheel.getBoundingClientRect();
-    await expect(width).toBe(480);
+    await expect(width).toBe(572);
     await expect(height).toBe(width);
   },
 };
@@ -31,8 +31,11 @@ export const Small: Story = {
   decorators: [(Story) => <div style={{ "--esf-wheel-size": "240px" } as CSSProperties}>{Story()}</div>],
 };
 
-export const Large: Story = {
-  decorators: [(Story) => <div style={{ "--esf-wheel-size": "730px" } as CSSProperties}>{Story()}</div>],
+export const AtUiScale150: Story = {
+  decorators: [(Story) => <div style={{ "--esf-wheel-scale": 1.5 } as CSSProperties}>{Story()}</div>],
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("region", { name: "Fitting" }).getBoundingClientRect().width).toBe(858);
+  },
 };
 
 export const FillsItsContainer: Story = {
@@ -81,7 +84,6 @@ const rifter: Record<WheelRack, { slots: number; fitted: Omit<WheelSlotProps, "r
 };
 
 export const Rifter: Story = {
-  decorators: [(Story) => <div style={{ "--esf-wheel-size": "730px" } as CSSProperties}>{Story()}</div>],
   render: (args) => (
     <Wheel {...args}>
       <WheelHull typeId={587} />

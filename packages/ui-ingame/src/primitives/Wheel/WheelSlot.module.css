@@ -13,11 +13,8 @@
 }
 
 .body {
-  /* Keeps the textures of neighbouring slots from overlapping. */
-  clip-path: polygon(14.9% 1%, 85.1% 1%, 79.7% 85.9%, 20.3% 85.9%);
   height: calc(var(--slot-size) * var(--wheel-unit));
   left: calc(50% - var(--slot-size) / 2 * var(--wheel-unit));
-  pointer-events: auto;
   position: absolute;
   top: calc(50% - var(--reach));
   transform: rotate(var(--angle));
@@ -36,6 +33,18 @@
 
 .fill {
   opacity: 0.15;
+}
+
+/* Keeps the textures and hover areas of neighbouring slots from overlapping; EVE lets a module's icon stick out. */
+.fill,
+.frame,
+.press {
+  clip-path: polygon(14.9% 1%, 85.1% 1%, 79.7% 85.9%, 20.3% 85.9%);
+}
+
+.frame,
+.press {
+  pointer-events: auto;
 }
 
 .ammo {
@@ -72,9 +81,9 @@
 
 /* EVE keeps module icons upright; an empty slot's icon turns with the slot. */
 .icon {
-  height: calc(32 * var(--wheel-unit));
+  height: calc(39 * var(--wheel-unit));
   transform: rotate(calc(-1 * var(--angle)));
-  width: calc(32 * var(--wheel-unit));
+  width: calc(39 * var(--wheel-unit));
 }
 
 .icon > span {

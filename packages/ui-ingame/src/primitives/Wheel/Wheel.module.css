@@ -9,7 +9,8 @@
   /* Keeps the edges' light, and the hull under the rings, inside the wheel. */
   isolation: isolate;
   position: relative;
-  width: var(--esf-wheel-size);
+  /* EVE's wheel is 572px at a UI scale of 100%. */
+  width: var(--esf-wheel-size, calc(572px * var(--esf-wheel-scale, 1)));
 }
 
 .rings,
