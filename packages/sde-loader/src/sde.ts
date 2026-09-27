@@ -15,6 +15,7 @@ import {
   SdeType,
   toAttribute,
   toCategory,
+  toDate,
   toEffect,
   toGroup,
   toMarketGroup,
@@ -35,6 +36,8 @@ import { buildMarketTree, buildShipTree, type MarketGroupNode, type ShipGroupNod
 export class Sde {
   readonly bytes: Uint8Array;
   readonly buildNumber: number;
+  /** Missing from files before `@eveshipfit/sde` 8.3542233.1. */
+  readonly releaseDate: Date | undefined;
 
   readonly #types: Table<Type, SdeType>;
   readonly #groups: Table<Group, SdeGroup>;
@@ -59,6 +62,7 @@ export class Sde {
     const raw = RawSde.getRootAsSde(buffer);
     this.bytes = bytes;
     this.buildNumber = raw.buildNumber();
+    this.releaseDate = toDate(raw.releaseDate());
 
     this.#types = new Table(
       raw.typesLength(),

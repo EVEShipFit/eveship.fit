@@ -14,7 +14,7 @@ test("the fitting window shows its statistics", async ({ page }) => {
   await expect(page.getByRole("region", { name: "Fitting Window" })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("region", { name: "Statistics" })).toBeVisible();
   await expect(page.getByText("Rifter", { exact: true })).toBeVisible();
-  await expect(page.getByText(/^EVEShip\.fit \S+ · EVE data: SDE build \d+$/)).toBeVisible();
+  await expect(page.getByText(/^EVEShip\.fit \S+ · EVE data: SDE build \d+ \(\d{4}-\d{2}-\d{2}\)$/)).toBeVisible();
 });
 
 test("the statistics go below the window on a phone", async ({ page }) => {

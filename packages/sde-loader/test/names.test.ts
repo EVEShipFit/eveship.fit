@@ -21,3 +21,7 @@ test("finds a type in any language, any case", () => {
 test("misses", () => {
   expect(names.typeId("not a type at all")).toBeUndefined();
 });
+
+test("knows when its SDE build was released", () => {
+  expect(names.releaseDate).toBeInstanceOf(Date);
+});

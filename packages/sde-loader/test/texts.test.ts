@@ -18,6 +18,7 @@ test("rejects a file that is not a texts file", async () => {
 
 test("comes from the same SDE build", () => {
   expect(texts.buildNumber).toBe(sde.buildNumber);
+  expect(texts.releaseDate).toEqual(sde.releaseDate);
 });
 
 test("the tooltip of an attribute", () => {

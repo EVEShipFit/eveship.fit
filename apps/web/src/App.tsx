@@ -62,5 +62,12 @@ function DataVersion({ data }: { data: Promise<Data | null> }) {
   const loaded = use(data);
   if (loaded === null) return null;
 
-  return <> · EVE data: SDE build {loaded.sdeBuild}</>;
+  const { buildNumber, releaseDate } = loaded.sde;
+  return (
+    <>
+      {" "}
+      · EVE data: SDE build {buildNumber}
+      {releaseDate !== undefined && ` (${releaseDate.toISOString().slice(0, 10)})`}
+    </>
+  );
 }

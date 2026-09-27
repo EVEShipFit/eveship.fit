@@ -1,6 +1,7 @@
 import { ByteBuffer } from "flatbuffers";
 
 import { Texts as RawTexts, type DogmaAttributeText } from "./generated/texts/eve.js";
+import { toDate } from "./records.js";
 import { readSource, type Source } from "./source.js";
 import { Table } from "./table.js";
 
@@ -13,6 +14,8 @@ export interface SdeTooltip {
 export class Texts {
   readonly bytes: Uint8Array;
   readonly buildNumber: number;
+  /** Missing from files before `@eveshipfit/sde` 8.3542233.1. */
+  readonly releaseDate: Date | undefined;
 
   readonly #attributeTooltips: Table<DogmaAttributeText, SdeTooltip>;
 
@@ -25,6 +28,7 @@ export class Texts {
     const raw = RawTexts.getRootAsTexts(buffer);
     this.bytes = bytes;
     this.buildNumber = raw.buildNumber();
+    this.releaseDate = toDate(raw.releaseDate());
     this.#attributeTooltips = new Table(raw.dogmaAttributesLength(), (i) => raw.dogmaAttributes(i), toTooltip);
   }
 
