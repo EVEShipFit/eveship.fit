@@ -173,22 +173,13 @@
   box-shadow: inset var(--window-unit) 0 var(--esf-button-active-edge);
 }
 
-.tool > img {
-  height: calc(36 * var(--window-unit));
-  width: calc(36 * var(--window-unit));
+/* The hardware texture is half empty space. */
+.tools .tool > img {
+  height: calc(40 * var(--window-unit));
+  width: calc(40 * var(--window-unit));
 }
 
-.panels .tools .tool[aria-expanded="true"] {
-  background: var(--esf-button-active);
-  box-shadow: inset calc(-1 * var(--window-unit)) 0 var(--esf-button-active-edge);
-}
-
-.panels .tool[aria-expanded="true"] {
-  background: var(--esf-button-active);
-  box-shadow: inset var(--window-unit) 0 var(--esf-button-active-edge);
-}
-
-.tool > img {
+.panels .tool > img {
   height: calc(20 * var(--window-unit));
   width: calc(20 * var(--window-unit));
 }

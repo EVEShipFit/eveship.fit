@@ -24,7 +24,7 @@
     0 calc(100% - var(--corner))
   );
   display: flex;
-  gap: calc(8 * var(--browser-unit));
+  gap: calc(4 * var(--browser-unit));
 }
 
 .tab {
@@ -72,16 +72,27 @@
 .collapse {
   background: none;
   border: none;
-  cursor: default;
+  cursor: pointer;
   display: flex;
   justify-content: center;
+  opacity: 0.8;
   padding: 0;
   width: calc(28 * var(--browser-unit));
 }
 
-.collapse > img,
+.collapse:hover,
+.collapse:focus-visible {
+  opacity: 1;
+}
+
+.collapse > img {
+  height: calc(14 * var(--browser-unit));
+  width: calc(14 * var(--browser-unit));
+}
+
 .field > img {
   height: calc(16 * var(--browser-unit));
+  opacity: 0.5;
   width: calc(16 * var(--browser-unit));
 }
 
