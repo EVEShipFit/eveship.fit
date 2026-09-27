@@ -42,6 +42,12 @@
   --esf-capacitor-cell-high: #f05a32;
   --esf-menu-bg: #0a0a0a;
   --esf-menu-hover: #292929;
+  --esf-tab: #2d2e2f;
+  --esf-tab-active: #263d47;
+  --esf-input-bg: #0b0c0c;
+  --esf-input-border: #222324;
+  --esf-tree-header: #222324;
+  --esf-tree-hover: #192024;
 
   /* EVE's UI scale; 1 is 100%. */
   --esf-scale: 1;

@@ -1,3 +1,8 @@
+/* Lengths are EVE's pixels at 100%, measured on the client. */
+.tree {
+  --tree-unit: calc(1px * var(--esf-scale, 1));
+}
+
 .tree,
 .group {
   list-style: none;
@@ -6,38 +11,62 @@
 }
 
 .group {
-  padding-left: 16px;
+  padding-left: calc(16 * var(--tree-unit));
 }
 
 .row {
   align-items: center;
   background: none;
   border: none;
+  box-sizing: border-box;
   color: inherit;
-  cursor: pointer;
+  cursor: default;
   display: flex;
   font: inherit;
-  gap: 6px;
-  min-height: 24px;
-  padding: 2px 6px;
+  gap: calc(5 * var(--tree-unit));
+  min-height: calc(24 * var(--tree-unit));
+  padding: 0 calc(6 * var(--tree-unit)) 0 calc(8 * var(--tree-unit));
   text-align: left;
   user-select: none;
   width: 100%;
 }
 
-.row:hover,
-.row:focus-visible {
-  background: var(--esf-hover);
+/* Past where a group has its chevron. */
+.leaf {
+  padding-left: calc(21 * var(--tree-unit));
+}
+
+.tree > li > .row {
+  background: var(--esf-tree-header);
+}
+
+.tree .row:hover,
+.tree .row:focus-visible {
+  background: var(--esf-tree-hover);
   outline: none;
 }
 
 .chevron {
   color: var(--esf-text-muted);
   flex: none;
+  height: calc(8 * var(--tree-unit));
+  width: calc(8 * var(--tree-unit));
 }
 
 [aria-expanded="true"] > .chevron {
   transform: rotate(90deg);
+}
+
+.icon {
+  flex: none;
+  height: calc(32 * var(--tree-unit));
+  width: calc(32 * var(--tree-unit));
+}
+
+.icon > span {
+  display: block;
+  height: 100%;
+  width: 100%;
 }
 
 .label {

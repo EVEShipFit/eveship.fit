@@ -1,0 +1,127 @@
+/* Lengths are EVE's pixels at 100%, measured on the client. */
+.browser {
+  --browser-unit: calc(1px * var(--esf-scale, 1));
+
+  color: var(--esf-text);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--esf-font);
+  font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
+  height: 100%;
+  user-select: none;
+  width: calc(393 * var(--browser-unit));
+}
+
+.tabs {
+  --corner: calc(6 * var(--browser-unit));
+
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--corner)),
+    calc(100% - var(--corner)) 100%,
+    var(--corner) 100%,
+    0 calc(100% - var(--corner))
+  );
+  display: flex;
+  gap: calc(8 * var(--browser-unit));
+}
+
+.tab {
+  background: var(--esf-tab);
+  border: none;
+  color: inherit;
+  cursor: default;
+  flex: 1;
+  font: inherit;
+  height: calc(24 * var(--browser-unit));
+  padding: 0;
+}
+
+.tab[aria-selected="true"] {
+  background: var(--esf-tab-active);
+}
+
+.tab[aria-disabled="true"] {
+  color: var(--esf-text-muted);
+}
+
+.tab:focus-visible,
+.collapse:focus-visible {
+  outline: var(--browser-unit) solid var(--esf-text);
+}
+
+.tab:focus-visible {
+  outline-offset: calc(-1 * var(--browser-unit));
+}
+
+.panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.search {
+  align-items: center;
+  display: flex;
+  height: calc(32 * var(--browser-unit));
+  margin-top: calc(8 * var(--browser-unit));
+}
+
+.collapse {
+  background: none;
+  border: none;
+  cursor: default;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  width: calc(28 * var(--browser-unit));
+}
+
+.collapse > img,
+.field > img {
+  height: calc(16 * var(--browser-unit));
+  width: calc(16 * var(--browser-unit));
+}
+
+.field {
+  align-items: center;
+  align-self: stretch;
+  background: var(--esf-input-bg);
+  border: var(--browser-unit) solid var(--esf-input-border);
+  display: flex;
+  flex: 1;
+  gap: calc(5 * var(--browser-unit));
+  padding-left: calc(12 * var(--browser-unit));
+}
+
+.field > input {
+  background: none;
+  border: none;
+  color: inherit;
+  flex: 1;
+  font: inherit;
+  min-width: 0;
+  outline: none;
+  padding: 0;
+}
+
+.field > input::placeholder {
+  color: var(--esf-text-muted);
+}
+
+.field:focus-within {
+  border-color: var(--esf-text-muted);
+}
+
+.tree {
+  flex: 1;
+  margin-top: calc(12 * var(--browser-unit));
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.hull {
+  font-weight: 600;
+}

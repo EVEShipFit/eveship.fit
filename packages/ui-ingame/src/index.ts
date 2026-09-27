@@ -24,6 +24,8 @@ export { ResistanceBar, type DamageType, type ResistanceBarProps } from "./primi
 export { CapacitorRing, type CapacitorRingProps } from "./primitives/CapacitorRing/CapacitorRing";
 export { FittingWheel, type FittingWheelProps } from "./components/FittingWheel/FittingWheel";
 export { FittingWindow, type FittingWindowProps } from "./components/FittingWindow/FittingWindow";
+export { ItemBrowser, type ItemBrowserProps } from "./components/ItemBrowser/ItemBrowser";
+export { HullsAndFits } from "./components/ItemBrowser/HullsAndFits";
 export { ShipStatistics, type ShipStatisticsProps } from "./components/ShipStatistics/ShipStatistics";
 export { CapacitorStats } from "./components/ShipStatistics/CapacitorStats";
 export { OffenseStats } from "./components/ShipStatistics/OffenseStats";
