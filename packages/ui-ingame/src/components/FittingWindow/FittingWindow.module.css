@@ -284,10 +284,7 @@
   visibility: hidden;
 }
 
-.browser > .slide {
-  transform: translateX(100%);
-}
-
+.browser > .slide,
 .statistics > .slide {
   transform: translateX(-100%);
 }
