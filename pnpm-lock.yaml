@@ -19,8 +19,8 @@ catalogs:
       specifier: ^13.0.1
       version: 13.0.1
     '@eveshipfit/images':
-      specifier: ^1.3542233.4
-      version: 1.3542233.4
+      specifier: ^1.3542233.5
+      version: 1.3542233.5
     '@eveshipfit/sde':
       specifier: ^8.3542233.0
       version: 8.3542233.0
@@ -160,7 +160,7 @@ importers:
         version: link:../../packages/fitting
       '@eveshipfit/images':
         specifier: 'catalog:'
-        version: 1.3542233.4
+        version: 1.3542233.5
       '@eveshipfit/react-hooks':
         specifier: workspace:*
         version: link:../../packages/react-hooks
@@ -274,7 +274,7 @@ importers:
         version: 7.29.7
       '@eveshipfit/images':
         specifier: 'catalog:'
-        version: 1.3542233.4
+        version: 1.3542233.5
       '@eveshipfit/sde':
         specifier: 'catalog:'
         version: 8.3542233.0
@@ -348,7 +348,7 @@ importers:
         version: link:../fitting
       '@eveshipfit/images':
         specifier: 'catalog:'
-        version: 1.3542233.4
+        version: 1.3542233.5
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7)(@babel/runtime@7.29.7)(rolldown@1.2.10)(vite@8.3.0(@types/node@22.20.4)(esbuild@0.28.2)(yaml@2.9.1))
@@ -970,8 +970,8 @@ packages:
   '@eveshipfit/dogma-engine@13.0.1':
     resolution: {integrity: sha512-Hfd6XSWTL+gU5xUdvgr5OzHq8n4lyproR9R0iTNNRhClRYeM9vf1Kdnm1+TF/oF5w7eLb8er8dAlgooQvo+Dqg==}
 
-  '@eveshipfit/images@1.3542233.4':
-    resolution: {integrity: sha512-RQxVRgIbfwDBLNVvXYvs6taa5a2RQvlwcI+1xbWLO9BQbuX8vcFhqbC2AUQ5qk3tC/fPSBBSmW/6FVsiKp+SUw==}
+  '@eveshipfit/images@1.3542233.5':
+    resolution: {integrity: sha512-MDSAkoqLktoWRvkpPNPj6xcrSZepfM2nAQFncOXWWdvI0O2mb5tBhe2hAnh+Qko766cSTa2/sWqq2iAXPXiKOg==}
 
   '@eveshipfit/sde@8.3542233.0':
     resolution: {integrity: sha512-Z3AtMrbftH1cs252xdY274jzfE7gqAlj3vI6fWT8MqQzFv4bmeNzvPoG9avSG/6zXeAWG6KwoBs1AbYGlvZhMw==}
@@ -3858,7 +3858,7 @@ snapshots:
 
   '@eveshipfit/dogma-engine@13.0.1': {}
 
-  '@eveshipfit/images@1.3542233.4':
+  '@eveshipfit/images@1.3542233.5':
     dependencies:
       flatbuffers: 25.9.23
 
