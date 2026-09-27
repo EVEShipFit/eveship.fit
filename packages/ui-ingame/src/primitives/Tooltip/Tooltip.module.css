@@ -78,3 +78,16 @@
   translate: -50%;
   width: calc(var(--notch-size) * 1.41 - 2px);
 }
+
+.text {
+  display: grid;
+  gap: 8px;
+}
+
+.text + .text {
+  margin-top: 12px;
+}
+
+.title {
+  font-weight: 600;
+}

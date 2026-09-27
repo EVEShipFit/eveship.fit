@@ -6,12 +6,6 @@ import * as flatbuffers from 'flatbuffers';
 
 
 
-/**
- * Name lookup, in a file of its own.
- *
- * An EFT-fit can be written in any of the eight languages EVE supports, so a
- * name has to be matchable back to a type.
- */
 export class Names {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -40,9 +34,7 @@ buildNumber():number {
 }
 
 /**
- * Every name of every type, in every language, lowercased and sorted by
- * UTF-8 bytes. Lowercasing is per code point and locale-independent, so
- * that a fit does not have to match the case.
+ * Lowercased per code point, locale-independent; sorted by UTF-8 bytes.
  */
 names(index: number):string
 names(index: number,optionalEncoding:flatbuffers.Encoding):string|Uint8Array

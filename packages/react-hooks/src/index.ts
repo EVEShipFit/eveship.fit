@@ -25,7 +25,9 @@ export {
 export { useImages } from "./hooks/images.js";
 export { useLocalFits, type LocalFitsControls } from "./hooks/local-fits.js";
 export { useCharges, useEngine, useHullTree, useMarketTree, useSde, useType } from "./hooks/sde.js";
+export { useAttributeTooltip, useTexts } from "./hooks/texts.js";
 export { useBayUsage, useHardpoints, useRackUsage, useSlots, type SlotContent } from "./hooks/slots.js";
 export { ImagesProvider, type ImagesProviderProps } from "./images.js";
+export { TextsProvider, type TextsProviderProps } from "./texts.js";
 export { LocalFits, type FitStorage } from "./local-fits.js";
 export { EveShipFitProvider, type EveShipFitProviderProps } from "./provider.js";

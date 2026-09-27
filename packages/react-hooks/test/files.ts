@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 
 import { createEngine, type Engine } from "@eveshipfit/fitting";
-import { loadSde } from "@eveshipfit/sde-loader";
+import { loadSde, loadTexts, type Texts } from "@eveshipfit/sde-loader";
 
 const require = createRequire(import.meta.url);
 
@@ -18,4 +18,8 @@ export function testEngine(): Promise<Engine> {
     createEngine(sde, { wasm: readDependencyFile("@eveshipfit/dogma-engine/esf_dogma_engine_bg.wasm") }),
   );
   return loading;
+}
+
+export function testTexts(): Promise<Texts> {
+  return loadTexts({ bytes: readDependencyFile("@eveshipfit/sde/dist/texts.dat") });
 }

@@ -10,7 +10,9 @@ import {
   EveShipFitProvider,
   ImagesProvider,
   LocalFits,
+  TextsProvider,
   useAttribute,
+  useAttributeTooltip,
   useBayUsage,
   useCharacters,
   useCharges,
@@ -35,7 +37,7 @@ import {
   type EveShipFitProviderProps,
   type FitStorage,
 } from "../src/index.js";
-import { testEngine } from "./files.js";
+import { testEngine, testTexts } from "./files.js";
 
 const RIFTER = 587;
 const DAMAGE_CONTROL_II = 2048;
@@ -254,6 +256,27 @@ test("images need no engine, only their own provider", () => {
 
   vi.spyOn(console, "error").mockImplementation(() => {});
   expect(() => render(() => useImages())).toThrow("This hook needs to be inside an <ImagesProvider>");
+});
+
+test("attribute tooltips need both the engine and their own provider", async () => {
+  const texts = await testTexts();
+  const { result } = renderHook(
+    () => ({ sensor: useAttributeTooltip("scanLadarStrength"), none: useAttributeTooltip("armorEmDamageResonance") }),
+    {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <EveShipFitProvider engine={engine}>
+          <TextsProvider texts={texts}>{children}</TextsProvider>
+        </EveShipFitProvider>
+      ),
+    },
+  );
+  expect(result.current.sensor?.title).toBe("Ladar Sensor Strength");
+  expect(result.current.none).toBeUndefined();
+
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  expect(() => render(() => useAttributeTooltip("scanLadarStrength"))).toThrow(
+    "This hook needs to be inside an <TextsProvider>",
+  );
 });
 
 test("types", () => {

@@ -3,6 +3,7 @@ import { useAttribute } from "@eveshipfit/react-hooks";
 import { Stat } from "../../primitives/Stat/Stat";
 import { StatsSection } from "../../primitives/StatsSection/StatsSection";
 import { AttributeText } from "./AttributeText";
+import { AttributeTooltip } from "./AttributeTooltip";
 import { unit } from "./units";
 
 export function DroneStats() {
@@ -19,7 +20,11 @@ export function DroneStats() {
 
   return (
     <StatsSection title="Drones" summary={<AttributeText value={dps} />} columns={2}>
-      <Stat icon="stat-drone-bandwidth" label="Drone Bandwidth">
+      <Stat
+        icon="stat-drone-bandwidth"
+        label="Drone Bandwidth"
+        tooltip={<AttributeTooltip attribute="droneBandwidth" />}
+      >
         <AttributeText value={bandwidthUsed} />/<AttributeText value={bandwidth} />
       </Stat>
       <Stat icon="stat-drone-control-range" label="Drone Control Range">

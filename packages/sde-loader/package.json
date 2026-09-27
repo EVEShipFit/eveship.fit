@@ -28,7 +28,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "gen": "flatc --ts -o src/generated/sde node_modules/@eveshipfit/sde/specs/eve.fbs && flatc --ts -o src/generated/names node_modules/@eveshipfit/sde/specs/names.fbs"
+    "gen": "flatc --ts -o src/generated/sde node_modules/@eveshipfit/sde/specs/eve.fbs && flatc --ts -o src/generated/names node_modules/@eveshipfit/sde/specs/names.fbs && flatc --ts -o src/generated/texts node_modules/@eveshipfit/sde/specs/texts.fbs"
   },
   "dependencies": {
     "flatbuffers": "catalog:"
@@ -39,7 +39,7 @@
     "tsdown": "catalog:"
   },
   "peerDependencies": {
-    "@eveshipfit/sde": "^7.0.0"
+    "@eveshipfit/sde": "^7.0.0 || ^8.0.0"
   },
   "peerDependenciesMeta": {
     "@eveshipfit/sde": {

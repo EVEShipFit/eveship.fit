@@ -3,7 +3,7 @@ import type { CSSProperties } from "react";
 import { expect, waitFor, within } from "storybook/test";
 
 import { Icon } from "../Icon/Icon";
-import { Tooltip } from "./Tooltip";
+import { Tooltip, TooltipText } from "./Tooltip";
 
 const button: CSSProperties = {
   background: "none",
@@ -140,5 +140,22 @@ export const Column: Story = {
     await userEvent.hover(canvas.getByRole("button", { name: "Unfit Module" }));
     await expect(tooltipOf(canvasElement, "Unfit Module").box).toBeVisible();
     await expect(tooltipOf(canvasElement, "Put Offline").box).not.toBeVisible();
+  },
+};
+
+/** Titled text, like EVE's tooltips of attributes; several stack. */
+export const WithText: Story = {
+  args: {
+    label: (
+      <>
+        <TooltipText title="Shield Capacity" description="Shield hitpoints recharge over time" />
+        <TooltipText title="Shield Recharge Time" description="Amount of time taken to fully recharge the shield" />
+      </>
+    ),
+  },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.hover(canvas.getByRole("button"));
+    await expect(canvas.getByText("Shield Capacity")).toBeVisible();
+    await expect(canvas.getByText("Amount of time taken to fully recharge the shield")).toBeVisible();
   },
 };

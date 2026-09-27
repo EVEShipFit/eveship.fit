@@ -3,6 +3,7 @@ import { formatClock, formatDuration, useAttribute } from "@eveshipfit/react-hoo
 import { Stat } from "../../primitives/Stat/Stat";
 import { StatsSection } from "../../primitives/StatsSection/StatsSection";
 import { AttributeText } from "./AttributeText";
+import { AttributeTooltip } from "./AttributeTooltip";
 import styles from "./ShipStatistics.module.css";
 import { unit } from "./units";
 
@@ -36,7 +37,15 @@ export function CapacitorStats() {
         )
       }
     >
-      <Stat label="Capacity / Recharge Time">
+      <Stat
+        label="Capacity / Recharge Time"
+        tooltip={
+          <>
+            <AttributeTooltip attribute="capacitorCapacity" />
+            <AttributeTooltip attribute="rechargeRate" />
+          </>
+        }
+      >
         <AttributeText value={capacity} /> / <AttributeText value={rechargeTime} />
       </Stat>
       <Stat label="Peak Recharge Minus Usage">

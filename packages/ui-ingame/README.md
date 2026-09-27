@@ -30,7 +30,8 @@ at that scale.
 Give the `FittingWindow` its statistics to get the button that slides them out: `<FittingWindow statistics={<ShipStatistics />} />`.
 
 Icons are drawn from `@eveshipfit/images`: put the components inside an `ImagesProvider` of
-`@eveshipfit/react-hooks`.
+`@eveshipfit/react-hooks`. The tooltips of `ShipStatistics` come from `texts.dat` of `@eveshipfit/sde`: put it inside a
+`TextsProvider` too.
 
 ## License
 

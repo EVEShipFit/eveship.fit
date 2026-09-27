@@ -34,3 +34,30 @@ export const AtUiScale150: Story = {
     await expect(canvas.getByRole("region", { name: "Statistics" }).getBoundingClientRect().width).toBe(420);
   },
 };
+
+/** A stat shows EVE's tooltips of its attributes; one of two attributes shows both. */
+export const Tooltips: Story = {
+  play: async ({ canvas, userEvent }) => {
+    const titles: Record<string, string[]> = {
+      "Capacity / Recharge Time": ["Capacitor Capacity", "Capacitor Recharge Time"],
+      "Shield Hitpoints / Recharge Time": ["Shield Capacity", "Shield Recharge Time"],
+      "Armor Hitpoints": ["Armor Hitpoints"],
+      "Structure Hitpoints": ["Structure Hitpoints"],
+      "Sensor Strength": ["Ladar Sensor Strength"],
+      "Scan Resolution": ["Scan Resolution"],
+      "Signature Radius": ["Signature Radius"],
+      "Maximum Locked Targets": ["Maximum Locked Targets"],
+      Mass: ["Mass"],
+      "Inertia Modifier": ["Inertia Modifier"],
+      "Warp Speed": ["Ship Warp Speed"],
+      "Drone Bandwidth": ["Drone Bandwidth"],
+    };
+
+    for (const [stat, expected] of Object.entries(titles)) {
+      await userEvent.hover(canvas.getByRole("group", { name: stat }));
+      for (const title of expected) {
+        await expect(canvas.getByText(title)).toBeVisible();
+      }
+    }
+  },
+};
