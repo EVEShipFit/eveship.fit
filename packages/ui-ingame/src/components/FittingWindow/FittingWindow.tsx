@@ -7,7 +7,7 @@ import {
   useType,
   useViolations,
 } from "@eveshipfit/react-hooks";
-import type { CSSProperties } from "react";
+import { useId, useState, type CSSProperties, type ReactNode } from "react";
 
 import { HistoryBar } from "../../primitives/HistoryBar/HistoryBar";
 import { Icon, type IconName } from "../../primitives/Icon/Icon";
@@ -20,34 +20,60 @@ const oneDecimal = new Intl.NumberFormat("en-US", { minimumFractionDigits: 1, ma
 
 export interface FittingWindowProps {
   label?: string;
+  /** Slides out to the right with the Statistics button, like `ShipStatistics`; without it, there is no button. */
+  statistics?: ReactNode;
 }
 
 /** EVE's fitting window around the `FittingWheel`. */
-export function FittingWindow({ label = "Fitting Window" }: FittingWindowProps) {
+export function FittingWindow({ label = "Fitting Window", statistics }: FittingWindowProps) {
+  const [statisticsOpen, setStatisticsOpen] = useState(true);
+  const statisticsId = useId();
+  const open = statistics !== undefined && statisticsOpen;
+
   return (
-    <section className={styles.window} aria-label={label}>
-      <div className={styles.wheel}>
-        <FittingWheel />
+    <section className={styles.window} aria-label={label} data-statistics={open || undefined}>
+      <div className={styles.frame}>
+        <div className={styles.wheel}>
+          <FittingWheel />
+        </div>
+        <FitName />
+        <Violations />
+        <div className={styles.tools}>
+          <NotImplementedButton className={styles.tool} icon="hardware" label="Item Browser" />
+        </div>
+        {statistics !== undefined && (
+          <div className={styles.panels}>
+            <Tooltip label="Statistics">
+              <button
+                type="button"
+                className={styles.tool}
+                aria-label="Statistics"
+                aria-expanded={open}
+                aria-controls={statisticsId}
+                onClick={() => setStatisticsOpen(!open)}
+              >
+                <Icon name="statistics" />
+              </button>
+            </Tooltip>
+          </div>
+        )}
+        <div className={styles.bays}>
+          <Bay bay="cargo" icon="cargo" label="Cargo Hold" />
+          <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" />
+        </div>
+        <div className={styles.history}>
+          <SimulationHistory />
+        </div>
+        <div className={styles.resources}>
+          <Resource title="CPU" load="cpuLoad" output="cpuOutput" />
+          <Resource title="Power Grid" load="powerLoad" output="powerOutput" />
+        </div>
       </div>
-      <FitName />
-      <Violations />
-      <div className={styles.tools}>
-        <NotImplementedButton className={styles.tool} icon="hardware" label="Item Browser" />
-      </div>
-      <div className={styles.panels}>
-        <NotImplementedButton className={styles.tool} icon="statistics" label="Statistics" />
-      </div>
-      <div className={styles.bays}>
-        <Bay bay="cargo" icon="cargo" label="Cargo Hold" />
-        <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" />
-      </div>
-      <div className={styles.history}>
-        <SimulationHistory />
-      </div>
-      <div className={styles.resources}>
-        <Resource title="CPU" load="cpuLoad" output="cpuOutput" />
-        <Resource title="Power Grid" load="powerLoad" output="powerOutput" />
-      </div>
+      {statistics !== undefined && (
+        <div id={statisticsId} className={styles.statistics} inert={!open}>
+          <div className={styles.slide}>{statistics}</div>
+        </div>
+      )}
     </section>
   );
 }

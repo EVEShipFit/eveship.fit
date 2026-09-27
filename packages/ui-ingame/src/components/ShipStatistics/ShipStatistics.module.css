@@ -1,0 +1,53 @@
+/* Lengths are EVE's pixels at 100%, measured on the client. */
+.statistics {
+  --statistics-unit: calc(1px * var(--esf-scale, 1));
+
+  color: var(--esf-text);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--esf-font);
+  font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
+  height: 100%;
+  user-select: none;
+  width: calc(280 * var(--statistics-unit));
+}
+
+.sections {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.good {
+  color: var(--esf-good);
+}
+
+.bad {
+  color: var(--esf-bad);
+}
+
+.attribute[data-change="better"] {
+  color: var(--esf-good);
+}
+
+.attribute[data-change="worse"] {
+  color: var(--esf-bad);
+}
+
+.lines {
+  display: grid;
+}
+
+.price {
+  align-items: center;
+  align-self: end;
+  display: flex;
+  gap: calc(6 * var(--statistics-unit));
+  height: calc(20 * var(--statistics-unit));
+  margin: calc(4 * var(--statistics-unit)) calc(13 * var(--statistics-unit)) calc(9 * var(--statistics-unit)) 0;
+}
+
+.price > img {
+  height: calc(16 * var(--statistics-unit));
+  width: calc(16 * var(--statistics-unit));
+}

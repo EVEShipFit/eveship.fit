@@ -1,6 +1,6 @@
 import type { Attributes, ItemRef, Stats } from "@eveshipfit/fitting";
 
-import { formatAttribute, type NumberFormat } from "../format.js";
+import { formatAttribute, roundingOf, type NumberFormat } from "../format.js";
 import { useSnapshot, useStats } from "./fit.js";
 import { useSde } from "./sde.js";
 
@@ -9,8 +9,10 @@ export interface AttributeOptions extends NumberFormat {
   of?: "ship" | "character" | ItemRef;
   /** With `of` an item: read the attribute from its charge instead. */
   charge?: boolean;
-  /** How to show the value; `formatAttribute` when left out. */
-  format?: (value: number) => string;
+  /** The value when nothing sets the attribute, like a load nothing adds to. */
+  fallback?: number;
+  /** How to show the value; `formatAttribute` when left out. `format` has `rounding` set as `formatAttribute` would. */
+  format?: (value: number, format: NumberFormat) => string;
 }
 
 export interface AttributeValue {
@@ -26,11 +28,13 @@ export function useAttribute(name: string, options: AttributeOptions = {}): Attr
   const current = useSnapshot().stats;
 
   const attribute = sde.attribute(sde.attributeId(name) ?? 0);
-  const value = attribute && attributesOf(shown, options)?.get(attribute.id);
+  const value = attribute && (attributesOf(shown, options)?.get(attribute.id) ?? options.fallback);
   if (attribute === undefined || value === undefined) return { value: undefined, text: "–", change: undefined };
 
-  const text = options.format?.(value) ?? formatAttribute(sde, attribute.id, value, options);
-  const before = shown === current ? value : attributesOf(current, options)?.get(attribute.id);
+  const text = options.format
+    ? options.format(value, { ...options, rounding: options.rounding ?? roundingOf(sde, attribute.id) })
+    : formatAttribute(sde, attribute.id, value, options);
+  const before = shown === current ? value : (attributesOf(current, options)?.get(attribute.id) ?? options.fallback);
   if (before === undefined || before === value) return { value, text, change: undefined };
 
   return { value, text, change: value > before === attribute.highIsGood ? "better" : "worse" };

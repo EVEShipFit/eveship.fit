@@ -7,7 +7,19 @@
   font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
   height: calc(630 * var(--window-unit));
   position: relative;
+  transition: width 200ms ease;
   user-select: none;
+  width: calc(700 * var(--window-unit));
+}
+
+.window[data-statistics] {
+  width: calc(972 * var(--window-unit));
+}
+
+/* What is right-aligned stays with the wheel while the statistics slide out. */
+.frame {
+  inset: 0 auto 0 0;
+  position: absolute;
   width: calc(700 * var(--window-unit));
 }
 
@@ -144,12 +156,22 @@
   width: calc(42 * var(--window-unit));
 }
 
+.panels .tool[aria-expanded="true"] {
+  background: var(--esf-button-active);
+  box-shadow: inset var(--window-unit) 0 var(--esf-button-active-edge);
+}
+
 .tool > img {
   height: calc(36 * var(--window-unit));
   width: calc(36 * var(--window-unit));
 }
 
-.panels .tool > img {
+.panels .panels .tool[aria-expanded="true"] {
+  background: var(--esf-button-active);
+  box-shadow: inset var(--window-unit) 0 var(--esf-button-active-edge);
+}
+
+.tool > img {
   height: calc(20 * var(--window-unit));
   width: calc(20 * var(--window-unit));
 }
@@ -223,4 +245,35 @@
 .bay[data-over],
 .resource[data-over] > :last-child {
   color: var(--esf-violation-error);
+}
+
+.statistics {
+  bottom: 0;
+  /* Just right of the Statistics button. */
+  left: calc(692 * var(--window-unit));
+  overflow: hidden;
+  position: absolute;
+  top: calc(35 * var(--window-unit));
+  width: calc(280 * var(--window-unit));
+}
+
+.slide {
+  height: 100%;
+  transform: translateX(-100%);
+  transition:
+    transform 200ms ease,
+    visibility 200ms;
+  visibility: hidden;
+}
+
+.window[data-statistics] .slide {
+  transform: none;
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .window,
+  .slide {
+    transition: none;
+  }
 }

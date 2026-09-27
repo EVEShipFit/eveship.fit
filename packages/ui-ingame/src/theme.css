@@ -27,6 +27,12 @@
   --esf-history-entry: #636363;
   --esf-history-entry-alt: #888888;
   --esf-history-current: #bfbfbf;
+  --esf-button-active: #366370;
+  --esf-button-active-edge: #57a6be;
+  --esf-stats-header: #161718;
+  /* Stable capacitor, and what a preview makes better; bad is the opposite. */
+  --esf-good: #8cc068;
+  --esf-bad: #fb444a;
 
   /* EVE's UI scale; 1 is 100%. */
   --esf-scale: 1;

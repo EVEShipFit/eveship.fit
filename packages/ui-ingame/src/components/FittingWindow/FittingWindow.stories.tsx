@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { CSSProperties } from "react";
-import { expect, within } from "storybook/test";
+import { expect, waitFor, within } from "storybook/test";
 
+import { ShipStatistics } from "../ShipStatistics/ShipStatistics";
 import { FittingWindow } from "./FittingWindow";
 
 const types = {
@@ -69,6 +70,27 @@ export const EmptyRifter: Story = {
     await expect(canvas.getByText("Rifter")).toBeInTheDocument();
     await expect(canvas.queryByRole("img", { name: /^Fitting|^Missing/ })).toBeNull();
     await expect(canvas.getAllByRole("button", { name: /of 1$/ })).toHaveLength(1);
+    await expect(canvas.queryByRole("button", { name: "Statistics" })).toBeNull();
+  },
+};
+
+export const WithStatistics: Story = {
+  args: { statistics: <ShipStatistics /> },
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    const window = canvas.getByRole("region", { name: "Fitting Window" });
+    const button = canvas.getByRole("button", { name: "Statistics" });
+    await expect(button).toHaveAttribute("aria-expanded", "true");
+    await expect(canvas.getByRole("region", { name: "Statistics" })).toBeVisible();
+    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(972));
+
+    await userEvent.click(button);
+    await expect(button).toHaveAttribute("aria-expanded", "false");
+    await waitFor(() => expect(canvas.queryByRole("region", { name: "Statistics" })).toBeNull());
+    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(700));
+
+    await userEvent.click(button);
+    await waitFor(() => expect(canvas.getByRole("region", { name: "Statistics" })).toBeVisible());
   },
 };
 

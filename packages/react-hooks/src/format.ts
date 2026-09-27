@@ -1,19 +1,67 @@
 import type { Sde } from "@eveshipfit/sde-loader";
 
+export type Rounding = "down" | "up" | "nearest";
+
 export interface NumberFormat {
-  /** The most decimals to show; trailing zeros are dropped. */
+  /** The most decimals to show. */
   decimals?: number;
+  /** Show every one of `decimals`, trailing zeros too. */
+  fixed?: boolean;
+  /** Group thousands with commas; on when left out. */
+  grouping?: boolean;
+  /** Which way to round to `decimals`; to the nearest when left out. */
+  rounding?: Rounding;
 }
 
-const formatters = new Map<number, Intl.NumberFormat>();
+const formatters = new Map<string, Intl.NumberFormat>();
 
-export function formatNumber(value: number, { decimals = 2 }: NumberFormat = {}): string {
-  let formatter = formatters.get(decimals);
+function formatterFor(decimals: number, fixed: boolean, grouping: boolean): Intl.NumberFormat {
+  const key = `${decimals},${fixed},${grouping}`;
+  let formatter = formatters.get(key);
   if (formatter === undefined) {
-    formatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: decimals });
-    formatters.set(decimals, formatter);
+    formatter = new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: fixed ? decimals : 0,
+      maximumFractionDigits: decimals,
+      useGrouping: grouping,
+      signDisplay: "negative",
+    });
+    formatters.set(key, formatter);
   }
-  return formatter.format(value);
+  return formatter;
+}
+
+/** Every number shown is rounded here. */
+function round(value: number, decimals: number, rounding: Rounding): number {
+  const scale = 10 ** decimals;
+  // Drops what floating point adds, so 37.00000000000001 does not round up to 38.
+  const scaled = Number((value * scale).toPrecision(12));
+  const whole = rounding === "down" ? Math.floor(scaled) : rounding === "up" ? Math.ceil(scaled) : Math.round(scaled);
+  return whole / scale;
+}
+
+export function formatNumber(
+  value: number,
+  { decimals = 2, fixed = false, grouping = true, rounding = "nearest" }: NumberFormat = {},
+): string {
+  return formatterFor(decimals, fixed, grouping).format(round(value, decimals, rounding));
+}
+
+/** Like "1h 2m 3s"; a part that is zero is left out. */
+export function formatDuration(seconds: number, rounding: Rounding = "nearest"): string {
+  const { hours, minutes, secs } = split(seconds, rounding);
+  const parts = [hours && `${hours}h`, minutes && `${minutes}m`, secs && `${secs}s`].filter(Boolean);
+  return parts.length === 0 ? "0s" : parts.join(" ");
+}
+
+/** Like "01:02:03". */
+export function formatClock(seconds: number, rounding: Rounding = "nearest"): string {
+  const { hours, minutes, secs } = split(seconds, rounding);
+  return [hours, minutes, secs].map((part) => String(part).padStart(2, "0")).join(":");
+}
+
+function split(seconds: number, rounding: Rounding) {
+  const total = round(seconds, 0, rounding);
+  return { hours: Math.floor(total / 3600), minutes: Math.floor(total / 60) % 60, secs: total % 60 };
 }
 
 /** Dogma unit IDs whose values are shown differently from how they are stored. */
@@ -30,13 +78,25 @@ const Unit = {
   Boolean: 137,
 } as const;
 
+const invertedUnits = new Set<number>([Unit.InverseAbsolutePercent, Unit.InversedModifierPercent]);
+
+/** Towards worse, so a fit never looks better than it is; `formatAttribute` rounds this way. */
+export function roundingOf(sde: Sde, attributeId: number): Rounding {
+  const attribute = sde.attribute(attributeId);
+  if (attribute === undefined) return "nearest";
+  // These show 1 - value, so what is better stored is worse shown.
+  const inverted = invertedUnits.has(attribute.unitId);
+  return attribute.highIsGood !== inverted ? "down" : "up";
+}
+
 const sizeClasses: Record<number, string> = { 1: "Small", 2: "Medium", 3: "Large", 4: "X-Large" };
 
 /** An attribute's value the way EVE shows it: converted, rounded, with its unit. */
 export function formatAttribute(sde: Sde, attributeId: number, value: number, format: NumberFormat = {}): string {
   const unit = sde.unit(sde.attribute(attributeId)?.unitId ?? 0);
+  const rounded = { ...format, rounding: format.rounding ?? roundingOf(sde, attributeId) };
   const number = (shown: number, suffix = unit?.displayName) =>
-    suffix ? `${formatNumber(shown, format)} ${suffix}` : formatNumber(shown, format);
+    suffix ? `${formatNumber(shown, rounded)} ${suffix}` : formatNumber(shown, rounded);
 
   switch (unit?.id) {
     case Unit.Meter:
