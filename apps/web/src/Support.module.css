@@ -37,7 +37,7 @@
   position-anchor: --support;
   position-area: bottom span-left;
   position-try-fallbacks: flip-inline;
-  width: 460px;
+  width: max-content;
 }
 
 .card p {
@@ -58,16 +58,17 @@
 }
 
 .options {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  margin: 14px 0;
+  margin-top: 14px;
 }
 
 .option {
   background: var(--esf-surface-raised);
   border-radius: 6px;
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: 6px;
   padding: 12px;
@@ -101,9 +102,4 @@
 .action:focus-visible {
   background: var(--esf-button-active);
   border-color: var(--esf-button-active-edge);
-}
-
-.thanks {
-  color: var(--esf-text-muted);
-  text-align: right;
 }

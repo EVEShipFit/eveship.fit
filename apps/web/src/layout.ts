@@ -7,7 +7,7 @@ const WHEEL_WIDTH = 700;
 const PANEL_PADDING = 12;
 
 const MIN_SIDE_BY_SIDE_SCALE = 0.6;
-const MAX_SCALE = 1.5;
+const MAX_SCALE = 1.25;
 
 export interface Layout {
   /** The statistics below the window instead of slid out next to it. */

@@ -1,4 +1,4 @@
-import { Suspense, useState } from "react";
+import { Suspense, use, useState } from "react";
 
 import styles from "./App.module.css";
 import type { Data } from "./data";
@@ -39,6 +39,9 @@ export function App({ data }: { data: Promise<Data | null> }) {
           </Suspense>
         </div>
         <footer ref={setFooter} className={styles.footer}>
+          <Suspense>
+            <DataVersion data={data} />
+          </Suspense>
           <p>
             © 2014 CCP hf. All rights reserved. &quot;EVE&quot;, &quot;EVE Online&quot;, &quot;CCP&quot;, and all
             related logos and images are trademarks or registered trademarks of CCP hf.
@@ -50,4 +53,11 @@ export function App({ data }: { data: Promise<Data | null> }) {
       </main>
     </>
   );
+}
+
+function DataVersion({ data }: { data: Promise<Data | null> }) {
+  const loaded = use(data);
+  if (loaded === null) return null;
+
+  return <p>EVE data: SDE build {loaded.sdeBuild}</p>;
 }

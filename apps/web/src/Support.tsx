@@ -51,7 +51,6 @@ export function Support() {
             </button>
           </section>
         </div>
-        <p className={styles.thanks}>Thank you! o7</p>
       </dialog>
     </>
   );

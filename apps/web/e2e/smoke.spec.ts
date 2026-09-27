@@ -14,6 +14,7 @@ test("the fitting window shows its statistics", async ({ page }) => {
   await expect(page.getByRole("region", { name: "Fitting Window" })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("region", { name: "Statistics" })).toBeVisible();
   await expect(page.getByText("Rifter", { exact: true })).toBeVisible();
+  await expect(page.getByText(/^EVE data: SDE build \d+$/)).toBeVisible();
 });
 
 test("the statistics go below the window on a phone", async ({ page }) => {

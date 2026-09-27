@@ -8,6 +8,7 @@ import { loadSde, loadTexts, type Texts } from "@eveshipfit/sde-loader";
 
 export interface Data {
   engine: Engine;
+  sdeBuild: number;
   images: Images;
   texts: Texts;
 }
@@ -15,13 +16,14 @@ export interface Data {
 /** Everything the fitting window needs; null when any of it failed to load. */
 export async function loadData(): Promise<Data | null> {
   try {
+    const sde = loadSde({ url: sdeUrl });
     const [engine, images, texts] = await Promise.all([
-      loadSde({ url: sdeUrl }).then((sde) => createEngine(sde, { wasm: wasmUrl })),
+      sde.then((loaded) => createEngine(loaded, { wasm: wasmUrl })),
       // vite.config.ts serves the images at /images/.
       loadImages({ url: imagesUrl }, { baseUrl: "/images/" }),
       loadTexts({ url: textsUrl }),
     ]);
-    return { engine, images, texts };
+    return { engine, sdeBuild: (await sde).buildNumber, images, texts };
   } catch (error) {
     console.error(error);
     return null;
