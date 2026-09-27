@@ -8,7 +8,7 @@ export interface WheelProps {
   children?: ReactNode;
 }
 
-/** Square, and as wide as `--esf-wheel-size`. */
+/** Square, and as big as EVE's at `--esf-wheel-scale`, or as wide as `--esf-wheel-size`. */
 export function Wheel({ label, children }: WheelProps) {
   const images = useImages();
   const texture = (name: string) => ({ "--texture": `url(${images.uiTexture(name)})` }) as CSSProperties;
