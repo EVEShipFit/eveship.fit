@@ -250,6 +250,14 @@
   font-weight: 600;
 }
 
+.resource[data-change="better"] > :last-child {
+  color: var(--esf-good);
+}
+
+.resource[data-change="worse"] > :last-child {
+  color: var(--esf-bad);
+}
+
 .bay[data-over],
 .resource[data-over] > :last-child {
   color: var(--esf-violation-error);

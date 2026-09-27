@@ -124,6 +124,26 @@ export const LoadFit: Story = {
   },
 };
 
+/** A preview colours what it leaves of CPU and power grid: green for more, red for less. */
+export const PreviewResources: Story = {
+  args: { browser: <ItemBrowser /> },
+  play: async ({ canvas, userEvent }) => {
+    const cpu = canvas.getByText("CPU").parentElement!;
+    const powerGrid = canvas.getByText("Power Grid").parentElement!;
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "co-processor ii");
+    const row = canvas.getByRole("button", { name: "Co-Processor II" });
+
+    await userEvent.hover(row);
+    await waitFor(() => expect(cpu).toHaveAttribute("data-change", "better"));
+    await expect(powerGrid).toHaveAttribute("data-change", "worse");
+
+    await userEvent.unhover(row);
+    await waitFor(() => expect(cpu).not.toHaveAttribute("data-change"));
+    await expect(powerGrid).not.toHaveAttribute("data-change");
+  },
+};
+
 /** Hovering a module shows it in the wheel; a double click fits it. */
 export const FitModule: Story = {
   args: { browser: <ItemBrowser /> },

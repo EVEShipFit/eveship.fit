@@ -1,9 +1,11 @@
+import type { Attributes } from "@eveshipfit/fitting";
 import {
-  useAttribute,
   useBayUsage,
   useFit,
   useFitHistory,
   useImages,
+  useSnapshot,
+  useStats,
   useType,
   useViolations,
 } from "@eveshipfit/react-hooks";
@@ -189,13 +191,20 @@ function Bay({ bay, icon, label }: { bay: "cargo" | "droneBay"; icon: IconName; 
 }
 
 function Resource({ title, load, output }: { title: string; load: string; output: string }) {
+  const shown = useStats().ship;
+  const current = useSnapshot().stats.ship;
   // A load nothing adds to is missing.
-  const used = useAttribute(load).value ?? 0;
-  const total = useAttribute(output).value ?? 0;
-  const free = total - used;
+  const freeOf = (ship: Attributes) => (ship.get(output) ?? 0) - (ship.get(load) ?? 0);
+  const total = shown.get(output) ?? 0;
+  const free = freeOf(shown);
+  const before = freeOf(current);
 
   return (
-    <div className={styles.resource} data-over={free < 0 || undefined}>
+    <div
+      className={styles.resource}
+      data-over={free < 0 || undefined}
+      data-change={free === before ? undefined : free > before ? "better" : "worse"}
+    >
       <span className={styles.title}>{title}</span>
       <span>
         {oneDecimal.format(free)}/{oneDecimal.format(total)}
