@@ -13,4 +13,5 @@ export {
 } from "./records.js";
 export { loadSde, Sde } from "./sde.js";
 export type { Source } from "./source.js";
+export { loadTexts, Texts, type SdeTooltip } from "./texts.js";
 export { shipRace, type MarketGroupNode, type ShipGroupNode, type ShipRace, type ShipRaceNode } from "./trees.js";

@@ -4,6 +4,7 @@ import { Icon } from "../../primitives/Icon/Icon";
 import { Stat } from "../../primitives/Stat/Stat";
 import { StatsSection } from "../../primitives/StatsSection/StatsSection";
 import { AttributeText } from "./AttributeText";
+import { AttributeTooltip } from "./AttributeTooltip";
 import { RepairRate } from "./RepairRate";
 import { damageTypes, Resistances } from "./Resistances";
 import styles from "./ShipStatistics.module.css";
@@ -25,18 +26,27 @@ export function DefenseStats() {
         {damageTypes.map((damage) => (
           <Icon key={damage} name={`stat-${damage}-resistance`} />
         ))}
-        <Stat icon="stat-shield-hp" label="Shield Hitpoints / Recharge Time">
+        <Stat
+          icon="stat-shield-hp"
+          label="Shield Hitpoints / Recharge Time"
+          tooltip={
+            <>
+              <AttributeTooltip attribute="shieldCapacity" />
+              <AttributeTooltip attribute="shieldRechargeRate" />
+            </>
+          }
+        >
           <span className={styles.lines}>
             <AttributeText value={shield} />
             <AttributeText value={shieldRecharge} />
           </span>
         </Stat>
         <Resistances layer="shield" />
-        <Stat icon="stat-armor-hp" label="Armor Hitpoints">
+        <Stat icon="stat-armor-hp" label="Armor Hitpoints" tooltip={<AttributeTooltip attribute="armorHP" />}>
           <AttributeText value={armor} />
         </Stat>
         <Resistances layer="armor" />
-        <Stat icon="stat-structure-hp" label="Structure Hitpoints">
+        <Stat icon="stat-structure-hp" label="Structure Hitpoints" tooltip={<AttributeTooltip attribute="hp" />}>
           <AttributeText value={structure} />
         </Stat>
         <Resistances layer="structure" />

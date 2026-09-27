@@ -10,7 +10,7 @@ Part of [EVEShip.fit](https://eveship.fit).
 npm install @eveshipfit/sde-loader @eveshipfit/sde
 ```
 
-`@eveshipfit/sde` holds the data files. You can also serve `sde.dat` and `names.dat` from elsewhere; they have to come
+`@eveshipfit/sde` holds the data files. You can also serve `sde.dat`, `names.dat` and `texts.dat` from elsewhere; they have to come
 from a matching major version.
 
 ## Usage
@@ -33,7 +33,7 @@ sde.marketTree(); // the published market, root groups first
 sde.shipTree(); // published ships, by group and race
 ```
 
-`loadSde` and `loadNames` take `{ url }` to fetch the file, or `{ bytes }` if you already have it.
+`loadSde`, `loadNames` and `loadTexts` take `{ url }` to fetch the file, or `{ bytes }` if you already have it.
 
 To find a type by its name in any language EVE supports, for example when importing a fit:
 
@@ -43,6 +43,16 @@ import { loadNames } from "@eveshipfit/sde-loader";
 
 const names = await loadNames({ url: namesUrl });
 names.typeId("リフター"); // 587
+```
+
+For the text EVE shows when hovering an attribute:
+
+```ts
+import textsUrl from "@eveshipfit/sde/dist/texts.dat?url";
+import { loadTexts } from "@eveshipfit/sde-loader";
+
+const texts = await loadTexts({ url: textsUrl });
+texts.attributeTooltip(sde.attributeId("scanResolution")!); // { title: "Scan Resolution", description: "Larger values …" }
 ```
 
 ## License

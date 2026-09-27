@@ -40,3 +40,18 @@ export function Tooltip({ label, children }: TooltipProps) {
     </span>
   );
 }
+
+export interface TooltipTextProps {
+  title: ReactNode;
+  description?: ReactNode;
+}
+
+/** A tooltip's `label` with a title; give several to stack them. */
+export function TooltipText({ title, description }: TooltipTextProps) {
+  return (
+    <span className={styles.text}>
+      <span className={styles.title}>{title}</span>
+      {description}
+    </span>
+  );
+}

@@ -61,6 +61,17 @@ const images = await loadImages({ url: "/images.dat" }, { baseUrl: "/images/" })
 <ImagesProvider images={images}>
 ```
 
+### Texts
+
+For the text EVE shows when hovering an attribute, wrap the app in a `TextsProvider` with the `Texts` of
+`@eveshipfit/sde-loader`; `useAttributeTooltip` reads them:
+
+```tsx
+const texts = await loadTexts({ url: "/texts.dat" });
+
+<TextsProvider texts={texts}>
+```
+
 ### Saved fits
 
 `useLocalFits` lists, saves and removes fits in `localStorage`; pass a `LocalFits` to the provider to store them

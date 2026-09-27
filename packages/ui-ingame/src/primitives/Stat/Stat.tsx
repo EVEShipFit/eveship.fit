@@ -8,12 +8,14 @@ export interface StatProps {
   /** Without one, the value still lines up with those that have one. */
   icon?: IconName;
   label: string;
+  /** `label` when left out. */
+  tooltip?: ReactNode;
   children: ReactNode;
 }
 
-export function Stat({ icon, label, children }: StatProps) {
+export function Stat({ icon, label, tooltip = label, children }: StatProps) {
   return (
-    <Tooltip label={label}>
+    <Tooltip label={tooltip}>
       <div
         className={styles.stat}
         // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- A <fieldset> is for form controls.

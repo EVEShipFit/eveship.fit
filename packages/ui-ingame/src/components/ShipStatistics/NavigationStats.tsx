@@ -3,6 +3,7 @@ import { useAttribute } from "@eveshipfit/react-hooks";
 import { Stat } from "../../primitives/Stat/Stat";
 import { StatsSection } from "../../primitives/StatsSection/StatsSection";
 import { AttributeText } from "./AttributeText";
+import { AttributeTooltip } from "./AttributeTooltip";
 import { unit } from "./units";
 
 export function NavigationStats() {
@@ -14,13 +15,13 @@ export function NavigationStats() {
 
   return (
     <StatsSection title="Navigation" summary={<AttributeText value={velocity} />} columns={2}>
-      <Stat icon="stat-mass" label="Mass">
+      <Stat icon="stat-mass" label="Mass" tooltip={<AttributeTooltip attribute="mass" />}>
         <AttributeText value={mass} />
       </Stat>
-      <Stat icon="stat-inertia" label="Inertia Modifier">
+      <Stat icon="stat-inertia" label="Inertia Modifier" tooltip={<AttributeTooltip attribute="agility" />}>
         <AttributeText value={inertia} />
       </Stat>
-      <Stat icon="stat-warp-speed" label="Warp Speed">
+      <Stat icon="stat-warp-speed" label="Warp Speed" tooltip={<AttributeTooltip attribute="baseWarpSpeed" />}>
         <AttributeText value={warpSpeed} />
       </Stat>
       <Stat icon="stat-align-time" label="Align Time">

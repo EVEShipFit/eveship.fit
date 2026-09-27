@@ -32,3 +32,16 @@ export const CaldariSensors: Story = {
     );
   },
 };
+
+/** The tooltip is EVE's, of the sensor shown. */
+export const SensorTooltip: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.hover(canvas.getByRole("group", { name: "Sensor Strength" }));
+    await expect(canvas.getByText("Ladar Sensor Strength")).toBeVisible();
+    await expect(
+      canvas.getByText(
+        "Larger values reduce the chance of being jammed by ECM and assist in avoiding detection by probes",
+      ),
+    ).toBeVisible();
+  },
+};

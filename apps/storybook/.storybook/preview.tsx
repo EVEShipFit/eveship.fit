@@ -1,6 +1,7 @@
 import type { Character, Engine, Fit } from "@eveshipfit/fitting";
 import type { Images } from "@eveshipfit/images";
-import { EveShipFitProvider, ImagesProvider } from "@eveshipfit/react-hooks";
+import { EveShipFitProvider, ImagesProvider, TextsProvider } from "@eveshipfit/react-hooks";
+import type { Texts } from "@eveshipfit/sde-loader";
 import type { Decorator, Preview } from "@storybook/react-vite";
 import { useState, type ReactNode } from "react";
 
@@ -9,6 +10,7 @@ import "./preview.css";
 
 import { loadEngine } from "./engine";
 import { loadAllImages } from "./images";
+import { loadAllTexts } from "./texts";
 
 /** Every story gets a fresh fit: `parameters.fit`, or an empty Rifter, flown by `parameters.character`. */
 const withFit: Decorator = (Story, { loaded, parameters }) => (
@@ -21,6 +23,12 @@ const withImages: Decorator = (Story, { loaded }) => (
   <ImagesProvider images={loaded.images as Images}>
     <Story />
   </ImagesProvider>
+);
+
+const withTexts: Decorator = (Story, { loaded }) => (
+  <TextsProvider texts={loaded.texts as Texts}>
+    <Story />
+  </TextsProvider>
 );
 
 interface WithFitProps {
@@ -42,11 +50,11 @@ function WithFit({ engine, fit, character, children }: WithFitProps) {
 const preview: Preview = {
   loaders: [
     async () => {
-      const [engine, images] = await Promise.all([loadEngine(), loadAllImages()]);
-      return { engine, images };
+      const [engine, images, texts] = await Promise.all([loadEngine(), loadAllImages(), loadAllTexts()]);
+      return { engine, images, texts };
     },
   ],
-  decorators: [withFit, withImages],
+  decorators: [withFit, withImages, withTexts],
   parameters: {
     backgrounds: { disable: true },
   },

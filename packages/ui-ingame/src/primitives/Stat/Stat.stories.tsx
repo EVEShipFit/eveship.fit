@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
+import { TooltipText } from "../Tooltip/Tooltip";
 import { Stat } from "./Stat";
 
 const meta = {
@@ -19,4 +20,14 @@ export const WithIcon: Story = {
 
 export const WithoutIcon: Story = {
   args: { icon: undefined, label: "Active Drones", children: "0 Active" },
+};
+
+export const WithTooltip: Story = {
+  args: {
+    tooltip: <TooltipText title="Scan Resolution" description="Larger values increase target locking speed" />,
+  },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.hover(canvas.getByRole("group", { name: "Scan Resolution" }));
+    await expect(canvas.getByText("Larger values increase target locking speed")).toBeVisible();
+  },
 };
