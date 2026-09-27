@@ -1,11 +1,9 @@
-import type { Attributes } from "@eveshipfit/fitting";
 import {
+  useAttribute,
   useBayUsage,
   useFit,
   useFitHistory,
   useImages,
-  useSnapshot,
-  useStats,
   useType,
   useViolations,
 } from "@eveshipfit/react-hooks";
@@ -95,8 +93,8 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
           <SimulationHistory />
         </div>
         <div className={styles.resources}>
-          <Resource title="CPU" load="cpuLoad" output="cpuOutput" />
-          <Resource title="Power Grid" load="powerLoad" output="powerOutput" />
+          <Resource title="CPU" free="cpuFree" output="cpuOutput" />
+          <Resource title="Power Grid" free="powerFree" output="powerOutput" />
         </div>
       </div>
       {statistics !== undefined && (
@@ -190,24 +188,16 @@ function Bay({ bay, icon, label }: { bay: "cargo" | "droneBay"; icon: IconName; 
   );
 }
 
-function Resource({ title, load, output }: { title: string; load: string; output: string }) {
-  const shown = useStats().ship;
-  const current = useSnapshot().stats.ship;
-  // A load nothing adds to is missing.
-  const freeOf = (ship: Attributes) => (ship.get(output) ?? 0) - (ship.get(load) ?? 0);
-  const total = shown.get(output) ?? 0;
-  const free = freeOf(shown);
-  const before = freeOf(current);
+function Resource({ title, free, output }: { title: string; free: string; output: string }) {
+  const left = useAttribute(free);
+  const total = useAttribute(output).value ?? 0;
+  const value = left.value ?? 0;
 
   return (
-    <div
-      className={styles.resource}
-      data-over={free < 0 || undefined}
-      data-change={free === before ? undefined : free > before ? "better" : "worse"}
-    >
+    <div className={styles.resource} data-over={value < 0 || undefined} data-change={left.change}>
       <span className={styles.title}>{title}</span>
       <span>
-        {oneDecimal.format(free)}/{oneDecimal.format(total)}
+        {oneDecimal.format(value)}/{oneDecimal.format(total)}
       </span>
     </div>
   );
