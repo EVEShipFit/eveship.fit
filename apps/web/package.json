@@ -1,5 +1,6 @@
 {
   "name": "@eveshipfit/web",
+  "version": "0.0.0-git",
   "private": true,
   "type": "module",
   "scripts": {

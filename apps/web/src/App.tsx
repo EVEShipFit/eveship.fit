@@ -39,9 +39,12 @@ export function App({ data }: { data: Promise<Data | null> }) {
           </Suspense>
         </div>
         <footer ref={setFooter} className={styles.footer}>
-          <Suspense>
-            <DataVersion data={data} />
-          </Suspense>
+          <p>
+            EVEShip.fit {import.meta.env.EVESHIPFIT_VERSION}
+            <Suspense>
+              <DataVersion data={data} />
+            </Suspense>
+          </p>
           <p>
             © 2014 CCP hf. All rights reserved. &quot;EVE&quot;, &quot;EVE Online&quot;, &quot;CCP&quot;, and all
             related logos and images are trademarks or registered trademarks of CCP hf.
@@ -59,5 +62,5 @@ function DataVersion({ data }: { data: Promise<Data | null> }) {
   const loaded = use(data);
   if (loaded === null) return null;
 
-  return <p>EVE data: SDE build {loaded.sdeBuild}</p>;
+  return <> · EVE data: SDE build {loaded.sdeBuild}</>;
 }
