@@ -274,6 +274,18 @@ describe("history", () => {
     expect(fit.getSnapshot().fit.items).toEqual([]);
   });
 
+  test("removing several items is one step", () => {
+    const fit = rifter();
+    fit.fit(id("Nanite Repair Paste"));
+    fit.fit(id("200mm AutoCannon II"));
+    fit.fit(id("Damage Control II"));
+    fit.remove(0, 2);
+    expect(fit.getSnapshot().fit.items).toMatchObject([{ type_id: id("200mm AutoCannon II") }]);
+
+    fit.undo();
+    expect(fit.getSnapshot().fit.items).toHaveLength(3);
+  });
+
   test("changing the character is not an edit", () => {
     const fit = rifter();
     fit.setCharacter({ skills: {} });

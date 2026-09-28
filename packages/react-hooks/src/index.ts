@@ -37,7 +37,15 @@ export {
   useType,
 } from "./hooks/sde.js";
 export { useAttributeTooltip, useTexts } from "./hooks/texts.js";
-export { useBayUsage, useHardpoints, useRackUsage, useSlots, type SlotContent } from "./hooks/slots.js";
+export {
+  useBayContents,
+  useBayUsage,
+  useHardpoints,
+  useRackUsage,
+  useSlots,
+  type BayContent,
+  type SlotContent,
+} from "./hooks/slots.js";
 export { ImagesProvider, type ImagesProviderProps } from "./images.js";
 export { TextsProvider, type TextsProviderProps } from "./texts.js";
 export { LocalFits, type FitStorage } from "./local-fits.js";

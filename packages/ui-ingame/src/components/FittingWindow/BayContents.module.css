@@ -1,0 +1,99 @@
+.panel {
+  background: var(--esf-menu-bg);
+  border: var(--window-unit) solid var(--esf-input-border);
+  box-sizing: border-box;
+  color: var(--esf-text);
+  gap: calc(10 * var(--window-unit));
+  inset: auto;
+  justify-items: center;
+  margin: calc(4 * var(--window-unit)) 0;
+  padding: calc(12 * var(--window-unit)) calc(10 * var(--window-unit));
+  position-anchor: var(--bay-anchor);
+  position-area: bottom span-right;
+  position-try-fallbacks: flip-block;
+  width: calc(370 * var(--window-unit));
+}
+
+.panel:popover-open {
+  display: grid;
+}
+
+.list {
+  display: grid;
+  list-style: none;
+  margin: 0;
+  max-height: calc(8 * 32 * var(--window-unit));
+  overflow-y: auto;
+  padding: 0;
+  width: 100%;
+}
+
+.row {
+  align-items: center;
+  column-gap: calc(8 * var(--window-unit));
+  display: grid;
+  grid-template-columns: calc(62 * var(--window-unit)) auto 1fr auto;
+  height: calc(32 * var(--window-unit));
+}
+
+.quantity {
+  text-align: right;
+}
+
+.icon {
+  height: calc(24 * var(--window-unit));
+  width: calc(24 * var(--window-unit));
+}
+
+.icon > span {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.name {
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove {
+  background: none;
+  border: none;
+  cursor: default;
+  opacity: 0.6;
+  padding: 0;
+}
+
+.remove:hover,
+.remove:focus-visible {
+  opacity: 1;
+}
+
+.remove > img {
+  display: block;
+  height: calc(16 * var(--window-unit));
+  width: calc(16 * var(--window-unit));
+}
+
+.removeAll {
+  background: var(--esf-button);
+  border: var(--window-unit) solid var(--esf-button-edge);
+  color: inherit;
+  cursor: default;
+  font: inherit;
+  height: calc(31 * var(--window-unit));
+  padding: 0 calc(14 * var(--window-unit));
+}
+
+.removeAll:hover,
+.removeAll:focus-visible {
+  background: var(--esf-button-active);
+  border-color: var(--esf-button-active-edge);
+}
+
+.remove:focus-visible,
+.removeAll:focus-visible {
+  outline: var(--window-unit) solid var(--esf-text);
+}

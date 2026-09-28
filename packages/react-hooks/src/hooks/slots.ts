@@ -1,6 +1,9 @@
-import type { Fit, FitItem, ItemRef, ItemStats, Rack, Stats, Usage } from "@eveshipfit/fitting";
+import type { Fit, FitItem, ItemRef, ItemStats, Rack, SlotType, Stats, Usage } from "@eveshipfit/fitting";
+import type { SdeType } from "@eveshipfit/sde-loader";
+import { useMemo } from "react";
 
-import { useShownSnapshot, useSnapshot, useStats } from "./fit.js";
+import { useFit, useShownSnapshot, useSnapshot, useStats } from "./fit.js";
+import { useSde } from "./sde.js";
 
 export interface SlotContent {
   readonly index: number;
@@ -53,6 +56,33 @@ export function useRackUsage(rack: Rack): Usage {
 /** In m³; follows the preview, like `useStats`. */
 export function useBayUsage(bay: "cargo" | "droneBay"): Usage {
   return useStats()[bay];
+}
+
+export interface BayContent {
+  readonly type: SdeType;
+  readonly quantity: number;
+  readonly refs: readonly ItemRef[];
+}
+
+const baySlots: Record<"cargo" | "droneBay", SlotType> = { cargo: "cargo", droneBay: "drone_bay" };
+
+/** What is in a bay, one entry per type, by name; does not follow the preview. */
+export function useBayContents(bay: "cargo" | "droneBay"): readonly BayContent[] {
+  const sde = useSde();
+  const fit = useFit();
+
+  return useMemo(() => {
+    const byType = new Map<number, { type: SdeType; quantity: number; refs: ItemRef[] }>();
+    fit.items.forEach((item, ref) => {
+      const type = sde.type(item.type_id);
+      if (item.slot.type !== baySlots[bay] || type === undefined) return;
+      const content = byType.get(type.id) ?? { type, quantity: 0, refs: [] };
+      content.quantity += item.quantity ?? 1;
+      content.refs.push(ref);
+      byType.set(type.id, content);
+    });
+    return [...byType.values()].toSorted((a, b) => a.type.name.localeCompare(b.type.name));
+  }, [sde, fit, bay]);
 }
 
 function refsByIndex(fit: Fit, rack: Rack): Map<number, ItemRef> {

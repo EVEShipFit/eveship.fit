@@ -83,8 +83,8 @@ export class FitStore {
     this.#commit(edits.move(this.#snapshot.fit, ref, slot));
   }
 
-  remove(ref: ItemRef) {
-    this.#commit(edits.remove(this.#snapshot.fit, ref));
+  remove(...refs: ItemRef[]) {
+    this.#commit(edits.remove(this.#snapshot.fit, ...refs));
   }
 
   setState(ref: ItemRef, state: State) {

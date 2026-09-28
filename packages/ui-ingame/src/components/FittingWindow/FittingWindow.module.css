@@ -200,6 +200,23 @@
   line-height: calc(13 * var(--window-unit));
 }
 
+button.bay {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: default;
+  font: inherit;
+  padding: 0;
+}
+
+.bayAnchor {
+  anchor-name: var(--bay-anchor);
+}
+
+.bay:focus-visible {
+  outline: var(--window-unit) solid var(--esf-text);
+}
+
 .bay > img {
   grid-column: 1;
   grid-row: 1 / 3;

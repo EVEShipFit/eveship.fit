@@ -94,9 +94,9 @@ export function move(fit: Fit, ref: ItemRef, slot: Slot): Fit {
   return { ...fit, items };
 }
 
-export function remove(fit: Fit, ref: ItemRef): Fit {
-  if (fit.items[ref] === undefined) return fit;
-  return { ...fit, items: fit.items.toSpliced(ref, 1) };
+export function remove(fit: Fit, ...refs: ItemRef[]): Fit {
+  const items = fit.items.filter((_, ref) => !refs.includes(ref));
+  return items.length === fit.items.length ? fit : { ...fit, items };
 }
 
 export function setState(fit: Fit, ref: ItemRef, state: State): Fit {

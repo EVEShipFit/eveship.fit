@@ -292,8 +292,48 @@ export const FittedRifter: Story = {
     await expect(canvas.getByText("Storybook Rifter")).toBeInTheDocument();
     await expect(canvas.getByText("CPU").parentElement).toHaveTextContent(/^CPU\d+\.\d\/\d+\.\d$/);
     await expect(canvas.getByText("Power Grid").parentElement).toHaveTextContent(/^Power Grid\d+\.\d\/\d+\.\d$/);
-    await expect(canvas.getByRole("group", { name: "Cargo Hold" })).toHaveTextContent("0.3/140.0m3");
+    await expect(canvas.getByRole("button", { name: "Cargo Hold" })).toHaveTextContent("0.3/140.0m3");
     await expect(canvas.getByRole("group", { name: "Drone Bay" })).toHaveTextContent("0.0/0.0m3");
+  },
+};
+
+/** Clicking the cargo hold lists what is in it; an item or all of it can be removed, each as one step. */
+export const CargoHold: Story = {
+  parameters: {
+    fit: {
+      ...rifter,
+      items: [
+        ...rifter.items,
+        { type_id: types["EMP S"], slot: { type: "cargo" }, quantity: 200, state: "offline" },
+        { type_id: types["Hobgoblin II"], slot: { type: "cargo" }, quantity: 2, state: "offline" },
+      ],
+    },
+  },
+  play: async ({ canvas, userEvent }) => {
+    const hold = canvas.getByRole("button", { name: "Cargo Hold" });
+    const history = within(canvas.getByRole("group", { name: "Simulation History" }));
+    await userEvent.click(hold);
+    const list = await canvas.findByRole("list", { name: "Cargo Hold" });
+    await expect(list).toBeVisible();
+    await expect(
+      within(list)
+        .getAllByRole("listitem")
+        .map((item) => item.textContent),
+    ).toEqual(["200 xEMP S", "2 xHobgoblin II", "30 xNanite Repair Paste"]);
+
+    await userEvent.click(canvas.getByRole("button", { name: "Remove Hobgoblin II" }));
+    await expect(within(list).getAllByRole("listitem")).toHaveLength(2);
+    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("2 of 2");
+
+    await userEvent.click(canvas.getByRole("button", { name: "Remove All" }));
+    await expect(canvas.queryByRole("list", { name: "Cargo Hold" })).toBeNull();
+    await expect(hold).toHaveFocus();
+    await expect(hold).toHaveAttribute("aria-disabled", "true");
+    await expect(hold).toHaveTextContent("0.0/140.0m3");
+    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("3 of 3");
+
+    await userEvent.click(history.getByRole("button", { name: "2 of 3" }));
+    await expect(hold).not.toHaveAttribute("aria-disabled");
   },
 };
 
@@ -303,7 +343,7 @@ export const Broken: Story = {
     await expect(canvas.getByRole("img", { name: /^Missing Skills: \d+$/ })).toBeInTheDocument();
     await expect(canvas.getByRole("img", { name: "Fitting Errors: 1" })).toBeInTheDocument();
     await expect(canvas.getByRole("img", { name: "Fitting Warnings: 4" })).toBeInTheDocument();
-    await expect(canvas.getByRole("group", { name: "Cargo Hold" })).toHaveAttribute("data-over");
+    await expect(canvas.getByRole("button", { name: "Cargo Hold" })).toHaveAttribute("data-over");
   },
 };
 
