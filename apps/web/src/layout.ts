@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 
 // EVE's pixels at 100%, as the FittingWindow, ItemBrowser and ShipStatistics measure them.
 const WINDOW_WIDTH = 1372;
-const WINDOW_HEIGHT = 630;
-const WHEEL_WIDTH = 700;
+const WINDOW_HEIGHT = 643;
+const WHEEL_WIDTH = 708;
 const BROWSER_WIDTH = 393;
 const PANEL_PADDING = 12;
 
