@@ -59,23 +59,20 @@ export const Browse: Story = {
   },
 };
 
-/** Search opens every group with a match, and drops the rest. */
+/** Search keeps every group with a match, closed, and drops the rest. */
 export const Search: Story = {
   play: async ({ canvas, userEvent }) => {
     const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
     await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "rifter");
 
-    await expect(hulls().getByRole("button", { name: "Rifter" })).toBeVisible();
-    await expect(hulls().getByRole("button", { name: "Frigate" })).toHaveAttribute("aria-expanded", "true");
-    await expect(hulls().getByRole("button", { name: "Minmatar [1]" })).toHaveAttribute("aria-expanded", "true");
-    await expect(hulls().queryByRole("button", { name: "Battleship" })).toBeNull();
-
-    await userEvent.click(canvas.getByRole("button", { name: "Collapse All Groups" }));
     await expect(hulls().getByRole("button", { name: "Frigate" })).toHaveAttribute("aria-expanded", "false");
+    await expect(hulls().queryByRole("button", { name: "Battleship" })).toBeNull();
+    await userEvent.click(hulls().getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls().getByRole("button", { name: "Minmatar [1]" }));
+    await expect(hulls().getByRole("button", { name: "Rifter" })).toBeVisible();
 
     await userEvent.clear(canvas.getByRole("searchbox", { name: "Search" }));
     await waitFor(() => expect(hulls().getByRole("button", { name: "Battleship" })).toBeVisible());
-    await expect(hulls().queryByRole("button", { name: "Rifter" })).toBeNull();
   },
 };
 
@@ -102,7 +99,7 @@ export const Filters: Story = {
   },
 };
 
-/** Current Hull keeps only the hull of the fit, with its groups open. */
+/** Current Hull keeps only the hull of the fit. */
 export const CurrentHull: Story = {
   play: async ({ canvas, userEvent }) => {
     const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
@@ -110,13 +107,15 @@ export const CurrentHull: Story = {
 
     await userEvent.click(filter);
     await expect(filter).toHaveAttribute("aria-pressed", "true");
+    await expect(hulls().queryByRole("button", { name: "Battleship" })).toBeNull();
+    await userEvent.click(hulls().getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls().getByRole("button", { name: /^Minmatar/ }));
     await expect(hulls().getByRole("button", { name: "Rifter" })).toBeVisible();
     await expect(hulls().getAllByRole("button", { name: /^Simulate / })).toHaveLength(1);
 
     await userEvent.click(filter);
     await expect(filter).toHaveAttribute("aria-pressed", "false");
     await waitFor(() => expect(hulls().getByRole("button", { name: "Battleship" })).toBeVisible());
-    await expect(hulls().queryByRole("button", { name: "Rifter" })).toBeNull();
   },
 };
 
@@ -133,8 +132,6 @@ export const SimulateShip: Story = {
     await expect(hulls().getAllByRole("button", { name: /^Simulate / })).toHaveLength(1);
 
     await userEvent.click(canvas.getByRole("button", { name: "Current Hull" }));
-    await userEvent.click(hulls().getByRole("button", { name: "Frigate" }));
-    await userEvent.click(hulls().getByRole("button", { name: /^Minmatar/ }));
     await userEvent.dblClick(hulls().getByRole("button", { name: "Breacher" }));
     await userEvent.click(canvas.getByRole("button", { name: "Current Hull" }));
     await expect(hulls().getByRole("button", { name: "Slasher" })).toBeVisible();
@@ -215,16 +212,18 @@ export const BrowserFittings: Story = {
   },
 };
 
-/** Search finds fits by their name too, and opens their hull. */
+/** Search finds fits by their name too. */
 export const SearchFits: Story = {
   parameters: { localFits },
   play: async ({ canvas, userEvent }) => {
     const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
     await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "kiter");
+    await userEvent.click(hulls().getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls().getByRole("button", { name: /^Minmatar/ }));
+    await userEvent.click(hulls().getByRole("button", { name: "Rifter" }));
 
     await expect(hulls().getByRole("button", { name: "Kiter" })).toBeVisible();
     await expect(hulls().queryByRole("button", { name: "Brawler" })).toBeNull();
-    await expect(hulls().getByRole("button", { name: /^Rifter/ })).toHaveAttribute("aria-expanded", "true");
   },
 };
 
@@ -234,6 +233,9 @@ export const MissingSkills: Story = {
   play: async ({ canvas, userEvent }) => {
     const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
     await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "rifter");
+    await userEvent.click(hulls().getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls().getByRole("button", { name: /^Minmatar/ }));
+    await userEvent.click(hulls().getByRole("button", { name: "Rifter" }));
     await expect(hulls().getByRole("img", { name: "Can fly" })).toBeVisible();
     await expect(hulls().getByRole("img", { name: /^Missing skills: \d+$/ })).toBeVisible();
 

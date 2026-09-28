@@ -105,6 +105,8 @@ export const SimulateShip: Story = {
   args: { browser: <ItemBrowser /> },
   play: async ({ canvas, userEvent }) => {
     await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "slasher");
+    await userEvent.click(canvas.getByRole("button", { name: "Frigate" }));
+    await userEvent.click(canvas.getByRole("button", { name: /^Minmatar/ }));
     await userEvent.click(canvas.getByRole("button", { name: "Simulate Slasher" }));
 
     const history = within(canvas.getByRole("group", { name: "Simulation History" }));
@@ -118,6 +120,9 @@ export const LoadFit: Story = {
   parameters: { localFits: [{ ...rifter, name: "Saved Rifter" }] },
   play: async ({ canvas, userEvent }) => {
     await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "saved");
+    await userEvent.click(canvas.getByRole("button", { name: "Frigate" }));
+    await userEvent.click(canvas.getByRole("button", { name: /^Minmatar/ }));
+    await userEvent.click(canvas.getByRole("button", { name: "Rifter" }));
     await userEvent.dblClick(canvas.getByRole("button", { name: "Saved Rifter" }));
 
     const history = within(canvas.getByRole("group", { name: "Simulation History" }));
