@@ -2,4 +2,4 @@
 "@eveshipfit/ui-ingame": minor
 ---
 
-Click the cargo hold of `FittingWindow` to list and remove what is in it
+Click the cargo hold of `FittingWindow` to list what is in it, change how many, and remove it
