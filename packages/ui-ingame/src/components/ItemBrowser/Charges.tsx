@@ -1,11 +1,4 @@
-import {
-  useChargedModules,
-  useCharges,
-  useChargeSearch,
-  useChargeTree,
-  useImages,
-  useSde,
-} from "@eveshipfit/react-hooks";
+import { useChargedModules, useCharges, useChargeSearch, useChargeTree, useSde } from "@eveshipfit/react-hooks";
 import type { MarketGroupNode, SdeType } from "@eveshipfit/sde-loader";
 import { useMemo, useState } from "react";
 
@@ -13,7 +6,15 @@ import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
 import { TreeGroup, TreeList } from "../../primitives/TreeList/TreeList";
 import styles from "./ItemBrowser.module.css";
 import { Search } from "./Search";
-import { countLeaves, SearchResults, TypeLeaf, TypeLeaves, useTypeActions, type TypeActions } from "./TypeLeaf";
+import {
+  countLeaves,
+  SearchResults,
+  TypeLeaf,
+  TypeLeaves,
+  useMarketGroupIcon,
+  useTypeActions,
+  type TypeActions,
+} from "./TypeLeaf";
 
 /** The Charges tab of the `ItemBrowser`: every charge by market group, or only those a fitted module loads. */
 export function Charges() {
@@ -89,10 +90,10 @@ interface ChargeGroupProps {
 }
 
 function ChargeGroup({ node, actions }: ChargeGroupProps) {
-  const images = useImages();
+  const marketGroupIcon = useMarketGroupIcon();
 
   return (
-    <TreeGroup label={node.group.name} icon={images.marketGroupIcon(node.group.id)}>
+    <TreeGroup label={node.group.name} icon={marketGroupIcon(node.group.id)}>
       {() => (
         <>
           {node.children.map((child) => (

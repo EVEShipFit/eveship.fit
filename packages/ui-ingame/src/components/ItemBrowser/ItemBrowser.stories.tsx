@@ -350,6 +350,17 @@ export const SearchModulesByRoot: Story = {
   },
 };
 
+/** A market group without an icon of its own gets a folder. */
+export const MarketGroupWithoutIcon: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    await userEvent.type(within(canvas.getByRole("tabpanel")).getByRole("searchbox"), "launcher");
+
+    const group = modules(canvas).getByRole("button", { name: "Special Edition Assets" });
+    await expect(group.querySelector("img")?.getAttribute("src")).toMatch(/\.webp$/);
+  },
+};
+
 /** No match, no list. */
 export const NoModulesFound: Story = {
   play: async ({ canvas, userEvent }) => {
