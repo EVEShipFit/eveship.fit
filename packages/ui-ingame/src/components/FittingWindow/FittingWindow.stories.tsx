@@ -232,6 +232,85 @@ export const DragModulePreview: Story = {
   },
 };
 
+/** Anything dropped on the cargo hold goes in it, and drones on the drone bay; a charge nothing loads goes nowhere else. */
+export const DropOnBays: Story = {
+  args: { browser: <ItemBrowser /> },
+  parameters: { fit: { ship: { type_id: types.Tristan }, items: [] } },
+  play: async ({ canvas, userEvent }) => {
+    const hold = canvas.getByRole("button", { name: "Cargo Hold" });
+    const droneBay = canvas.getByRole("button", { name: "Drone Bay" });
+    const history = within(canvas.getByRole("group", { name: "Simulation History" }));
+    const step = () => history.getByRole("button", { current: true });
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    const search = canvas.getByRole("searchbox", { name: "Search" });
+
+    await userEvent.type(search, "hobgoblin ii");
+    const hobgoblin = canvas.getByRole("button", { name: "Hobgoblin II" });
+    const dragged = new DataTransfer();
+    await fireEvent.dragStart(hobgoblin, { dataTransfer: dragged });
+    await waitFor(async () => {
+      await fireEvent.dragEnter(droneBay, { dataTransfer: dragged });
+      await expect(droneBay).toHaveTextContent("5.0/40.0m3");
+    });
+    await fireEvent.dragLeave(droneBay, { dataTransfer: dragged });
+    await expect(droneBay).toHaveTextContent("0.0/40.0m3");
+    await fireEvent.dragEnd(hobgoblin, { dataTransfer: dragged });
+
+    await dragAndDrop(canvas.getByRole("button", { name: "Hobgoblin II" }), droneBay);
+    await expect(droneBay).toHaveTextContent("5.0/40.0m3");
+    await dragAndDrop(canvas.getByRole("button", { name: "Hobgoblin II" }), hold);
+    await expect(step()).toHaveAccessibleName("3 of 3");
+
+    await userEvent.clear(search);
+    await userEvent.type(search, "damage control ii");
+    const damageControl = canvas.getByRole("button", { name: "Damage Control II" });
+    await refuses(damageControl, droneBay);
+    await dragAndDrop(damageControl, hold);
+
+    await userEvent.click(canvas.getByRole("tab", { name: "Charges" }));
+    const chargeSearch = canvas.getByRole("searchbox", { name: "Search" });
+    await userEvent.type(chargeSearch, "emp s");
+    await userEvent.dblClick(canvas.getByRole("button", { name: "EMP S" }));
+    await expect(step()).toHaveAccessibleName("4 of 4");
+    await dragAndDrop(canvas.getByRole("button", { name: "EMP S" }), hold);
+    await expect(step()).toHaveAccessibleName("5 of 5");
+
+    await userEvent.click(hold);
+    const list = await canvas.findByRole("list", { name: "Cargo Hold" });
+    await expect(
+      within(list)
+        .getAllByRole("spinbutton")
+        .map((count) => count.getAttribute("aria-label")),
+    ).toEqual(["Number of Damage Control II", "Number of EMP S", "Number of Hobgoblin II"]);
+  },
+};
+
+/** A bay or the middle of the wheel refuses what it would not take. */
+export const DropRefused: Story = {
+  args: { browser: <ItemBrowser /> },
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "hobgoblin ii");
+    await refuses(
+      canvas.getByRole("button", { name: "Hobgoblin II" }),
+      canvas.getByRole("button", { name: "Drone Bay" }),
+    );
+
+    await userEvent.click(canvas.getByRole("tab", { name: "Charges" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "scourge heavy missile");
+    await refuses(
+      canvas.getByRole("button", { name: "Scourge Heavy Missile" }),
+      canvasElement.querySelector("[data-centre]")!,
+    );
+
+    const damageControl = within(canvas.getByRole("region", { name: "Fitting" })).getByRole("button", {
+      name: /^Damage Control II/,
+    });
+    await refuses(damageControl, canvas.getByRole("button", { name: "Cargo Hold" }));
+  },
+};
+
 /** A double click loads a charge in every module that takes it; a drop, in that one module. */
 export const LoadCharge: Story = {
   args: { browser: <ItemBrowser /> },
@@ -485,6 +564,14 @@ export const AtUiScale150: Story = {
     await expect(canvas.getByRole("region", { name: "Fitting" }).getBoundingClientRect().width).toBe(858);
   },
 };
+
+/** A drop target refuses by not cancelling `dragover`. */
+async function refuses(from: Element, to: Element) {
+  const dataTransfer = new DataTransfer();
+  await fireEvent.dragStart(from, { dataTransfer });
+  await expect(await fireEvent.dragOver(to, { dataTransfer })).toBe(true);
+  await fireEvent.dragEnd(from, { dataTransfer });
+}
 
 /** Storybook's `userEvent` cannot drag, so the events are fired as a browser would. */
 async function dragAndDrop(from: Element, to: Element) {

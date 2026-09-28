@@ -210,6 +210,10 @@
   anchor-name: var(--bay-anchor);
 }
 
+.bay > * {
+  pointer-events: none;
+}
+
 .bay:focus-visible {
   outline: var(--window-unit) solid var(--esf-text);
 }

@@ -9,7 +9,7 @@ export type Placement =
   /** Implants, boosters and subsystems each have one slot they go in. */
   | { type: "implant" | "booster" | "subsystem"; index: number }
   | { type: "drone_bay" | "fighter_bay" | "cargo" }
-  /** Loaded into a module; `cargo` when no module takes it. */
+  /** Loaded into a module. */
   | { type: "charge" };
 
 const rackEffects: readonly [number, Exclude<Rack, "subsystem">][] = [

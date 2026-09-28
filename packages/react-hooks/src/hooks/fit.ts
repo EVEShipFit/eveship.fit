@@ -24,20 +24,21 @@ export function useStats(): Stats {
 
 export interface PreviewControls {
   readonly preview: Preview | undefined;
-  /** Show what `edit` would do, until `clear` or the next change to the fit. */
-  readonly show: (edit: (fit: FitStore) => void) => void;
-  readonly clear: () => void;
+  /** Show what `edit` would do, until `clear` or the next change to the fit; `target` names the drop target showing it. */
+  readonly show: (edit: (fit: FitStore) => void, target?: string) => void;
+  /** With `target`, only when that target showed the preview. */
+  readonly clear: (target?: string) => void;
 }
 
 export function usePreview(): PreviewControls {
   const store = useFitStore();
   const snapshot = useSnapshot();
-  const { preview, setPreview } = useRequiredContext(PreviewContext);
+  const { preview, show, clear } = useRequiredContext(PreviewContext);
 
   return {
     preview: preview?.before === snapshot ? preview : undefined,
-    show: (edit) => setPreview(store.preview(edit)),
-    clear: () => setPreview(undefined),
+    show: (edit, target) => show(store.preview(edit), target),
+    clear: (target) => clear(target),
   };
 }
 

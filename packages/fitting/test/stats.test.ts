@@ -22,7 +22,7 @@ test("slots, hardpoints and cargo", () => {
   fit.fit(id("200mm AutoCannon II"));
   fit.fit(id("Rocket Launcher II"));
   fit.fit(id("Damage Control II"));
-  const paste = fit.fit(id("Nanite Repair Paste"))!;
+  const paste = fit.fit(id("Nanite Repair Paste"), { type: "cargo" })!;
   fit.setQuantity(paste, 10);
 
   const { stats } = fit.getSnapshot();

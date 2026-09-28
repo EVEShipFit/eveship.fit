@@ -16,7 +16,7 @@ import {
   type DragItem,
   type SlotContent,
 } from "@eveshipfit/react-hooks";
-import { useRef, type DragEvent } from "react";
+import type { DragEvent } from "react";
 
 import { rackSize, slotAngle, type WheelRack } from "../../primitives/Wheel/layout";
 import { Wheel } from "../../primitives/Wheel/Wheel";
@@ -42,18 +42,10 @@ export function FittingWheel({ label = "Fitting" }: FittingWheelProps) {
   const ship = useFit().ship.type_id;
   const { turret, launcher } = useHardpoints();
   const { show, clear } = usePreview();
-  const previewing = useRef<string>(undefined);
 
   const dropPreview: DropPreview = {
-    show: (target, edit) => {
-      previewing.current = target;
-      show(edit);
-    },
-    hide: (target) => {
-      if (previewing.current !== target) return;
-      previewing.current = undefined;
-      clear();
-    },
+    show: (target, edit) => show(edit, target),
+    hide: (target) => clear(target),
   };
 
   return (
@@ -103,8 +95,9 @@ function FittingCentre({ dropPreview }: { dropPreview: DropPreview }) {
   const store = useFitStore();
   const fit = useFit();
   const { dragging, end } = useDrag();
+  const fits = dragging?.type === "type" && placesSomewhere(store, dragging.typeId);
   const takes = (item: DragItem | undefined): item is DragItem =>
-    item !== undefined && (item.type === "type" || fit.items[item.ref] !== undefined);
+    item !== undefined && (item.type === "type" ? fits : fit.items[item.ref] !== undefined);
 
   return (
     <div
@@ -234,6 +227,14 @@ function movesTo(fit: Fit, ref: ItemRef, rack: WheelRack, index: number): boolea
   const item = fit.items[ref];
   if (item === undefined || rack === "subsystem" || item.slot.type !== rack) return false;
   return "index" in item.slot && item.slot.index !== index;
+}
+
+function placesSomewhere(store: FitStore, typeId: number): boolean {
+  let placed = false;
+  store.preview((draft) => {
+    placed = draft.fit(typeId) !== undefined;
+  });
+  return placed;
 }
 
 function allowDrop(event: DragEvent, dragging: DragItem) {

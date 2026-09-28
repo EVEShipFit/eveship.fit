@@ -21,15 +21,18 @@ export function emptyFit(shipTypeId: number): Fit {
 
 /**
  * Put a type where EVE would: modules in the first free slot of their rack,
- * charges in every module that takes them, drones and fighters in their bay,
- * anything else in the cargo. With `slot`, only that slot is tried, replacing
- * what is there.
+ * charges in every module that takes them, drones and fighters in their bay.
+ * With `slot`, only that slot is tried, replacing what is there; the cargo
+ * takes anything, and is the only way in for what goes nowhere else.
  */
 export function fitType(sde: Sde, fit: Fit, stats: Stats, typeId: number, slot?: Slot): Placed {
   const nowhere = { fit, ref: undefined };
   const type = sde.type(typeId);
   const placement = type && placementOf(sde, type);
   if (type === undefined || placement === undefined) return nowhere;
+  if (slot?.type === "cargo") {
+    return addToStack(fit, { type_id: typeId, slot: { type: "cargo" }, quantity: 1, state: "offline" });
+  }
   if (slot !== undefined && placement.type !== "charge" && slot.type !== placement.type) return nowhere;
 
   switch (placement.type) {
@@ -58,10 +61,7 @@ export function fitType(sde: Sde, fit: Fit, stats: Stats, typeId: number, slot?:
           const module = sde.type(item.type_id);
           return module !== undefined && acceptsCharge(sde, module, type);
         });
-      if (modules.length === 0) {
-        if (slot !== undefined) return nowhere;
-        return addToStack(fit, { type_id: typeId, slot: { type: "cargo" }, quantity: 1, state: "offline" });
-      }
+      if (modules.length === 0) return nowhere;
 
       let loaded = fit;
       for (const { ref } of modules) loaded = setCharge(loaded, ref, typeId);
@@ -79,7 +79,7 @@ export function fitType(sde: Sde, fit: Fit, stats: Stats, typeId: number, slot?:
     }
 
     case "cargo":
-      return addToStack(fit, { type_id: typeId, slot: { type: "cargo" }, quantity: 1, state: "offline" });
+      return nowhere;
   }
 }
 

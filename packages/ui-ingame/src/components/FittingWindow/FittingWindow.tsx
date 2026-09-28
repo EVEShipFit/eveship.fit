@@ -1,13 +1,20 @@
+import type { Slot } from "@eveshipfit/fitting";
 import {
   useAttribute,
   useBayUsage,
+  useCanFit,
+  useDrag,
   useFit,
   useFitHistory,
+  useFitStore,
   useImages,
+  usePlacement,
+  usePreview,
+  useSde,
   useType,
   useViolations,
 } from "@eveshipfit/react-hooks";
-import { useId, useState, type CSSProperties, type ReactNode } from "react";
+import { useId, useState, type CSSProperties, type DragEvent, type ReactNode } from "react";
 
 import { HistoryBar } from "../../primitives/HistoryBar/HistoryBar";
 import { Icon, type IconName } from "../../primitives/Icon/Icon";
@@ -171,6 +178,7 @@ function NotImplementedButton({ className, icon, label }: { className?: string; 
 function Bay({ bay, icon, label }: { bay: "cargo" | "droneBay"; icon: IconName; label: string }) {
   const { used, total } = useBayUsage(bay);
   const id = useId();
+  const drop = useBayDrop(bay);
 
   return (
     <div className={styles.bayAnchor} style={{ "--bay-anchor": `--bay-${id.replace(/[^\w-]/g, "")}` } as CSSProperties}>
@@ -181,6 +189,7 @@ function Bay({ bay, icon, label }: { bay: "cargo" | "droneBay"; icon: IconName; 
           aria-label={label}
           popoverTarget={id}
           data-over={used > total || undefined}
+          {...drop}
         >
           <Icon name={icon} />
           <span className={styles.used}>{oneDecimal.format(used)}</span>
@@ -192,6 +201,45 @@ function Bay({ bay, icon, label }: { bay: "cargo" | "droneBay"; icon: IconName; 
       <BayContents id={id} bay={bay} label={label} />
     </div>
   );
+}
+
+const baySlots: Record<"cargo" | "droneBay", Slot> = { cargo: { type: "cargo" }, droneBay: { type: "drone_bay" } };
+
+/** Puts a type dragged onto a bay in it: anything in the cargo, drones in the drone bay. */
+function useBayDrop(bay: "cargo" | "droneBay") {
+  const store = useFitStore();
+  const sde = useSde();
+  const placement = usePlacement();
+  const canFit = useCanFit();
+  const { dragging, end } = useDrag();
+  const { show, clear } = usePreview();
+  const slot = baySlots[bay];
+  const type = dragging?.type === "type" ? sde.type(dragging.typeId) : undefined;
+  const takes =
+    type !== undefined &&
+    (bay === "cargo" ? placement(type) !== undefined : placement(type)?.type === "drone_bay" && canFit(type));
+  const taken = takes ? type : undefined;
+
+  const target = `bay-${bay}`;
+
+  return {
+    onDragEnter: () => {
+      if (taken) show((draft) => void draft.fit(taken.id, slot), target);
+    },
+    onDragLeave: () => clear(target),
+    onDragOver: (event: DragEvent) => {
+      if (!taken) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "copy";
+    },
+    onDrop: (event: DragEvent) => {
+      if (!taken) return;
+      event.preventDefault();
+      clear(target);
+      store.fit(taken.id, slot);
+      end();
+    },
+  };
 }
 
 function Resource({ title, free, output }: { title: string; free: string; output: string }) {

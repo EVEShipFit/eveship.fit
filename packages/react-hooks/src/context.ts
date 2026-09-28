@@ -9,7 +9,9 @@ export type DragItem = { type: "type"; typeId: number } | { type: "item"; ref: n
 
 export interface PreviewState {
   preview: Preview | undefined;
-  setPreview: (preview: Preview | undefined) => void;
+  show: (preview: Preview, target: string | undefined) => void;
+  /** With `target`, only when that target showed the preview. */
+  clear: (target: string | undefined) => void;
 }
 
 export interface DragState {
