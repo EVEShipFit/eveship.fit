@@ -22,11 +22,9 @@ export function HullsAndFits() {
   const [browserFits, setBrowserFits] = useState(false);
   const [currentHull, setCurrentHull] = useState(false);
   const [flyable, setFlyable] = useState(false);
-  // A new key mounts the tree again, with every group open or closed.
-  const [tree, setTree] = useState({ key: 0, open: false });
+  const [collapses, setCollapses] = useState(0);
 
   const query = search.trim().toLowerCase();
-  const narrowed = query !== "" || currentHull;
   const matches = (name: string | undefined) => (name ?? "").toLowerCase().includes(query);
 
   const fitsByHull = Map.groupBy(fits, (saved) => saved.ship.type_id);
@@ -37,7 +35,7 @@ export function HullsAndFits() {
   };
 
   const groups = useHullTree(
-    narrowed || browserFits || flyable
+    query !== "" || currentHull || browserFits || flyable
       ? (ship) => {
           if (currentHull && ship.id !== currentShipId) return false;
           if (flyable && missingSkills([ship.id]).length > 0) return false;
@@ -48,22 +46,11 @@ export function HullsAndFits() {
       : undefined,
   );
 
-  const narrow = (nextSearch: string, nextCurrentHull: boolean) => {
-    const nextNarrowed = nextSearch.trim() !== "" || nextCurrentHull;
-    if (nextNarrowed !== narrowed) setTree({ key: tree.key + 1, open: nextNarrowed });
-    setSearch(nextSearch);
-    setCurrentHull(nextCurrentHull);
-  };
-
   const simulate = (shipTypeId: number) => store.replace({ ship: { type_id: shipTypeId }, items: [] });
 
   return (
     <>
-      <Search
-        value={search}
-        onChange={(value) => narrow(value, currentHull)}
-        onCollapse={() => setTree({ key: tree.key + 1, open: false })}
-      />
+      <Search value={search} onChange={setSearch} onCollapse={() => setCollapses(collapses + 1)} />
       <fieldset className={styles.filters} aria-label="Filters">
         <FilterToggle
           icon="fits-browser"
@@ -75,25 +62,19 @@ export function HullsAndFits() {
         <FilterToggle icon="fits-corporation" label="Corporation Fittings" />
         <FilterToggle icon="fits-alliance" label="Alliance Fittings" />
         <FilterToggle icon="fits-community" label="Community Fittings" />
-        <FilterToggle
-          icon="current-hull"
-          label="Current Hull"
-          pressed={currentHull}
-          onPressedChange={(pressed) => narrow(search, pressed)}
-        />
+        <FilterToggle icon="current-hull" label="Current Hull" pressed={currentHull} onPressedChange={setCurrentHull} />
         <FilterToggle icon="skills" label="Skills" pressed={flyable} onPressedChange={setFlyable} />
       </fieldset>
       <div className={styles.tree}>
-        <TreeList key={tree.key} label="Hulls">
+        <TreeList key={collapses} label="Hulls">
           {groups.map(({ group, races }) => (
-            <TreeGroup key={group.id} label={group.name} defaultOpen={tree.open}>
+            <TreeGroup key={group.id} label={group.name}>
               {() =>
                 races.map(({ race, factionId, ships }) => (
                   <TreeGroup
                     key={race}
                     label={`${raceName(race)} [${ships.length}]`}
                     icon={factionId === undefined ? undefined : images.factionIcon(factionId)}
-                    defaultOpen={tree.open}
                   >
                     {() =>
                       ships.map((ship) => {
@@ -121,7 +102,6 @@ export function HullsAndFits() {
                               ) : undefined
                             }
                             typeId={ship.id}
-                            defaultOpen={tree.open}
                             after={simulateShip}
                           >
                             {() =>
