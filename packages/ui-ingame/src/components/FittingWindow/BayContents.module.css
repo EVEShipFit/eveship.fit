@@ -43,6 +43,10 @@
   height: calc(32 * var(--window-unit));
 }
 
+.row:hover {
+  background: var(--esf-bay-row-hover);
+}
+
 .quantity {
   align-items: center;
   border: var(--window-unit) solid transparent;
