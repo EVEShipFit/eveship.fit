@@ -49,7 +49,7 @@ export const Browse: Story = {
       hulls()
         .getByRole("button", { name: /^Non-Empire/ })
         .querySelector("img"),
-    ).toBeNull();
+    ).not.toBeNull();
     await userEvent.click(hulls().getByRole("button", { name: /^Minmatar \[\d+\]$/ }));
     await expect(hulls().getByRole("button", { name: "Rifter" })).toBeVisible();
 

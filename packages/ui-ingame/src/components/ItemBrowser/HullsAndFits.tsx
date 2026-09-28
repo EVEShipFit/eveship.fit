@@ -10,6 +10,7 @@ import styles from "./ItemBrowser.module.css";
 import { Search } from "./Search";
 
 const noFits: readonly Fit[] = [];
+const SHIPS_MARKET_GROUP_ID = 4;
 
 /** The Hulls & Fits tab of the `ItemBrowser`: EVE's hulls by group and race, with the fits saved for each. */
 export function HullsAndFits() {
@@ -74,7 +75,11 @@ export function HullsAndFits() {
                   <TreeGroup
                     key={race}
                     label={`${raceName(race)} [${ships.length}]`}
-                    icon={factionId === undefined ? undefined : images.factionIcon(factionId)}
+                    icon={
+                      factionId === undefined
+                        ? images.marketGroupIcon(SHIPS_MARKET_GROUP_ID)
+                        : images.factionIcon(factionId)
+                    }
                   >
                     {() =>
                       ships.map((ship) => {
