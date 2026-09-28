@@ -13,6 +13,7 @@ import { HistoryBar } from "../../primitives/HistoryBar/HistoryBar";
 import { Icon, type IconName } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import { FittingWheel } from "../FittingWheel/FittingWheel";
+import { BayContents } from "./BayContents";
 import styles from "./FittingWindow.module.css";
 import { countViolations, type ViolationKind } from "./violations";
 
@@ -86,7 +87,7 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
           </div>
         )}
         <div className={styles.bays}>
-          <Bay bay="cargo" icon="cargo" label="Cargo Hold" />
+          <Bay bay="cargo" icon="cargo" label="Cargo Hold" listed />
           <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" />
         </div>
         <div className={styles.history}>
@@ -166,25 +167,60 @@ function NotImplementedButton({ className, icon, label }: { className?: string; 
   );
 }
 
-function Bay({ bay, icon, label }: { bay: "cargo" | "droneBay"; icon: IconName; label: string }) {
+function Bay({
+  bay,
+  icon,
+  label,
+  listed = false,
+}: {
+  bay: "cargo" | "droneBay";
+  icon: IconName;
+  label: string;
+  listed?: boolean;
+}) {
   const { used, total } = useBayUsage(bay);
+  const id = useId();
+  const usage = (
+    <>
+      <Icon name={icon} />
+      <span className={styles.used}>{oneDecimal.format(used)}</span>
+      <span className={styles.slash}>/</span>
+      <span className={styles.total}>{oneDecimal.format(total)}</span>
+      <span className={styles.unit}>m3</span>
+    </>
+  );
+
+  if (!listed) {
+    return (
+      <Tooltip label={label}>
+        <div
+          className={styles.bay}
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- A <fieldset> is for form controls.
+          role="group"
+          aria-label={label}
+          data-over={used > total || undefined}
+        >
+          {usage}
+        </div>
+      </Tooltip>
+    );
+  }
 
   return (
-    <Tooltip label={label}>
-      <div
-        className={styles.bay}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- A <fieldset> is for form controls.
-        role="group"
-        aria-label={label}
-        data-over={used > total || undefined}
-      >
-        <Icon name={icon} />
-        <span className={styles.used}>{oneDecimal.format(used)}</span>
-        <span className={styles.slash}>/</span>
-        <span className={styles.total}>{oneDecimal.format(total)}</span>
-        <span className={styles.unit}>m3</span>
-      </div>
-    </Tooltip>
+    <div className={styles.bayAnchor} style={{ "--bay-anchor": `--bay-${id.replace(/[^\w-]/g, "")}` } as CSSProperties}>
+      <Tooltip label={label}>
+        <button
+          type="button"
+          className={styles.bay}
+          aria-label={label}
+          popoverTarget={id}
+          data-over={used > total || undefined}
+        >
+          {usage}
+        </button>
+      </Tooltip>
+      <BayContents id={id} bay={bay} label={label} />
+    </div>
   );
 }
 

@@ -83,8 +83,8 @@ export class FitStore {
     this.#commit(edits.move(this.#snapshot.fit, ref, slot));
   }
 
-  remove(ref: ItemRef) {
-    this.#commit(edits.remove(this.#snapshot.fit, ref));
+  remove(...refs: ItemRef[]) {
+    this.#commit(edits.remove(this.#snapshot.fit, ...refs));
   }
 
   setState(ref: ItemRef, state: State) {
@@ -97,6 +97,10 @@ export class FitStore {
 
   setQuantity(ref: ItemRef, quantity: number) {
     this.#commit(edits.setQuantity(this.#snapshot.fit, ref, quantity));
+  }
+
+  setCargoQuantity(typeId: number, quantity: number) {
+    this.#commit(edits.setCargoQuantity(this.#snapshot.fit, typeId, quantity));
   }
 
   setName(name: string) {

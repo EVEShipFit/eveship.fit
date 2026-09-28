@@ -115,6 +115,33 @@ describe("edits", () => {
     expect(fit.getSnapshot().fit.items).toMatchObject([{ type_id: id("Nanite Repair Paste") }]);
   });
 
+  test("cargo quantity merges every stack of the type into the first one", () => {
+    const paste = { type_id: id("Nanite Repair Paste"), slot: { type: "cargo" } } as const;
+    const fit = engine.createFit({
+      ship: { type_id: id("Rifter") },
+      items: [
+        { ...paste, quantity: 10, state: "offline" },
+        { type_id: id("EMP S"), slot: { type: "cargo" }, quantity: 100, state: "offline" },
+        { ...paste, state: "online" },
+        { type_id: id("Hobgoblin II"), slot: { type: "drone_bay" }, quantity: 2, state: "active" },
+      ],
+    });
+    const before = fit.getSnapshot();
+    fit.setCargoQuantity(id("Hobgoblin II"), 5);
+    fit.setCargoQuantity(id("Nanite Repair Paste"), 2.5);
+    expect(fit.getSnapshot()).toBe(before);
+
+    fit.setCargoQuantity(id("Nanite Repair Paste"), 50);
+    expect(fit.getSnapshot().fit.items.map(({ type_id, quantity }) => [type_id, quantity])).toEqual([
+      [id("Nanite Repair Paste"), 50],
+      [id("EMP S"), 100],
+      [id("Hobgoblin II"), 2],
+    ]);
+
+    fit.setCargoQuantity(id("Nanite Repair Paste"), 0);
+    expect(fit.getSnapshot().fit.items).toMatchObject([{ type_id: id("EMP S") }, { type_id: id("Hobgoblin II") }]);
+  });
+
   test("moving a module swaps it with what is in the other slot", () => {
     const fit = rifter();
     const gun = fit.fit(id("200mm AutoCannon II"))!;
@@ -272,6 +299,18 @@ describe("history", () => {
 
     fit.undo();
     expect(fit.getSnapshot().fit.items).toEqual([]);
+  });
+
+  test("removing several items is one step", () => {
+    const fit = rifter();
+    fit.fit(id("Nanite Repair Paste"));
+    fit.fit(id("200mm AutoCannon II"));
+    fit.fit(id("Damage Control II"));
+    fit.remove(0, 2);
+    expect(fit.getSnapshot().fit.items).toMatchObject([{ type_id: id("200mm AutoCannon II") }]);
+
+    fit.undo();
+    expect(fit.getSnapshot().fit.items).toHaveLength(3);
   });
 
   test("changing the character is not an edit", () => {

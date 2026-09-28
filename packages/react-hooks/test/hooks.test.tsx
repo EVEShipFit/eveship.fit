@@ -13,6 +13,7 @@ import {
   TextsProvider,
   useAttribute,
   useAttributeTooltip,
+  useBayContents,
   useBayUsage,
   useCanFit,
   useCharacters,
@@ -181,6 +182,28 @@ test("violations and bays", () => {
     expect.objectContaining({ rule: expect.objectContaining({ type: "skill" }) }),
   );
   expect(result.current.cargo).toEqual({ used: 0, total: 140 });
+});
+
+test("bay contents are one entry per type, by name", () => {
+  const byName = (name: string) => engine.sde.typeByName(name)!.id;
+  const fit = engine.createFit({
+    ship: { type_id: byName("Tristan") },
+    items: [
+      { type_id: byName("Nanite Repair Paste"), slot: { type: "cargo" }, quantity: 30, state: "offline" },
+      { type_id: byName("Warrior II"), slot: { type: "drone_bay" }, quantity: 2, state: "active" },
+      { type_id: byName("EMP S"), slot: { type: "cargo" }, quantity: 100, state: "offline" },
+      { type_id: byName("Warrior II"), slot: { type: "drone_bay" }, quantity: 3, state: "offline" },
+    ],
+  });
+  const { result } = render(() => ({ cargo: useBayContents("cargo"), drones: useBayContents("droneBay") }), { fit });
+
+  expect(result.current.cargo.map(({ type, quantity, refs }) => [type.name, quantity, refs])).toEqual([
+    ["EMP S", 100, [2]],
+    ["Nanite Repair Paste", 30, [0]],
+  ]);
+  expect(result.current.drones.map(({ type, quantity, refs }) => [type.name, quantity, refs])).toEqual([
+    ["Warrior II", 5, [1, 3]],
+  ]);
 });
 
 test("slots list every slot of a rack, empty ones included", () => {

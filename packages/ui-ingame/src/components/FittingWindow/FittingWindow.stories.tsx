@@ -292,8 +292,73 @@ export const FittedRifter: Story = {
     await expect(canvas.getByText("Storybook Rifter")).toBeInTheDocument();
     await expect(canvas.getByText("CPU").parentElement).toHaveTextContent(/^CPU\d+\.\d\/\d+\.\d$/);
     await expect(canvas.getByText("Power Grid").parentElement).toHaveTextContent(/^Power Grid\d+\.\d\/\d+\.\d$/);
-    await expect(canvas.getByRole("group", { name: "Cargo Hold" })).toHaveTextContent("0.3/140.0m3");
+    await expect(canvas.getByRole("button", { name: "Cargo Hold" })).toHaveTextContent("0.3/140.0m3");
     await expect(canvas.getByRole("group", { name: "Drone Bay" })).toHaveTextContent("0.0/0.0m3");
+  },
+};
+
+/** Clicking the cargo hold lists what is in it, if anything; each count, removal and Remove All is one step. */
+export const CargoHold: Story = {
+  parameters: {
+    fit: {
+      ...rifter,
+      items: [
+        ...rifter.items,
+        { type_id: types["EMP S"], slot: { type: "cargo" }, quantity: 200, state: "offline" },
+        { type_id: types["Hobgoblin II"], slot: { type: "cargo" }, quantity: 2, state: "offline" },
+      ],
+    },
+  },
+  play: async ({ canvas, userEvent }) => {
+    const hold = canvas.getByRole("button", { name: "Cargo Hold" });
+    const history = within(canvas.getByRole("group", { name: "Simulation History" }));
+    await userEvent.click(hold);
+    const list = await canvas.findByRole("list", { name: "Cargo Hold" });
+    await expect(list).toBeVisible();
+    await expect(
+      within(list)
+        .getAllByRole("spinbutton")
+        .map((count) => [count.getAttribute("aria-label"), (count as HTMLInputElement).valueAsNumber]),
+    ).toEqual([
+      ["Number of EMP S", 200],
+      ["Number of Hobgoblin II", 2],
+      ["Number of Nanite Repair Paste", 30],
+    ]);
+
+    await userEvent.click(canvas.getByRole("button", { name: "Remove Hobgoblin II" }));
+    await expect(within(list).getAllByRole("listitem")).toHaveLength(2);
+    await expect(canvas.getByRole("button", { name: "Remove Nanite Repair Paste" })).toHaveFocus();
+    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("2 of 2");
+
+    const emp = canvas.getByRole("spinbutton", { name: "Number of EMP S" });
+    await userEvent.tripleClick(emp);
+    await userEvent.keyboard("50{Enter}");
+    await userEvent.keyboard("{ArrowUp}");
+    await expect(emp).toHaveValue(51);
+    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("4 of 4");
+
+    await userEvent.tripleClick(emp);
+    await userEvent.keyboard("0{Enter}");
+    await userEvent.tripleClick(emp);
+    await userEvent.keyboard("70{Escape}");
+    await expect(emp).toHaveValue(51);
+    await userEvent.tripleClick(emp);
+    await userEvent.keyboard("60");
+    await userEvent.tab();
+    await expect(emp).toHaveValue(60);
+    await userEvent.click(emp);
+    await userEvent.click(canvas.getByRole("button", { name: "One fewer EMP S" }));
+    await expect(emp).toHaveValue(59);
+    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("6 of 6");
+
+    await userEvent.click(canvas.getByRole("button", { name: "Remove All" }));
+    await expect(canvas.queryByRole("list", { name: "Cargo Hold" })).toBeNull();
+    await expect(hold).toHaveFocus();
+    await expect(hold).toHaveTextContent("0.0/140.0m3");
+    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("7 of 7");
+
+    await userEvent.click(hold);
+    await expect(await canvas.findByText("No Cargo Items Simulated")).toBeVisible();
   },
 };
 
@@ -303,7 +368,7 @@ export const Broken: Story = {
     await expect(canvas.getByRole("img", { name: /^Missing Skills: \d+$/ })).toBeInTheDocument();
     await expect(canvas.getByRole("img", { name: "Fitting Errors: 1" })).toBeInTheDocument();
     await expect(canvas.getByRole("img", { name: "Fitting Warnings: 4" })).toBeInTheDocument();
-    await expect(canvas.getByRole("group", { name: "Cargo Hold" })).toHaveAttribute("data-over");
+    await expect(canvas.getByRole("button", { name: "Cargo Hold" })).toHaveAttribute("data-over");
   },
 };
 

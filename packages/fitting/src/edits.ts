@@ -94,9 +94,9 @@ export function move(fit: Fit, ref: ItemRef, slot: Slot): Fit {
   return { ...fit, items };
 }
 
-export function remove(fit: Fit, ref: ItemRef): Fit {
-  if (fit.items[ref] === undefined) return fit;
-  return { ...fit, items: fit.items.toSpliced(ref, 1) };
+export function remove(fit: Fit, ...refs: ItemRef[]): Fit {
+  const items = fit.items.filter((_, ref) => !refs.includes(ref));
+  return items.length === fit.items.length ? fit : { ...fit, items };
 }
 
 export function setState(fit: Fit, ref: ItemRef, state: State): Fit {
@@ -116,6 +116,14 @@ export function setCharge(fit: Fit, ref: ItemRef, chargeTypeId: number | undefin
 export function setQuantity(fit: Fit, ref: ItemRef, quantity: number): Fit {
   if (quantity <= 0) return remove(fit, ref);
   return update(fit, ref, (item) => ((item.quantity ?? 1) === quantity ? item : { ...item, quantity }));
+}
+
+/** The cargo stacks of a type become one stack of `quantity`, where the first one was. */
+export function setCargoQuantity(fit: Fit, typeId: number, quantity: number): Fit {
+  const refs = fit.items.flatMap((item, ref) => (item.slot.type === "cargo" && item.type_id === typeId ? [ref] : []));
+  const [first, ...rest] = refs;
+  if (first === undefined || !Number.isSafeInteger(quantity)) return fit;
+  return setQuantity(remove(fit, ...rest), first, quantity);
 }
 
 export function setName(fit: Fit, name: string): Fit {

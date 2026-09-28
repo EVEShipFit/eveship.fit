@@ -193,11 +193,25 @@
 
 .bay {
   align-items: center;
+  background: none;
+  border: none;
+  color: inherit;
   column-gap: calc(5 * var(--window-unit));
+  cursor: default;
   display: grid;
+  font: inherit;
   grid-template-columns: repeat(4, auto);
   justify-content: start;
   line-height: calc(13 * var(--window-unit));
+  padding: 0;
+}
+
+.bayAnchor {
+  anchor-name: var(--bay-anchor);
+}
+
+.bay:focus-visible {
+  outline: var(--window-unit) solid var(--esf-text);
 }
 
 .bay > img {
