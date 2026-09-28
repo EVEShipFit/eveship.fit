@@ -1,6 +1,13 @@
 import type { Placement } from "@eveshipfit/fitting";
-import { useCanFit, useImages, useMissingSkills, useModuleTree, usePlacement } from "@eveshipfit/react-hooks";
-import type { ModuleGroupNode } from "@eveshipfit/sde-loader";
+import {
+  useCanFit,
+  useImages,
+  useMissingSkills,
+  useModuleSearch,
+  useModuleTree,
+  usePlacement,
+} from "@eveshipfit/react-hooks";
+import type { ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
 import { useState } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
@@ -36,9 +43,9 @@ export function Modules() {
   const query = search.trim().toLowerCase();
   const places = new Set(slotFilters.filter(({ filter }) => slots.has(filter)).flatMap((slot) => slot.places));
 
-  const groups = useModuleTree(
+  const keep =
     query !== "" || places.size > 0 || hullRestrictions || flyable
-      ? (type) => {
+      ? (type: SdeType) => {
           if (places.size > 0) {
             const place = placement(type)?.type;
             if (place === undefined || !places.has(place)) return false;
@@ -47,8 +54,11 @@ export function Modules() {
           if (flyable && missingSkills([type.id]).length > 0) return false;
           return type.name.toLowerCase().includes(query);
         }
-      : undefined,
-  );
+      : undefined;
+  const tree = useModuleTree(query === "" ? keep : undefined);
+  const found = useModuleSearch(query === "" ? undefined : keep);
+  const groups = query === "" ? tree : found;
+  const only = query !== "" && groups.length === 1 ? groups[0] : undefined;
 
   const open = query !== "" && query !== collapsed.query && countTypes(groups) <= MOST_OPENED_BY_SEARCH;
 
@@ -89,11 +99,17 @@ export function Modules() {
         <FilterToggle icon="skills" label="Skills" pressed={flyable} onPressedChange={setFlyable} />
       </fieldset>
       <div className={styles.tree}>
-        <TreeList key={`${collapsed.times}-${open}`} label="Modules">
-          {groups.map((node) => (
-            <ModuleGroup key={node.group.id} node={node} open={open} actions={actions} />
-          ))}
-        </TreeList>
+        {groups.length === 0 ? (
+          <p className={styles.empty}>No modules found</p>
+        ) : (
+          <TreeList key={`${collapsed.times}-${open}`} label="Modules">
+            {only !== undefined ? (
+              <TypeLeaves sorted={only} open={open} actions={actions} />
+            ) : (
+              groups.map((node) => <ModuleGroup key={node.group.id} node={node} open={open} actions={actions} />)
+            )}
+          </TreeList>
+        )}
       </div>
       {dragImage}
     </>

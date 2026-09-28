@@ -32,6 +32,7 @@ export {
   useEngine,
   useHullTree,
   useMarketTree,
+  useModuleSearch,
   useModuleTree,
   useSde,
   useType,

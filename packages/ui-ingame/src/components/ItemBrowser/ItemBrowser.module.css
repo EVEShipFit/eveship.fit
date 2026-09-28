@@ -142,6 +142,13 @@
   overflow-y: auto;
 }
 
+.empty {
+  color: var(--esf-text-muted);
+  font-size: calc(20 * var(--browser-unit));
+  margin: calc(24 * var(--browser-unit)) 0 0;
+  text-align: center;
+}
+
 .hull {
   font-weight: 600;
 }
