@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "vitest";
 
-import { canFit, chargesFor, placementOf, type Engine } from "../src/index.js";
+import { canFit, chargesFor, droneRoom, placementOf, type Engine } from "../src/index.js";
 import { testEngine } from "./engine.js";
 
 let engine: Engine;
@@ -74,5 +74,29 @@ describe("filters", () => {
     expect(canFit(engine.sde, type("Templar II"), type("Archon"))).toBe(true);
     expect(canFit(engine.sde, type("Cyclops II"), type("Archon"))).toBe(false);
     expect(canFit(engine.sde, type("Cyclops II"), type("Nyx"))).toBe(true);
+  });
+});
+
+describe("drones", () => {
+  test("room is what the active limit and the bandwidth leave", () => {
+    const fit = engine.createFit({
+      ship: { type_id: type("Tristan").id },
+      items: [{ type_id: type("Hammerhead II").id, slot: { type: "drone_bay" }, quantity: 2, state: "active" }],
+    });
+    const { stats } = fit.getSnapshot();
+    expect(droneRoom(engine.sde, stats, type("Hobgoblin II"))).toBe(1);
+    expect(droneRoom(engine.sde, stats, type("Hammerhead II"))).toBe(0);
+    expect(droneRoom(engine.sde, stats, type("Warrior II"))).toBe(1);
+  });
+
+  test("no room over the limit, or without a drone bay", () => {
+    const over = engine.createFit({
+      ship: { type_id: type("Tristan").id },
+      items: [{ type_id: type("Hobgoblin II").id, slot: { type: "drone_bay" }, quantity: 7, state: "active" }],
+    });
+    expect(droneRoom(engine.sde, over.getSnapshot().stats, type("Hobgoblin II"))).toBe(0);
+
+    const rifter = engine.createFit({ ship: { type_id: type("Rifter").id }, items: [] });
+    expect(droneRoom(engine.sde, rifter.getSnapshot().stats, type("Hobgoblin II"))).toBe(0);
   });
 });

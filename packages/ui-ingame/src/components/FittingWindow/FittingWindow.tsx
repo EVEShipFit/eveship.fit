@@ -87,7 +87,7 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
           </div>
         )}
         <div className={styles.bays}>
-          <Bay bay="cargo" icon="cargo" label="Cargo Hold" listed />
+          <Bay bay="cargo" icon="cargo" label="Cargo Hold" />
           <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" />
         </div>
         <div className={styles.history}>
@@ -167,44 +167,9 @@ function NotImplementedButton({ className, icon, label }: { className?: string; 
   );
 }
 
-function Bay({
-  bay,
-  icon,
-  label,
-  listed = false,
-}: {
-  bay: "cargo" | "droneBay";
-  icon: IconName;
-  label: string;
-  listed?: boolean;
-}) {
+function Bay({ bay, icon, label }: { bay: "cargo" | "droneBay"; icon: IconName; label: string }) {
   const { used, total } = useBayUsage(bay);
   const id = useId();
-  const usage = (
-    <>
-      <Icon name={icon} />
-      <span className={styles.used}>{oneDecimal.format(used)}</span>
-      <span className={styles.slash}>/</span>
-      <span className={styles.total}>{oneDecimal.format(total)}</span>
-      <span className={styles.unit}>m3</span>
-    </>
-  );
-
-  if (!listed) {
-    return (
-      <Tooltip label={label}>
-        <div
-          className={styles.bay}
-          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- A <fieldset> is for form controls.
-          role="group"
-          aria-label={label}
-          data-over={used > total || undefined}
-        >
-          {usage}
-        </div>
-      </Tooltip>
-    );
-  }
 
   return (
     <div className={styles.bayAnchor} style={{ "--bay-anchor": `--bay-${id.replace(/[^\w-]/g, "")}` } as CSSProperties}>
@@ -216,7 +181,11 @@ function Bay({
           popoverTarget={id}
           data-over={used > total || undefined}
         >
-          {usage}
+          <Icon name={icon} />
+          <span className={styles.used}>{oneDecimal.format(used)}</span>
+          <span className={styles.slash}>/</span>
+          <span className={styles.total}>{oneDecimal.format(total)}</span>
+          <span className={styles.unit}>m3</span>
         </button>
       </Tooltip>
       <BayContents id={id} bay={bay} label={label} />

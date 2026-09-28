@@ -14,6 +14,10 @@ function rifter(): FitStore {
   return engine.createFit({ ship: id("Rifter") });
 }
 
+function stacks(fit: FitStore) {
+  return fit.getSnapshot().fit.items.map(({ quantity, state }) => [quantity, state]);
+}
+
 describe("fit", () => {
   test("modules go in the first free slot of their rack", () => {
     const fit = rifter();
@@ -77,6 +81,22 @@ describe("fit", () => {
     ]);
   });
 
+  test("drones go in active until the active limit or the bandwidth is reached", () => {
+    const hobgoblins = engine.createFit({ ship: id("Tristan") });
+    for (let i = 0; i < 6; i++) hobgoblins.fit(id("Hobgoblin II"));
+    expect(stacks(hobgoblins)).toEqual([
+      [5, "active"],
+      [1, "offline"],
+    ]);
+
+    const hammerheads = engine.createFit({ ship: id("Tristan") });
+    for (let i = 0; i < 3; i++) hammerheads.fit(id("Hammerhead II"));
+    expect(stacks(hammerheads)).toEqual([
+      [2, "active"],
+      [1, "offline"],
+    ]);
+  });
+
   test("a given slot that does not take the type takes nothing", () => {
     const fit = rifter();
     const gun = fit.fit(id("200mm AutoCannon II"))!;
@@ -113,6 +133,102 @@ describe("edits", () => {
 
     fit.remove(gun);
     expect(fit.getSnapshot().fit.items).toMatchObject([{ type_id: id("Nanite Repair Paste") }]);
+  });
+
+  test("active drones split a type into an active and an offline stack", () => {
+    const fit = engine.createFit({ ship: id("Tristan") });
+    fit.fit(id("Hobgoblin II"));
+    for (let i = 0; i < 3; i++) fit.fit(id("Warrior II"));
+    const drones = () => fit.getSnapshot().fit.items.map(({ type_id, quantity, state }) => [type_id, quantity, state]);
+
+    fit.setActiveDrones(id("Warrior II"), 1);
+    expect(drones()).toEqual([
+      [id("Hobgoblin II"), 1, "active"],
+      [id("Warrior II"), 1, "active"],
+      [id("Warrior II"), 2, "offline"],
+    ]);
+
+    fit.setActiveDrones(id("Warrior II"), 5);
+    expect(drones()).toEqual([
+      [id("Hobgoblin II"), 1, "active"],
+      [id("Warrior II"), 3, "active"],
+    ]);
+
+    fit.setActiveDrones(id("Hobgoblin II"), 0);
+    expect(drones()[0]).toEqual([id("Hobgoblin II"), 1, "offline"]);
+
+    const before = fit.getSnapshot();
+    fit.setActiveDrones(id("Warrior II"), 3);
+    fit.setActiveDrones(id("Hammerhead II"), 1);
+    expect(fit.getSnapshot()).toBe(before);
+  });
+
+  test("active drones merge every stack of the type where the first one was", () => {
+    const warrior = { type_id: id("Warrior II"), slot: { type: "drone_bay" } } as const;
+    const fit = engine.createFit({
+      ship: { type_id: id("Tristan") },
+      items: [
+        { ...warrior, state: "offline" },
+        { type_id: id("Hobgoblin II"), slot: { type: "drone_bay" }, quantity: 1, state: "active" },
+        { ...warrior, quantity: 2, state: "active" },
+      ],
+    });
+
+    fit.setActiveDrones(id("Warrior II"), 1);
+    expect(fit.getSnapshot().fit.items.map(({ type_id, quantity, state }) => [type_id, quantity, state])).toEqual([
+      [id("Warrior II"), 1, "active"],
+      [id("Warrior II"), 2, "offline"],
+      [id("Hobgoblin II"), 1, "active"],
+    ]);
+
+    fit.setActiveDrones(id("Warrior II"), -1);
+    expect(fit.getSnapshot().fit.items[0]).toMatchObject({ quantity: 3, state: "offline" });
+  });
+
+  test("more drones are active while there is room; fewer remove the offline ones first", () => {
+    const fit = engine.createFit({ ship: id("Tristan") });
+    fit.fit(id("Hobgoblin II"));
+
+    fit.setDroneQuantity(id("Hobgoblin II"), 7);
+    expect(stacks(fit)).toEqual([
+      [5, "active"],
+      [2, "offline"],
+    ]);
+
+    fit.setDroneQuantity(id("Hobgoblin II"), 4);
+    expect(stacks(fit)).toEqual([[4, "active"]]);
+
+    fit.setDroneQuantity(id("Hobgoblin II"), 0);
+    expect(stacks(fit)).toEqual([]);
+  });
+
+  test("more drones stop at the bandwidth, next to other types", () => {
+    const fit = engine.createFit({
+      ship: { type_id: id("Tristan") },
+      items: [
+        { type_id: id("Hammerhead II"), slot: { type: "drone_bay" }, quantity: 2, state: "active" },
+        { type_id: id("Hobgoblin II"), slot: { type: "drone_bay" }, quantity: 1, state: "offline" },
+      ],
+    });
+    fit.setDroneQuantity(id("Hobgoblin II"), 4);
+    expect(stacks(fit)).toEqual([
+      [2, "active"],
+      [1, "active"],
+      [3, "offline"],
+    ]);
+
+    const before = fit.getSnapshot();
+    fit.setDroneQuantity(id("Hobgoblin II"), 4);
+    fit.setDroneQuantity(id("Hobgoblin II"), 2.5);
+    fit.setDroneQuantity(id("Warrior II"), 3);
+    expect(fit.getSnapshot()).toBe(before);
+  });
+
+  test("without drone skills, new drones go in offline", () => {
+    const fit = engine.createFit({ ship: id("Tristan") });
+    fit.setCharacter({ skills: {} });
+    fit.fit(id("Hobgoblin I"));
+    expect(stacks(fit)).toEqual([[1, "offline"]]);
   });
 
   test("cargo quantity merges every stack of the type into the first one", () => {

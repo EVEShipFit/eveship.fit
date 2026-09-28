@@ -61,6 +61,8 @@ export function useBayUsage(bay: "cargo" | "droneBay"): Usage {
 export interface BayContent {
   readonly type: SdeType;
   readonly quantity: number;
+  /** How many of `quantity` are active, like launched drones. */
+  readonly active: number;
   readonly refs: readonly ItemRef[];
 }
 
@@ -72,12 +74,13 @@ export function useBayContents(bay: "cargo" | "droneBay"): readonly BayContent[]
   const fit = useFit();
 
   return useMemo(() => {
-    const byType = new Map<number, { type: SdeType; quantity: number; refs: ItemRef[] }>();
+    const byType = new Map<number, { type: SdeType; quantity: number; active: number; refs: ItemRef[] }>();
     fit.items.forEach((item, ref) => {
       const type = sde.type(item.type_id);
       if (item.slot.type !== baySlots[bay] || type === undefined) return;
-      const content = byType.get(type.id) ?? { type, quantity: 0, refs: [] };
+      const content = byType.get(type.id) ?? { type, quantity: 0, active: 0, refs: [] };
       content.quantity += item.quantity ?? 1;
+      if (item.state === "active") content.active += item.quantity ?? 1;
       content.refs.push(ref);
       byType.set(type.id, content);
     });

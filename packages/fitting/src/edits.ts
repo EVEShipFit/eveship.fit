@@ -1,6 +1,7 @@
 import type { Sde } from "@eveshipfit/sde-loader";
 
 import { baseValue } from "./rules/attributes.js";
+import { droneRoom } from "./rules/drones.js";
 import { acceptsCharge } from "./rules/filters.js";
 import { firstFreeIndex, placementOf } from "./rules/placement.js";
 import type { Stats } from "./stats.js";
@@ -67,8 +68,10 @@ export function fitType(sde: Sde, fit: Fit, stats: Stats, typeId: number, slot?:
       return { fit: loaded, ref: modules[0]!.ref };
     }
 
-    case "drone_bay":
-      return addToStack(fit, { type_id: typeId, slot: { type: "drone_bay" }, quantity: 1, state: "active" });
+    case "drone_bay": {
+      const state = droneRoom(sde, stats, type) > 0 ? "active" : "offline";
+      return addToStack(fit, { type_id: typeId, slot: { type: "drone_bay" }, quantity: 1, state });
+    }
 
     case "fighter_bay": {
       const quantity = baseValue(sde, type, "fighterSquadronMaxSize") ?? 1;
@@ -116,6 +119,54 @@ export function setCharge(fit: Fit, ref: ItemRef, chargeTypeId: number | undefin
 export function setQuantity(fit: Fit, ref: ItemRef, quantity: number): Fit {
   if (quantity <= 0) return remove(fit, ref);
   return update(fit, ref, (item) => ((item.quantity ?? 1) === quantity ? item : { ...item, quantity }));
+}
+
+/** Of the drones of a type in the drone bay, make `count` active and the rest offline. */
+export function setActiveDrones(fit: Fit, typeId: number, count: number): Fit {
+  const { total } = dronesOf(fit, typeId);
+  return splitDrones(fit, typeId, total, count);
+}
+
+/** How many drones of a type are in the drone bay; new ones are active while there is room, offline ones go first. */
+export function setDroneQuantity(sde: Sde, fit: Fit, stats: Stats, typeId: number, quantity: number): Fit {
+  const type = sde.type(typeId);
+  const { total, active } = dronesOf(fit, typeId);
+  if (type === undefined || !Number.isSafeInteger(quantity)) return fit;
+  if (quantity <= total) return splitDrones(fit, typeId, quantity, Math.min(active, quantity));
+  return splitDrones(fit, typeId, quantity, active + Math.min(quantity - total, droneRoom(sde, stats, type)));
+}
+
+function dronesOf(fit: Fit, typeId: number): { refs: ItemRef[]; total: number; active: number } {
+  const refs = fit.items.flatMap((item, ref) =>
+    item.slot.type === "drone_bay" && item.type_id === typeId ? [ref] : [],
+  );
+  let total = 0;
+  let active = 0;
+  for (const ref of refs) {
+    const { quantity = 1, state } = fit.items[ref]!;
+    total += quantity;
+    if (state === "active") active += quantity;
+  }
+  return { refs, total, active };
+}
+
+/** The stacks of a type become one active and one offline stack, where the first one was. */
+function splitDrones(fit: Fit, typeId: number, quantity: number, count: number): Fit {
+  const before = dronesOf(fit, typeId);
+  const total = Math.max(0, quantity);
+  const active = Math.max(0, Math.min(count, total));
+  if (before.refs.length === 0 || (total === before.total && active === before.active)) return fit;
+
+  const split: FitItem[] = [];
+  if (active > 0) split.push({ type_id: typeId, slot: { type: "drone_bay" }, quantity: active, state: "active" });
+  if (active < total) {
+    split.push({ type_id: typeId, slot: { type: "drone_bay" }, quantity: total - active, state: "offline" });
+  }
+  const items = fit.items.flatMap((item, ref) => {
+    if (ref === before.refs[0]) return split;
+    return before.refs.includes(ref) ? [] : [item];
+  });
+  return { ...fit, items };
 }
 
 /** The cargo stacks of a type become one stack of `quantity`, where the first one was. */

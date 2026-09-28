@@ -1,4 +1,4 @@
-import { canFit, placementOf, type Placement, type Rack } from "@eveshipfit/fitting";
+import { canFit, droneRoom, placementOf, type Placement, type Rack } from "@eveshipfit/fitting";
 import type { SdeType } from "@eveshipfit/sde-loader";
 import { useMemo } from "react";
 
@@ -33,4 +33,11 @@ export function useCanFit(): (type: SdeType) => boolean {
       return rack === undefined || has.has(rack);
     };
   }, [sde, shipId, shipRacks, droneBay]);
+}
+
+/** How many more drones of a type can be active; does not follow the preview. */
+export function useDroneRoom(type: SdeType): number {
+  const sde = useSde();
+  const { stats } = useSnapshot();
+  return droneRoom(sde, stats, type);
 }
