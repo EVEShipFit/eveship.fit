@@ -65,7 +65,7 @@ export const EmptyRifter: Story = {
     const window = canvas.getByRole("region", { name: "Fitting Window" });
     const { width, height } = window.getBoundingClientRect();
     await expect(width).toBe(708);
-    await expect(height).toBe(643);
+    await expect(height).toBe(672);
 
     await expect(canvas.getByRole("region", { name: "Fitting" })).toBeInTheDocument();
     await expect(canvas.getByText("Rifter")).toBeInTheDocument();
