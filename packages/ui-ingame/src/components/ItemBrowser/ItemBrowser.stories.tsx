@@ -322,47 +322,61 @@ export const SearchModules: Story = {
 
     await expect(modules(canvas).getByRole("button", { name: "Damage Control II" })).toBeVisible();
     await expect(modules(canvas).queryByRole("button", { name: "Damage Control I" })).toBeNull();
-    await expect(modules(canvas).queryByRole("button", { name: "Shield" })).toBeNull();
+    await expect(modules(canvas).queryByRole("button", { name: "Ship Equipment" })).toBeNull();
   },
 };
 
-/** A search matching many modules leaves the groups closed. */
-export const BroadSearchModules: Story = {
+/** Search results by root market group, each a flat list sorted by name. */
+export const SearchModulesByRoot: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
-    const search = within(canvas.getByRole("tabpanel")).getByRole("searchbox");
+    await userEvent.type(within(canvas.getByRole("tabpanel")).getByRole("searchbox"), "bomb");
 
-    await userEvent.type(search, "a");
-    await expect(modules(canvas).getByRole("button", { name: "Hull & Armor" })).toHaveAttribute(
+    const roots = modules(canvas)
+      .getAllByRole("button", { name: /^(Ship|Structure) / })
+      .map((row) => row.textContent);
+    await expect(roots).toEqual(["Ship Equipment", "Structure Equipment", "Structure Modifications"]);
+
+    await userEvent.click(modules(canvas).getByRole("button", { name: "Ship Equipment" }));
+    await expect(modules(canvas).queryByRole("button", { name: "Smartbombs" })).toBeNull();
+    await expect(modules(canvas).getByRole("button", { name: "Faction & Storyline" })).toHaveAttribute(
       "aria-expanded",
       "false",
     );
+    const smartbombs = modules(canvas)
+      .getAllByRole("button", { name: /^(?!Show Info).*Smartbomb/ })
+      .map((row) => row.textContent);
+    await expect(smartbombs[0]).toBe("'Concussion' Compact Large Graviton Smartbomb");
+  },
+};
 
-    await userEvent.type(search, "rmor repairer ii");
+/** No match, no list. */
+export const NoModulesFound: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    await userEvent.type(within(canvas.getByRole("tabpanel")).getByRole("searchbox"), "asdasda");
+
+    await expect(canvas.getByText("No modules found")).toBeVisible();
+    await expect(canvas.queryByRole("list", { name: "Modules" })).toBeNull();
+  },
+};
+
+/** Collapse All closes the groups opened. */
+export const CollapseModules: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    const panel = within(canvas.getByRole("tabpanel"));
+    await userEvent.click(modules(canvas).getByRole("button", { name: "Hull & Armor" }));
     await expect(modules(canvas).getByRole("button", { name: "Hull & Armor" })).toHaveAttribute(
       "aria-expanded",
       "true",
     );
-    await expect(modules(canvas).getByRole("button", { name: "Large Remote Armor Repairer II" })).toBeVisible();
-  },
-};
-
-/** Collapse All closes the groups a search opened, until the search changes. */
-export const CollapseSearchedModules: Story = {
-  play: async ({ canvas, userEvent }) => {
-    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
-    const panel = within(canvas.getByRole("tabpanel"));
-    await userEvent.type(panel.getByRole("searchbox"), "damage control");
-    await expect(modules(canvas).getByRole("button", { name: "Damage Control II" })).toBeVisible();
 
     await userEvent.click(panel.getByRole("button", { name: "Collapse All Groups" }));
     await expect(modules(canvas).getByRole("button", { name: "Hull & Armor" })).toHaveAttribute(
       "aria-expanded",
       "false",
     );
-
-    await userEvent.type(panel.getByRole("searchbox"), " ii");
-    await expect(modules(canvas).getByRole("button", { name: "Damage Control II" })).toBeVisible();
   },
 };
 
@@ -375,7 +389,7 @@ export const SlotFilters: Story = {
     await userEvent.type(panel.getByRole("searchbox"), "damage control ii");
 
     await userEvent.click(filterButtons.getByRole("button", { name: "High Slot" }));
-    await expect(modules(canvas).queryByRole("button", { name: "Damage Control II" })).toBeNull();
+    await expect(canvas.getByText("No modules found")).toBeVisible();
     await userEvent.click(filterButtons.getByRole("button", { name: "Low Slot" }));
     await expect(modules(canvas).getByRole("button", { name: "Damage Control II" })).toBeVisible();
 
@@ -401,7 +415,7 @@ export const HullRestrictions: Story = {
 
     await userEvent.clear(panel.getByRole("searchbox"));
     await userEvent.type(panel.getByRole("searchbox"), "warrior");
-    await expect(modules(canvas).queryByRole("button", { name: "Drones" })).toBeNull();
+    await expect(canvas.getByText("No modules found")).toBeVisible();
   },
 };
 
@@ -494,13 +508,14 @@ export const ChargesForModule: Story = {
 export const SearchCharges: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("tab", { name: "Charges" }));
-    await userEvent.type(within(canvas.getByRole("tabpanel")).getByRole("searchbox"), "emp s");
+    const search = within(canvas.getByRole("tabpanel")).getByRole("searchbox");
+    await userEvent.type(search, "emp s");
 
     await expect(charges(canvas).getByRole("button", { name: "EMP S" })).toBeVisible();
-    await expect(charges(canvas).getByRole("button", { name: "Projectile Ammo" })).toHaveAttribute(
-      "aria-expanded",
-      "true",
-    );
-    await expect(charges(canvas).queryByRole("button", { name: "Missiles" })).toBeNull();
+    await expect(charges(canvas).queryByRole("button", { name: "Ammunition & Charges" })).toBeNull();
+    await expect(charges(canvas).queryByRole("button", { name: "Projectile Ammo" })).toBeNull();
+
+    await userEvent.type(search, "dasda");
+    await expect(canvas.getByText("No charges found")).toBeVisible();
   },
 };

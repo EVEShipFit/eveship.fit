@@ -124,6 +124,40 @@ describe("trees", () => {
     expect(folders.flatMap((node) => node.types).every((type) => type.metaGroupId === 52)).toBe(true);
   });
 
+  test("module search, by root market group", () => {
+    const roots = sde.moduleSearch();
+    const names = roots.map((node) => node.group.name);
+    expect(names).toEqual(expect.arrayContaining(["Drones", "Ship Equipment", "Structure Equipment"]));
+    expect(names).toEqual(names.toSorted((a, b) => new Intl.Collator("en").compare(a, b)));
+    expect(roots.every((node) => node.group.parentGroupId === undefined && node.children.length === 0)).toBe(true);
+
+    const all = roots.flatMap((node) => [...node.types, ...node.folders.flatMap((folder) => folder.types)]);
+    expect(new Set(all.map((type) => sde.category(type.categoryId)?.name))).toEqual(
+      new Set(["Module", "Drone", "Subsystem", "Structure Module", "Fighter"]),
+    );
+
+    const smartbombs = roots
+      .find((node) => node.group.name === "Ship Equipment")!
+      .types.filter((type) => type.name.includes("Smartbomb"))
+      .map((type) => type.name);
+    expect(smartbombs.slice(0, 2)).toEqual([
+      "'Concussion' Compact Large Graviton Smartbomb",
+      "'Concussion' Compact Medium Graviton Smartbomb",
+    ]);
+    expect(smartbombs.slice(12, 14)).toEqual(["Large EMP Smartbomb I", "Large EMP Smartbomb II"]);
+  });
+
+  test("charge search, by root market group", () => {
+    const roots = sde.chargeSearch();
+    expect(roots.map((node) => node.group.name)).toEqual(["Ammunition & Charges", "Special Edition Assets"]);
+
+    const ammunition = roots[0]!;
+    expect(ammunition.types.every((type) => type.categoryId === 8)).toBe(true);
+    const emp = ammunition.types.filter((type) => type.name.startsWith("EMP ")).map((type) => type.name);
+    expect(emp).toEqual(["EMP L", "EMP M", "EMP S", "EMP XL"]);
+    expect(ammunition.folders[0]!.types.map((type) => type.name)).toContain("Republic Fleet EMP S");
+  });
+
   test("charges, groups with groups in them first", () => {
     const roots = sde.chargeTree();
     expect(roots.map((node) => node.group.name)).toEqual([

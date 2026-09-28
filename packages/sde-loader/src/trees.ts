@@ -40,6 +40,8 @@ export interface ShipGroupNode {
 
 const SHIP_CATEGORY_ID = 6;
 const CHARGE_CATEGORY_ID = 8;
+/** Module, drone, subsystem, structure module and fighter. */
+const FITTABLE_CATEGORY_IDS: ReadonlySet<number> = new Set([7, 18, 32, 66, 87]);
 
 const empireFactions: Record<number, ShipRace> = {
   500001: "caldari",
@@ -98,13 +100,16 @@ export function buildMarketTree(
 export type MetaLevel = (type: SdeType) => number;
 
 export function sortByMeta(types: Iterable<SdeType>, metaLevel: MetaLevel): MetaSortedTypes {
+  return sortInFolders(types, byMetaOf(metaLevel));
+}
+
+function sortInFolders(types: Iterable<SdeType>, compare: (a: SdeType, b: SdeType) => number): MetaSortedTypes {
   const byFolder = Map.groupBy(types, (type) => metaFolders[metaGroup(type)]);
-  const byMeta = byMetaOf(metaLevel);
   return {
-    types: (byFolder.get(undefined) ?? []).toSorted(byMeta),
+    types: (byFolder.get(undefined) ?? []).toSorted(compare),
     folders: folderOrder.flatMap((folder) => {
       const folderTypes = byFolder.get(folder);
-      return folderTypes === undefined ? [] : [{ folder, types: folderTypes.toSorted(byMeta) }];
+      return folderTypes === undefined ? [] : [{ folder, types: folderTypes.toSorted(compare) }];
     }),
   };
 }
@@ -124,6 +129,26 @@ export function buildModuleTree(market: readonly MarketGroupNode[], metaLevel: M
     ...[DRONES_MARKET_GROUP_ID, RIGS_MARKET_GROUP_ID, SUBSYSTEMS_MARKET_GROUP_ID].flatMap((id) => byId.get(id) ?? []),
   ];
   return roots.flatMap(build).toSorted((a, b) => byName(a.group, b.group));
+}
+
+export function buildModuleSearch(market: readonly MarketGroupNode[]): readonly ModuleGroupNode[] {
+  return buildSearch(market, FITTABLE_CATEGORY_IDS);
+}
+
+export function buildChargeSearch(market: readonly MarketGroupNode[]): readonly ModuleGroupNode[] {
+  return buildSearch(market, new Set([CHARGE_CATEGORY_ID]));
+}
+
+function buildSearch(market: readonly MarketGroupNode[], categoryIds: ReadonlySet<number>): readonly ModuleGroupNode[] {
+  const within = (node: MarketGroupNode): SdeType[] => [
+    ...node.types.filter((type) => categoryIds.has(type.categoryId)),
+    ...node.children.flatMap(within),
+  ];
+
+  return market.flatMap((root) => {
+    const types = within(root);
+    return types.length === 0 ? [] : [{ group: root.group, children: [], ...sortInFolders(types, byName) }];
+  });
 }
 
 export function buildChargeTree(market: readonly MarketGroupNode[], metaLevel: MetaLevel): readonly MarketGroupNode[] {

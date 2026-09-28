@@ -1,14 +1,14 @@
 import type { Placement } from "@eveshipfit/fitting";
-import { useCanFit, useImages, useMissingSkills, useModuleTree, usePlacement } from "@eveshipfit/react-hooks";
-import type { ModuleGroupNode } from "@eveshipfit/sde-loader";
+import { useCanFit, useMissingSkills, useModuleSearch, useModuleTree, usePlacement } from "@eveshipfit/react-hooks";
+import type { SdeType } from "@eveshipfit/sde-loader";
 import { useState } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
 import type { IconName } from "../../primitives/Icon/Icon";
-import { TreeGroup, TreeList } from "../../primitives/TreeList/TreeList";
+import { TreeList } from "../../primitives/TreeList/TreeList";
 import styles from "./ItemBrowser.module.css";
-import { MOST_OPENED_BY_SEARCH, Search } from "./Search";
-import { countLeaves, TypeLeaves, useTypeActions, type TypeActions } from "./TypeLeaf";
+import { Search } from "./Search";
+import { SearchResults, TypeGroup, useTypeActions } from "./TypeLeaf";
 
 type SlotFilter = "low" | "medium" | "high" | "rig" | "drones";
 type Place = Placement["type"];
@@ -31,14 +31,14 @@ export function Modules() {
   const [slots, setSlots] = useState<ReadonlySet<SlotFilter>>(() => new Set());
   const [hullRestrictions, setHullRestrictions] = useState(false);
   const [flyable, setFlyable] = useState(false);
-  const [collapsed, setCollapsed] = useState<{ times: number; query?: string }>({ times: 0 });
+  const [collapses, setCollapses] = useState(0);
 
   const query = search.trim().toLowerCase();
   const places = new Set(slotFilters.filter(({ filter }) => slots.has(filter)).flatMap((slot) => slot.places));
 
-  const groups = useModuleTree(
+  const keep =
     query !== "" || places.size > 0 || hullRestrictions || flyable
-      ? (type) => {
+      ? (type: SdeType) => {
           if (places.size > 0) {
             const place = placement(type)?.type;
             if (place === undefined || !places.has(place)) return false;
@@ -47,10 +47,10 @@ export function Modules() {
           if (flyable && missingSkills([type.id]).length > 0) return false;
           return type.name.toLowerCase().includes(query);
         }
-      : undefined,
-  );
-
-  const open = query !== "" && query !== collapsed.query && countTypes(groups) <= MOST_OPENED_BY_SEARCH;
+      : undefined;
+  const tree = useModuleTree(query === "" ? keep : undefined);
+  const found = useModuleSearch(query === "" ? undefined : keep);
+  const groups = query === "" ? tree : found;
 
   const toggleSlot = (filter: SlotFilter, pressed: boolean) => {
     const next = new Set(slots);
@@ -67,7 +67,7 @@ export function Modules() {
           clear();
           setSearch(value);
         }}
-        onCollapse={() => setCollapsed({ times: collapsed.times + 1, query })}
+        onCollapse={() => setCollapses(collapses + 1)}
       />
       <fieldset className={styles.filters} aria-label="Filters">
         {slotFilters.map(({ filter, icon, label }) => (
@@ -89,40 +89,19 @@ export function Modules() {
         <FilterToggle icon="skills" label="Skills" pressed={flyable} onPressedChange={setFlyable} />
       </fieldset>
       <div className={styles.tree}>
-        <TreeList key={`${collapsed.times}-${open}`} label="Modules">
-          {groups.map((node) => (
-            <ModuleGroup key={node.group.id} node={node} open={open} actions={actions} />
-          ))}
-        </TreeList>
+        {groups.length === 0 ? (
+          <p className={styles.empty}>No modules found</p>
+        ) : (
+          <TreeList key={collapses} label="Modules">
+            {query === "" ? (
+              groups.map((node) => <TypeGroup key={node.group.id} node={node} actions={actions} />)
+            ) : (
+              <SearchResults roots={groups} actions={actions} />
+            )}
+          </TreeList>
+        )}
       </div>
       {dragImage}
     </>
   );
-}
-
-interface ModuleGroupProps {
-  node: ModuleGroupNode;
-  open: boolean;
-  actions: TypeActions;
-}
-
-function ModuleGroup({ node, open, actions }: ModuleGroupProps) {
-  const images = useImages();
-
-  return (
-    <TreeGroup label={node.group.name} icon={images.marketGroupIcon(node.group.id)} defaultOpen={open}>
-      {() => (
-        <>
-          {node.children.map((child) => (
-            <ModuleGroup key={child.group.id} node={child} open={open} actions={actions} />
-          ))}
-          <TypeLeaves sorted={node} open={open} actions={actions} />
-        </>
-      )}
-    </TreeGroup>
-  );
-}
-
-function countTypes(nodes: readonly ModuleGroupNode[]): number {
-  return nodes.reduce((count, node) => count + countTypes(node.children) + countLeaves(node), 0);
 }

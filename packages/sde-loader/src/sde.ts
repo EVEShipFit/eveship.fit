@@ -32,8 +32,10 @@ import {
 import { readSource, type Source } from "./source.js";
 import { Table } from "./table.js";
 import {
+  buildChargeSearch,
   buildChargeTree,
   buildMarketTree,
+  buildModuleSearch,
   buildModuleTree,
   buildShipTree,
   sortByMeta,
@@ -63,7 +65,9 @@ export class Sde {
   #typesByName: Map<string, SdeType> | undefined;
   #marketTree: readonly MarketGroupNode[] | undefined;
   #moduleTree: readonly ModuleGroupNode[] | undefined;
+  #moduleSearch: readonly ModuleGroupNode[] | undefined;
   #chargeTree: readonly MarketGroupNode[] | undefined;
+  #chargeSearch: readonly ModuleGroupNode[] | undefined;
   #shipTree: readonly ShipGroupNode[] | undefined;
 
   constructor(bytes: Uint8Array) {
@@ -171,10 +175,22 @@ export class Sde {
     return this.#moduleTree;
   }
 
+  /** What can be fitted, by root market group; types sorted by name, faction, officer and deadspace ones in folders. */
+  moduleSearch(): readonly ModuleGroupNode[] {
+    this.#moduleSearch ??= buildModuleSearch(this.marketTree());
+    return this.#moduleSearch;
+  }
+
   /** Charges by market group, groups with groups in them first; types sorted by meta group, meta level and name. */
   chargeTree(): readonly MarketGroupNode[] {
     this.#chargeTree ??= buildChargeTree(this.marketTree(), this.#metaLevel());
     return this.#chargeTree;
+  }
+
+  /** Charges by root market group; types sorted by name, faction, officer and deadspace ones in folders. */
+  chargeSearch(): readonly ModuleGroupNode[] {
+    this.#chargeSearch ??= buildChargeSearch(this.marketTree());
+    return this.#chargeSearch;
   }
 
   /** Sorted by meta group, meta level and name; faction, officer and deadspace types in folders, as in `moduleTree`. */

@@ -79,12 +79,30 @@ export function useModuleTree(filter?: (type: SdeType) => boolean): readonly Mod
   }, [sde, filter]);
 }
 
+/** What can be fitted, by root market group, cut down to the types a stable `filter` keeps. */
+export function useModuleSearch(filter?: (type: SdeType) => boolean): readonly ModuleGroupNode[] {
+  const sde = useSde();
+  return useMemo(() => {
+    const roots = sde.moduleSearch();
+    return filter === undefined ? roots : pruneModules(roots, filter);
+  }, [sde, filter]);
+}
+
 /** The charges by market group, cut down to the types a stable `filter` keeps. */
 export function useChargeTree(filter?: (type: SdeType) => boolean): readonly MarketGroupNode[] {
   const sde = useSde();
   return useMemo(() => {
     const tree = sde.chargeTree();
     return filter === undefined ? tree : pruneMarket(tree, filter);
+  }, [sde, filter]);
+}
+
+/** The charges by root market group, cut down to the types a stable `filter` keeps. */
+export function useChargeSearch(filter?: (type: SdeType) => boolean): readonly ModuleGroupNode[] {
+  const sde = useSde();
+  return useMemo(() => {
+    const roots = sde.chargeSearch();
+    return filter === undefined ? roots : pruneModules(roots, filter);
   }, [sde, filter]);
 }
 

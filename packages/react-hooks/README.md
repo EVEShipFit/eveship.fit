@@ -76,7 +76,8 @@ const texts = await loadTexts({ url: "/texts.dat" });
 ### Browsing
 
 `useMarketTree`, `useHullTree`, `useModuleTree` and `useChargeTree` give EVE's market, its ships, what goes on a ship and
-its charges, cut down to what a filter keeps. `useChargedModules` lists the fitted modules that load charges.
+its charges, cut down to what a filter keeps. `useModuleSearch` and `useChargeSearch` give what can be fitted and
+the charges by root market group, as EVE shows search results. `useChargedModules` lists the fitted modules that load charges.
 `usePlacement` says where a type goes, `useCanFit` whether it may go on the fit's ship, and `useDroneRoom` how many more
 drones of a type can be active.
 

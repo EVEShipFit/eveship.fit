@@ -1,12 +1,19 @@
-import { useChargedModules, useCharges, useChargeTree, useImages, useSde } from "@eveshipfit/react-hooks";
+import {
+  useChargedModules,
+  useCharges,
+  useChargeSearch,
+  useChargeTree,
+  useImages,
+  useSde,
+} from "@eveshipfit/react-hooks";
 import type { MarketGroupNode, SdeType } from "@eveshipfit/sde-loader";
 import { useMemo, useState } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
 import { TreeGroup, TreeList } from "../../primitives/TreeList/TreeList";
 import styles from "./ItemBrowser.module.css";
-import { MOST_OPENED_BY_SEARCH, Search } from "./Search";
-import { countLeaves, TypeLeaf, TypeLeaves, useTypeActions, type TypeActions } from "./TypeLeaf";
+import { Search } from "./Search";
+import { countLeaves, SearchResults, TypeLeaf, TypeLeaves, useTypeActions, type TypeActions } from "./TypeLeaf";
 
 /** The Charges tab of the `ItemBrowser`: every charge by market group, or only those a fitted module loads. */
 export function Charges() {
@@ -15,7 +22,7 @@ export function Charges() {
   const modules = useChargedModules();
   const [picked, setPicked] = useState<number>();
   const [search, setSearch] = useState("");
-  const [collapsed, setCollapsed] = useState<{ times: number; query?: string }>({ times: 0 });
+  const [collapses, setCollapses] = useState(0);
 
   const selected = modules.some((module) => module.id === picked) ? picked : undefined;
 
@@ -25,15 +32,15 @@ export function Charges() {
       selected === undefined && query !== "" ? (type: SdeType) => type.name.toLowerCase().includes(query) : undefined,
     [selected, query],
   );
-  const groups = useChargeTree(matches);
+  const groups = useChargeTree();
+  const found = useChargeSearch(matches);
   const charges = useCharges(selected);
   const loadable = useMemo(
     () => sde.sortByMeta(charges.filter((type) => type.name.toLowerCase().includes(query))),
     [sde, charges, query],
   );
 
-  const count = selected === undefined ? countTypes(groups) : countLeaves(loadable);
-  const open = query !== "" && query !== collapsed.query && count <= MOST_OPENED_BY_SEARCH;
+  const empty = selected === undefined ? matches !== undefined && found.length === 0 : countLeaves(loadable) === 0;
 
   return (
     <>
@@ -43,7 +50,7 @@ export function Charges() {
           clear();
           setSearch(value);
         }}
-        onCollapse={() => setCollapsed({ times: collapsed.times + 1, query })}
+        onCollapse={() => setCollapses(collapses + 1)}
       />
       <fieldset className={styles.filters} aria-label="Filters">
         {modules.map((module) => (
@@ -57,13 +64,19 @@ export function Charges() {
         ))}
       </fieldset>
       <div className={styles.tree}>
-        <TreeList key={`${collapsed.times}-${open}-${selected}`} label="Charges">
-          {selected === undefined ? (
-            groups.map((node) => <ChargeGroup key={node.group.id} node={node} open={open} actions={actions} />)
-          ) : (
-            <TypeLeaves sorted={loadable} open={open} actions={actions} icon />
-          )}
-        </TreeList>
+        {empty ? (
+          <p className={styles.empty}>No charges found</p>
+        ) : (
+          <TreeList key={`${collapses}-${selected}`} label="Charges">
+            {selected !== undefined ? (
+              <TypeLeaves sorted={loadable} actions={actions} icon />
+            ) : matches !== undefined ? (
+              <SearchResults roots={found} actions={actions} />
+            ) : (
+              groups.map((node) => <ChargeGroup key={node.group.id} node={node} actions={actions} />)
+            )}
+          </TreeList>
+        )}
       </div>
       {dragImage}
     </>
@@ -72,19 +85,18 @@ export function Charges() {
 
 interface ChargeGroupProps {
   node: MarketGroupNode;
-  open: boolean;
   actions: TypeActions;
 }
 
-function ChargeGroup({ node, open, actions }: ChargeGroupProps) {
+function ChargeGroup({ node, actions }: ChargeGroupProps) {
   const images = useImages();
 
   return (
-    <TreeGroup label={node.group.name} icon={images.marketGroupIcon(node.group.id)} defaultOpen={open}>
+    <TreeGroup label={node.group.name} icon={images.marketGroupIcon(node.group.id)}>
       {() => (
         <>
           {node.children.map((child) => (
-            <ChargeGroup key={child.group.id} node={child} open={open} actions={actions} />
+            <ChargeGroup key={child.group.id} node={child} actions={actions} />
           ))}
           {node.types.map((type) => (
             <TypeLeaf key={type.id} type={type} actions={actions} />
@@ -93,8 +105,4 @@ function ChargeGroup({ node, open, actions }: ChargeGroupProps) {
       )}
     </TreeGroup>
   );
-}
-
-function countTypes(nodes: readonly MarketGroupNode[]): number {
-  return nodes.reduce((count, node) => count + countTypes(node.children) + node.types.length, 0);
 }
