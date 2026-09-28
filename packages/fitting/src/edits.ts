@@ -122,7 +122,7 @@ export function setQuantity(fit: Fit, ref: ItemRef, quantity: number): Fit {
 export function setCargoQuantity(fit: Fit, typeId: number, quantity: number): Fit {
   const refs = fit.items.flatMap((item, ref) => (item.slot.type === "cargo" && item.type_id === typeId ? [ref] : []));
   const [first, ...rest] = refs;
-  if (first === undefined) return fit;
+  if (first === undefined || !Number.isSafeInteger(quantity)) return fit;
   return setQuantity(remove(fit, ...rest), first, quantity);
 }
 

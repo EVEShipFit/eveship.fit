@@ -24,7 +24,9 @@
 }
 
 .list {
+  column-gap: calc(8 * var(--window-unit));
   display: grid;
+  grid-template-columns: minmax(calc(62 * var(--window-unit)), max-content) auto 1fr auto;
   list-style: none;
   margin: 0;
   max-height: calc(8 * 32 * var(--window-unit));
@@ -35,20 +37,21 @@
 
 .row {
   align-items: center;
-  column-gap: calc(8 * var(--window-unit));
   display: grid;
-  grid-template-columns: calc(62 * var(--window-unit)) auto 1fr auto;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   height: calc(32 * var(--window-unit));
 }
 
 .quantity {
   align-items: center;
   border: var(--window-unit) solid transparent;
-  display: flex;
-  gap: calc(10 * var(--window-unit));
-  justify-content: flex-end;
+  column-gap: calc(8 * var(--window-unit));
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-items: center;
   justify-self: end;
-  padding: calc(5 * var(--window-unit)) calc(8 * var(--window-unit));
+  padding: calc(5 * var(--window-unit)) calc(6 * var(--window-unit));
 }
 
 .count {
@@ -56,9 +59,8 @@
   background: none;
   border: none;
   color: inherit;
-  field-sizing: content;
   font: inherit;
-  min-width: 1ch;
+  font-variant-numeric: tabular-nums;
   padding: 0;
   text-align: right;
 }
@@ -71,8 +73,13 @@
   outline: none;
 }
 
+.times,
 .steps {
-  display: none;
+  grid-area: 1 / 2;
+}
+
+.steps {
+  visibility: hidden;
 }
 
 .steps > button {
@@ -101,12 +108,12 @@
 
 .quantity:hover .times,
 .quantity:focus-within .times {
-  display: none;
+  visibility: hidden;
 }
 
 .quantity:hover .steps,
 .quantity:focus-within .steps {
-  display: block;
+  visibility: visible;
 }
 
 .quantity:focus-within {

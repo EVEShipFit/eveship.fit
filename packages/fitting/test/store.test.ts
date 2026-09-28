@@ -123,17 +123,23 @@ describe("edits", () => {
         { ...paste, quantity: 10, state: "offline" },
         { type_id: id("EMP S"), slot: { type: "cargo" }, quantity: 100, state: "offline" },
         { ...paste, state: "online" },
+        { type_id: id("Hobgoblin II"), slot: { type: "drone_bay" }, quantity: 2, state: "active" },
       ],
     });
+    const before = fit.getSnapshot();
+    fit.setCargoQuantity(id("Hobgoblin II"), 5);
+    fit.setCargoQuantity(id("Nanite Repair Paste"), 2.5);
+    expect(fit.getSnapshot()).toBe(before);
 
     fit.setCargoQuantity(id("Nanite Repair Paste"), 50);
     expect(fit.getSnapshot().fit.items.map(({ type_id, quantity }) => [type_id, quantity])).toEqual([
       [id("Nanite Repair Paste"), 50],
       [id("EMP S"), 100],
+      [id("Hobgoblin II"), 2],
     ]);
 
     fit.setCargoQuantity(id("Nanite Repair Paste"), 0);
-    expect(fit.getSnapshot().fit.items).toMatchObject([{ type_id: id("EMP S") }]);
+    expect(fit.getSnapshot().fit.items).toMatchObject([{ type_id: id("EMP S") }, { type_id: id("Hobgoblin II") }]);
   });
 
   test("moving a module swaps it with what is in the other slot", () => {

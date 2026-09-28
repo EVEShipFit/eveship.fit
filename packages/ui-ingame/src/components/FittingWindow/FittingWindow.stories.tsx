@@ -337,11 +337,25 @@ export const CargoHold: Story = {
     await expect(emp).toHaveValue(51);
     await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("4 of 4");
 
+    await userEvent.tripleClick(emp);
+    await userEvent.keyboard("0{Enter}");
+    await userEvent.tripleClick(emp);
+    await userEvent.keyboard("70{Escape}");
+    await expect(emp).toHaveValue(51);
+    await userEvent.tripleClick(emp);
+    await userEvent.keyboard("60");
+    await userEvent.tab();
+    await expect(emp).toHaveValue(60);
+    await userEvent.click(emp);
+    await userEvent.click(canvas.getByRole("button", { name: "One fewer EMP S" }));
+    await expect(emp).toHaveValue(59);
+    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("6 of 6");
+
     await userEvent.click(canvas.getByRole("button", { name: "Remove All" }));
     await expect(canvas.queryByRole("list", { name: "Cargo Hold" })).toBeNull();
     await expect(hold).toHaveFocus();
     await expect(hold).toHaveTextContent("0.0/140.0m3");
-    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("5 of 5");
+    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("7 of 7");
 
     await userEvent.click(hold);
     await expect(await canvas.findByText("No Cargo Items Simulated")).toBeVisible();
