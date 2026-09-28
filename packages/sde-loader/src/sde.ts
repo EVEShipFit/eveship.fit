@@ -32,6 +32,7 @@ import {
 import { readSource, type Source } from "./source.js";
 import { Table } from "./table.js";
 import {
+  buildChargeSearch,
   buildChargeTree,
   buildMarketTree,
   buildModuleSearch,
@@ -66,6 +67,7 @@ export class Sde {
   #moduleTree: readonly ModuleGroupNode[] | undefined;
   #moduleSearch: readonly ModuleGroupNode[] | undefined;
   #chargeTree: readonly MarketGroupNode[] | undefined;
+  #chargeSearch: readonly ModuleGroupNode[] | undefined;
   #shipTree: readonly ShipGroupNode[] | undefined;
 
   constructor(bytes: Uint8Array) {
@@ -183,6 +185,12 @@ export class Sde {
   chargeTree(): readonly MarketGroupNode[] {
     this.#chargeTree ??= buildChargeTree(this.marketTree(), this.#metaLevel());
     return this.#chargeTree;
+  }
+
+  /** Charges by root market group; types sorted by name, faction, officer and deadspace ones in folders. */
+  chargeSearch(): readonly ModuleGroupNode[] {
+    this.#chargeSearch ??= buildChargeSearch(this.marketTree());
+    return this.#chargeSearch;
   }
 
   /** Sorted by meta group, meta level and name; faction, officer and deadspace types in folders, as in `moduleTree`. */

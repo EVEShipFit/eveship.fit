@@ -33,6 +33,7 @@ sde.marketTree(); // the published market, root groups first
 sde.moduleTree(); // what goes on a ship, by market group
 sde.moduleSearch(); // what can be fitted, by root market group
 sde.chargeTree(); // charges, by market group
+sde.chargeSearch(); // charges, by root market group
 sde.shipTree(); // published ships, by group and race
 ```
 

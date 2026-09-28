@@ -18,6 +18,7 @@ import {
   useCanFit,
   useCharacters,
   useChargedModules,
+  useChargeSearch,
   useChargeTree,
   useCharges,
   useDrag,
@@ -32,6 +33,7 @@ import {
   useLocalFits,
   useMarketTree,
   useMissingSkills,
+  useModuleSearch,
   useModuleTree,
   usePlacement,
   usePreview,
@@ -435,6 +437,18 @@ test("the modules keep only the groups and folders of what the filter keeps", ()
   expect(groups.flatMap((node) => node.types)).toEqual([]);
   expect(groups.flatMap((node) => node.folders.map((folder) => folder.folder))).toEqual(["faction"]);
   expect(groups.filter((node) => node.children.length === 0 && node.folders.length === 0)).toEqual([]);
+});
+
+test("the search keeps only the roots and folders of what the filter keeps", () => {
+  const { result } = render(() => ({
+    modules: useModuleSearch(onlyRepublicFleet),
+    charges: useChargeSearch((type) => type.name === "Republic Fleet EMP S"),
+  }));
+
+  expect(result.current.modules.map((node) => node.group.name)).toEqual(["Ship Equipment"]);
+  expect(result.current.modules[0]?.types).toEqual([]);
+  expect(result.current.modules[0]?.folders.map((folder) => folder.folder)).toEqual(["faction"]);
+  expect(result.current.charges.map((node) => node.group.name)).toEqual(["Ammunition & Charges"]);
 });
 
 function allModuleGroups(nodes: readonly ModuleGroupNode[]): ModuleGroupNode[] {

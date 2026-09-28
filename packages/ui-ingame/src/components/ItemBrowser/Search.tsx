@@ -2,9 +2,6 @@ import { Icon } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import styles from "./ItemBrowser.module.css";
 
-/** Past this many matches, a search leaves the groups closed. */
-export const MOST_OPENED_BY_SEARCH = 200;
-
 export interface SearchProps {
   value: string;
   onChange: (value: string) => void;

@@ -1,21 +1,14 @@
 import type { Placement } from "@eveshipfit/fitting";
-import {
-  useCanFit,
-  useImages,
-  useMissingSkills,
-  useModuleSearch,
-  useModuleTree,
-  usePlacement,
-} from "@eveshipfit/react-hooks";
-import type { ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
+import { useCanFit, useMissingSkills, useModuleSearch, useModuleTree, usePlacement } from "@eveshipfit/react-hooks";
+import type { SdeType } from "@eveshipfit/sde-loader";
 import { useState } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
 import type { IconName } from "../../primitives/Icon/Icon";
-import { TreeGroup, TreeList } from "../../primitives/TreeList/TreeList";
+import { TreeList } from "../../primitives/TreeList/TreeList";
 import styles from "./ItemBrowser.module.css";
-import { MOST_OPENED_BY_SEARCH, Search } from "./Search";
-import { countLeaves, TypeLeaves, useTypeActions, type TypeActions } from "./TypeLeaf";
+import { Search } from "./Search";
+import { SearchResults, TypeGroup, useTypeActions } from "./TypeLeaf";
 
 type SlotFilter = "low" | "medium" | "high" | "rig" | "drones";
 type Place = Placement["type"];
@@ -38,7 +31,7 @@ export function Modules() {
   const [slots, setSlots] = useState<ReadonlySet<SlotFilter>>(() => new Set());
   const [hullRestrictions, setHullRestrictions] = useState(false);
   const [flyable, setFlyable] = useState(false);
-  const [collapsed, setCollapsed] = useState<{ times: number; query?: string }>({ times: 0 });
+  const [collapses, setCollapses] = useState(0);
 
   const query = search.trim().toLowerCase();
   const places = new Set(slotFilters.filter(({ filter }) => slots.has(filter)).flatMap((slot) => slot.places));
@@ -58,9 +51,6 @@ export function Modules() {
   const tree = useModuleTree(query === "" ? keep : undefined);
   const found = useModuleSearch(query === "" ? undefined : keep);
   const groups = query === "" ? tree : found;
-  const only = query !== "" && groups.length === 1 ? groups[0] : undefined;
-
-  const open = query !== "" && query !== collapsed.query && countTypes(groups) <= MOST_OPENED_BY_SEARCH;
 
   const toggleSlot = (filter: SlotFilter, pressed: boolean) => {
     const next = new Set(slots);
@@ -77,7 +67,7 @@ export function Modules() {
           clear();
           setSearch(value);
         }}
-        onCollapse={() => setCollapsed({ times: collapsed.times + 1, query })}
+        onCollapse={() => setCollapses(collapses + 1)}
       />
       <fieldset className={styles.filters} aria-label="Filters">
         {slotFilters.map(({ filter, icon, label }) => (
@@ -102,11 +92,11 @@ export function Modules() {
         {groups.length === 0 ? (
           <p className={styles.empty}>No modules found</p>
         ) : (
-          <TreeList key={`${collapsed.times}-${open}`} label="Modules">
-            {only !== undefined ? (
-              <TypeLeaves sorted={only} open={open} actions={actions} />
+          <TreeList key={collapses} label="Modules">
+            {query === "" ? (
+              groups.map((node) => <TypeGroup key={node.group.id} node={node} actions={actions} />)
             ) : (
-              groups.map((node) => <ModuleGroup key={node.group.id} node={node} open={open} actions={actions} />)
+              <SearchResults roots={groups} actions={actions} />
             )}
           </TreeList>
         )}
@@ -114,31 +104,4 @@ export function Modules() {
       {dragImage}
     </>
   );
-}
-
-interface ModuleGroupProps {
-  node: ModuleGroupNode;
-  open: boolean;
-  actions: TypeActions;
-}
-
-function ModuleGroup({ node, open, actions }: ModuleGroupProps) {
-  const images = useImages();
-
-  return (
-    <TreeGroup label={node.group.name} icon={images.marketGroupIcon(node.group.id)} defaultOpen={open}>
-      {() => (
-        <>
-          {node.children.map((child) => (
-            <ModuleGroup key={child.group.id} node={child} open={open} actions={actions} />
-          ))}
-          <TypeLeaves sorted={node} open={open} actions={actions} />
-        </>
-      )}
-    </TreeGroup>
-  );
-}
-
-function countTypes(nodes: readonly ModuleGroupNode[]): number {
-  return nodes.reduce((count, node) => count + countTypes(node.children) + countLeaves(node), 0);
 }

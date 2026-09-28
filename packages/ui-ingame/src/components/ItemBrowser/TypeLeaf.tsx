@@ -1,5 +1,5 @@
 import { useDrag, useFitStore, useImages, usePreview } from "@eveshipfit/react-hooks";
-import type { MetaFolder, MetaSortedTypes, SdeType } from "@eveshipfit/sde-loader";
+import type { MetaFolder, MetaSortedTypes, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
 import { useRef, useState, type DragEvent, type ReactNode } from "react";
 
 import { Icon } from "../../primitives/Icon/Icon";
@@ -97,13 +97,12 @@ export function TypeLeaf({ type, actions, icon = false }: TypeLeafProps) {
 
 export interface TypeLeavesProps {
   sorted: MetaSortedTypes;
-  open: boolean;
   actions: TypeActions;
   icon?: boolean;
 }
 
 /** The types, then their faction, officer and deadspace folders. */
-export function TypeLeaves({ sorted, open, actions, icon }: TypeLeavesProps) {
+export function TypeLeaves({ sorted, actions, icon }: TypeLeavesProps) {
   const images = useImages();
 
   return (
@@ -112,12 +111,7 @@ export function TypeLeaves({ sorted, open, actions, icon }: TypeLeavesProps) {
         <TypeLeaf key={type.id} type={type} actions={actions} icon={icon} />
       ))}
       {sorted.folders.map(({ folder, types }) => (
-        <TreeGroup
-          key={folder}
-          label={folders[folder].label}
-          icon={images.metaGroupIcon(folders[folder].metaGroupId)}
-          defaultOpen={open}
-        >
+        <TreeGroup key={folder} label={folders[folder].label} icon={images.metaGroupIcon(folders[folder].metaGroupId)}>
           {() => types.map((type) => <TypeLeaf key={type.id} type={type} actions={actions} icon={icon} />)}
         </TreeGroup>
       ))}
@@ -127,4 +121,39 @@ export function TypeLeaves({ sorted, open, actions, icon }: TypeLeavesProps) {
 
 export function countLeaves(sorted: MetaSortedTypes): number {
   return sorted.folders.reduce((count, folder) => count + folder.types.length, sorted.types.length);
+}
+
+export interface TypeGroupProps {
+  node: ModuleGroupNode;
+  actions: TypeActions;
+}
+
+/** A market group: its groups, then its types. */
+export function TypeGroup({ node, actions }: TypeGroupProps) {
+  const images = useImages();
+
+  return (
+    <TreeGroup label={node.group.name} icon={images.marketGroupIcon(node.group.id)}>
+      {() => (
+        <>
+          {node.children.map((child) => (
+            <TypeGroup key={child.group.id} node={child} actions={actions} />
+          ))}
+          <TypeLeaves sorted={node} actions={actions} />
+        </>
+      )}
+    </TreeGroup>
+  );
+}
+
+export interface SearchResultsProps {
+  roots: readonly ModuleGroupNode[];
+  actions: TypeActions;
+}
+
+/** Search results by root market group; a lone root shows only its types. */
+export function SearchResults({ roots, actions }: SearchResultsProps) {
+  const [only] = roots;
+  if (roots.length === 1 && only !== undefined) return <TypeLeaves sorted={only} actions={actions} />;
+  return roots.map((node) => <TypeGroup key={node.group.id} node={node} actions={actions} />);
 }

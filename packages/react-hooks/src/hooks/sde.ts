@@ -97,6 +97,15 @@ export function useChargeTree(filter?: (type: SdeType) => boolean): readonly Mar
   }, [sde, filter]);
 }
 
+/** The charges by root market group, cut down to the types a stable `filter` keeps. */
+export function useChargeSearch(filter?: (type: SdeType) => boolean): readonly ModuleGroupNode[] {
+  const sde = useSde();
+  return useMemo(() => {
+    const roots = sde.chargeSearch();
+    return filter === undefined ? roots : pruneModules(roots, filter);
+  }, [sde, filter]);
+}
+
 /**
  * The ships by group and race, cut down to those `filter` keeps; groups left
  * empty are dropped. Keep `filter` stable between renders, as the tree is

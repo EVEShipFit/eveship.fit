@@ -27,6 +27,7 @@ export { useLocalFits, type LocalFitsControls } from "./hooks/local-fits.js";
 export { useCanFit, useDroneRoom, usePlacement } from "./hooks/rules.js";
 export {
   useChargedModules,
+  useChargeSearch,
   useChargeTree,
   useCharges,
   useEngine,

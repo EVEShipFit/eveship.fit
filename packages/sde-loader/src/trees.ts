@@ -132,13 +132,21 @@ export function buildModuleTree(market: readonly MarketGroupNode[], metaLevel: M
 }
 
 export function buildModuleSearch(market: readonly MarketGroupNode[]): readonly ModuleGroupNode[] {
-  const fittable = (node: MarketGroupNode): SdeType[] => [
-    ...node.types.filter((type) => FITTABLE_CATEGORY_IDS.has(type.categoryId)),
-    ...node.children.flatMap(fittable),
+  return buildSearch(market, FITTABLE_CATEGORY_IDS);
+}
+
+export function buildChargeSearch(market: readonly MarketGroupNode[]): readonly ModuleGroupNode[] {
+  return buildSearch(market, new Set([CHARGE_CATEGORY_ID]));
+}
+
+function buildSearch(market: readonly MarketGroupNode[], categoryIds: ReadonlySet<number>): readonly ModuleGroupNode[] {
+  const within = (node: MarketGroupNode): SdeType[] => [
+    ...node.types.filter((type) => categoryIds.has(type.categoryId)),
+    ...node.children.flatMap(within),
   ];
 
   return market.flatMap((root) => {
-    const types = fittable(root);
+    const types = within(root);
     return types.length === 0 ? [] : [{ group: root.group, children: [], ...sortInFolders(types, byName) }];
   });
 }

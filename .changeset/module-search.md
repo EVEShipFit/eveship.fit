@@ -3,4 +3,4 @@
 "@eveshipfit/react-hooks": minor
 ---
 
-Add `moduleSearch` and `useModuleSearch`: what can be fitted, by root market group
+Add `moduleSearch`, `chargeSearch`, `useModuleSearch` and `useChargeSearch`: what can be fitted and the charges, by root market group

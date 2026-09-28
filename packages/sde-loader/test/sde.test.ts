@@ -147,6 +147,17 @@ describe("trees", () => {
     expect(smartbombs.slice(12, 14)).toEqual(["Large EMP Smartbomb I", "Large EMP Smartbomb II"]);
   });
 
+  test("charge search, by root market group", () => {
+    const roots = sde.chargeSearch();
+    expect(roots.map((node) => node.group.name)).toEqual(["Ammunition & Charges", "Special Edition Assets"]);
+
+    const ammunition = roots[0]!;
+    expect(ammunition.types.every((type) => type.categoryId === 8)).toBe(true);
+    const emp = ammunition.types.filter((type) => type.name.startsWith("EMP ")).map((type) => type.name);
+    expect(emp).toEqual(["EMP L", "EMP M", "EMP S", "EMP XL"]);
+    expect(ammunition.folders[0]!.types.map((type) => type.name)).toContain("Republic Fleet EMP S");
+  });
+
   test("charges, groups with groups in them first", () => {
     const roots = sde.chargeTree();
     expect(roots.map((node) => node.group.name)).toEqual([

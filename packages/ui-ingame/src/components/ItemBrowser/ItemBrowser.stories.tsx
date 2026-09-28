@@ -323,8 +323,17 @@ export const SearchModulesByRoot: Story = {
       .getAllByRole("button", { name: /^(Ship|Structure) / })
       .map((row) => row.textContent);
     await expect(roots).toEqual(["Ship Equipment", "Structure Equipment", "Structure Modifications"]);
+
+    await userEvent.click(modules(canvas).getByRole("button", { name: "Ship Equipment" }));
     await expect(modules(canvas).queryByRole("button", { name: "Smartbombs" })).toBeNull();
-    await expect(modules(canvas).getByRole("button", { name: "Standup Guided Bomb Launcher I" })).toBeVisible();
+    await expect(modules(canvas).getByRole("button", { name: "Faction & Storyline" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    const smartbombs = modules(canvas)
+      .getAllByRole("button", { name: /^(?!Show Info).*Smartbomb/ })
+      .map((row) => row.textContent);
+    await expect(smartbombs[0]).toBe("'Concussion' Compact Large Graviton Smartbomb");
   },
 };
 
@@ -339,39 +348,22 @@ export const NoModulesFound: Story = {
   },
 };
 
-/** A search matching many modules leaves the groups closed. */
-export const BroadSearchModules: Story = {
-  play: async ({ canvas, userEvent }) => {
-    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
-    const search = within(canvas.getByRole("tabpanel")).getByRole("searchbox");
-
-    await userEvent.type(search, "a");
-    await expect(modules(canvas).getByRole("button", { name: "Ship Equipment" })).toHaveAttribute(
-      "aria-expanded",
-      "false",
-    );
-
-    await userEvent.type(search, "rmor repairer ii");
-    await expect(modules(canvas).getByRole("button", { name: "Large Remote Armor Repairer II" })).toBeVisible();
-  },
-};
-
-/** Collapse All closes the groups a search opened, until the search changes. */
-export const CollapseSearchedModules: Story = {
+/** Collapse All closes the groups opened. */
+export const CollapseModules: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
     const panel = within(canvas.getByRole("tabpanel"));
-    await userEvent.type(panel.getByRole("searchbox"), "bomb");
-    await expect(modules(canvas).getByRole("button", { name: "Standup Guided Bomb Launcher I" })).toBeVisible();
+    await userEvent.click(modules(canvas).getByRole("button", { name: "Hull & Armor" }));
+    await expect(modules(canvas).getByRole("button", { name: "Hull & Armor" })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
 
     await userEvent.click(panel.getByRole("button", { name: "Collapse All Groups" }));
-    await expect(modules(canvas).getByRole("button", { name: "Structure Equipment" })).toHaveAttribute(
+    await expect(modules(canvas).getByRole("button", { name: "Hull & Armor" })).toHaveAttribute(
       "aria-expanded",
       "false",
     );
-
-    await userEvent.type(panel.getByRole("searchbox"), " launcher");
-    await expect(modules(canvas).getByRole("button", { name: "Standup Guided Bomb Launcher I" })).toBeVisible();
   },
 };
 
@@ -503,13 +495,14 @@ export const ChargesForModule: Story = {
 export const SearchCharges: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("tab", { name: "Charges" }));
-    await userEvent.type(within(canvas.getByRole("tabpanel")).getByRole("searchbox"), "emp s");
+    const search = within(canvas.getByRole("tabpanel")).getByRole("searchbox");
+    await userEvent.type(search, "emp s");
 
     await expect(charges(canvas).getByRole("button", { name: "EMP S" })).toBeVisible();
-    await expect(charges(canvas).getByRole("button", { name: "Projectile Ammo" })).toHaveAttribute(
-      "aria-expanded",
-      "true",
-    );
-    await expect(charges(canvas).queryByRole("button", { name: "Missiles" })).toBeNull();
+    await expect(charges(canvas).queryByRole("button", { name: "Ammunition & Charges" })).toBeNull();
+    await expect(charges(canvas).queryByRole("button", { name: "Projectile Ammo" })).toBeNull();
+
+    await userEvent.type(search, "dasda");
+    await expect(canvas.getByText("No charges found")).toBeVisible();
   },
 };
