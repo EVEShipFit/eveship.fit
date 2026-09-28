@@ -51,6 +51,9 @@
   --esf-flyable: #00cef6;
   --esf-not-flyable: #be181e;
   --esf-bay-row-hover: #161f24;
+  --esf-drone-box: #193036;
+  --esf-drone-box-open: #2b4f59;
+  --esf-drone-box-empty: #0d1213;
   --esf-spinner-edge: #161718;
   --esf-spinner-focus: #1a2629;
   --esf-spinner-focus-edge: #273437;

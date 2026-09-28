@@ -9,6 +9,7 @@ export {
   baseValue,
   canFit,
   chargesFor,
+  droneRoom,
   firstFreeIndex,
   placementOf,
   type Placement,

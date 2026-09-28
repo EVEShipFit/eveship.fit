@@ -1,4 +1,4 @@
-import { useBayContents, useFitStore } from "@eveshipfit/react-hooks";
+import { useBayContents, useDroneRoom, useFitStore, useSnapshot, type BayContent } from "@eveshipfit/react-hooks";
 import { useRef, useState, type KeyboardEvent } from "react";
 
 import { Icon } from "../../primitives/Icon/Icon";
@@ -12,6 +12,9 @@ export function BayContents({ id, bay, label }: { id: string; bay: "cargo" | "dr
   const store = useFitStore();
   const contents = useBayContents(bay);
   const panel = useRef<HTMLDivElement>(null);
+  const drones = bay === "droneBay";
+  const { stats } = useSnapshot();
+  const maxActive = stats.character.get("maxActiveDrones") ?? 0;
 
   if (contents.length === 0) {
     return (
@@ -22,31 +25,48 @@ export function BayContents({ id, bay, label }: { id: string; bay: "cargo" | "dr
   }
 
   return (
-    <div ref={panel} id={id} className={styles.panel} popover="auto">
+    <div ref={panel} id={id} className={styles.panel} popover="auto" data-drones={drones || undefined}>
+      {drones && (
+        <div className={styles.activeDrones}>
+          Active drones: {stats.ship.get("droneActive") ?? 0} / {maxActive}
+        </div>
+      )}
       <ul className={styles.list} aria-label={label}>
-        {contents.map(({ type, quantity, refs }) => (
-          <li key={type.id} className={styles.row}>
-            <Quantity name={type.name} value={quantity} onChange={(value) => store.setCargoQuantity(type.id, value)} />
-            <span className={styles.icon}>
-              <TypeIcon typeId={type.id} />
-            </span>
-            <span className={styles.name}>{type.name}</span>
-            <button
-              type="button"
-              className={styles.remove}
-              aria-label={`Remove ${type.name}`}
-              onClick={(event) => {
-                const row = event.currentTarget.closest("li")!;
-                const next = row.nextElementSibling ?? row.previousElementSibling;
-                store.remove(...refs);
-                if (next === null) panel.current?.hidePopover();
-                else next.querySelector<HTMLElement>(`.${styles.remove}`)?.focus();
-              }}
-            >
-              <Icon name="close" />
-            </button>
-          </li>
-        ))}
+        {contents.map((content) => {
+          const { type, quantity, refs } = content;
+          return (
+            <li key={type.id} className={styles.row}>
+              <Quantity
+                name={type.name}
+                value={quantity}
+                onChange={(value) =>
+                  drones ? store.setDroneQuantity(type.id, value) : store.setCargoQuantity(type.id, value)
+                }
+              />
+              <span className={styles.icon}>
+                <TypeIcon typeId={type.id} />
+              </span>
+              <span className={styles.middle}>
+                <span className={styles.name}>{type.name}</span>
+                {drones && <DroneSelection content={content} max={maxActive} />}
+              </span>
+              <button
+                type="button"
+                className={styles.remove}
+                aria-label={`Remove ${type.name}`}
+                onClick={(event) => {
+                  const row = event.currentTarget.closest("li")!;
+                  const next = row.nextElementSibling ?? row.previousElementSibling;
+                  store.remove(...refs);
+                  if (next === null) panel.current?.hidePopover();
+                  else next.querySelector<HTMLElement>(`.${styles.remove}`)?.focus();
+                }}
+              >
+                <Icon name="close" />
+              </button>
+            </li>
+          );
+        })}
       </ul>
       <button
         type="button"
@@ -59,6 +79,37 @@ export function BayContents({ id, bay, label }: { id: string; bay: "cargo" | "dr
         Remove All
       </button>
     </div>
+  );
+}
+
+/** One box per drone the character can launch. */
+function DroneSelection({ content: { type, quantity, active }, max }: { content: BayContent; max: number }) {
+  const store = useFitStore();
+  const room = useDroneRoom(type);
+
+  return (
+    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- A <fieldset> is for form controls.
+    <span className={styles.selection} role="group" aria-label={`Active ${type.name}`}>
+      Selected:
+      {Array.from({ length: Math.max(max, active) }, (_, index) => {
+        const count = index + 1;
+        const state = count <= active ? "active" : count > quantity ? "none" : count <= active + room ? "open" : "over";
+        return (
+          <button
+            key={count}
+            type="button"
+            className={styles.box}
+            aria-label={`${count} active`}
+            aria-pressed={count === active}
+            data-state={state}
+            disabled={state === "over" || state === "none"}
+            onClick={() => store.setActiveDrones(type.id, count === active ? count - 1 : count)}
+          >
+            {count <= active && "×"}
+          </button>
+        );
+      })}
+    </span>
   );
 }
 

@@ -19,6 +19,9 @@ const types = {
   "Medium Projectile Burst Aerator I": 31670,
   "Nanite Repair Paste": 28668,
   "Hobgoblin II": 2456,
+  Tristan: 593,
+  "Hammerhead II": 2185,
+  "Warrior II": 2488,
 };
 
 const rifter = {
@@ -293,7 +296,7 @@ export const FittedRifter: Story = {
     await expect(canvas.getByText("CPU").parentElement).toHaveTextContent(/^CPU\d+\.\d\/\d+\.\d$/);
     await expect(canvas.getByText("Power Grid").parentElement).toHaveTextContent(/^Power Grid\d+\.\d\/\d+\.\d$/);
     await expect(canvas.getByRole("button", { name: "Cargo Hold" })).toHaveTextContent("0.3/140.0m3");
-    await expect(canvas.getByRole("group", { name: "Drone Bay" })).toHaveTextContent("0.0/0.0m3");
+    await expect(canvas.getByRole("button", { name: "Drone Bay" })).toHaveTextContent("0.0/0.0m3");
   },
 };
 
@@ -359,6 +362,77 @@ export const CargoHold: Story = {
 
     await userEvent.click(hold);
     await expect(await canvas.findByText("No Cargo Items Simulated")).toBeVisible();
+  },
+};
+
+/** Clicking the drone bay lists its drones, with boxes for how many are active; each change is one step. */
+export const DroneBay: Story = {
+  parameters: {
+    fit: {
+      ship: { type_id: types.Tristan },
+      items: [
+        { type_id: types["Warrior II"], slot: { type: "drone_bay" }, quantity: 2, state: "active" },
+        { type_id: types["Hobgoblin II"], slot: { type: "drone_bay" }, quantity: 1, state: "active" },
+        { type_id: types["Hobgoblin II"], slot: { type: "drone_bay" }, quantity: 2, state: "offline" },
+        { type_id: types["Hammerhead II"], slot: { type: "drone_bay" }, quantity: 3, state: "offline" },
+      ],
+    },
+  },
+  play: async ({ canvas, userEvent }) => {
+    const bay = canvas.getByRole("button", { name: "Drone Bay" });
+    const history = within(canvas.getByRole("group", { name: "Simulation History" }));
+    const step = () => history.getByRole("button", { current: true });
+    const header = () => canvas.getByText(/^Active drones:/);
+    await userEvent.click(bay);
+    const list = await canvas.findByRole("list", { name: "Drone Bay" });
+    await expect(list).toBeVisible();
+    await expect(header()).toHaveTextContent("Active drones: 3 / 5");
+    await expect(canvas.getByRole("spinbutton", { name: "Number of Hobgoblin II" })).toHaveValue(3);
+    await expect(canvas.getByRole("spinbutton", { name: "Number of Warrior II" })).toHaveValue(2);
+
+    const hobgoblins = within(canvas.getByRole("group", { name: "Active Hobgoblin II" }));
+    const boxes = () => hobgoblins.getAllByRole("button").map((box) => box.dataset.state);
+    await expect(boxes()).toEqual(["active", "open", "open", "none", "none"]);
+    await expect(hobgoblins.getByRole("button", { pressed: true })).toHaveAccessibleName("1 active");
+    const hammerheads = within(canvas.getByRole("group", { name: "Active Hammerhead II" }));
+    await expect(hammerheads.getAllByRole("button").map((box) => box.dataset.state)).toEqual([
+      "open",
+      "over",
+      "over",
+      "none",
+      "none",
+    ]);
+    await expect(hammerheads.getByRole("button", { name: "1 active" })).toBeEnabled();
+    await expect(hammerheads.getByRole("button", { name: "2 active" })).toBeDisabled();
+
+    await userEvent.click(hobgoblins.getByRole("button", { name: "3 active" }));
+    await expect(boxes()).toEqual(["active", "active", "active", "none", "none"]);
+    await expect(hobgoblins.getByRole("button", { pressed: true })).toHaveAccessibleName("3 active");
+    await expect(header()).toHaveTextContent("Active drones: 5 / 5");
+    await expect(step()).toHaveAccessibleName("2 of 2");
+
+    await userEvent.click(hobgoblins.getByRole("button", { name: "3 active" }));
+    await expect(boxes()).toEqual(["active", "active", "open", "none", "none"]);
+    await expect(step()).toHaveAccessibleName("3 of 3");
+
+    await userEvent.click(canvas.getByRole("button", { name: "Remove Warrior II" }));
+    await expect(within(list).getAllByRole("listitem")).toHaveLength(2);
+    await expect(canvas.getByRole("button", { name: "Remove Hobgoblin II" })).toHaveFocus();
+    await expect(header()).toHaveTextContent("Active drones: 2 / 5");
+    await expect(step()).toHaveAccessibleName("4 of 4");
+
+    const count = canvas.getByRole("spinbutton", { name: "Number of Hobgoblin II" });
+    await userEvent.tripleClick(count);
+    await userEvent.keyboard("6{Enter}");
+    await expect(count).toHaveValue(6);
+    await expect(header()).toHaveTextContent("Active drones: 5 / 5");
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(count).toHaveValue(5);
+    await expect(step()).toHaveAccessibleName("6 of 6");
+
+    await userEvent.click(canvas.getByRole("button", { name: "Remove All" }));
+    await userEvent.click(bay);
+    await expect(await canvas.findByText("No Drones Simulated")).toBeVisible();
   },
 };
 

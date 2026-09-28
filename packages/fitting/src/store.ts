@@ -99,6 +99,15 @@ export class FitStore {
     this.#commit(edits.setQuantity(this.#snapshot.fit, ref, quantity));
   }
 
+  setActiveDrones(typeId: number, count: number) {
+    this.#commit(edits.setActiveDrones(this.#snapshot.fit, typeId, count));
+  }
+
+  setDroneQuantity(typeId: number, quantity: number) {
+    const { sde } = this.#calculator;
+    this.#commit(edits.setDroneQuantity(sde, this.#snapshot.fit, this.#snapshot.stats, typeId, quantity));
+  }
+
   setCargoQuantity(typeId: number, quantity: number) {
     this.#commit(edits.setCargoQuantity(this.#snapshot.fit, typeId, quantity));
   }

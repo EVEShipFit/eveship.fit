@@ -21,6 +21,7 @@ import {
   useChargeTree,
   useCharges,
   useDrag,
+  useDroneRoom,
   useEngine,
   useFit,
   useFitHistory,
@@ -201,9 +202,29 @@ test("bay contents are one entry per type, by name", () => {
     ["EMP S", 100, [2]],
     ["Nanite Repair Paste", 30, [0]],
   ]);
-  expect(result.current.drones.map(({ type, quantity, refs }) => [type.name, quantity, refs])).toEqual([
-    ["Warrior II", 5, [1, 3]],
+  expect(result.current.drones.map(({ type, quantity, active, refs }) => [type.name, quantity, active, refs])).toEqual([
+    ["Warrior II", 5, 2, [1, 3]],
   ]);
+});
+
+test("drone room is what the active limit and bandwidth leave, without the preview", () => {
+  const byName = (name: string) => engine.sde.typeByName(name)!;
+  const fit = engine.createFit({
+    ship: { type_id: byName("Tristan").id },
+    items: [{ type_id: byName("Hobgoblin II").id, slot: { type: "drone_bay" }, quantity: 3, state: "active" }],
+  });
+  const { result } = render(
+    () => ({
+      preview: usePreview(),
+      hobgoblin: useDroneRoom(byName("Hobgoblin II")),
+      hammerhead: useDroneRoom(byName("Hammerhead II")),
+    }),
+    { fit },
+  );
+  expect(result.current).toMatchObject({ hobgoblin: 2, hammerhead: 1 });
+
+  act(() => result.current.preview.show((draft) => void draft.fit(byName("Hobgoblin II").id)));
+  expect(result.current).toMatchObject({ hobgoblin: 2, hammerhead: 1 });
 });
 
 test("slots list every slot of a rack, empty ones included", () => {
