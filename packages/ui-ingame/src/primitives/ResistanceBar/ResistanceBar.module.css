@@ -5,14 +5,15 @@
 
   background: linear-gradient(to right, var(--colour) calc(var(--resistance) * 100%), var(--esf-resistance-bg) 0);
   box-shadow: 0 0 calc(5 * var(--bar-unit)) color-mix(in srgb, var(--colour) 50%, transparent);
-  box-sizing: border-box;
   display: grid;
   height: calc(16 * var(--bar-unit));
-  padding-right: calc(3 * var(--bar-unit));
-  place-items: center end;
+  place-items: center;
   white-space: nowrap;
   width: calc(40 * var(--bar-unit));
-  word-spacing: calc(1 * var(--bar-unit));
+}
+
+.text {
+  text-box: trim-both cap alphabetic;
 }
 
 .bar[data-damage="thermal"] {
