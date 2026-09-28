@@ -1,5 +1,23 @@
 # @eveshipfit/react-hooks
 
+## 1.3.0
+
+### Minor Changes
+
+- Add `useDroneRoom`; `useBayContents` counts the active items of a type ([#162](https://github.com/EVEShipFit/eveship.fit/pull/162))
+
+- Add `moduleSearch`, `chargeSearch`, `useModuleSearch` and `useChargeSearch`: what can be fitted and the charges, by root market group ([#165](https://github.com/EVEShipFit/eveship.fit/pull/165))
+
+- `usePreview` takes a drop target, which only clears the preview it showed ([#164](https://github.com/EVEShipFit/eveship.fit/pull/164))
+
+- Add `useBayContents` ([#161](https://github.com/EVEShipFit/eveship.fit/pull/161))
+
+### Patch Changes
+
+- Updated dependencies [[`aab4579`](https://github.com/EVEShipFit/eveship.fit/commit/aab45798762874183375a639b10a6ce0f83cad9a), [`afc982f`](https://github.com/EVEShipFit/eveship.fit/commit/afc982fa78202950eb5c91fba7dd3e5f55b68c4d), [`a2bb26f`](https://github.com/EVEShipFit/eveship.fit/commit/a2bb26f5e73db35ed87255caf8b357f60ec8ec4b), [`4acc8e3`](https://github.com/EVEShipFit/eveship.fit/commit/4acc8e351d6592a7f7d32170ecac2507d07cb5d7), [`a2bb26f`](https://github.com/EVEShipFit/eveship.fit/commit/a2bb26f5e73db35ed87255caf8b357f60ec8ec4b)]:
+  - @eveshipfit/fitting@1.2.0
+  - @eveshipfit/sde-loader@1.2.0
+
 ## 1.2.0
 
 ### Minor Changes

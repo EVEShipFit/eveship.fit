@@ -1,6 +1,6 @@
 {
   "name": "@eveshipfit/sde-loader",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Typed lookups into the EVEShip.fit SDE",
   "license": "MIT",
   "author": "EVEShipFit Team <info@eveship.fit>",

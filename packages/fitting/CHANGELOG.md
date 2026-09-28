@@ -1,5 +1,22 @@
 # @eveshipfit/fitting
 
+## 1.2.0
+
+### Minor Changes
+
+- `fit` only puts a type in the cargo when given the cargo slot, which takes anything ([#164](https://github.com/EVEShipFit/eveship.fit/pull/164))
+
+- `remove` takes several items, as one step in the history ([#161](https://github.com/EVEShipFit/eveship.fit/pull/161))
+
+- Add `setActiveDrones`, `setDroneQuantity` and `droneRoom`; new drones are active only while there is room ([#162](https://github.com/EVEShipFit/eveship.fit/pull/162))
+
+- Add `setCargoQuantity` ([#161](https://github.com/EVEShipFit/eveship.fit/pull/161))
+
+### Patch Changes
+
+- Updated dependencies [[`afc982f`](https://github.com/EVEShipFit/eveship.fit/commit/afc982fa78202950eb5c91fba7dd3e5f55b68c4d)]:
+  - @eveshipfit/sde-loader@1.2.0
+
 ## 1.1.0
 
 ### Minor Changes
