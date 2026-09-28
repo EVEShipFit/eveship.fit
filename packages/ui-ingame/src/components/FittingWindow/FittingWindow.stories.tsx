@@ -297,7 +297,7 @@ export const FittedRifter: Story = {
   },
 };
 
-/** Clicking the cargo hold lists what is in it, if anything; an item or all of it can be removed, each as one step. */
+/** Clicking the cargo hold lists what is in it, if anything; each count, removal and Remove All is one step. */
 export const CargoHold: Story = {
   parameters: {
     fit: {
@@ -317,19 +317,31 @@ export const CargoHold: Story = {
     await expect(list).toBeVisible();
     await expect(
       within(list)
-        .getAllByRole("listitem")
-        .map((item) => item.textContent),
-    ).toEqual(["200 xEMP S", "2 xHobgoblin II", "30 xNanite Repair Paste"]);
+        .getAllByRole("spinbutton")
+        .map((count) => [count.getAttribute("aria-label"), (count as HTMLInputElement).valueAsNumber]),
+    ).toEqual([
+      ["Number of EMP S", 200],
+      ["Number of Hobgoblin II", 2],
+      ["Number of Nanite Repair Paste", 30],
+    ]);
 
     await userEvent.click(canvas.getByRole("button", { name: "Remove Hobgoblin II" }));
     await expect(within(list).getAllByRole("listitem")).toHaveLength(2);
+    await expect(canvas.getByRole("button", { name: "Remove Nanite Repair Paste" })).toHaveFocus();
     await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("2 of 2");
+
+    const emp = canvas.getByRole("spinbutton", { name: "Number of EMP S" });
+    await userEvent.tripleClick(emp);
+    await userEvent.keyboard("50{Enter}");
+    await userEvent.keyboard("{ArrowUp}");
+    await expect(emp).toHaveValue(51);
+    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("4 of 4");
 
     await userEvent.click(canvas.getByRole("button", { name: "Remove All" }));
     await expect(canvas.queryByRole("list", { name: "Cargo Hold" })).toBeNull();
     await expect(hold).toHaveFocus();
     await expect(hold).toHaveTextContent("0.0/140.0m3");
-    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("3 of 3");
+    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("5 of 5");
 
     await userEvent.click(hold);
     await expect(await canvas.findByText("No Cargo Items Simulated")).toBeVisible();

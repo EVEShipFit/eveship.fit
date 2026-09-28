@@ -115,6 +115,27 @@ describe("edits", () => {
     expect(fit.getSnapshot().fit.items).toMatchObject([{ type_id: id("Nanite Repair Paste") }]);
   });
 
+  test("cargo quantity merges every stack of the type into the first one", () => {
+    const paste = { type_id: id("Nanite Repair Paste"), slot: { type: "cargo" } } as const;
+    const fit = engine.createFit({
+      ship: { type_id: id("Rifter") },
+      items: [
+        { ...paste, quantity: 10, state: "offline" },
+        { type_id: id("EMP S"), slot: { type: "cargo" }, quantity: 100, state: "offline" },
+        { ...paste, state: "online" },
+      ],
+    });
+
+    fit.setCargoQuantity(id("Nanite Repair Paste"), 50);
+    expect(fit.getSnapshot().fit.items.map(({ type_id, quantity }) => [type_id, quantity])).toEqual([
+      [id("Nanite Repair Paste"), 50],
+      [id("EMP S"), 100],
+    ]);
+
+    fit.setCargoQuantity(id("Nanite Repair Paste"), 0);
+    expect(fit.getSnapshot().fit.items).toMatchObject([{ type_id: id("EMP S") }]);
+  });
+
   test("moving a module swaps it with what is in the other slot", () => {
     const fit = rifter();
     const gun = fit.fit(id("200mm AutoCannon II"))!;

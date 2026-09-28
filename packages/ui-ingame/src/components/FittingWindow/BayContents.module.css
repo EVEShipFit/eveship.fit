@@ -42,7 +42,76 @@
 }
 
 .quantity {
+  align-items: center;
+  border: var(--window-unit) solid transparent;
+  display: flex;
+  gap: calc(10 * var(--window-unit));
+  justify-content: flex-end;
+  justify-self: end;
+  padding: calc(5 * var(--window-unit)) calc(8 * var(--window-unit));
+}
+
+.count {
+  appearance: textfield;
+  background: none;
+  border: none;
+  color: inherit;
+  field-sizing: content;
+  font: inherit;
+  min-width: 1ch;
+  padding: 0;
   text-align: right;
+}
+
+.count::-webkit-inner-spin-button {
+  appearance: none;
+}
+
+.count:focus {
+  outline: none;
+}
+
+.steps {
+  display: none;
+}
+
+.steps > button {
+  background: none;
+  border: none;
+  cursor: default;
+  display: block;
+  opacity: 0.6;
+  padding: 0;
+}
+
+.steps > button:hover {
+  opacity: 1;
+}
+
+.steps img {
+  display: block;
+  height: calc(8 * var(--window-unit));
+  width: calc(8 * var(--window-unit));
+}
+
+.quantity:hover,
+.quantity:focus-within {
+  border-color: var(--esf-spinner-edge);
+}
+
+.quantity:hover .times,
+.quantity:focus-within .times {
+  display: none;
+}
+
+.quantity:hover .steps,
+.quantity:focus-within .steps {
+  display: block;
+}
+
+.quantity:focus-within {
+  background: var(--esf-spinner-focus);
+  border-color: var(--esf-spinner-focus-edge);
 }
 
 .icon {

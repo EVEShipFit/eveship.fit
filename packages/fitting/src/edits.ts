@@ -118,6 +118,14 @@ export function setQuantity(fit: Fit, ref: ItemRef, quantity: number): Fit {
   return update(fit, ref, (item) => ((item.quantity ?? 1) === quantity ? item : { ...item, quantity }));
 }
 
+/** The cargo stacks of a type become one stack of `quantity`, where the first one was. */
+export function setCargoQuantity(fit: Fit, typeId: number, quantity: number): Fit {
+  const refs = fit.items.flatMap((item, ref) => (item.slot.type === "cargo" && item.type_id === typeId ? [ref] : []));
+  const [first, ...rest] = refs;
+  if (first === undefined) return fit;
+  return setQuantity(remove(fit, ...rest), first, quantity);
+}
+
 export function setName(fit: Fit, name: string): Fit {
   return fit.name === name ? fit : { ...fit, name };
 }

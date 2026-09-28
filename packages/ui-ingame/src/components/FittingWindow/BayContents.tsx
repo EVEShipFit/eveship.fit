@@ -1,5 +1,5 @@
 import { useBayContents, useFitStore } from "@eveshipfit/react-hooks";
-import { useRef } from "react";
+import { useRef, useState, type KeyboardEvent } from "react";
 
 import { Icon } from "../../primitives/Icon/Icon";
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
@@ -26,7 +26,11 @@ export function BayContents({ id, bay, label }: { id: string; bay: "cargo" | "dr
       <ul className={styles.list} aria-label={label}>
         {contents.map(({ type, quantity, refs }) => (
           <li key={type.id} className={styles.row}>
-            <span className={styles.quantity}>{quantity} x</span>
+            <Quantity
+              label={`Number of ${type.name}`}
+              value={quantity}
+              onChange={(value) => store.setCargoQuantity(type.id, value)}
+            />
             <span className={styles.icon}>
               <TypeIcon typeId={type.id} />
             </span>
@@ -39,7 +43,7 @@ export function BayContents({ id, bay, label }: { id: string; bay: "cargo" | "dr
                 const row = event.currentTarget.closest("li")!;
                 const next = row.nextElementSibling ?? row.previousElementSibling;
                 if (next === null) panel.current?.hidePopover();
-                else next.querySelector("button")?.focus();
+                else next.querySelector<HTMLElement>(`.${styles.remove}`)?.focus();
                 store.remove(...refs);
               }}
             >
@@ -59,5 +63,53 @@ export function BayContents({ id, bay, label }: { id: string; bay: "cargo" | "dr
         Remove All
       </button>
     </div>
+  );
+}
+
+/** EVE's count of a row, which turns into a spinner on hover and focus. */
+function Quantity({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) {
+  const [draft, setDraft] = useState<string>();
+  const cancelled = useRef(false);
+
+  const set = (next: number) => {
+    setDraft(undefined);
+    if (Number.isInteger(next) && next >= 1 && next !== value) onChange(next);
+  };
+
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Enter") set(Number(draft ?? value));
+    if (event.key === "Escape") cancelled.current = true;
+    if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+      event.preventDefault();
+      set(value + (event.key === "ArrowUp" ? 1 : -1));
+    }
+  };
+
+  return (
+    <span className={styles.quantity}>
+      <input
+        type="number"
+        className={styles.count}
+        aria-label={label}
+        min={1}
+        value={draft ?? value}
+        onChange={(event) => setDraft(event.target.value)}
+        onKeyDown={onKeyDown}
+        onBlur={() => {
+          if (draft !== undefined && !cancelled.current) set(Number(draft));
+          else setDraft(undefined);
+          cancelled.current = false;
+        }}
+      />
+      <span className={styles.times}>x</span>
+      <span className={styles.steps}>
+        <button type="button" tabIndex={-1} aria-label={`${label}: one more`} onClick={() => set(value + 1)}>
+          <Icon name="arrow-up" />
+        </button>
+        <button type="button" tabIndex={-1} aria-label={`${label}: one less`} onClick={() => set(value - 1)}>
+          <Icon name="arrow-down" />
+        </button>
+      </span>
+    </span>
   );
 }

@@ -50,6 +50,9 @@
   --esf-tree-hover: #192024;
   --esf-flyable: #00cef6;
   --esf-not-flyable: #be181e;
+  --esf-spinner-edge: #161718;
+  --esf-spinner-focus: #1a2629;
+  --esf-spinner-focus-edge: #273437;
 
   /* EVE's UI scale; 1 is 100%. */
   --esf-scale: 1;

@@ -99,6 +99,10 @@ export class FitStore {
     this.#commit(edits.setQuantity(this.#snapshot.fit, ref, quantity));
   }
 
+  setCargoQuantity(typeId: number, quantity: number) {
+    this.#commit(edits.setCargoQuantity(this.#snapshot.fit, typeId, quantity));
+  }
+
   setName(name: string) {
     this.#commit(edits.setName(this.#snapshot.fit, name));
   }
