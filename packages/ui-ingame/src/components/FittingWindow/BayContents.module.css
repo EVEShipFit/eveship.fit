@@ -7,7 +7,7 @@
   inset: auto;
   justify-items: center;
   margin: calc(4 * var(--window-unit)) 0;
-  padding: calc(12 * var(--window-unit)) calc(10 * var(--window-unit));
+  padding: calc(12 * var(--window-unit)) calc(2 * var(--window-unit));
   position-anchor: var(--bay-anchor);
   position-area: bottom span-right;
   position-try-fallbacks: flip-block;
@@ -41,6 +41,7 @@
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
   height: calc(32 * var(--window-unit));
+  padding: 0 calc(8 * var(--window-unit));
 }
 
 .row:hover {
