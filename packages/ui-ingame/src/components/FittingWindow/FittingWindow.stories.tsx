@@ -147,6 +147,16 @@ export const PreviewResources: Story = {
   },
 };
 
+export const ResourceTooltips: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.hover(canvas.getByText("CPU"));
+    await expect(canvas.getByText("CPU Output")).toBeVisible();
+
+    await userEvent.hover(canvas.getByText("Power Grid"));
+    await expect(canvas.getByText("Powergrid Output")).toBeVisible();
+  },
+};
+
 /** Hovering a module shows it in the wheel; a double click fits it. */
 export const FitModule: Story = {
   args: { browser: <ItemBrowser /> },

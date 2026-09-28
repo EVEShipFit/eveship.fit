@@ -13,6 +13,7 @@ import { HistoryBar } from "../../primitives/HistoryBar/HistoryBar";
 import { Icon, type IconName } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import { FittingWheel } from "../FittingWheel/FittingWheel";
+import { AttributeTooltip } from "../ShipStatistics/AttributeTooltip";
 import { BayContents } from "./BayContents";
 import styles from "./FittingWindow.module.css";
 import { countViolations, type ViolationKind } from "./violations";
@@ -199,12 +200,14 @@ function Resource({ title, free, output }: { title: string; free: string; output
   const value = left.value ?? 0;
 
   return (
-    <div className={styles.resource} data-over={value < 0 || undefined} data-change={left.change}>
-      <span className={styles.title}>{title}</span>
-      <span>
-        <span className={styles.free}>{oneDecimal.format(value)}</span>/{oneDecimal.format(total)}
-      </span>
-    </div>
+    <Tooltip label={<AttributeTooltip attribute={output} />}>
+      <div className={styles.resource} data-over={value < 0 || undefined} data-change={left.change}>
+        <span className={styles.title}>{title}</span>
+        <span>
+          <span className={styles.free}>{oneDecimal.format(value)}</span>/{oneDecimal.format(total)}
+        </span>
+      </div>
+    </Tooltip>
   );
 }
 
