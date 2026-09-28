@@ -27,7 +27,7 @@ export function Fitting({ data, layout }: FittingProps) {
         <TextsProvider texts={loaded.texts}>
           {layout.stacked ? (
             <>
-              <div className={styles.panel} style={scale}>
+              <div className={`${styles.panel} ${styles.window}`} style={scale}>
                 <FittingWindow />
               </div>
               <div className={styles.panels}>
@@ -40,7 +40,7 @@ export function Fitting({ data, layout }: FittingProps) {
               </div>
             </>
           ) : (
-            <div className={styles.panel} style={scale}>
+            <div className={`${styles.panel} ${styles.window}`} style={scale}>
               <FittingWindow browser={<ItemBrowser />} statistics={<ShipStatistics />} />
             </div>
           )}

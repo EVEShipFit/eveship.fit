@@ -7,11 +7,11 @@
   color: var(--esf-text);
   font-family: var(--esf-font);
   font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
-  height: calc(630 * var(--window-unit));
+  height: calc(672 * var(--window-unit));
   position: relative;
   transition: width 200ms ease;
   user-select: none;
-  width: calc(700 * var(--window-unit) + var(--browser-width) + var(--statistics-width));
+  width: calc(708 * var(--window-unit) + var(--browser-width) + var(--statistics-width));
 }
 
 .window[data-browser] {
@@ -19,12 +19,12 @@
 }
 
 .window[data-statistics] {
-  --statistics-width: calc(272 * var(--window-unit));
+  --statistics-width: calc(264 * var(--window-unit));
 }
 
 /* Keeps what is aligned to the right in place when the window widens. */
 .frame {
-  inset: 0 auto 0 var(--browser-width);
+  inset: calc(29 * var(--window-unit)) auto 0 var(--browser-width);
   position: absolute;
   transition: left 200ms ease;
   width: calc(700 * var(--window-unit));
@@ -266,10 +266,10 @@
 
 .browser,
 .statistics {
-  bottom: 0;
+  bottom: calc(16 * var(--window-unit));
   overflow: hidden;
   position: absolute;
-  top: calc(35 * var(--window-unit));
+  top: calc(64 * var(--window-unit));
 }
 
 /* Just left of the Item Browser button. */

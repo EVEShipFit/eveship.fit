@@ -16,7 +16,7 @@ const localFits = [
 
 const meta = {
   component: ItemBrowser,
-  decorators: [(Story) => <div style={{ height: 595 }}>{Story()}</div>],
+  decorators: [(Story) => <div style={{ height: 592 }}>{Story()}</div>],
 } satisfies Meta<typeof ItemBrowser>;
 
 export default meta;

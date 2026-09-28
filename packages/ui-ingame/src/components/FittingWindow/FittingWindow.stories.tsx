@@ -64,8 +64,8 @@ export const EmptyRifter: Story = {
   play: async ({ canvas }) => {
     const window = canvas.getByRole("region", { name: "Fitting Window" });
     const { width, height } = window.getBoundingClientRect();
-    await expect(width).toBe(700);
-    await expect(height).toBe(630);
+    await expect(width).toBe(708);
+    await expect(height).toBe(672);
 
     await expect(canvas.getByRole("region", { name: "Fitting" })).toBeInTheDocument();
     await expect(canvas.getByText("Rifter")).toBeInTheDocument();
@@ -84,13 +84,13 @@ export const WithItemBrowser: Story = {
     const button = canvas.getByRole("button", { name: "Item Browser" });
     await expect(button).toHaveAttribute("aria-expanded", "true");
     await expect(canvas.getByRole("region", { name: "Item Browser" })).toBeVisible();
-    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(1100));
+    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(1108));
     const left = fitting.getBoundingClientRect().left;
 
     await userEvent.click(button);
     await expect(button).toHaveAttribute("aria-expanded", "false");
     await waitFor(() => expect(canvas.queryByRole("region", { name: "Item Browser" })).toBeNull());
-    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(700));
+    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(708));
     await expect(fitting.getBoundingClientRect().left).toBe(left - 400);
 
     await userEvent.click(button);
@@ -279,7 +279,7 @@ export const WithStatistics: Story = {
     await userEvent.click(button);
     await expect(button).toHaveAttribute("aria-expanded", "false");
     await waitFor(() => expect(canvas.queryByRole("region", { name: "Statistics" })).toBeNull());
-    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(700));
+    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(708));
 
     await userEvent.click(button);
     await waitFor(() => expect(canvas.getByRole("region", { name: "Statistics" })).toBeVisible());
@@ -332,7 +332,7 @@ export const AtUiScale150: Story = {
   parameters: { fit: rifter },
   decorators: [(Story) => <div style={{ "--esf-scale": 1.5 } as CSSProperties}>{Story()}</div>],
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("region", { name: "Fitting Window" }).getBoundingClientRect().width).toBe(1050);
+    await expect(canvas.getByRole("region", { name: "Fitting Window" }).getBoundingClientRect().width).toBe(1062);
     await expect(canvas.getByRole("region", { name: "Fitting" }).getBoundingClientRect().width).toBe(858);
   },
 };

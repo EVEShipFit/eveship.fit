@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 
 // EVE's pixels at 100%, as the FittingWindow, ItemBrowser and ShipStatistics measure them.
 const WINDOW_WIDTH = 1372;
-const WINDOW_HEIGHT = 630;
-const WHEEL_WIDTH = 700;
+const WINDOW_HEIGHT = 672;
+const COLLAPSED_WIDTH = 708;
 const BROWSER_WIDTH = 393;
 const PANEL_PADDING = 12;
 
@@ -20,9 +20,9 @@ export interface Layout {
 }
 
 function layoutFor(width: number, height: number): Layout {
-  const sideBySide = Math.min(width / (WINDOW_WIDTH + 2 * PANEL_PADDING), height / (WINDOW_HEIGHT + 2 * PANEL_PADDING));
+  const sideBySide = Math.min(width / WINDOW_WIDTH, height / WINDOW_HEIGHT);
   // Stacked, the page scrolls to the statistics; so only the width limits the window.
-  const stacked = Math.min(1, width / (WHEEL_WIDTH + 2 * PANEL_PADDING));
+  const stacked = Math.min(1, width / COLLAPSED_WIDTH);
   const portrait = width < height;
   if (sideBySide >= MIN_SIDE_BY_SIDE_SCALE && !(portrait && stacked > sideBySide)) {
     return { stacked: false, scale: Math.floor(Math.min(MAX_SCALE, sideBySide) * 100) / 100, panelScale: 1 };

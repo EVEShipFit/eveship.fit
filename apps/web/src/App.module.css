@@ -78,6 +78,10 @@
   padding: calc(12px * var(--esf-scale));
 }
 
+.window {
+  padding: 0;
+}
+
 .panels {
   align-items: flex-start;
   display: flex;
@@ -86,9 +90,9 @@
   justify-content: center;
 }
 
-/* Where the FittingWindow puts it, the ItemBrowser is 595 high. */
+/* Where the FittingWindow puts it, the ItemBrowser is 592 high. */
 .browser {
-  height: calc(595px * var(--esf-scale));
+  height: calc(592px * var(--esf-scale));
 }
 
 .message {
