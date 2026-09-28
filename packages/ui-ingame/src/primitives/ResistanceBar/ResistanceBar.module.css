@@ -12,6 +12,10 @@
   width: calc(40 * var(--bar-unit));
 }
 
+.text {
+  text-box: trim-both cap alphabetic;
+}
+
 .bar[data-damage="thermal"] {
   --colour: var(--esf-damage-thermal);
 }

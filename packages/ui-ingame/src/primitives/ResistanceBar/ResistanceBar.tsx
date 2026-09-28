@@ -28,7 +28,7 @@ export function ResistanceBar({ damage, label, resistance, children }: Resistanc
         data-damage={damage}
         style={{ "--resistance": resistance } as CSSProperties}
       >
-        {children}
+        <span className={styles.text}>{children}</span>
       </div>
     </Tooltip>
   );
