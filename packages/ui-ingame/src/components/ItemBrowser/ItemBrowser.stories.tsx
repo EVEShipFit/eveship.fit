@@ -182,7 +182,20 @@ export const SavedFits: Story = {
     await expect(hulls().getByRole("button", { name: "Brawler" })).toBeVisible();
     await expect(hulls().getByRole("button", { name: "Kiter" })).toBeVisible();
     await expect(hulls().getAllByRole("img", { name: "Can fly" })).toHaveLength(2);
-    await expect(hulls().getByRole("button", { name: "Breacher" })).not.toHaveAttribute("aria-expanded");
+    await expect(hulls().getByRole("button", { name: "Breacher" })).not.toHaveAccessibleDescription();
+  },
+};
+
+/** A hull without fits opens to No Item. */
+export const NoFits: Story = {
+  play: async ({ canvas, userEvent }) => {
+    const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.click(hulls().getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls().getByRole("button", { name: /^Minmatar/ }));
+
+    await userEvent.click(hulls().getByRole("button", { name: "Rifter" }));
+    await expect(hulls().getByRole("button", { name: "Rifter" })).toHaveAttribute("aria-expanded", "true");
+    await expect(hulls().getByRole("button", { name: "No Item" })).toBeVisible();
   },
 };
 

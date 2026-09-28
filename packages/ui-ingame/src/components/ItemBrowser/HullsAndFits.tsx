@@ -111,42 +111,39 @@ export function HullsAndFits() {
                           </Tooltip>
                         );
 
-                        if (shown.length === 0) {
-                          return (
-                            <TreeLeaf
-                              key={ship.id}
-                              label={<span className={styles.hull}>{ship.name}</span>}
-                              typeId={ship.id}
-                              after={simulateShip}
-                            />
-                          );
-                        }
-
                         return (
                           <TreeGroup
                             key={ship.id}
                             label={<span className={styles.hull}>{ship.name}</span>}
-                            description={<Counts browserFits={fitsByHull.get(ship.id)?.length ?? 0} />}
+                            description={
+                              shown.length > 0 ? (
+                                <Counts browserFits={fitsByHull.get(ship.id)?.length ?? 0} />
+                              ) : undefined
+                            }
                             typeId={ship.id}
                             defaultOpen={tree.open}
                             after={simulateShip}
                           >
                             {() =>
-                              shown.map((saved) => (
-                                <TreeLeaf
-                                  key={saved.name ?? ""}
-                                  label={
-                                    <>
-                                      <span className={styles.kind}>
-                                        <Icon name="fits-browser" />
-                                      </span>
-                                      {saved.name || ship.name}
-                                    </>
-                                  }
-                                  onActivate={() => store.replace(saved)}
-                                  after={<Flyable fit={saved} />}
-                                />
-                              ))
+                              shown.length === 0 ? (
+                                <TreeLeaf label="No Item" />
+                              ) : (
+                                shown.map((saved) => (
+                                  <TreeLeaf
+                                    key={saved.name ?? ""}
+                                    label={
+                                      <>
+                                        <span className={styles.kind}>
+                                          <Icon name="fits-browser" />
+                                        </span>
+                                        {saved.name || ship.name}
+                                      </>
+                                    }
+                                    onActivate={() => store.replace(saved)}
+                                    after={<Flyable fit={saved} />}
+                                  />
+                                ))
+                              )
                             }
                           </TreeGroup>
                         );
