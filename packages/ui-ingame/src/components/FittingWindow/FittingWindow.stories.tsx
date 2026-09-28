@@ -297,7 +297,7 @@ export const FittedRifter: Story = {
   },
 };
 
-/** Clicking the cargo hold lists what is in it; an item or all of it can be removed, each as one step. */
+/** Clicking the cargo hold lists what is in it, if anything; an item or all of it can be removed, each as one step. */
 export const CargoHold: Story = {
   parameters: {
     fit: {
@@ -328,12 +328,11 @@ export const CargoHold: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Remove All" }));
     await expect(canvas.queryByRole("list", { name: "Cargo Hold" })).toBeNull();
     await expect(hold).toHaveFocus();
-    await expect(hold).toHaveAttribute("aria-disabled", "true");
     await expect(hold).toHaveTextContent("0.0/140.0m3");
     await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("3 of 3");
 
-    await userEvent.click(history.getByRole("button", { name: "2 of 3" }));
-    await expect(hold).not.toHaveAttribute("aria-disabled");
+    await userEvent.click(hold);
+    await expect(await canvas.findByText("No Cargo Items Simulated")).toBeVisible();
   },
 };
 

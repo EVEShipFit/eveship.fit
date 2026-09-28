@@ -1,6 +1,5 @@
 import {
   useAttribute,
-  useBayContents,
   useBayUsage,
   useFit,
   useFitHistory,
@@ -180,7 +179,6 @@ function Bay({
   listed?: boolean;
 }) {
   const { used, total } = useBayUsage(bay);
-  const empty = useBayContents(bay).length === 0;
   const id = useId();
   const usage = (
     <>
@@ -215,14 +213,13 @@ function Bay({
           type="button"
           className={styles.bay}
           aria-label={label}
-          aria-disabled={empty || undefined}
-          popoverTarget={empty ? undefined : id}
+          popoverTarget={id}
           data-over={used > total || undefined}
         >
           {usage}
         </button>
       </Tooltip>
-      {!empty && <BayContents id={id} bay={bay} label={label} />}
+      <BayContents id={id} bay={bay} label={label} />
     </div>
   );
 }

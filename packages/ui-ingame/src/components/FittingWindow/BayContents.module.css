@@ -18,6 +18,11 @@
   display: grid;
 }
 
+.panel[data-empty] {
+  padding: calc(17 * var(--window-unit)) calc(20 * var(--window-unit));
+  width: auto;
+}
+
 .list {
   display: grid;
   list-style: none;

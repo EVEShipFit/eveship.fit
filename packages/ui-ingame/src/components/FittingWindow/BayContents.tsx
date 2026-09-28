@@ -5,11 +5,21 @@ import { Icon } from "../../primitives/Icon/Icon";
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
 import styles from "./BayContents.module.css";
 
+const emptyText = { cargo: "No Cargo Items Simulated", droneBay: "No Drones Simulated" };
+
 /** EVE's list of what is in a bay, as a popover anchored to `--bay-anchor`. */
 export function BayContents({ id, bay, label }: { id: string; bay: "cargo" | "droneBay"; label: string }) {
   const store = useFitStore();
   const contents = useBayContents(bay);
   const panel = useRef<HTMLDivElement>(null);
+
+  if (contents.length === 0) {
+    return (
+      <div id={id} className={styles.panel} popover="auto" data-empty>
+        {emptyText[bay]}
+      </div>
+    );
+  }
 
   return (
     <div ref={panel} id={id} className={styles.panel} popover="auto">
