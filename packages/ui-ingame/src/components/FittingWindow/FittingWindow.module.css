@@ -193,19 +193,16 @@
 
 .bay {
   align-items: center;
-  column-gap: calc(5 * var(--window-unit));
-  display: grid;
-  grid-template-columns: repeat(4, auto);
-  justify-content: start;
-  line-height: calc(13 * var(--window-unit));
-}
-
-button.bay {
   background: none;
   border: none;
   color: inherit;
+  column-gap: calc(5 * var(--window-unit));
   cursor: default;
+  display: grid;
   font: inherit;
+  grid-template-columns: repeat(4, auto);
+  justify-content: start;
+  line-height: calc(13 * var(--window-unit));
   padding: 0;
 }
 
