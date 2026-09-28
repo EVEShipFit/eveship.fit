@@ -1,5 +1,11 @@
 # @eveshipfit/sde-loader
 
+## 1.2.0
+
+### Minor Changes
+
+- Add `moduleSearch`, `chargeSearch`, `useModuleSearch` and `useChargeSearch`: what can be fitted and the charges, by root market group ([#165](https://github.com/EVEShipFit/eveship.fit/pull/165))
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,5 +1,37 @@
 # @eveshipfit/ui-ingame
 
+## 1.2.0
+
+### Minor Changes
+
+- Click the cargo hold of `FittingWindow` to list what is in it, change how many, and remove it ([#161](https://github.com/EVEShipFit/eveship.fit/pull/161))
+
+- Click the drone bay of `FittingWindow` to pick active drones, change how many, and remove them ([#162](https://github.com/EVEShipFit/eveship.fit/pull/162))
+
+- Drop anything on the cargo hold of `FittingWindow`, and drones on its drone bay ([#164](https://github.com/EVEShipFit/eveship.fit/pull/164))
+
+- Search in the Modules and Charges tabs of `ItemBrowser` groups results by root market group, and opens no groups, as EVE does ([#165](https://github.com/EVEShipFit/eveship.fit/pull/165))
+
+### Patch Changes
+
+- Match EVE's margins around the FittingWindow ([#159](https://github.com/EVEShipFit/eveship.fit/pull/159))
+
+- Show "No Item" under a hull without fits in `ItemBrowser` ([#166](https://github.com/EVEShipFit/eveship.fit/pull/166))
+
+- Show EVE's coloured empire logos in the Hulls & Fits tab of `ItemBrowser`, and the Ships icon for Non-Empire ([#169](https://github.com/EVEShipFit/eveship.fit/pull/169))
+
+- Keep the groups of Hulls & Fits in `ItemBrowser` closed on search and Current Hull ([#167](https://github.com/EVEShipFit/eveship.fit/pull/167))
+
+- `ItemBrowser` shows a folder for a market group without an icon of its own ([#168](https://github.com/EVEShipFit/eveship.fit/pull/168))
+
+- Centre the resistance text vertically in every font ([#158](https://github.com/EVEShipFit/eveship.fit/pull/158))
+
+- Show a tooltip on the CPU and power grid of `FittingWindow` ([#163](https://github.com/EVEShipFit/eveship.fit/pull/163))
+
+- Fix `Tooltip` throwing when a closing popover gives it focus ([#161](https://github.com/EVEShipFit/eveship.fit/pull/161))
+- Updated dependencies [[`4acc8e3`](https://github.com/EVEShipFit/eveship.fit/commit/4acc8e351d6592a7f7d32170ecac2507d07cb5d7), [`afc982f`](https://github.com/EVEShipFit/eveship.fit/commit/afc982fa78202950eb5c91fba7dd3e5f55b68c4d), [`aab4579`](https://github.com/EVEShipFit/eveship.fit/commit/aab45798762874183375a639b10a6ce0f83cad9a), [`a2bb26f`](https://github.com/EVEShipFit/eveship.fit/commit/a2bb26f5e73db35ed87255caf8b357f60ec8ec4b)]:
+  - @eveshipfit/react-hooks@1.3.0
+
 ## 1.1.0
 
 ### Minor Changes
