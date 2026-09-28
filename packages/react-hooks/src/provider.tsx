@@ -1,5 +1,5 @@
 import type { Engine, FitStore, Preview } from "@eveshipfit/fitting";
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 
 import {
   CharacterContext,
@@ -9,6 +9,7 @@ import {
   LocalFitsContext,
   PreviewContext,
   type DragItem,
+  type PreviewState,
 } from "./context.js";
 import { ALL_SKILLS_V } from "./hooks/characters.js";
 import { LocalFits } from "./local-fits.js";
@@ -28,6 +29,19 @@ export function EveShipFitProvider({ engine, fit, localFits, children }: EveShip
   const [ownFit] = useState(() => fit ?? engine.createFit({ ship: RIFTER }));
   const [ownLocalFits] = useState(() => localFits ?? new LocalFits());
   const [preview, setPreview] = useState<Preview>();
+  const previewTarget = useRef<string>(undefined);
+  const previewState: PreviewState = {
+    preview,
+    show: (next, target) => {
+      previewTarget.current = target;
+      setPreview(next);
+    },
+    clear: (target) => {
+      if (target !== undefined && previewTarget.current !== target) return;
+      previewTarget.current = undefined;
+      setPreview(undefined);
+    },
+  };
   const [dragging, setDragging] = useState<DragItem>();
   const [character, setCharacter] = useState(ALL_SKILLS_V);
 
@@ -36,7 +50,7 @@ export function EveShipFitProvider({ engine, fit, localFits, children }: EveShip
       <FitContext value={fit ?? ownFit}>
         <LocalFitsContext value={localFits ?? ownLocalFits}>
           <CharacterContext value={{ current: character, setCurrent: setCharacter }}>
-            <PreviewContext value={{ preview, setPreview }}>
+            <PreviewContext value={previewState}>
               <DragContext value={{ dragging, setDragging }}>{children}</DragContext>
             </PreviewContext>
           </CharacterContext>

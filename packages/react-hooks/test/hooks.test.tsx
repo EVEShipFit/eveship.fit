@@ -104,6 +104,18 @@ test("the stats are the preview's until it is cleared", () => {
   expect(result.current.stats).toBe(result.current.snapshot.stats);
 });
 
+test("a drop target only clears the preview it showed", () => {
+  const { result } = render(() => usePreview());
+
+  act(() => result.current.show((draft) => void draft.fit(DAMAGE_CONTROL_II), "slot"));
+  act(() => result.current.show((draft) => void draft.fit(DAMAGE_CONTROL_II), "bay"));
+  act(() => result.current.clear("slot"));
+  expect(result.current.preview).toBeDefined();
+
+  act(() => result.current.clear("bay"));
+  expect(result.current.preview).toBeUndefined();
+});
+
 test("a preview is dropped when the fit changes", () => {
   const { result } = render(() => ({ store: useFitStore(), preview: usePreview(), stats: useStats() }));
 

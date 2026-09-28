@@ -64,12 +64,30 @@ describe("fit", () => {
     ]);
   });
 
-  test("a charge nothing takes goes in the cargo", () => {
+  test("only the cargo takes a charge nothing else takes, or a type that goes nowhere else", () => {
     const fit = rifter();
-    fit.fit(id("EMP S"));
+    expect(fit.fit(id("EMP S"))).toBeUndefined();
+    expect(fit.fit(id("Mobile Tractor Unit"))).toBeUndefined();
+    expect(fit.getSnapshot().fit.items).toEqual([]);
+
+    fit.fit(id("EMP S"), { type: "cargo" });
+    fit.fit(id("EMP S"), { type: "cargo" });
+    fit.fit(id("Mobile Tractor Unit"), { type: "cargo" });
     expect(fit.getSnapshot().fit.items).toEqual([
-      { type_id: id("EMP S"), slot: { type: "cargo" }, quantity: 1, state: "offline" },
+      { type_id: id("EMP S"), slot: { type: "cargo" }, quantity: 2, state: "offline" },
+      { type_id: id("Mobile Tractor Unit"), slot: { type: "cargo" }, quantity: 1, state: "offline" },
     ]);
+  });
+
+  test("the cargo takes modules and drones too", () => {
+    const fit = rifter();
+    fit.fit(id("Damage Control II"), { type: "cargo" });
+    fit.fit(id("Warrior II"), { type: "cargo" });
+    expect(fit.getSnapshot().fit.items.map(({ type_id, slot }) => [type_id, slot.type])).toEqual([
+      [id("Damage Control II"), "cargo"],
+      [id("Warrior II"), "cargo"],
+    ]);
+    expect(fit.fit(id("Rifter"), { type: "cargo" })).toBeUndefined();
   });
 
   test("drones stack in the drone bay", () => {
@@ -103,7 +121,7 @@ describe("fit", () => {
     const before = fit.getSnapshot();
 
     expect(fit.fit(id("Nova Rocket"), { type: "high", index: gun })).toBeUndefined();
-    expect(fit.fit(id("Warrior II"), { type: "cargo" })).toBeUndefined();
+    expect(fit.fit(id("Damage Control II"), { type: "drone_bay" })).toBeUndefined();
     expect(fit.fit(id("Loki Core - Augmented Nuclear Reactor"), { type: "subsystem", index: 1 })).toBeUndefined();
     expect(fit.getSnapshot()).toBe(before);
   });
@@ -118,7 +136,7 @@ describe("edits", () => {
   test("state, charge, quantity and removal", () => {
     const fit = rifter();
     const gun = fit.fit(id("200mm AutoCannon II"))!;
-    const cargo = fit.fit(id("Nanite Repair Paste"))!;
+    const cargo = fit.fit(id("Nanite Repair Paste"), { type: "cargo" })!;
 
     fit.setState(gun, "offline");
     fit.setCharge(gun, id("EMP S"));
@@ -419,7 +437,7 @@ describe("history", () => {
 
   test("removing several items is one step", () => {
     const fit = rifter();
-    fit.fit(id("Nanite Repair Paste"));
+    fit.fit(id("Nanite Repair Paste"), { type: "cargo" });
     fit.fit(id("200mm AutoCannon II"));
     fit.fit(id("Damage Control II"));
     fit.remove(0, 2);
