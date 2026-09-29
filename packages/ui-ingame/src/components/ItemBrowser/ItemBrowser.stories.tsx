@@ -59,12 +59,11 @@ export const Browse: Story = {
   },
 };
 
-/** Structures are not split by race. */
 export const BrowseStructures: Story = {
   play: async ({ canvas, userEvent }) => {
     const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
     await userEvent.click(hulls().getByRole("button", { name: "Citadel" }));
-    await expect(hulls().queryByRole("button", { name: /^Non-Empire/ })).toBeNull();
+    await userEvent.click(hulls().getByRole("button", { name: /^Non-Empire \[\d+\]$/ }));
     await expect(hulls().getByRole("button", { name: "Astrahus" })).toBeVisible();
   },
 };
