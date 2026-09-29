@@ -13,9 +13,12 @@ export async function loadLink(link: string): Promise<Fit> {
 }
 
 async function fetchKillmail(idAndHash: string): Promise<EsiKillmail> {
-  const [id, hash] = idAndHash.split("/", 2);
+  const match = /^(\d+)\/([0-9a-f]+)$/.exec(idAndHash);
+  if (match === null) throw new Error("A killmail link is killmail:<id>/<hash>");
+  const [, id, hash] = match;
   const response = await fetch(`https://esi.evetech.net/killmails/${id}/${hash}`, {
     headers: { "X-Compatibility-Date": "2025-08-26" },
+    signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) throw new Error(`Killmail ${id} could not be fetched: HTTP ${response.status}`);
   return (await response.json()) as EsiKillmail;
