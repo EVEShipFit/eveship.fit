@@ -11,7 +11,7 @@ export interface FittingProps {
   layout: Layout;
 }
 
-/** The fitting window of an empty Rifter, with its item browser and statistics. */
+/** The fitting window of the linked fit or an empty Rifter, with its item browser and statistics. */
 export function Fitting({ data, layout }: FittingProps) {
   const loaded = use(data);
   if (loaded === null) {
@@ -22,7 +22,7 @@ export function Fitting({ data, layout }: FittingProps) {
   const panelScale = { "--esf-scale": layout.panelScale } as CSSProperties;
 
   return (
-    <EveShipFitProvider engine={loaded.engine}>
+    <EveShipFitProvider engine={loaded.engine} fit={loaded.fit}>
       <ImagesProvider images={loaded.images}>
         <TextsProvider texts={loaded.texts}>
           {layout.stacked ? (

@@ -18,6 +18,21 @@ test("the fitting window shows its statistics", async ({ page }) => {
   await expect(page.getByText(/^EVEShip\.fit \S+ · EVE data from \d{4}-\d{2}-\d{2}$/)).toBeVisible();
 });
 
+test("a fit link opens its fit once", async ({ page }) => {
+  // v3 link of "Link Rifter" with a 200mm AutoCannon I.
+  await page.goto(
+    "/?fit=v3:H4sIAAAAAAAAAyvOyCzQMbUw1/HJzMtWCMpMK0kt0uHKzU8pzUnV8chMz9Ax1DGyMDfWcUwuySxL1TG0MEWRNcKQTSnKz0vVMTKxMNMx1DHgSk4sSs8HSegYGhhwAQBLJK6dbwAAAA==&x=1#h",
+  );
+  await expect(page.getByText("Link Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
+  expect(new URL(page.url()).search + new URL(page.url()).hash).toBe("?x=1#h");
+});
+
+test("a broken fit link opens a Rifter", async ({ page }) => {
+  await page.goto("/?fit=v3:broken");
+  await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
+  expect(new URL(page.url()).search).toBe("");
+});
+
 test("the item browser and statistics go below the window on a phone", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");

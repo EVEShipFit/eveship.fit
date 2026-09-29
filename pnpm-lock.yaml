@@ -16,8 +16,8 @@ catalogs:
       specifier: ^3.0.3
       version: 3.0.3
     '@eveshipfit/dogma-engine':
-      specifier: ^13.0.1
-      version: 13.0.1
+      specifier: ^13.1.0
+      version: 13.1.0
     '@eveshipfit/images':
       specifier: ^1.3552227.1
       version: 1.3552227.1
@@ -154,7 +154,7 @@ importers:
         version: 7.29.7
       '@eveshipfit/dogma-engine':
         specifier: 'catalog:'
-        version: 13.0.1
+        version: 13.1.0
       '@eveshipfit/fitting':
         specifier: workspace:*
         version: link:../../packages/fitting
@@ -211,7 +211,7 @@ importers:
     dependencies:
       '@eveshipfit/dogma-engine':
         specifier: 'catalog:'
-        version: 13.0.1
+        version: 13.1.0
       '@eveshipfit/fitting':
         specifier: workspace:*
         version: link:../../packages/fitting
@@ -270,7 +270,7 @@ importers:
     devDependencies:
       '@eveshipfit/dogma-engine':
         specifier: 'catalog:'
-        version: 13.0.1
+        version: 13.1.0
       '@eveshipfit/sde':
         specifier: 'catalog:'
         version: 8.3542233.1
@@ -991,8 +991,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@eveshipfit/dogma-engine@13.0.1':
-    resolution: {integrity: sha512-Hfd6XSWTL+gU5xUdvgr5OzHq8n4lyproR9R0iTNNRhClRYeM9vf1Kdnm1+TF/oF5w7eLb8er8dAlgooQvo+Dqg==}
+  '@eveshipfit/dogma-engine@13.1.0':
+    resolution: {integrity: sha512-kbFPDCxQ5uKEm297YHriO47Kr9f6oaCUlKaqmCf7OTEwakzeMY66M08oosf83sbaaguuHxOMxjOM5hD4bV7oaQ==}
 
   '@eveshipfit/images@1.3552227.1':
     resolution: {integrity: sha512-2kWoNK/S6pW1D046Ksk+F7y7LDswg27FUlOhGiYRmRJOQ4Zujjv5kHCfqKITGJM5A2MWBUUxFe8mGPI5NjzdWQ==}
@@ -3880,7 +3880,7 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
-  '@eveshipfit/dogma-engine@13.0.1': {}
+  '@eveshipfit/dogma-engine@13.1.0': {}
 
   '@eveshipfit/images@1.3552227.1':
     dependencies:
