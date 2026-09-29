@@ -492,6 +492,17 @@ test("the fit check stays the same while the fit changes in ways it does not rea
   expect(result.current.canFit).toBe(first);
 });
 
+test("a structure lists its modules and rigs", () => {
+  const { result } = render(() => ({ canFit: useCanFit(), tree: useModuleTree() }), {
+    fit: engine.createFit({ ship: { type_id: byName("Astrahus").id }, items: [] }),
+  });
+  const types = allModuleGroups(result.current.tree).flatMap((node) => node.types);
+  const fits = (name: string) => types.some((type) => type.name === name && result.current.canFit(type));
+
+  expect(fits("Standup Ballistic Control System I")).toBe(true);
+  expect(fits("Standup M-Set Equipment Manufacturing Time Efficiency I")).toBe(true);
+});
+
 test("a ship with a drone bay takes drones", () => {
   const { result } = render(() => useCanFit(), {
     fit: engine.createFit({ ship: { type_id: engine.sde.typeByName("Tristan")!.id }, items: [] }),
