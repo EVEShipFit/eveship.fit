@@ -20,7 +20,7 @@
 }
 
 .window[data-structure] {
-  --extra-height: 50;
+  --extra-height: 20;
 }
 
 .window[data-statistics] {
@@ -286,14 +286,14 @@
 }
 
 .window[data-structure] .history {
-  top: calc(660 * var(--window-unit));
+  top: calc((610 + var(--extra-height)) * var(--window-unit));
 }
 
 .services {
   display: flex;
   gap: calc(4 * var(--window-unit));
   left: calc(149 * var(--window-unit));
-  top: calc(610 * var(--window-unit));
+  top: calc((560 + var(--extra-height)) * var(--window-unit));
 }
 
 .resources {
