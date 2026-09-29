@@ -28,6 +28,34 @@ export const EmptyRifter: Story = {
   },
 };
 
+/** A structure has fighters and fuel, and no shield recharge. */
+export const Keepstar: Story = {
+  parameters: {
+    fit: {
+      ship: { type_id: 35834 },
+      items: [{ type_id: 35892, slot: { type: "service", index: 0 }, state: "online" }],
+    },
+  },
+  play: async ({ canvas }) => {
+    const statistics = canvas.getByRole("region", { name: "Statistics" });
+    const sections = canvas.getAllByRole("region").filter((region) => region !== statistics);
+    await expect(sections.map((section) => section.getAttribute("aria-label"))).toEqual([
+      "Capacitor",
+      "Offense",
+      "Defense",
+      "Targeting",
+      "Fighters",
+      "Fuel",
+    ]);
+    await expect(canvas.getByRole("group", { name: "Shield Hitpoints" })).toHaveTextContent("0.14B hp");
+    await expect(canvas.getByRole("group", { name: "Armor Hitpoints" })).toHaveTextContent("0.11B hp");
+    await expect(canvas.getByRole("region", { name: "Fighters" })).toHaveTextContent(
+      "0 Full Squadrons0 Partial Squadrons",
+    );
+    await expect(canvas.getByRole("group", { name: "Fuel Usage" })).toHaveTextContent("720 units/day");
+  },
+};
+
 export const AtUiScale150: Story = {
   decorators: [(Story) => <div style={{ "--esf-scale": 1.5 } as CSSProperties}>{Story()}</div>],
   play: async ({ canvas }) => {

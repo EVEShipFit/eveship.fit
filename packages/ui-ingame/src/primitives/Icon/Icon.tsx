@@ -10,6 +10,7 @@ const textures = {
   "slot-low": "classes/fitting/filtericonlowslot",
   "slot-rig": "classes/fitting/filtericonrigslot",
   "slot-subsystem": "windowicons/subsystems",
+  "slot-service": "classes/fitting/stationserviceslot",
   "module-unfit": "icons/38_16_200",
   "module-power": "icons/38_16_207",
   "module-info": "icons/38_16_208",
@@ -40,6 +41,7 @@ const textures = {
   statistics: "eveicon/system_icons/list_view_16px",
   cargo: "windowicons/ships",
   "drone-bay": "windowicons/dronebay",
+  "ammo-hold": "windowicons/itemhangar",
   "arrow-left": "shared/triangleleft",
   "arrow-right": "shared/triangleright",
   "arrow-down": "shared/triangledown",
@@ -71,6 +73,7 @@ const textures = {
   "stat-align-time": "classes/fitting/statsicons/aligntime",
   "stat-drone-bandwidth": "classes/fitting/statsicons/bandwidth",
   "stat-drone-control-range": "classes/fitting/statsicons/controlrange",
+  "stat-fuel": "classes/fitting/statsicons/fuel",
 } satisfies Record<string, string>;
 
 export type IconName = keyof typeof textures;

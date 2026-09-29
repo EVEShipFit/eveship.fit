@@ -1,6 +1,6 @@
 import type { Sde } from "@eveshipfit/sde-loader";
 
-import { Effect } from "./ids.js";
+import { Category, Effect } from "./ids.js";
 import type { Calculation, Fit, ItemResult, Rack, State, Violation } from "./types.js";
 
 export interface Usage {
@@ -67,6 +67,12 @@ export class Stats {
   readonly cargo: Usage;
   /** In m³. */
   readonly droneBay: Usage;
+  /** In m³. */
+  readonly fighterBay: Usage;
+  /** An Upwell structure. */
+  readonly structure: boolean;
+  /** Fuel blocks an hour the online service modules use. */
+  readonly fuel: number;
 
   constructor(sde: Sde, fit: Fit, calculation: Calculation) {
     this.calculation = calculation;
@@ -79,7 +85,10 @@ export class Stats {
       attributes: new Attributes(sde, item),
       charge: item.charge && new Attributes(sde, item.charge),
     }));
-    this.violations = calculation.violations ?? [];
+    this.structure = sde.type(fit.ship.type_id)?.categoryId === Category.Structure;
+    this.violations = (calculation.violations ?? []).filter(
+      ({ rule }) => !(this.structure && rule.type === "resource" && rule.resource === "cargo_bay"),
+    );
 
     const used = {
       high: 0,
@@ -92,8 +101,10 @@ export class Stats {
       launcher: 0,
       cargo: 0,
       droneBay: 0,
+      fighterBay: 0,
     };
-    for (const item of fit.items) {
+    let fuel = 0;
+    for (const [index, item] of fit.items.entries()) {
       const type = sde.type(item.type_id);
       switch (item.slot.type) {
         case "high":
@@ -105,17 +116,25 @@ export class Stats {
         case "low":
         case "rig":
         case "subsystem":
-        case "service":
           used[item.slot.type] += 1;
           break;
+        case "service": {
+          used.service += 1;
+          const stats = this.items[index];
+          if (stats !== undefined && stats.state !== "offline")
+            fuel += stats.attributes.get("serviceModuleFuelAmount") ?? 0;
+          break;
+        }
         case "cargo":
           used.cargo += (type?.volume ?? 0) * (item.quantity ?? 1);
           break;
         case "drone_bay":
           used.droneBay += (type?.volume ?? 0) * (item.quantity ?? 1);
           break;
-        case "fighter_tube":
         case "fighter_bay":
+          used.fighterBay += (type?.volume ?? 0) * (item.quantity ?? 1);
+          break;
+        case "fighter_tube":
         case "implant":
         case "booster":
           break;
@@ -138,5 +157,7 @@ export class Stats {
     };
     this.cargo = { used: used.cargo, total: total("capacity") };
     this.droneBay = { used: used.droneBay, total: total("droneCapacity") };
+    this.fighterBay = { used: used.fighterBay, total: total("fighterCapacity") };
+    this.fuel = fuel;
   }
 }

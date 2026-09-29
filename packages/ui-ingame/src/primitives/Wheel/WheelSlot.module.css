@@ -180,29 +180,12 @@
   width: calc(var(--action-size) * var(--wheel-unit));
 }
 
-.button,
 .module {
   display: block;
   height: 100%;
   width: 100%;
 }
 
-.button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
-.button[aria-disabled="true"] {
-  cursor: default;
-}
-
-.button:focus-visible {
-  outline: 1px solid var(--esf-text);
-}
-
-.button > img,
 .module > span {
   display: block;
   height: 100%;

@@ -7,7 +7,7 @@
   color: var(--esf-text);
   font-family: var(--esf-font);
   font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
-  height: calc(672 * var(--window-unit));
+  height: calc(694 * var(--window-unit));
   position: relative;
   transition: width 200ms ease;
   user-select: none;
@@ -50,6 +50,7 @@
 .panels,
 .bays,
 .history,
+.services,
 .resources {
   position: absolute;
 }
@@ -216,8 +217,8 @@
 .bays {
   display: grid;
   gap: calc(4 * var(--window-unit));
+  bottom: calc(17 * var(--window-unit));
   left: calc(19 * var(--window-unit));
-  top: calc(560 * var(--window-unit));
 }
 
 .bay {
@@ -275,8 +276,15 @@
 }
 
 .history {
+  bottom: calc(17 * var(--window-unit));
   left: calc(199 * var(--window-unit));
-  top: calc(590 * var(--window-unit));
+}
+
+.services {
+  display: flex;
+  gap: calc(4 * var(--window-unit));
+  bottom: calc(38 * var(--window-unit));
+  left: calc(164 * var(--window-unit));
 }
 
 .resources {
@@ -284,8 +292,8 @@
   gap: calc(10 * var(--window-unit));
   line-height: calc(16 * var(--window-unit));
   right: calc(13 * var(--window-unit));
+  bottom: calc(17 * var(--window-unit));
   text-align: right;
-  top: calc(546 * var(--window-unit));
 }
 
 .resource {

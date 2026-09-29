@@ -20,6 +20,16 @@ export const AtTheLatest: Story = {
   },
 };
 
+export const TooltipTitle: Story = {
+  args: { tooltipTitle: true },
+  play: async ({ canvas, userEvent }) => {
+    const history = canvas.getByRole("group", { name: "Simulation History" });
+    await expect(history).not.toHaveTextContent("Simulation History");
+    await userEvent.hover(history);
+    await expect(canvas.getByText("Simulation History")).toBeVisible();
+  },
+};
+
 export const WentBack: Story = {
   args: { position: 3 },
 };

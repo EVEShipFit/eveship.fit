@@ -1,4 +1,4 @@
-import { useAttribute } from "@eveshipfit/react-hooks";
+import { useAttribute, useSnapshot } from "@eveshipfit/react-hooks";
 
 import { Icon } from "../../primitives/Icon/Icon";
 import { Stat } from "../../primitives/Stat/Stat";
@@ -8,16 +8,15 @@ import { AttributeTooltip } from "./AttributeTooltip";
 import { RepairRate } from "./RepairRate";
 import { damageTypes, Resistances } from "./Resistances";
 import styles from "./ShipStatistics.module.css";
-import { unit } from "./units";
-
-const hitpoints = { decimals: 0, format: unit(" hp") };
+import { hitpoints, unit } from "./units";
 
 export function DefenseStats() {
   const ehp = useAttribute("ehp", { decimals: 0, format: unit(" ehp") });
-  const shield = useAttribute("shieldCapacity", hitpoints);
+  const shield = useAttribute("shieldCapacity", { decimals: 0, format: hitpoints });
   const shieldRecharge = useAttribute("shieldRechargeRate", { decimals: 0 });
-  const armor = useAttribute("armorHP", hitpoints);
-  const structure = useAttribute("hp", hitpoints);
+  const armor = useAttribute("armorHP", { decimals: 0, format: hitpoints });
+  const structure = useAttribute("hp", { decimals: 0, format: hitpoints });
+  const recharges = !useSnapshot().stats.structure;
 
   return (
     <StatsSection title="Defense" summary={<AttributeText value={ehp} />}>
@@ -28,17 +27,17 @@ export function DefenseStats() {
         ))}
         <Stat
           icon="stat-shield-hp"
-          label="Shield Hitpoints / Recharge Time"
+          label={recharges ? "Shield Hitpoints / Recharge Time" : "Shield Hitpoints"}
           tooltip={
             <>
               <AttributeTooltip attribute="shieldCapacity" />
-              <AttributeTooltip attribute="shieldRechargeRate" />
+              {recharges && <AttributeTooltip attribute="shieldRechargeRate" />}
             </>
           }
         >
           <span className={styles.lines}>
             <AttributeText value={shield} />
-            <AttributeText value={shieldRecharge} />
+            {recharges && <AttributeText value={shieldRecharge} />}
           </span>
         </Stat>
         <Resistances layer="shield" />

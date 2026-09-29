@@ -10,15 +10,21 @@ import {
   useImages,
   usePlacement,
   usePreview,
+  useRackUsage,
   useSde,
   useShownSnapshot,
+  useSlots,
+  useSnapshot,
   useType,
+  type SlotContent,
 } from "@eveshipfit/react-hooks";
-import { useId, useState, type CSSProperties, type DragEvent, type ReactNode } from "react";
+import { useId, useState, type ButtonHTMLAttributes, type CSSProperties, type DragEvent, type ReactNode } from "react";
 
 import { HistoryBar } from "../../primitives/HistoryBar/HistoryBar";
 import { Icon, type IconName } from "../../primitives/Icon/Icon";
+import { ServiceSlot } from "../../primitives/ServiceSlot/ServiceSlot";
 import { Tooltip, TooltipText } from "../../primitives/Tooltip/Tooltip";
+import { useFittingSlot } from "../FittingWheel/fittingSlot";
 import { FittingWheel } from "../FittingWheel/FittingWheel";
 import { AttributeTooltip } from "../ShipStatistics/AttributeTooltip";
 import { BayContents } from "./BayContents";
@@ -33,6 +39,9 @@ import {
 } from "./violations";
 
 const oneDecimal = new Intl.NumberFormat("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+/** EVE draws eight, those the structure does not have as a faint outline. */
+const SERVICE_SLOTS = 8;
 
 export interface FittingWindowProps {
   label?: string;
@@ -50,6 +59,7 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
   const statisticsId = useId();
   const browserShown = browser !== undefined && browserOpen;
   const statisticsShown = statistics !== undefined && statisticsOpen;
+  const { structure } = useSnapshot().stats;
 
   return (
     <section
@@ -102,11 +112,21 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
           </div>
         )}
         <div className={styles.bays}>
-          <Bay bay="cargo" icon="cargo" label="Cargo Hold" />
-          <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" />
+          {structure ? (
+            <>
+              <Bay bay="cargo" icon="ammo-hold" label="Ammo Hold" unlimited />
+              <FighterBay />
+            </>
+          ) : (
+            <>
+              <Bay bay="cargo" icon="cargo" label="Cargo Hold" />
+              <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" />
+            </>
+          )}
         </div>
+        {structure && <ServiceRack />}
         <div className={styles.history}>
-          <SimulationHistory />
+          <SimulationHistory tooltipTitle={structure} />
         </div>
         <div className={styles.resources}>
           <Resource title="CPU" free="cpuFree" output="cpuOutput" />
@@ -218,7 +238,14 @@ function NotImplementedButton({ className, icon, label }: { className?: string; 
   );
 }
 
-function Bay({ bay, icon, label }: { bay: "cargo" | "droneBay"; icon: IconName; label: string }) {
+interface BayProps {
+  bay: "cargo" | "droneBay";
+  icon: IconName;
+  label: string;
+  unlimited?: boolean;
+}
+
+function Bay({ bay, icon, label, unlimited = false }: BayProps) {
   const { used, total } = useBayUsage(bay);
   const id = useId();
   const drop = useBayDrop(bay);
@@ -226,23 +253,53 @@ function Bay({ bay, icon, label }: { bay: "cargo" | "droneBay"; icon: IconName; 
   return (
     <div className={styles.bayAnchor} style={{ "--bay-anchor": `--bay-${id.replace(/[^\w-]/g, "")}` } as CSSProperties}>
       <Tooltip label={label}>
-        <button
-          type="button"
-          className={styles.bay}
+        <BayButton
+          icon={icon}
+          used={used}
+          total={total}
           aria-label={label}
           popoverTarget={id}
-          data-over={used > total || undefined}
+          data-over={(!unlimited && used > total) || undefined}
           {...drop}
-        >
-          <Icon name={icon} />
-          <span className={styles.used}>{oneDecimal.format(used)}</span>
-          <span className={styles.slash}>/</span>
-          <span className={styles.total}>{oneDecimal.format(total)}</span>
-          <span className={styles.unit}>m3</span>
-        </button>
+        />
       </Tooltip>
       <BayContents id={id} bay={bay} label={label} />
     </div>
+  );
+}
+
+function FighterBay() {
+  const { used, total } = useBayUsage("fighterBay");
+
+  return (
+    <Tooltip label="Fighter Bay (not implemented yet)">
+      <BayButton
+        icon="drone-bay"
+        used={used}
+        total={total}
+        aria-label="Fighter Bay"
+        aria-disabled
+        data-over={used > total || undefined}
+      />
+    </Tooltip>
+  );
+}
+
+interface BayButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  icon: IconName;
+  used: number;
+  total: number;
+}
+
+function BayButton({ icon, used, total, ...props }: BayButtonProps) {
+  return (
+    <button type="button" className={styles.bay} {...props}>
+      <Icon name={icon} />
+      <span className={styles.used}>{oneDecimal.format(used)}</span>
+      <span className={styles.slash}>/</span>
+      <span className={styles.total}>{oneDecimal.format(total)}</span>
+      <span className={styles.unit}>m3</span>
+    </button>
   );
 }
 
@@ -302,9 +359,51 @@ function Resource({ title, free, output }: { title: string; free: string; output
   );
 }
 
-function SimulationHistory() {
+function ServiceRack() {
+  const slots = useSlots("service");
+  const { total } = useRackUsage("service");
+
+  return (
+    <div
+      className={styles.services}
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- A <fieldset> is for form controls.
+      role="group"
+      aria-label="Structure Services"
+    >
+      {Array.from({ length: SERVICE_SLOTS }, (_, index) => (
+        <FittingServiceSlot key={index} index={index} available={index < total} content={slots[index]} />
+      ))}
+    </div>
+  );
+}
+
+function FittingServiceSlot({
+  index,
+  available,
+  content,
+}: {
+  index: number;
+  available: boolean;
+  content: SlotContent | undefined;
+}) {
+  const { chargeTypeId, chargeable, activatable, onRemoveCharge, ...slot } = useFittingSlot(
+    "service",
+    index,
+    content,
+    available,
+  );
+  return <ServiceSlot {...slot} />;
+}
+
+function SimulationHistory({ tooltipTitle }: { tooltipTitle: boolean }) {
   const history = useFitHistory();
   return (
-    <HistoryBar label="Simulation History" length={history.length} position={history.position} onGoTo={history.goTo} />
+    <HistoryBar
+      label="Simulation History"
+      length={history.length}
+      position={history.position}
+      onGoTo={history.goTo}
+      tooltipTitle={tooltipTitle}
+    />
   );
 }
