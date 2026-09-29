@@ -59,6 +59,15 @@ export const Browse: Story = {
   },
 };
 
+export const BrowseStructures: Story = {
+  play: async ({ canvas, userEvent }) => {
+    const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.click(hulls().getByRole("button", { name: "Citadel" }));
+    await userEvent.click(hulls().getByRole("button", { name: /^Non-Empire \[\d+\]$/ }));
+    await expect(hulls().getByRole("button", { name: "Astrahus" })).toBeVisible();
+  },
+};
+
 /** Search keeps every group with a match, closed, and drops the rest. */
 export const Search: Story = {
   play: async ({ canvas, userEvent }) => {

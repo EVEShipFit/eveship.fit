@@ -38,7 +38,8 @@ export interface ShipGroupNode {
   readonly races: readonly ShipRaceNode[];
 }
 
-const SHIP_CATEGORY_ID = 6;
+/** Ship and structure. */
+const HULL_CATEGORY_IDS: ReadonlySet<number> = new Set([6, 65]);
 const CHARGE_CATEGORY_ID = 8;
 /** Module, drone, subsystem, structure module and fighter. */
 const FITTABLE_CATEGORY_IDS: ReadonlySet<number> = new Set([7, 18, 32, 66, 87]);
@@ -190,10 +191,12 @@ function indexMarket(market: readonly MarketGroupNode[]): Map<number, MarketGrou
 export function buildShipTree(
   types: Iterable<SdeType>,
   group: (id: number) => SdeGroup | undefined,
+  metaLevel: MetaLevel,
 ): readonly ShipGroupNode[] {
+  const byMeta = byMetaOf(metaLevel);
   const shipsByGroup = new Map<number, SdeType[]>();
   for (const type of types) {
-    if (type.categoryId !== SHIP_CATEGORY_ID || !type.published || type.marketGroupId === undefined) continue;
+    if (!HULL_CATEGORY_IDS.has(type.categoryId) || !type.published || type.marketGroupId === undefined) continue;
     pushTo(shipsByGroup, type.groupId, type);
   }
 
@@ -208,7 +211,7 @@ export function buildShipTree(
       races: raceOrder.flatMap((race) => {
         const raceShips = byRace.get(race);
         if (raceShips === undefined) return [];
-        return [{ race, factionId: raceFactions.get(race), ships: raceShips.toSorted(byName) }];
+        return [{ race, factionId: raceFactions.get(race), ships: raceShips.toSorted(byMeta) }];
       }),
     });
   }
