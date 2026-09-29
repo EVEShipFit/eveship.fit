@@ -27,11 +27,23 @@ export interface TreeGroupProps {
   defaultOpen?: boolean;
   /** Shown at the end of the row, like a count or an action. */
   after?: ReactNode;
+  onDragStart?: (event: DragEvent) => void;
+  onDragEnd?: () => void;
   /** Only called while the group is open, so large trees stay cheap. */
   children: () => ReactNode;
 }
 
-export function TreeGroup({ label, typeId, icon, description, defaultOpen = false, after, children }: TreeGroupProps) {
+export function TreeGroup({
+  label,
+  typeId,
+  icon,
+  description,
+  defaultOpen = false,
+  after,
+  onDragStart,
+  onDragEnd,
+  children,
+}: TreeGroupProps) {
   const [open, setOpen] = useState(defaultOpen);
   const descriptionId = useId();
 
@@ -43,7 +55,10 @@ export function TreeGroup({ label, typeId, icon, description, defaultOpen = fals
           className={styles.row}
           aria-expanded={open}
           aria-describedby={description !== undefined ? descriptionId : undefined}
+          draggable={onDragStart !== undefined || undefined}
           onClick={() => setOpen(!open)}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
         >
           <svg className={styles.chevron} viewBox="0 0 12 12" aria-hidden>
             <path d="M3 1.5 9.5 6 3 10.5Z" fill="currentColor" />

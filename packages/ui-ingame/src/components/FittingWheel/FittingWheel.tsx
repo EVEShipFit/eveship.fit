@@ -71,8 +71,11 @@ function FittingCentre() {
   const { show, clear } = usePreview();
   const { dragging, end } = useDrag();
   const fits = dragging?.type === "type" && placesSomewhere(store, dragging.typeId);
-  const takes = (item: DragItem | undefined): item is DragItem =>
-    item !== undefined && (item.type === "type" ? fits : fit.items[item.ref] !== undefined);
+  const takes = (item: DragItem | undefined): item is DragItem => {
+    if (item === undefined) return false;
+    if (item.type === "item") return fit.items[item.ref] !== undefined;
+    return item.type === "hull" || fits;
+  };
 
   return (
     <div
@@ -92,6 +95,7 @@ function FittingCentre() {
         event.preventDefault();
         clear("centre");
         if (dragging.type === "type") store.fit(dragging.typeId);
+        else if (dragging.type === "hull") store.replace({ ship: { type_id: dragging.typeId }, items: [] });
         else store.remove(dragging.ref);
         end();
       }}

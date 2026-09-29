@@ -138,6 +138,26 @@ export const SimulateShip: Story = {
   },
 };
 
+/** Dragging a hull to the middle of the wheel simulates it; a slot refuses it. */
+export const DragHull: Story = {
+  args: { browser: <ItemBrowser /> },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "slasher");
+    await userEvent.click(canvas.getByRole("button", { name: "Frigate" }));
+    await userEvent.click(canvas.getByRole("button", { name: /^Minmatar/ }));
+    const slasher = canvas.getByRole("button", { name: "Slasher" });
+    await expect(slasher).toHaveAttribute("draggable", "true");
+
+    const wheel = canvas.getByRole("region", { name: "Fitting" });
+    await refuses(slasher, wheel.querySelector("[data-state]")!);
+    await dragAndDrop(slasher, canvasElement.querySelector("[data-centre]")!);
+
+    const history = within(canvas.getByRole("group", { name: "Simulation History" }));
+    await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("2 of 2");
+    await expect(canvas.getAllByText("Slasher")).toHaveLength(2);
+  },
+};
+
 export const LoadFit: Story = {
   args: { browser: <ItemBrowser /> },
   parameters: { localFits: [{ ...rifter, name: "Saved Rifter" }] },

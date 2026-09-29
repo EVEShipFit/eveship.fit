@@ -5,7 +5,10 @@ import { createContext, useContext, type Context } from "react";
 
 import type { LocalFits } from "./local-fits.js";
 
-export type DragItem = { type: "type"; typeId: number } | { type: "item"; ref: number };
+export type DragItem =
+  | { type: "type"; typeId: number }
+  | { type: "hull"; typeId: number }
+  | { type: "item"; ref: number };
 
 export interface PreviewState {
   preview: Preview | undefined;

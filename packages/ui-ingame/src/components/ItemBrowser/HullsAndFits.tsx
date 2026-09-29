@@ -1,5 +1,13 @@
 import type { Fit } from "@eveshipfit/fitting";
-import { useFit, useFitStore, useHullTree, useImages, useLocalFits, useMissingSkills } from "@eveshipfit/react-hooks";
+import {
+  useDrag,
+  useFit,
+  useFitStore,
+  useHullTree,
+  useImages,
+  useLocalFits,
+  useMissingSkills,
+} from "@eveshipfit/react-hooks";
 import { useState, type CSSProperties } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
@@ -19,6 +27,7 @@ export function HullsAndFits() {
   const store = useFitStore();
   const missingSkills = useMissingSkills();
   const { fits } = useLocalFits();
+  const { start, end } = useDrag();
   const [search, setSearch] = useState("");
   const [browserFits, setBrowserFits] = useState(false);
   const [currentHull, setCurrentHull] = useState(false);
@@ -108,6 +117,12 @@ export function HullsAndFits() {
                             }
                             typeId={ship.id}
                             after={simulateShip}
+                            onDragStart={(event) => {
+                              event.dataTransfer.effectAllowed = "copy";
+                              event.dataTransfer.setData("text/plain", ship.name);
+                              start({ type: "hull", typeId: ship.id });
+                            }}
+                            onDragEnd={end}
                           >
                             {() =>
                               shown.length === 0 ? (
