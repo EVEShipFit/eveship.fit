@@ -87,6 +87,8 @@ describe("trees", () => {
     expect(names).toContain("Drones");
     expect(names).toContain("Rigs");
     expect(names).toContain("Subsystems");
+    expect(names).toContain("Structure Equipment");
+    expect(names).toContain("Structure Modifications");
     expect(names).not.toContain("Ship Equipment");
     expect(names).toEqual(names.toSorted((a, b) => new Intl.Collator("en").compare(a, b)));
 

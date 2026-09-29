@@ -55,6 +55,8 @@ const SHIP_EQUIPMENT_MARKET_GROUP_ID = 9;
 const DRONES_MARKET_GROUP_ID = 157;
 const RIGS_MARKET_GROUP_ID = 1111;
 const SUBSYSTEMS_MARKET_GROUP_ID = 1112;
+const STRUCTURE_EQUIPMENT_MARKET_GROUP_ID = 2202;
+const STRUCTURE_MODIFICATIONS_MARKET_GROUP_ID = 2203;
 const CHARGES_MARKET_GROUP_ID = 11;
 const FESTIVAL_MARKET_GROUP_ID = 1663;
 
@@ -127,7 +129,13 @@ export function buildModuleTree(market: readonly MarketGroupNode[], metaLevel: M
 
   const roots = [
     ...(byId.get(SHIP_EQUIPMENT_MARKET_GROUP_ID)?.children ?? []),
-    ...[DRONES_MARKET_GROUP_ID, RIGS_MARKET_GROUP_ID, SUBSYSTEMS_MARKET_GROUP_ID].flatMap((id) => byId.get(id) ?? []),
+    ...[
+      DRONES_MARKET_GROUP_ID,
+      RIGS_MARKET_GROUP_ID,
+      SUBSYSTEMS_MARKET_GROUP_ID,
+      STRUCTURE_EQUIPMENT_MARKET_GROUP_ID,
+      STRUCTURE_MODIFICATIONS_MARKET_GROUP_ID,
+    ].flatMap((id) => byId.get(id) ?? []),
   ];
   return roots.flatMap(build).toSorted((a, b) => byName(a.group, b.group));
 }
