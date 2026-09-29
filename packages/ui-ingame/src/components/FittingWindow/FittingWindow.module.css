@@ -20,7 +20,7 @@
 }
 
 .window[data-structure] {
-  --extra-height: 20;
+  --extra-height: 22;
 }
 
 .window[data-statistics] {
@@ -222,8 +222,8 @@
 .bays {
   display: grid;
   gap: calc(4 * var(--window-unit));
+  bottom: calc(17 * var(--window-unit));
   left: calc(19 * var(--window-unit));
-  top: calc((560 + var(--extra-height)) * var(--window-unit));
 }
 
 .bay {
@@ -281,19 +281,15 @@
 }
 
 .history {
+  bottom: calc(17 * var(--window-unit));
   left: calc(199 * var(--window-unit));
-  top: calc(590 * var(--window-unit));
-}
-
-.window[data-structure] .history {
-  top: calc((610 + var(--extra-height)) * var(--window-unit));
 }
 
 .services {
   display: flex;
   gap: calc(4 * var(--window-unit));
+  bottom: calc(38 * var(--window-unit));
   left: calc(149 * var(--window-unit));
-  top: calc((560 + var(--extra-height)) * var(--window-unit));
 }
 
 .resources {
@@ -301,8 +297,8 @@
   gap: calc(10 * var(--window-unit));
   line-height: calc(16 * var(--window-unit));
   right: calc(13 * var(--window-unit));
+  bottom: calc(17 * var(--window-unit));
   text-align: right;
-  top: calc((546 + var(--extra-height)) * var(--window-unit));
 }
 
 .resource {
