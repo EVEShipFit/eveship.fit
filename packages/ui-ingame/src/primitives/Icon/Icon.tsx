@@ -42,7 +42,6 @@ const textures = {
   cargo: "windowicons/ships",
   "drone-bay": "windowicons/dronebay",
   "ammo-hold": "windowicons/itemhangar",
-  "fighter-bay": "classes/shipui/fighters/iconfighterbay",
   "arrow-left": "shared/triangleleft",
   "arrow-right": "shared/triangleright",
   "arrow-down": "shared/triangledown",

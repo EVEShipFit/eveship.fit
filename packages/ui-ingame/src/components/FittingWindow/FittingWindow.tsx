@@ -67,7 +67,6 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
       aria-label={label}
       data-browser={browserShown || undefined}
       data-statistics={statisticsShown || undefined}
-      data-structure={structure || undefined}
     >
       {browser !== undefined && (
         <div id={browserId} className={styles.browser} inert={!browserShown}>
@@ -275,7 +274,7 @@ function FighterBay() {
   return (
     <Tooltip label="Fighter Bay (not implemented yet)">
       <BayButton
-        icon="fighter-bay"
+        icon="drone-bay"
         used={used}
         total={total}
         aria-label="Fighter Bay"

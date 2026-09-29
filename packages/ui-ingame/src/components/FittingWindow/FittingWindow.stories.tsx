@@ -91,7 +91,7 @@ export const EmptyRifter: Story = {
     const window = canvas.getByRole("region", { name: "Fitting Window" });
     const { width, height } = window.getBoundingClientRect();
     await expect(width).toBe(708);
-    await expect(height).toBe(672);
+    await expect(height).toBe(694);
 
     await expect(canvas.getByRole("region", { name: "Fitting" })).toBeInTheDocument();
     await expect(canvas.getByText("Rifter")).toBeInTheDocument();
@@ -572,6 +572,8 @@ export const Keepstar: Story = {
     const history = canvas.getByRole("group", { name: "Simulation History" }).getBoundingClientRect();
     const rack = canvas.getByRole("group", { name: "Structure Services" }).getBoundingClientRect();
     await expect(history.top).toBeGreaterThanOrEqual(rack.bottom);
+    const wheel = canvas.getByRole("region", { name: "Fitting" }).getBoundingClientRect();
+    await expect(rack.left + rack.width / 2).toBeCloseTo(wheel.left + wheel.width / 2, 0);
     await expect(canvas.getByRole("region", { name: "Fitting Window" }).getBoundingClientRect().height).toBe(694);
 
     await userEvent.click(services[1]!);

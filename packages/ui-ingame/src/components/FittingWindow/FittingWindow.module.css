@@ -3,12 +3,11 @@
   --window-unit: calc(1px * var(--esf-scale, 1));
   --browser-width: 0px;
   --statistics-width: 0px;
-  --extra-height: 0;
 
   color: var(--esf-text);
   font-family: var(--esf-font);
   font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
-  height: calc((672 + var(--extra-height)) * var(--window-unit));
+  height: calc(694 * var(--window-unit));
   position: relative;
   transition: width 200ms ease;
   user-select: none;
@@ -17,10 +16,6 @@
 
 .window[data-browser] {
   --browser-width: calc(400 * var(--window-unit));
-}
-
-.window[data-structure] {
-  --extra-height: 22;
 }
 
 .window[data-statistics] {
@@ -289,7 +284,7 @@
   display: flex;
   gap: calc(4 * var(--window-unit));
   bottom: calc(38 * var(--window-unit));
-  left: calc(149 * var(--window-unit));
+  left: calc(164 * var(--window-unit));
 }
 
 .resources {
