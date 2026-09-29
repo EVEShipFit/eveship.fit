@@ -532,11 +532,29 @@ export const DroneBay: Story = {
 
 export const Broken: Story = {
   parameters: { fit: broken, character: { skills: {} } },
-  play: async ({ canvas }) => {
+  play: async ({ canvas, userEvent }) => {
     await expect(canvas.getByRole("img", { name: /^Missing Skills: \d+$/ })).toBeInTheDocument();
     await expect(canvas.getByRole("img", { name: "Fitting Errors: 1" })).toBeInTheDocument();
     await expect(canvas.getByRole("img", { name: "Fitting Warnings: 4" })).toBeInTheDocument();
     await expect(canvas.getByRole("button", { name: "Cargo Hold" })).toHaveAttribute("data-over");
+
+    const errors = canvas.getByRole("img", { name: "Fitting Errors: 1" });
+    await expect(errors).toHaveAccessibleDescription(
+      "Medium Projectile Burst Aerator I: rig size does not match the ship",
+    );
+    await userEvent.hover(errors);
+    await expect(canvas.getByText("Fitting Alert")).toBeVisible();
+
+    const warnings = canvas.getByRole("img", { name: "Fitting Warnings: 4" });
+    await expect(warnings).toHaveAccessibleDescription(/Cargo hold overloaded/);
+    await expect(warnings).toHaveAccessibleDescription(/Too many drones launched/);
+    await userEvent.hover(warnings);
+    await expect(canvas.getByText("Fitting Warning")).toBeVisible();
+
+    const skills = canvas.getByRole("img", { name: /^Missing Skills: \d+$/ });
+    await expect(skills).toHaveAccessibleDescription(/Gunnery II/);
+    await userEvent.hover(skills);
+    await expect(canvas.getByText("Missing Skills")).toBeVisible();
   },
 };
 

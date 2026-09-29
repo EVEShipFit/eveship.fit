@@ -11,19 +11,26 @@ import {
   usePlacement,
   usePreview,
   useSde,
+  useShownSnapshot,
   useType,
-  useViolations,
 } from "@eveshipfit/react-hooks";
 import { useId, useState, type CSSProperties, type DragEvent, type ReactNode } from "react";
 
 import { HistoryBar } from "../../primitives/HistoryBar/HistoryBar";
 import { Icon, type IconName } from "../../primitives/Icon/Icon";
-import { Tooltip } from "../../primitives/Tooltip/Tooltip";
+import { Tooltip, TooltipText } from "../../primitives/Tooltip/Tooltip";
 import { FittingWheel } from "../FittingWheel/FittingWheel";
 import { AttributeTooltip } from "../ShipStatistics/AttributeTooltip";
 import { BayContents } from "./BayContents";
 import styles from "./FittingWindow.module.css";
-import { countViolations, type ViolationKind } from "./violations";
+import {
+  countViolations,
+  missingSkills,
+  violationKind,
+  violationText,
+  type Names,
+  type ViolationKind,
+} from "./violations";
 
 const oneDecimal = new Intl.NumberFormat("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
@@ -128,35 +135,71 @@ function FitName() {
   );
 }
 
-const violationKinds: { kind: ViolationKind; label: string }[] = [
-  { kind: "error", label: "Fitting Errors" },
-  { kind: "skill", label: "Missing Skills" },
-  { kind: "notice", label: "Fitting Warnings" },
+const violationKinds: { kind: ViolationKind; label: string; title: string }[] = [
+  { kind: "error", label: "Fitting Errors", title: "Fitting Alert" },
+  { kind: "skill", label: "Missing Skills", title: "Missing Skills" },
+  { kind: "notice", label: "Fitting Warnings", title: "Fitting Warning" },
 ];
 
 function Violations() {
   const images = useImages();
-  const counts = countViolations(useViolations());
+  const sde = useSde();
+  const { fit, stats } = useShownSnapshot();
+  const counts = countViolations(stats.violations);
+  const descriptionId = useId();
+  const names: Names = {
+    type: (id) => sde.type(id)?.name ?? `#${id}`,
+    group: (id) => sde.group(id)?.name ?? `#${id}`,
+  };
+
+  const linesOf = (kind: ViolationKind) => {
+    const violations =
+      kind === "skill"
+        ? missingSkills(stats.violations).map((rule) => ({ target: { type: "ship" } as const, rule }))
+        : stats.violations.filter(({ rule }) => violationKind(rule) === kind);
+    return [...new Set(violations.map((violation) => violationText(violation, fit, names)))];
+  };
 
   return (
     <div className={styles.violations}>
-      {violationKinds.map(({ kind, label }) => {
+      {violationKinds.map(({ kind, label, title }) => {
         const shown = counts[kind];
         if (shown === 0) return null;
-        const texture = images.uiTexture(
-          kind === "skill" ? "classes/fitting/warningskills" : "classes/fitting/warninggroup",
-        );
+        const lines = linesOf(kind);
+        const textureStyle = {
+          "--texture": `url(${images.uiTexture(
+            kind === "skill" ? "classes/fitting/warningskills" : "classes/fitting/warninggroup",
+          )})`,
+        } as CSSProperties;
         return (
-          <Tooltip key={kind} label={`${label}: ${shown}`}>
+          <Tooltip
+            key={kind}
+            label={
+              <span className={styles.alert} data-kind={kind} style={textureStyle}>
+                <TooltipText
+                  title={<span className={styles.alertTitle}>{title}</span>}
+                  description={lines.map((line) => (
+                    <span key={line} className={styles.alertLine}>
+                      {line}
+                    </span>
+                  ))}
+                />
+              </span>
+            }
+          >
             <span
               className={styles.violation}
               // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- An <img> cannot be tinted.
               role="img"
               aria-label={`${label}: ${shown}`}
+              aria-describedby={`${descriptionId}-${kind}`}
               data-kind={kind}
-              style={{ "--texture": `url(${texture})` } as CSSProperties}
+              style={textureStyle}
             >
               <span className={styles.count}>{shown}</span>
+              <span id={`${descriptionId}-${kind}`} hidden>
+                {lines.join(", ")}
+              </span>
             </span>
           </Tooltip>
         );
