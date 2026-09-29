@@ -4,3 +4,8 @@
   inset: calc(86 * var(--wheel-unit));
   position: absolute;
 }
+
+/* Lets the hull under it be turned, until something is dragged. */
+.centre:not([data-dragging]) {
+  pointer-events: none;
+}

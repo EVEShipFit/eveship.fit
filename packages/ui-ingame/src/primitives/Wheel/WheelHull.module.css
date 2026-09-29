@@ -9,3 +9,14 @@
   width: 94%;
   z-index: -1;
 }
+
+.hologram {
+  cursor: grab;
+  opacity: 1;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.hologram:active {
+  cursor: grabbing;
+}

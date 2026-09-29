@@ -103,6 +103,7 @@ function FittingCentre({ dropPreview }: { dropPreview: DropPreview }) {
     <div
       className={styles.centre}
       data-centre
+      data-dragging={dragging !== undefined || undefined}
       onDragEnter={() => {
         if (dragging?.type !== "type") return;
         const { typeId } = dragging;
