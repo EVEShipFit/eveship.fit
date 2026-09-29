@@ -16,6 +16,7 @@ export {
   useFitHistory,
   useFitStore,
   usePreview,
+  useShownSnapshot,
   useSnapshot,
   useStats,
   useViolations,

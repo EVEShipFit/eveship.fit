@@ -102,11 +102,14 @@
 }
 
 .violation {
-  --colour: var(--esf-violation-notice);
-
   height: calc(28 * var(--window-unit));
   position: relative;
   width: calc(28 * var(--window-unit));
+}
+
+.violation,
+.alert {
+  --colour: var(--esf-violation-notice);
 }
 
 .violation::before {
@@ -117,12 +120,38 @@
   position: absolute;
 }
 
-.violation[data-kind="error"] {
+.violation[data-kind="error"],
+.alert[data-kind="error"] {
   --colour: var(--esf-violation-error);
 }
 
-.violation[data-kind="skill"] {
+.violation[data-kind="skill"],
+.alert[data-kind="skill"] {
   --colour: var(--esf-violation-skill);
+}
+
+.alert {
+  display: contents;
+}
+
+.alertTitle {
+  color: var(--colour);
+  text-transform: uppercase;
+}
+
+.alertLine {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.alertLine::before {
+  background: var(--colour);
+  content: "";
+  flex: none;
+  height: 1.4em;
+  mask: var(--texture) center / 100% 100%;
+  width: 1.4em;
 }
 
 .count {
