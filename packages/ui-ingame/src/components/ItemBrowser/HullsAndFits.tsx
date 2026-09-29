@@ -1,5 +1,6 @@
 import type { Fit } from "@eveshipfit/fitting";
 import { useFit, useFitStore, useHullTree, useImages, useLocalFits, useMissingSkills } from "@eveshipfit/react-hooks";
+import type { SdeType } from "@eveshipfit/sde-loader";
 import { useState, type CSSProperties } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
@@ -11,6 +12,7 @@ import { Search } from "./Search";
 
 const noFits: readonly Fit[] = [];
 const SHIPS_MARKET_GROUP_ID = 4;
+const STRUCTURE_CATEGORY_ID = 65;
 
 /** The Hulls & Fits tab of the `ItemBrowser`: EVE's hulls by group and race, with the fits saved for each. */
 export function HullsAndFits() {
@@ -49,6 +51,54 @@ export function HullsAndFits() {
 
   const simulate = (shipTypeId: number) => store.replace({ ship: { type_id: shipTypeId }, items: [] });
 
+  const hull = (ship: SdeType) => {
+    const shown = shownFits(ship);
+    const simulateShip = (
+      <Tooltip label="Simulate Ship">
+        <button
+          type="button"
+          className={styles.simulate}
+          aria-label={`Simulate ${ship.name}`}
+          onClick={() => simulate(ship.id)}
+        >
+          <Icon name="simulate" />
+        </button>
+      </Tooltip>
+    );
+
+    return (
+      <TreeGroup
+        key={ship.id}
+        label={<span className={styles.hull}>{ship.name}</span>}
+        description={shown.length > 0 ? <Counts browserFits={fitsByHull.get(ship.id)?.length ?? 0} /> : undefined}
+        typeId={ship.id}
+        after={simulateShip}
+      >
+        {() =>
+          shown.length === 0 ? (
+            <TreeLeaf label="No Item" />
+          ) : (
+            shown.map((saved) => (
+              <TreeLeaf
+                key={saved.name ?? ""}
+                label={
+                  <>
+                    <span className={styles.kind}>
+                      <Icon name="fits-browser" />
+                    </span>
+                    {saved.name || ship.name}
+                  </>
+                }
+                onActivate={() => store.replace(saved)}
+                after={<Flyable fit={saved} />}
+              />
+            ))
+          )
+        }
+      </TreeGroup>
+    );
+  };
+
   return (
     <>
       <Search value={search} onChange={setSearch} onCollapse={() => setCollapses(collapses + 1)} />
@@ -71,71 +121,21 @@ export function HullsAndFits() {
           {groups.map(({ group, races }) => (
             <TreeGroup key={group.id} label={group.name}>
               {() =>
-                races.map(({ race, factionId, ships }) => (
-                  <TreeGroup
-                    key={race}
-                    label={`${raceName(race)} [${ships.length}]`}
-                    icon={
-                      factionId === undefined
-                        ? images.marketGroupIcon(SHIPS_MARKET_GROUP_ID)
-                        : images.factionIcon(factionId)
-                    }
-                  >
-                    {() =>
-                      ships.map((ship) => {
-                        const shown = shownFits(ship);
-                        const simulateShip = (
-                          <Tooltip label="Simulate Ship">
-                            <button
-                              type="button"
-                              className={styles.simulate}
-                              aria-label={`Simulate ${ship.name}`}
-                              onClick={() => simulate(ship.id)}
-                            >
-                              <Icon name="simulate" />
-                            </button>
-                          </Tooltip>
-                        );
-
-                        return (
-                          <TreeGroup
-                            key={ship.id}
-                            label={<span className={styles.hull}>{ship.name}</span>}
-                            description={
-                              shown.length > 0 ? (
-                                <Counts browserFits={fitsByHull.get(ship.id)?.length ?? 0} />
-                              ) : undefined
-                            }
-                            typeId={ship.id}
-                            after={simulateShip}
-                          >
-                            {() =>
-                              shown.length === 0 ? (
-                                <TreeLeaf label="No Item" />
-                              ) : (
-                                shown.map((saved) => (
-                                  <TreeLeaf
-                                    key={saved.name ?? ""}
-                                    label={
-                                      <>
-                                        <span className={styles.kind}>
-                                          <Icon name="fits-browser" />
-                                        </span>
-                                        {saved.name || ship.name}
-                                      </>
-                                    }
-                                    onActivate={() => store.replace(saved)}
-                                    after={<Flyable fit={saved} />}
-                                  />
-                                ))
-                              )
-                            }
-                          </TreeGroup>
-                        );
-                      })
-                    }
-                  </TreeGroup>
-                ))
+                group.categoryId === STRUCTURE_CATEGORY_ID
+                  ? races.flatMap(({ ships }) => ships).map(hull)
+                  : races.map(({ race, factionId, ships }) => (
+                      <TreeGroup
+                        key={race}
+                        label={`${raceName(race)} [${ships.length}]`}
+                        icon={
+                          factionId === undefined
+                            ? images.marketGroupIcon(SHIPS_MARKET_GROUP_ID)
+                            : images.factionIcon(factionId)
+                        }
+                      >
+                        {() => ships.map(hull)}
+                      </TreeGroup>
+                    ))
               }
             </TreeGroup>
           ))}

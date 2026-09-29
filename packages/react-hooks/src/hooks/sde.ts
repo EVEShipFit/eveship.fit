@@ -107,7 +107,7 @@ export function useChargeSearch(filter?: (type: SdeType) => boolean): readonly M
 }
 
 /**
- * The ships by group and race, cut down to those `filter` keeps; groups left
+ * The hulls by group and race, cut down to those `filter` keeps; groups left
  * empty are dropped. Keep `filter` stable between renders, as the tree is
  * rebuilt when it changes.
  */

@@ -207,4 +207,10 @@ describe("trees", () => {
     expect(minmatar.ships.map((ship) => ship.name)).toContain("Rifter");
     expect(minmatar.ships.every((ship) => ship.published && ship.categoryId === 6)).toBe(true);
   });
+
+  test("structures with the hulls", () => {
+    const citadels = sde.shipTree().find((node) => node.group.name === "Citadel")!;
+    expect(citadels.races.map((node) => node.race)).toEqual(["other"]);
+    expect(citadels.races[0]!.ships.map((ship) => ship.name)).toContain("Astrahus");
+  });
 });
