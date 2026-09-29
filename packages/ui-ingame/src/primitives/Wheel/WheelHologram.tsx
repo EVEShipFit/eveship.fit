@@ -8,7 +8,7 @@ export interface WheelHologramProps {
   model: string;
 }
 
-/** The ship as the ghost EVE shows while simulating a fit, above a grid; dragging turns it. */
+/** The ship as the ghost EVE shows while simulating a fit, above a grid; dragging turns it, scrolling zooms. */
 export function WheelHologram({ model }: WheelHologramProps) {
   const canvas = useRef<HTMLCanvasElement>(null);
   useEffect(() => showHologram(canvas.current!, model), [model]);

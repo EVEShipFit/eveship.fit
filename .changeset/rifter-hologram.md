@@ -2,4 +2,4 @@
 "@eveshipfit/ui-ingame": minor
 ---
 
-Show the Rifter as EVE's ghost above a grid, turned by dragging it
+Show the Rifter as EVE's ghost above a grid, turned by dragging and zoomed by scrolling

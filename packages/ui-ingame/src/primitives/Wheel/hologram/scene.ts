@@ -32,9 +32,10 @@ const nebula = [
   new URL("./nebula-nz.webp", import.meta.url).href,
 ];
 
-/** EVE's fitting camera: a field of view of 1 radian, turning 0.02 radian per pixel dragged. */
-const fov = (1 * 180) / Math.PI;
+/** EVE's fitting camera: a field of view of 1 radian, turning 0.02 radian per pixel dragged, zooming a thousandth of its range per pixel scrolled. */
+const fov = 1;
 const orbitSpeed = 0.02;
+const zoomSpeed = 0.001;
 const maxPitch = 1.4;
 
 /** EVE's `ScanGrid.red`: 100 by 100 cells over a plane of 15619 metres. */
@@ -69,6 +70,7 @@ const ghost = new ShaderMaterial({
     void main() {
       float facing = clamp(dot(normalize(vView), normalize(vNormal)) - fresnel.z, 0.0, 1.0);
       gl_FragColor = vec4(colour * pow(1.0 - facing, fresnel.x) * fresnel.y, 1.0);
+      #include <colorspace_fragment>
     }
   `,
   blending: AdditiveBlending,
@@ -113,14 +115,15 @@ export function showHologram(canvas: HTMLCanvasElement, model: string): () => vo
   renderer.setPixelRatio(devicePixelRatio);
 
   const scene = new Scene();
-  const camera = new PerspectiveCamera(fov, 1, 1, 400000);
-  const orbit = { yaw: 1.2 * Math.PI, pitch: 0.3, distance: 1000 };
+  const camera = new PerspectiveCamera((fov * 180) / Math.PI, 1, 1, 400000);
+  const orbit = { yaw: 1.2 * Math.PI, pitch: 0.3, zoom: 0, near: 0, far: 1000 };
 
   let frame = 0;
   const render = () => {
     frame ||= requestAnimationFrame(() => {
       frame = 0;
-      const { yaw, pitch, distance } = orbit;
+      const { yaw, pitch, zoom, near, far } = orbit;
+      const distance = near + (far - near) * zoom;
       camera.position.set(
         Math.sin(yaw) * Math.cos(pitch) * distance,
         Math.sin(pitch) * distance,
@@ -145,8 +148,11 @@ export function showHologram(canvas: HTMLCanvasElement, model: string): () => vo
     const bounds = new Box3().setFromObject(ship).getBoundingSphere(new Sphere());
     ship.position.sub(bounds.center);
     scene.add(ghostOf(ship), floor(-bounds.radius / 2, lines));
-    // EVE's default zoom: twice the distance at which the camera touches the ship.
-    orbit.distance = 2 * (bounds.radius + bounds.center.length() + camera.near);
+    // EVE's zoom: from touching the ship to twice as far as it fits in view; starting at twice touching it.
+    const radius = bounds.radius + bounds.center.length();
+    orbit.near = radius + camera.near;
+    orbit.far = (2 * radius) / Math.tan(fov / 2);
+    orbit.zoom = orbit.near / (orbit.far - orbit.near);
     render();
   });
 
@@ -165,8 +171,14 @@ export function showHologram(canvas: HTMLCanvasElement, model: string): () => vo
     orbit.pitch = Math.min(maxPitch, Math.max(-maxPitch, orbit.pitch + event.movementY * orbitSpeed));
     render();
   };
+  const zoom = (event: WheelEvent) => {
+    event.preventDefault();
+    orbit.zoom = Math.min(1, Math.max(0, orbit.zoom + event.deltaY * zoomSpeed));
+    render();
+  };
   canvas.addEventListener("pointerdown", grab);
   canvas.addEventListener("pointermove", drag);
+  canvas.addEventListener("wheel", zoom, { passive: false });
 
   return () => {
     disposed = true;
@@ -174,6 +186,7 @@ export function showHologram(canvas: HTMLCanvasElement, model: string): () => vo
     resize.disconnect();
     canvas.removeEventListener("pointerdown", grab);
     canvas.removeEventListener("pointermove", drag);
+    canvas.removeEventListener("wheel", zoom);
     renderer.dispose();
     renderer.forceContextLoss();
   };
