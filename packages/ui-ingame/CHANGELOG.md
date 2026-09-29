@@ -1,5 +1,24 @@
 # @eveshipfit/ui-ingame
 
+## 1.3.0
+
+### Minor Changes
+
+- Add `tooltipTitle` to `HistoryBar` ([#173](https://github.com/EVEShipFit/eveship.fit/pull/173))
+
+- Show hitpoints above 100,000 in millions and above 100 million in billions ([#173](https://github.com/EVEShipFit/eveship.fit/pull/173))
+
+- Show structures in the Hulls & Fits tab of the `ItemBrowser`, and sort hulls by meta as modules are ([#175](https://github.com/EVEShipFit/eveship.fit/pull/175))
+
+- Show structures as EVE does: a taller `FittingWindow` with service slots, ammo hold and fighter bay, and Fighters and Fuel in `ShipStatistics` ([#173](https://github.com/EVEShipFit/eveship.fit/pull/173))
+
+- Show what is wrong when hovering the fitting errors, warnings and missing skills of `FittingWindow` ([#171](https://github.com/EVEShipFit/eveship.fit/pull/171))
+
+### Patch Changes
+
+- Updated dependencies [[`a76a21d`](https://github.com/EVEShipFit/eveship.fit/commit/a76a21db5a51bec86a2aaf5b6f495fc2ff995aaa), [`bb8232c`](https://github.com/EVEShipFit/eveship.fit/commit/bb8232cc0823bb4b8abe4ac3c5c236c0be614f53)]:
+  - @eveshipfit/react-hooks@1.4.0
+
 ## 1.2.0
 
 ### Minor Changes

@@ -1,5 +1,19 @@
 # @eveshipfit/react-hooks
 
+## 1.4.0
+
+### Minor Changes
+
+- Let `useBayUsage` read the fighter bay ([#173](https://github.com/EVEShipFit/eveship.fit/pull/173))
+
+- Export `useShownSnapshot` ([#171](https://github.com/EVEShipFit/eveship.fit/pull/171))
+
+### Patch Changes
+
+- Updated dependencies [[`cdccf67`](https://github.com/EVEShipFit/eveship.fit/commit/cdccf67748d9c533eade09ab4bacffa1eee1e44b), [`a09defb`](https://github.com/EVEShipFit/eveship.fit/commit/a09defb750560c7aa22d4be61982e0a931fcd754), [`a76a21d`](https://github.com/EVEShipFit/eveship.fit/commit/a76a21db5a51bec86a2aaf5b6f495fc2ff995aaa), [`f8300fe`](https://github.com/EVEShipFit/eveship.fit/commit/f8300fe2efb9d5e30f28dc51a06572498006a7c3)]:
+  - @eveshipfit/fitting@1.3.0
+  - @eveshipfit/sde-loader@1.3.0
+
 ## 1.3.0
 
 ### Minor Changes
