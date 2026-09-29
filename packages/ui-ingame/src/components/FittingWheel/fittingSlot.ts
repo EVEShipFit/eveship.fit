@@ -43,8 +43,8 @@ export function useFittingSlot(
   const switchable = ref !== undefined && stats !== undefined && switchedRacks.includes(rack);
 
   const target = `${rack}-${index}`;
-  const takes = (drop: DragItem | undefined): drop is DragItem => {
-    if (!available || drop === undefined) return false;
+  const takes = (drop: DragItem | undefined): drop is Exclude<DragItem, { type: "hull" }> => {
+    if (!available || drop === undefined || drop.type === "hull") return false;
     if (drop.type === "item") return movesTo(fit, drop.ref, rack, index);
     const dropped = sde.type(drop.typeId);
     if (dropped === undefined) return false;
@@ -112,7 +112,7 @@ export function useFittingSlot(
 
 export function allowDrop(event: DragEvent, dragging: DragItem) {
   event.preventDefault();
-  event.dataTransfer.dropEffect = dragging.type === "type" ? "copy" : "move";
+  event.dataTransfer.dropEffect = dragging.type === "item" ? "move" : "copy";
 }
 
 /** Whether a fitted item can move to this slot. */
