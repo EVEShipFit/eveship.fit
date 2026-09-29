@@ -166,14 +166,16 @@ export function showHologram(canvas: HTMLCanvasElement, hull: Hull): () => void 
   const renderer = new WebGLRenderer({ canvas });
   renderer.setPixelRatio(devicePixelRatio);
   renderer.outputColorSpace = LinearSRGBColorSpace;
-  const post = new PostProcess(renderer);
+  const post = new PostProcess(renderer, () => render());
 
   const scene = new Scene();
   const camera = new PerspectiveCamera((fov * 180) / Math.PI, 1, 1, 400000);
   const orbit = { yaw: 1.2 * Math.PI, pitch: 0.3, zoom: 0, near: 0, far: 1000 };
 
+  let disposed = false;
   let frame = 0;
   const render = () => {
+    if (disposed) return;
     frame ||= requestAnimationFrame(() => {
       frame = 0;
       const { yaw, pitch, zoom, near, far } = orbit;
@@ -204,7 +206,6 @@ export function showHologram(canvas: HTMLCanvasElement, hull: Hull): () => void 
   normalMap.wrapS = normalMap.wrapT = RepeatWrapping;
   normalMap.flipY = false;
 
-  let disposed = false;
   const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
   void loader.loadAsync(hull.model).then(({ scene: ship }) => {
     if (disposed) return;

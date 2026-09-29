@@ -121,16 +121,18 @@ const blur = pass(
     uniform float radius;
     varying vec2 vUv;
     void main() {
-      vec3 sum = vec3(0.0);
-      float total = 0.0;
-      for (int i = -127; i <= 127; i++) {
+      vec3 sum = texture2D(source, vUv).rgb;
+      float total = 1.0;
+      for (int i = 1; i <= 127; i++) {
         float x = float(i);
-        if (abs(x) > radius) continue;
-        vec2 uv = vUv + x * direction * texel;
-        if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) continue;
+        if (x > radius) break;
         float w = exp(-5.0 * 3.14159265 * (x / radius) * (x / radius));
-        sum += texture2D(source, uv).rgb * w;
-        total += w;
+        for (int side = -1; side <= 1; side += 2) {
+          vec2 uv = vUv + float(side) * x * direction * texel;
+          if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) continue;
+          sum += texture2D(source, uv).rgb * w;
+          total += w;
+        }
       }
       gl_FragColor = vec4(sum / total, 1.0);
     }
@@ -209,8 +211,15 @@ export class PostProcess {
     magFilter: NearestFilter,
   });
   private readonly bins = new Uint8Array(measureSize * measureSize * 4);
+  /** EVE's exposure for a dark scene, until the first measurement. */
+  private exposure = middleValue / 0.486;
+  private measuring = false;
 
-  constructor(private readonly renderer: WebGLRenderer) {
+  /** `changed` is called when the exposure has adjusted to what was rendered. */
+  constructor(
+    private readonly renderer: WebGLRenderer,
+    private readonly changed: () => void,
+  ) {
     this.scene.add(this.quad);
   }
 
@@ -251,8 +260,9 @@ export class PostProcess {
 
     tonemap.uniforms.source.value = this.buffer.texture;
     tonemap.uniforms.bloom.value = below?.texture ?? null;
-    tonemap.uniforms.exposure.value = this.exposure();
+    tonemap.uniforms.exposure.value = this.exposure;
     this.draw(tonemap, null);
+    this.measure();
   }
 
   dispose() {
@@ -276,12 +286,27 @@ export class PostProcess {
     this.draw(blur, to);
   }
 
-  /** The multiplier EVE settles on: 0.55 over the average of the 90th and 98th percentile luminance. */
-  private exposure(): number {
+  /** Adjusts to the multiplier EVE settles on: 0.55 over the average of the 90th and 98th percentile luminance. */
+  private measure() {
+    if (this.measuring) return;
+    this.measuring = true;
     measure.uniforms.source.value = this.buffer.texture;
     this.draw(measure, this.measured);
-    this.renderer.readRenderTargetPixels(this.measured, 0, 0, measureSize, measureSize, this.bins);
+    void this.renderer
+      .readRenderTargetPixelsAsync(this.measured, 0, 0, measureSize, measureSize, this.bins)
+      .then(() => {
+        this.measuring = false;
+        const exposure = middleValue / Math.min(0.5 / 2 ** -3.7, Math.max(0.5 / 2 ** 10, this.luminance()));
+        if (Math.abs(exposure - this.exposure) < 0.01 * this.exposure) return;
+        this.exposure = exposure;
+        this.changed();
+      })
+      .catch(() => {
+        this.measuring = false;
+      });
+  }
 
+  private luminance(): number {
     const counts = Array.from({ length: 64 }, () => 0);
     for (let i = 0; i < this.bins.length; i += 4) counts[Math.min(63, Math.floor((this.bins[i]! / 255) * 64))]! += 1;
     const pixels = measureSize * measureSize;
@@ -296,7 +321,6 @@ export class PostProcess {
       }
       return maxLuminance;
     };
-    const average = (percentile(0.9) + percentile(0.98)) / 2;
-    return middleValue / Math.min(0.5 / 2 ** -3.7, Math.max(0.5 / 2 ** 10, average));
+    return (percentile(0.9) + percentile(0.98)) / 2;
   }
 }
