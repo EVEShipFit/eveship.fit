@@ -1,5 +1,15 @@
 # @eveshipfit/sde-loader
 
+## 1.3.0
+
+### Minor Changes
+
+- Show structures in the Hulls & Fits tab of the `ItemBrowser`, and sort hulls by meta as modules are ([#175](https://github.com/EVEShipFit/eveship.fit/pull/175))
+
+### Patch Changes
+
+- Include structure modules and rigs in `moduleTree` ([#176](https://github.com/EVEShipFit/eveship.fit/pull/176))
+
 ## 1.2.0
 
 ### Minor Changes

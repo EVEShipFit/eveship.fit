@@ -1,6 +1,6 @@
 {
   "name": "@eveshipfit/ui-ingame",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "EVE Online ship fitting UI that looks like the in-game one",
   "license": "MIT",
   "author": "EVEShipFit Team <info@eveship.fit>",

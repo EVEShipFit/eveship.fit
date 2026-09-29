@@ -1,5 +1,18 @@
 # @eveshipfit/fitting
 
+## 1.3.0
+
+### Minor Changes
+
+- Add `Engine.loadLink` to load the fit of an EVEShip.fit link, and require `@eveshipfit/dogma-engine` 13.1.0 ([#170](https://github.com/EVEShipFit/eveship.fit/pull/170))
+
+- Add `fighterBay`, `structure` and `fuel` to `Stats`; a structure's cargo hold is no longer overloaded ([#173](https://github.com/EVEShipFit/eveship.fit/pull/173))
+
+### Patch Changes
+
+- Updated dependencies [[`a09defb`](https://github.com/EVEShipFit/eveship.fit/commit/a09defb750560c7aa22d4be61982e0a931fcd754), [`f8300fe`](https://github.com/EVEShipFit/eveship.fit/commit/f8300fe2efb9d5e30f28dc51a06572498006a7c3)]:
+  - @eveshipfit/sde-loader@1.3.0
+
 ## 1.2.0
 
 ### Minor Changes
