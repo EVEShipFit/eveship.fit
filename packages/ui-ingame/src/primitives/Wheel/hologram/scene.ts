@@ -25,7 +25,8 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 import { PostProcess } from "./post";
 
-MeshoptDecoder.useWorkers(1);
+const { useWorkers: startDecoders } = MeshoptDecoder;
+startDecoders(1);
 
 const gridTexture = new URL("./grid.png", import.meta.url).href;
 const gridMask = new URL("./whiteglobe.png", import.meta.url).href;
