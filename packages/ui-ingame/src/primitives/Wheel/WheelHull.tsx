@@ -1,11 +1,15 @@
 import { lazy, Suspense } from "react";
 
+import type { Hull } from "./hologram/scene";
 import styles from "./WheelHull.module.css";
 
 const WheelHologram = lazy(() => import("./WheelHologram").then((module) => ({ default: module.WheelHologram })));
 
-const models: Partial<Record<number, string>> = {
-  587: new URL("./hologram/rifter.glb", import.meta.url).href,
+const hulls: Partial<Record<number, Hull>> = {
+  587: {
+    model: new URL("./hologram/rifter.glb", import.meta.url).href,
+    normalMap: new URL("./hologram/rifter-normal.webp", import.meta.url).href,
+  },
 };
 
 let webgl: boolean | undefined;
@@ -19,7 +23,7 @@ export interface WheelHullProps {
 }
 
 export function WheelHull({ typeId }: WheelHullProps) {
-  const model = models[typeId];
+  const hull = hulls[typeId];
   const render = (
     <img
       className={styles.hull}
@@ -28,11 +32,11 @@ export function WheelHull({ typeId }: WheelHullProps) {
       draggable={false}
     />
   );
-  if (model === undefined || !supportsWebgl()) return render;
+  if (hull === undefined || !supportsWebgl()) return render;
 
   return (
     <Suspense fallback={render}>
-      <WheelHologram model={model} />
+      <WheelHologram hull={hull} />
     </Suspense>
   );
 }

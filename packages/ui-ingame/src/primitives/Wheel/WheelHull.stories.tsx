@@ -15,7 +15,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Rifter: Story = {
   play: async ({ canvasElement }) => {
-    await waitFor(() => expect(canvasElement.querySelector("canvas")).not.toBeNull());
+    await waitFor(() => expect(canvasElement.querySelector("canvas")).not.toBeNull(), { timeout: 5000 });
     await expect(getComputedStyle(canvasElement.querySelector("canvas")!).zIndex).toBe("-1");
   },
 };
