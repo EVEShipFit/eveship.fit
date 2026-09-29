@@ -50,6 +50,7 @@
 .panels,
 .bays,
 .history,
+.services,
 .resources {
   position: absolute;
 }
@@ -277,6 +278,27 @@
 .history {
   left: calc(199 * var(--window-unit));
   top: calc(590 * var(--window-unit));
+}
+
+.window[data-structure] .history {
+  left: calc(20 * var(--window-unit));
+  top: calc(-24 * var(--window-unit));
+}
+
+.services {
+  display: grid;
+  gap: calc(5 * var(--window-unit));
+  left: calc(149 * var(--window-unit));
+  top: calc(567 * var(--window-unit));
+}
+
+.serviceSlots {
+  display: flex;
+  gap: calc(4 * var(--window-unit));
+}
+
+.servicesTitle {
+  margin-left: calc(14 * var(--window-unit));
 }
 
 .resources {

@@ -16,6 +16,16 @@
   margin-left: calc(14 * var(--history-unit));
 }
 
+.history[data-inline] {
+  align-items: center;
+  gap: calc(8 * var(--history-unit));
+  grid-auto-flow: column;
+}
+
+.history[data-inline] > .title {
+  margin-left: 0;
+}
+
 .row {
   align-items: center;
   display: flex;

@@ -61,6 +61,30 @@
   width: calc(16 * var(--statistics-unit));
 }
 
+.fighters {
+  --fighters-unit: calc(1px * var(--esf-scale, 1));
+
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: calc(4 * var(--fighters-unit)) calc(10 * var(--fighters-unit)) calc(4 * var(--fighters-unit))
+    calc(4 * var(--fighters-unit));
+}
+
+.manage {
+  background: var(--esf-button);
+  border: var(--fighters-unit) solid var(--esf-button-edge);
+  color: inherit;
+  cursor: default;
+  font: inherit;
+  height: calc(30 * var(--fighters-unit));
+  padding: 0 calc(16 * var(--fighters-unit));
+}
+
+.manage:focus-visible {
+  outline: var(--fighters-unit) solid var(--esf-text);
+}
+
 .defense {
   --defense-unit: calc(1px * var(--esf-scale, 1));
 

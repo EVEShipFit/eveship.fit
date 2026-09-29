@@ -42,6 +42,30 @@ test("drone bay", () => {
   expect(fit.getSnapshot().stats.droneBay).toEqual({ used: 15, total: 40 });
 });
 
+test("a structure has a fighter bay and an ammo hold without a limit", () => {
+  const fit = engine.createFit({ ship: id("Keepstar") });
+  expect(fit.getSnapshot().stats.structure).toBe(true);
+  fit.fit(id("Standup Templar I"));
+  fit.fit(id("Standup XL Cruise Missile"), { type: "cargo" });
+
+  const { stats } = fit.getSnapshot();
+  expect(stats.fighterBay).toEqual({ used: 18000, total: 400000 });
+  expect(stats.cargo).toEqual({ used: 0.5, total: 0 });
+  expect(stats.violations).toEqual([]);
+  expect(engine.createFit({ ship: id("Rifter") }).getSnapshot().stats.structure).toBe(false);
+});
+
+test("fuel of the online service modules", () => {
+  const fit = engine.createFit({ ship: id("Keepstar") });
+  expect(fit.getSnapshot().stats.fuel).toBe(0);
+  const market = fit.fit(id("Standup Market Hub I"))!;
+  fit.fit(id("Standup Cloning Center I"));
+  expect(fit.getSnapshot().stats.fuel).toBe(30 + 7.5);
+
+  fit.setState(market, "offline");
+  expect(fit.getSnapshot().stats.fuel).toBe(7.5);
+});
+
 test("items are index-parallel to the fit", () => {
   const fit = engine.createFit({ ship: id("Rifter") });
   fit.fit(id("200mm AutoCannon II"));

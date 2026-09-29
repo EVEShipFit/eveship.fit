@@ -20,6 +20,15 @@ export const AtTheLatest: Story = {
   },
 };
 
+export const Inline: Story = {
+  args: { inline: true },
+  play: async ({ canvas }) => {
+    const title = canvas.getByText("Simulation History").getBoundingClientRect();
+    const bar = canvas.getByRole("button", { name: "1 of 9" }).parentElement!.getBoundingClientRect();
+    await expect(bar.left).toBeGreaterThan(title.right);
+  },
+};
+
 export const WentBack: Story = {
   args: { position: 3 },
 };

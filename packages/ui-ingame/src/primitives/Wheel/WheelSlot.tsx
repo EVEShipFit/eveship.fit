@@ -1,7 +1,8 @@
 import { useImages } from "@eveshipfit/react-hooks";
 import type { CSSProperties, DragEventHandler, HTMLAttributes, MouseEventHandler, ReactNode } from "react";
 
-import { Icon, type IconName } from "../Icon/Icon";
+import { Icon } from "../Icon/Icon";
+import { SlotAction, SlotInfo, SlotPress } from "../SlotAction/SlotAction";
 import { Tooltip } from "../Tooltip/Tooltip";
 import { TypeIcon } from "../TypeIcon/TypeIcon";
 import { placeAt } from "./geometry";
@@ -83,10 +84,10 @@ export function WheelSlot({
       row.push(
         onRemoveCharge && {
           key: "charge",
-          node: <Action icon="module-unfit" label="Remove Charge" onPress={onRemoveCharge} />,
+          node: <SlotAction icon="module-unfit" label="Remove Charge" onPress={onRemoveCharge} />,
         },
       );
-      row.push({ key: "charge-info", node: <ShowInfo /> });
+      row.push({ key: "charge-info", node: <SlotInfo /> });
       row.push(
         typeName === undefined
           ? undefined
@@ -102,11 +103,13 @@ export function WheelSlot({
             },
       );
     }
-    row.push(onUnfit && { key: "unfit", node: <Action icon="module-unfit" label="Unfit Module" onPress={onUnfit} /> });
-    row.push({ key: "info", node: <ShowInfo /> });
+    row.push(
+      onUnfit && { key: "unfit", node: <SlotAction icon="module-unfit" label="Unfit Module" onPress={onUnfit} /> },
+    );
+    row.push({ key: "info", node: <SlotInfo /> });
     const power = state === "offline" ? "Put Online" : "Put Offline";
     row.push(
-      onTogglePower && { key: "power", node: <Action icon="module-power" label={power} onPress={onTogglePower} /> },
+      onTogglePower && { key: "power", node: <SlotAction icon="module-power" label={power} onPress={onTogglePower} /> },
     );
   }
   const last = row.findLastIndex((action) => action !== undefined);
@@ -149,21 +152,7 @@ export function WheelSlot({
             </span>
           )
         )}
-        {onPress && (
-          <div
-            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Firefox does not start a drag from a <button>.
-            role="button"
-            tabIndex={0}
-            className={styles.press}
-            aria-label={label}
-            onClick={onPress}
-            onKeyDown={(event) => {
-              if (event.key !== "Enter" && event.key !== " ") return;
-              event.preventDefault();
-              event.currentTarget.dispatchEvent(new MouseEvent("click", { bubbles: true, shiftKey: event.shiftKey }));
-            }}
-          />
-        )}
+        {onPress && <SlotPress className={styles.press} label={label} onPress={onPress} />}
       </div>
       {last >= 0 && (
         <fieldset
@@ -187,26 +176,6 @@ export function WheelSlot({
         </fieldset>
       )}
     </div>
-  );
-}
-
-function Action({ icon, label, onPress }: { icon: IconName; label: string; onPress: () => void }) {
-  return (
-    <Tooltip label={label}>
-      <button type="button" className={styles.button} aria-label={label} onClick={onPress}>
-        <Icon name={icon} />
-      </button>
-    </Tooltip>
-  );
-}
-
-function ShowInfo() {
-  return (
-    <Tooltip label="Show Info (not implemented yet)">
-      <button type="button" className={styles.button} aria-label="Show Info" aria-disabled>
-        <Icon name="module-info" />
-      </button>
-    </Tooltip>
   );
 }
 

@@ -1,0 +1,23 @@
+.button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  padding: 0;
+  width: 100%;
+}
+
+.button[aria-disabled="true"] {
+  cursor: default;
+}
+
+.button:focus-visible {
+  outline: 1px solid var(--esf-text);
+}
+
+.button > img {
+  display: block;
+  height: 100%;
+  width: 100%;
+}

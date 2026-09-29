@@ -7,12 +7,14 @@ export interface HistoryBarProps {
   /** 0 is the oldest. */
   position: number;
   onGoTo: (position: number) => void;
+  /** The title left of the bar. */
+  inline?: boolean;
 }
 
 /** EVE's Simulation History. */
-export function HistoryBar({ label, length, position, onGoTo }: HistoryBarProps) {
+export function HistoryBar({ label, length, position, onGoTo, inline = false }: HistoryBarProps) {
   return (
-    <fieldset className={styles.history} aria-label={label}>
+    <fieldset className={styles.history} aria-label={label} data-inline={inline || undefined}>
       <span className={styles.title} aria-hidden>
         {label}
       </span>

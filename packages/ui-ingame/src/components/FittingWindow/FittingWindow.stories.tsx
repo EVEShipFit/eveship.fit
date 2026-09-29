@@ -22,6 +22,12 @@ const types = {
   Tristan: 593,
   "Hammerhead II": 2185,
   "Warrior II": 2488,
+  Keepstar: 35834,
+  "Standup Market Hub I": 35892,
+  "Standup Cloning Center I": 35894,
+  "Standup Anticapital Missile Launcher I": 35921,
+  "Standup XL Cruise Missile": 37844,
+  "Standup Templar I": 47035,
 };
 
 const rifter = {
@@ -53,6 +59,23 @@ const broken = {
     { type_id: types["Medium Projectile Burst Aerator I"], slot: { type: "rig", index: 1 }, state: "active" },
     { type_id: types["Nanite Repair Paste"], slot: { type: "cargo" }, quantity: 20000, state: "offline" },
     { type_id: types["Hobgoblin II"], slot: { type: "drone_bay" }, quantity: 1, state: "active" },
+  ],
+};
+
+const keepstar = {
+  name: "Storybook Keepstar",
+  ship: { type_id: types.Keepstar },
+  items: [
+    {
+      type_id: types["Standup Anticapital Missile Launcher I"],
+      slot: { type: "high", index: 0 },
+      state: "active",
+      charge: { type_id: types["Standup XL Cruise Missile"] },
+    },
+    { type_id: types["Standup Market Hub I"], slot: { type: "service", index: 0 }, state: "online" },
+    { type_id: types["Standup Cloning Center I"], slot: { type: "service", index: 1 }, state: "offline" },
+    { type_id: types["Standup XL Cruise Missile"], slot: { type: "cargo" }, quantity: 16, state: "offline" },
+    { type_id: types["Standup Templar I"], slot: { type: "fighter_bay" }, quantity: 9, state: "offline" },
   ],
 };
 
@@ -527,6 +550,84 @@ export const DroneBay: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Remove All" }));
     await userEvent.click(bay);
     await expect(await canvas.findByText("No Drones Simulated")).toBeVisible();
+  },
+};
+
+/** Service modules go in a row below the wheel; the ammo hold has no limit, and fighters go in the fighter bay. */
+export const Keepstar: Story = {
+  args: { statistics: <ShipStatistics /> },
+  parameters: { fit: keepstar },
+  play: async ({ canvas, userEvent }) => {
+    const services = canvas.getAllByRole("button", { name: /^Standup (Market Hub|Cloning Center) I/ });
+    await expect(services.map((service) => service.getAttribute("aria-label"))).toEqual([
+      "Standup Market Hub I, online",
+      "Standup Cloning Center I, offline",
+    ]);
+    await expect(canvas.getByRole("group", { name: "Structure Services" }).children).toHaveLength(8);
+    await expect(canvas.getByRole("button", { name: "Ammo Hold" })).toHaveTextContent("8.0/0.0m3");
+    await expect(canvas.getByRole("button", { name: "Ammo Hold" })).not.toHaveAttribute("data-over");
+    await expect(canvas.getByRole("button", { name: "Fighter Bay" })).toHaveTextContent("18,000.0/400,000.0m3");
+    await expect(canvas.queryByRole("button", { name: "Cargo Hold" })).toBeNull();
+    await expect(canvas.queryByRole("img", { name: /^Fitting/ })).toBeNull();
+    const history = canvas.getByRole("group", { name: "Simulation History" }).getBoundingClientRect();
+    await expect(history.bottom).toBeLessThanOrEqual(
+      canvas.getByText("Storybook Keepstar").getBoundingClientRect().top,
+    );
+
+    await userEvent.click(services[1]!);
+    await expect(canvas.getByRole("button", { name: "Standup Cloning Center I, online" })).toBeInTheDocument();
+    const actions = within(canvas.getByRole("group", { name: "Standup Market Hub I" }));
+    services[0]!.focus();
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await expect(actions.getByRole("button", { name: "Put Offline" })).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    canvas.getByRole("button", { name: "Standup Market Hub I, offline" }).focus();
+    await userEvent.tab();
+    await expect(actions.getByRole("button", { name: "Unfit Module" })).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await expect(canvas.queryByRole("button", { name: /^Standup Market Hub I/ })).toBeNull();
+
+    const steps = within(canvas.getByRole("group", { name: "Simulation History" }));
+    await expect(steps.getByRole("button", { current: true })).toHaveAccessibleName("4 of 4");
+  },
+};
+
+/** Dragging a service module to a service slot fits it there, and moves a fitted one. */
+export const DragServiceModule: Story = {
+  args: { browser: <ItemBrowser /> },
+  parameters: { fit: { ship: { type_id: types.Keepstar }, items: [] } },
+  play: async ({ canvas, userEvent }) => {
+    const slots = () => canvas.getByRole("group", { name: "Structure Services" }).children;
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "standup market hub i");
+
+    await dragAndDrop(await canvas.findByRole("button", { name: "Standup Market Hub I" }), slots()[3]!);
+    await expect(slots()[3]!).toHaveAttribute("data-state", "online");
+
+    await dragAndDrop(canvas.getByRole("button", { name: "Standup Market Hub I, online" }), slots()[5]!);
+    await expect(slots()[3]!).toHaveAttribute("data-state", "empty");
+    await expect(slots()[5]!).toHaveAttribute("data-state", "online");
+  },
+};
+
+/** The squadrons in the fighter tubes, full or not. */
+export const FighterSquadrons: Story = {
+  args: { statistics: <ShipStatistics /> },
+  parameters: {
+    fit: {
+      ship: { type_id: types.Keepstar },
+      items: [
+        { type_id: types["Standup Templar I"], slot: { type: "fighter_tube", index: 0 }, quantity: 9, state: "online" },
+        { type_id: types["Standup Templar I"], slot: { type: "fighter_tube", index: 1 }, quantity: 4, state: "online" },
+      ],
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("region", { name: "Fighters" })).toHaveTextContent(
+      "1 Full Squadrons1 Partial Squadrons",
+    );
   },
 };
 

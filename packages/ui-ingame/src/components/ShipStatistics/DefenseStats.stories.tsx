@@ -33,6 +33,14 @@ export const EmptyRifter: Story = {
   },
 };
 
+/** Millions above 100,000 hp. */
+export const Rorqual: Story = {
+  parameters: { fit: { ship: 28352 } },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("group", { name: "Structure Hitpoints" })).toHaveTextContent(/^\d+\.\d\dM hp$/);
+  },
+};
+
 export const PickARepairRate: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Passive shield recharge: 3 hp/s" }));

@@ -54,7 +54,7 @@ export function useRackUsage(rack: Rack): Usage {
 }
 
 /** In m³; follows the preview, like `useStats`. */
-export function useBayUsage(bay: "cargo" | "droneBay"): Usage {
+export function useBayUsage(bay: "cargo" | "droneBay" | "fighterBay"): Usage {
   return useStats()[bay];
 }
 
