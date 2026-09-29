@@ -203,9 +203,9 @@ export class Sde {
     return (type) => (metaLevel === undefined ? undefined : type.attributes.get(metaLevel)) ?? 0;
   }
 
-  /** Published ships, by group and then race; everything sorted by name. */
+  /** Published ships and structures, by group and then race; hulls sorted by meta group, meta level and name. */
   shipTree(): readonly ShipGroupNode[] {
-    this.#shipTree ??= buildShipTree(this.#types.all(), (id) => this.group(id));
+    this.#shipTree ??= buildShipTree(this.#types.all(), (id) => this.group(id), this.#metaLevel());
     return this.#shipTree;
   }
 }

@@ -208,9 +208,14 @@ describe("trees", () => {
     expect(minmatar.ships.every((ship) => ship.published && ship.categoryId === 6)).toBe(true);
   });
 
-  test("structures with the hulls", () => {
+  test("structures with the hulls, sorted by meta", () => {
     const citadels = sde.shipTree().find((node) => node.group.name === "Citadel")!;
     expect(citadels.races.map((node) => node.race)).toEqual(["other"]);
-    expect(citadels.races[0]!.ships.map((ship) => ship.name)).toContain("Astrahus");
+    expect(citadels.races[0]!.ships.map((ship) => ship.name).slice(0, 4)).toEqual([
+      "Astrahus",
+      "Fortizar",
+      "Keepstar",
+      "'Draccous' Fortizar",
+    ]);
   });
 });

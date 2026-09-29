@@ -191,7 +191,9 @@ function indexMarket(market: readonly MarketGroupNode[]): Map<number, MarketGrou
 export function buildShipTree(
   types: Iterable<SdeType>,
   group: (id: number) => SdeGroup | undefined,
+  metaLevel: MetaLevel,
 ): readonly ShipGroupNode[] {
+  const byMeta = byMetaOf(metaLevel);
   const shipsByGroup = new Map<number, SdeType[]>();
   for (const type of types) {
     if (!HULL_CATEGORY_IDS.has(type.categoryId) || !type.published || type.marketGroupId === undefined) continue;
@@ -209,7 +211,7 @@ export function buildShipTree(
       races: raceOrder.flatMap((race) => {
         const raceShips = byRace.get(race);
         if (raceShips === undefined) return [];
-        return [{ race, factionId: raceFactions.get(race), ships: raceShips.toSorted(byName) }];
+        return [{ race, factionId: raceFactions.get(race), ships: raceShips.toSorted(byMeta) }];
       }),
     });
   }
