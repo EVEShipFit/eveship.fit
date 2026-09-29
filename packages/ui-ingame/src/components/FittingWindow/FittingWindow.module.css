@@ -3,11 +3,12 @@
   --window-unit: calc(1px * var(--esf-scale, 1));
   --browser-width: 0px;
   --statistics-width: 0px;
+  --extra-height: 0;
 
   color: var(--esf-text);
   font-family: var(--esf-font);
   font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
-  height: calc(672 * var(--window-unit));
+  height: calc((672 + var(--extra-height)) * var(--window-unit));
   position: relative;
   transition: width 200ms ease;
   user-select: none;
@@ -16,6 +17,10 @@
 
 .window[data-browser] {
   --browser-width: calc(400 * var(--window-unit));
+}
+
+.window[data-structure] {
+  --extra-height: 50;
 }
 
 .window[data-statistics] {
@@ -218,7 +223,7 @@
   display: grid;
   gap: calc(4 * var(--window-unit));
   left: calc(19 * var(--window-unit));
-  top: calc(560 * var(--window-unit));
+  top: calc((560 + var(--extra-height)) * var(--window-unit));
 }
 
 .bay {
@@ -281,24 +286,14 @@
 }
 
 .window[data-structure] .history {
-  left: calc(20 * var(--window-unit));
-  top: calc(-24 * var(--window-unit));
+  top: calc(660 * var(--window-unit));
 }
 
 .services {
-  display: grid;
-  gap: calc(5 * var(--window-unit));
-  left: calc(149 * var(--window-unit));
-  top: calc(567 * var(--window-unit));
-}
-
-.serviceSlots {
   display: flex;
   gap: calc(4 * var(--window-unit));
-}
-
-.servicesTitle {
-  margin-left: calc(14 * var(--window-unit));
+  left: calc(149 * var(--window-unit));
+  top: calc(610 * var(--window-unit));
 }
 
 .resources {
@@ -307,7 +302,7 @@
   line-height: calc(16 * var(--window-unit));
   right: calc(13 * var(--window-unit));
   text-align: right;
-  top: calc(546 * var(--window-unit));
+  top: calc((546 + var(--extra-height)) * var(--window-unit));
 }
 
 .resource {

@@ -570,9 +570,9 @@ export const Keepstar: Story = {
     await expect(canvas.queryByRole("button", { name: "Cargo Hold" })).toBeNull();
     await expect(canvas.queryByRole("img", { name: /^Fitting/ })).toBeNull();
     const history = canvas.getByRole("group", { name: "Simulation History" }).getBoundingClientRect();
-    await expect(history.bottom).toBeLessThanOrEqual(
-      canvas.getByText("Storybook Keepstar").getBoundingClientRect().top,
-    );
+    const rack = canvas.getByRole("group", { name: "Structure Services" }).getBoundingClientRect();
+    await expect(history.top).toBeGreaterThanOrEqual(rack.bottom);
+    await expect(canvas.getByRole("region", { name: "Fitting Window" }).getBoundingClientRect().height).toBe(722);
 
     await userEvent.click(services[1]!);
     await expect(canvas.getByRole("button", { name: "Standup Cloning Center I, online" })).toBeInTheDocument();

@@ -127,7 +127,7 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
         </div>
         {structure && <ServiceRack />}
         <div className={styles.history}>
-          <SimulationHistory inline={structure} />
+          <SimulationHistory tooltipTitle={structure} />
         </div>
         <div className={styles.resources}>
           <Resource title="CPU" free="cpuFree" output="cpuOutput" />
@@ -363,23 +363,17 @@ function Resource({ title, free, output }: { title: string; free: string; output
 function ServiceRack() {
   const slots = useSlots("service");
   const { total } = useRackUsage("service");
-  const titleId = useId();
 
   return (
-    <div className={styles.services}>
-      <div
-        className={styles.serviceSlots}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- A <fieldset> is for form controls.
-        role="group"
-        aria-labelledby={titleId}
-      >
-        {Array.from({ length: SERVICE_SLOTS }, (_, index) => (
-          <FittingServiceSlot key={index} index={index} available={index < total} content={slots[index]} />
-        ))}
-      </div>
-      <span id={titleId} className={styles.servicesTitle}>
-        Structure Services
-      </span>
+    <div
+      className={styles.services}
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- A <fieldset> is for form controls.
+      role="group"
+      aria-label="Structure Services"
+    >
+      {Array.from({ length: SERVICE_SLOTS }, (_, index) => (
+        <FittingServiceSlot key={index} index={index} available={index < total} content={slots[index]} />
+      ))}
     </div>
   );
 }
@@ -402,7 +396,7 @@ function FittingServiceSlot({
   return <ServiceSlot {...slot} />;
 }
 
-function SimulationHistory({ inline }: { inline: boolean }) {
+function SimulationHistory({ tooltipTitle }: { tooltipTitle: boolean }) {
   const history = useFitHistory();
   return (
     <HistoryBar
@@ -410,7 +404,7 @@ function SimulationHistory({ inline }: { inline: boolean }) {
       length={history.length}
       position={history.position}
       onGoTo={history.goTo}
-      inline={inline}
+      tooltipTitle={tooltipTitle}
     />
   );
 }

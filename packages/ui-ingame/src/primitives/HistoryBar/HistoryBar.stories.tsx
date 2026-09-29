@@ -20,12 +20,13 @@ export const AtTheLatest: Story = {
   },
 };
 
-export const Inline: Story = {
-  args: { inline: true },
-  play: async ({ canvas }) => {
-    const title = canvas.getByText("Simulation History").getBoundingClientRect();
-    const bar = canvas.getByRole("button", { name: "1 of 9" }).parentElement!.getBoundingClientRect();
-    await expect(bar.left).toBeGreaterThan(title.right);
+export const TooltipTitle: Story = {
+  args: { tooltipTitle: true },
+  play: async ({ canvas, userEvent }) => {
+    const history = canvas.getByRole("group", { name: "Simulation History" });
+    await expect(canvas.queryByText("Simulation History")).not.toBeVisible();
+    await userEvent.hover(history);
+    await expect(canvas.getByText("Simulation History")).toBeVisible();
   },
 };
 

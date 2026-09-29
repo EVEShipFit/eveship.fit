@@ -1,4 +1,5 @@
 import { Icon } from "../Icon/Icon";
+import { Tooltip } from "../Tooltip/Tooltip";
 import styles from "./HistoryBar.module.css";
 
 export interface HistoryBarProps {
@@ -7,17 +8,19 @@ export interface HistoryBarProps {
   /** 0 is the oldest. */
   position: number;
   onGoTo: (position: number) => void;
-  /** The title left of the bar. */
-  inline?: boolean;
+  /** Shows the title as a tooltip. */
+  tooltipTitle?: boolean;
 }
 
 /** EVE's Simulation History. */
-export function HistoryBar({ label, length, position, onGoTo, inline = false }: HistoryBarProps) {
-  return (
-    <fieldset className={styles.history} aria-label={label} data-inline={inline || undefined}>
-      <span className={styles.title} aria-hidden>
-        {label}
-      </span>
+export function HistoryBar({ label, length, position, onGoTo, tooltipTitle = false }: HistoryBarProps) {
+  const bar = (
+    <fieldset className={styles.history} aria-label={label}>
+      {!tooltipTitle && (
+        <span className={styles.title} aria-hidden>
+          {label}
+        </span>
+      )}
       <div className={styles.row}>
         <button
           type="button"
@@ -52,4 +55,6 @@ export function HistoryBar({ label, length, position, onGoTo, inline = false }: 
       </div>
     </fieldset>
   );
+
+  return tooltipTitle ? <Tooltip label={label}>{bar}</Tooltip> : bar;
 }
