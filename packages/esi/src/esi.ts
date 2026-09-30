@@ -67,7 +67,11 @@ export class Esi {
       }
 
       const response = await fetch(`${baseUrl}${path}`, {
-        headers: { "User-Agent": this.#userAgent, "X-Compatibility-Date": compatibilityDate },
+        headers: {
+          "User-Agent": this.#userAgent,
+          "X-User-Agent": this.#userAgent,
+          "X-Compatibility-Date": compatibilityDate,
+        },
         signal: AbortSignal.timeout(timeout),
       });
       if (response.ok) return response;

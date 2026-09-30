@@ -24,7 +24,11 @@ test("a request goes to the unversioned route, with a compatibility date and use
   expect(fetch).toHaveBeenCalledWith(
     "https://esi.evetech.net/killmails/123/abc",
     expect.objectContaining({
-      headers: { "User-Agent": "test/1.0 (test@example.com)", "X-Compatibility-Date": "2026-08-18" },
+      headers: {
+        "User-Agent": "test/1.0 (test@example.com)",
+        "X-User-Agent": "test/1.0 (test@example.com)",
+        "X-Compatibility-Date": "2026-08-18",
+      },
     }),
   );
 });
