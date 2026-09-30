@@ -78,24 +78,13 @@ const Unit = {
   Boolean: 137,
 } as const;
 
-/** Shown as 1 - value, so better stored is worse shown. */
-const invertedUnits = new Set<number>([Unit.InverseAbsolutePercent, Unit.InversedModifierPercent]);
-
-/** Towards worse, so a fit never looks better than it is. */
-export function roundingOf(sde: Sde, attributeId: number): Rounding {
-  const attribute = sde.attribute(attributeId);
-  if (attribute === undefined) return "nearest";
-  return attribute.highIsGood !== invertedUnits.has(attribute.unitId) ? "down" : "up";
-}
-
 const sizeClasses: Record<number, string> = { 1: "Small", 2: "Medium", 3: "Large", 4: "X-Large" };
 
 /** An attribute's value the way EVE shows it: converted, rounded, with its unit. */
 export function formatAttribute(sde: Sde, attributeId: number, value: number, format: NumberFormat = {}): string {
   const unit = sde.unit(sde.attribute(attributeId)?.unitId ?? 0);
-  const rounded = { ...format, rounding: format.rounding ?? roundingOf(sde, attributeId) };
   const number = (shown: number, suffix = unit?.displayName) =>
-    suffix ? `${formatNumber(shown, rounded)} ${suffix}` : formatNumber(shown, rounded);
+    suffix ? `${formatNumber(shown, format)} ${suffix}` : formatNumber(shown, format);
 
   switch (unit?.id) {
     case Unit.Meter:

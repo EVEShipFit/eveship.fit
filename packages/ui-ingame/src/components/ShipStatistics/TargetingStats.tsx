@@ -17,9 +17,9 @@ export function TargetingStats() {
     gallente: useAttribute(sensorAttributes.gallente, points),
     minmatar: useAttribute(sensorAttributes.minmatar, points),
   };
-  const resolution = useAttribute("scanResolution", { decimals: 0, format: unit(" mm") });
+  const resolution = useAttribute("scanResolution", { decimals: 0, rounding: "down", format: unit(" mm") });
   const signature = useAttribute("signatureRadius", { decimals: 0, format: unit(" m") });
-  const targets = useAttribute("maxTargets", { decimals: 0, format: unit("x") });
+  const targets = useAttribute("maxTargets", { decimals: 0, rounding: "up", format: unit("x") });
 
   const race = strongestSensor(sensors);
 

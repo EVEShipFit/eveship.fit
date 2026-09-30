@@ -11,11 +11,11 @@ import styles from "./ShipStatistics.module.css";
 import { hitpoints, unit } from "./units";
 
 export function DefenseStats() {
-  const ehp = useAttribute("ehp", { decimals: 0, format: unit(" ehp") });
-  const shield = useAttribute("shieldCapacity", { decimals: 0, format: hitpoints });
-  const shieldRecharge = useAttribute("shieldRechargeRate", { decimals: 0 });
-  const armor = useAttribute("armorHP", { decimals: 0, format: hitpoints });
-  const structure = useAttribute("hp", { decimals: 0, format: hitpoints });
+  const ehp = useAttribute("ehp", { decimals: 0, rounding: "down", format: unit(" ehp") });
+  const shield = useAttribute("shieldCapacity", { decimals: 0, rounding: "down", format: hitpoints });
+  const shieldRecharge = useAttribute("shieldRechargeRate", { decimals: 0, rounding: "down" });
+  const armor = useAttribute("armorHP", { decimals: 0, rounding: "down", format: hitpoints });
+  const structure = useAttribute("hp", { decimals: 0, rounding: "down", format: hitpoints });
   const recharges = !useSnapshot().stats.structure;
 
   return (

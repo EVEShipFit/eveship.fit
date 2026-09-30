@@ -15,7 +15,7 @@ export const EmptyRifter: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("button", { name: /^Defense/ })).toHaveTextContent("2,262 ehp");
     await expect(canvas.getByRole("group", { name: "Shield Hitpoints / Recharge Time" })).toHaveTextContent(
-      "562 hp469 s",
+      "562 hp468 s",
     );
     await expect(canvas.getByRole("group", { name: "Armor Hitpoints" })).toHaveTextContent("562 hp");
     await expect(canvas.getByRole("group", { name: "Structure Hitpoints" })).toHaveTextContent("437 hp");
@@ -30,6 +30,16 @@ export const EmptyRifter: Story = {
     );
     const thermal = canvas.getByRole("meter", { name: "Shield Thermal Resistance" });
     await expect(Number(thermal.getAttribute("aria-valuenow"))).toBeCloseTo(0.2);
+  },
+};
+
+export const Retribution: Story = {
+  parameters: { fit: { ship: 11393 } },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("group", { name: "Shield Hitpoints / Recharge Time" })).toHaveTextContent(
+      "395 hp468 s",
+    );
+    await expect(canvas.getByRole("meter", { name: "Shield Explosive Resistance" })).toHaveTextContent("88 %");
   },
 };
 

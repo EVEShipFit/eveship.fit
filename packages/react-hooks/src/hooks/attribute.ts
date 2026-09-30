@@ -1,6 +1,6 @@
 import type { Attributes, ItemRef, Stats } from "@eveshipfit/fitting";
 
-import { formatAttribute, roundingOf, type NumberFormat } from "../format.js";
+import { formatAttribute, type NumberFormat } from "../format.js";
 import { useSnapshot, useStats } from "./fit.js";
 import { useSde } from "./sde.js";
 
@@ -31,7 +31,7 @@ export function useAttribute(name: string, options: AttributeOptions = {}): Attr
   const value = attribute && (attributesOf(shown, options)?.get(attribute.id) ?? options.fallback);
   if (attribute === undefined || value === undefined) return { value: undefined, text: "–", change: undefined };
 
-  const { decimals, fixed, grouping, rounding = roundingOf(sde, attribute.id) } = options;
+  const { decimals, fixed, grouping, rounding } = options;
   const format = { decimals, fixed, grouping, rounding };
   const text = options.format?.(value, format) ?? formatAttribute(sde, attribute.id, value, format);
   const before = shown === current ? value : (attributesOf(current, options)?.get(attribute.id) ?? options.fallback);

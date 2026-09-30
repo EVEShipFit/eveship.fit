@@ -23,7 +23,7 @@ const rates: readonly Rate[] = [
 export function RepairRate() {
   // Passive shield recharge, as every ship has that.
   const [shown, setShown] = useState(rates[2]!);
-  const rate = useAttribute(shown.attribute, { decimals: 0, format: unit(" hp/s") });
+  const rate = useAttribute(shown.attribute, { decimals: 0, rounding: "down", format: unit(" hp/s") });
   const menu = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const noModule = !rate.value;
