@@ -1,5 +1,21 @@
 # @eveshipfit/ui-ingame
 
+## 1.4.0
+
+### Minor Changes
+
+- Drag a hull from the `ItemBrowser` to the middle of the fitting wheel to simulate it ([#177](https://github.com/EVEShipFit/eveship.fit/pull/177))
+
+- Add the fighter bay to `FittingWindow`, with its tubes, for carriers and structures; Manage in `ShipStatistics` opens it ([#179](https://github.com/EVEShipFit/eveship.fit/pull/179))
+
+- Show the fit's estimated price in `ShipStatistics` when the engine has an `esi` ([#182](https://github.com/EVEShipFit/eveship.fit/pull/182))
+
+### Patch Changes
+
+- Round stats the way EVE's fitting window does, and drop `roundingOf` ([#180](https://github.com/EVEShipFit/eveship.fit/pull/180))
+- Updated dependencies [[`4df832a`](https://github.com/EVEShipFit/eveship.fit/commit/4df832ae816fa18a4301437da02bca95c812d508), [`6f9ad6d`](https://github.com/EVEShipFit/eveship.fit/commit/6f9ad6da7c7c85f76f098d25818bc9c7b9be07af), [`1ae802c`](https://github.com/EVEShipFit/eveship.fit/commit/1ae802c6695613aabc60e6e70ab5d720acbc3ec8), [`114f043`](https://github.com/EVEShipFit/eveship.fit/commit/114f043ac89f032d5fc8be978686440e3b920301)]:
+  - @eveshipfit/react-hooks@2.0.0
+
 ## 1.3.0
 
 ### Minor Changes

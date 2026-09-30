@@ -1,5 +1,23 @@
 # @eveshipfit/fitting
 
+## 2.0.0
+
+### Major Changes
+
+- Killmail links need an `Esi` in `createEngine`'s `esi` option ([#181](https://github.com/EVEShipFit/eveship.fit/pull/181))
+
+### Minor Changes
+
+- Launch fighters: `fit` puts a full squadron in the first free tube of its kind, else in the fighter bay; add `fighterTubes` to `Stats`, `setSquadronSize` and `setFighterBayQuantity` to `FitStore`, and `fighterKind`, `squadronSize` and `tubeTakes` ([#179](https://github.com/EVEShipFit/eveship.fit/pull/179))
+
+- Add `fitPrice`, and expose `Engine.esi` ([#182](https://github.com/EVEShipFit/eveship.fit/pull/182))
+
+### Patch Changes
+
+- `canFit` checks the tubes of a structure for a standup fighter ([#179](https://github.com/EVEShipFit/eveship.fit/pull/179))
+- Updated dependencies [[`ff1ef59`](https://github.com/EVEShipFit/eveship.fit/commit/ff1ef59c6de6aee810583c60f582553e0c8d03eb)]:
+  - @eveshipfit/esi@1.0.0
+
 ## 1.3.0
 
 ### Minor Changes

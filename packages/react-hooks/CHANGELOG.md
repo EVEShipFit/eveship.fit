@@ -1,5 +1,25 @@
 # @eveshipfit/react-hooks
 
+## 2.0.0
+
+### Major Changes
+
+- Round stats the way EVE's fitting window does, and drop `roundingOf` ([#180](https://github.com/EVEShipFit/eveship.fit/pull/180))
+
+### Minor Changes
+
+- Drag a hull from the `ItemBrowser` to the middle of the fitting wheel to simulate it ([#177](https://github.com/EVEShipFit/eveship.fit/pull/177))
+
+- Add `useFighterTubes` and `useFighterTubeUsage`, and let `useBayContents` read the fighter bay ([#179](https://github.com/EVEShipFit/eveship.fit/pull/179))
+
+- Add `useFitPrice`, with the provider's `zkillboard` pricing what ESI has no price for ([#182](https://github.com/EVEShipFit/eveship.fit/pull/182))
+
+### Patch Changes
+
+- Updated dependencies [[`114f043`](https://github.com/EVEShipFit/eveship.fit/commit/114f043ac89f032d5fc8be978686440e3b920301), [`1ae802c`](https://github.com/EVEShipFit/eveship.fit/commit/1ae802c6695613aabc60e6e70ab5d720acbc3ec8), [`114f043`](https://github.com/EVEShipFit/eveship.fit/commit/114f043ac89f032d5fc8be978686440e3b920301), [`ff1ef59`](https://github.com/EVEShipFit/eveship.fit/commit/ff1ef59c6de6aee810583c60f582553e0c8d03eb), [`1ae802c`](https://github.com/EVEShipFit/eveship.fit/commit/1ae802c6695613aabc60e6e70ab5d720acbc3ec8)]:
+  - @eveshipfit/zkillboard@1.0.0
+  - @eveshipfit/fitting@2.0.0
+
 ## 1.4.0
 
 ### Minor Changes
