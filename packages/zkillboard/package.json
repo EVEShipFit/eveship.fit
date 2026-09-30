@@ -1,6 +1,6 @@
 {
   "name": "@eveshipfit/zkillboard",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "A small client for zKillboard",
   "license": "MIT",
   "author": "EVEShipFit Team <info@eveship.fit>",
