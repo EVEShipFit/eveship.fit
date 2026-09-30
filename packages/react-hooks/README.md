@@ -88,7 +88,7 @@ a whole fit.
 
 ### Price
 
-`useFitPrice` gives the fit's estimated price in ISK, at the prices of the engine's `esi`; `undefined` without one, or until they are in.
+`useFitPrice` gives the fit's estimated price in ISK, at the prices of the engine's `esi`; `undefined` without one, or until they are in. Like `useAttribute`, it says whether a preview makes it `"better"` (cheaper) or `"worse"`.
 
 ### Saved fits
 

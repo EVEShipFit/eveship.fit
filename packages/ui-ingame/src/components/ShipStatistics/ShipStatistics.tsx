@@ -39,7 +39,7 @@ export function ShipStatistics({ label = "Statistics" }: ShipStatisticsProps) {
           </>
         )}
       </div>
-      <FitPrice price={price} />
+      <FitPrice price={price.value} change={price.change} />
     </section>
   );
 }

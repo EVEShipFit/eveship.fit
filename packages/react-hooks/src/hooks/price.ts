@@ -2,15 +2,28 @@ import type { Esi, MarketPrice } from "@eveshipfit/esi";
 import { fitPrice } from "@eveshipfit/fitting";
 import { useEffect, useState } from "react";
 
-import { useShownSnapshot } from "./fit.js";
+import { useShownSnapshot, useSnapshot } from "./fit.js";
 import { useEngine } from "./sde.js";
 
-/** The shown fit's estimated price in ISK; undefined without the engine's `esi`, or until its prices are in. */
-export function useFitPrice(): number | undefined {
+export interface FitPriceValue {
+  /** In ISK; undefined without the engine's `esi`, or until its prices are in. */
+  readonly value: number | undefined;
+  /** How a preview would change the price, if it would; cheaper is better. */
+  readonly change: "better" | "worse" | undefined;
+}
+
+/** The shown fit's estimated price. */
+export function useFitPrice(): FitPriceValue {
   const engine = useEngine();
-  const { fit } = useShownSnapshot();
+  const shown = useShownSnapshot();
+  const current = useSnapshot();
   const prices = useMarketPrices(engine.esi);
-  return prices === undefined ? undefined : fitPrice(engine.sde, fit, prices);
+  if (prices === undefined) return { value: undefined, change: undefined };
+
+  const value = fitPrice(engine.sde, shown.fit, prices);
+  const before = shown === current ? value : fitPrice(engine.sde, current.fit, prices);
+  if (before === value) return { value, change: undefined };
+  return { value, change: value < before ? "better" : "worse" };
 }
 
 function useMarketPrices(esi: Esi | undefined): ReadonlyMap<number, MarketPrice> | undefined {

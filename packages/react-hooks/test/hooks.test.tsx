@@ -593,11 +593,11 @@ test("the fit price is the shown fit's, at the engine's ESI prices", async () =>
     ),
   });
 
-  expect(result.current.price).toBeUndefined();
-  await waitFor(() => expect(result.current.price).toBe(300_000));
+  expect(result.current.price).toEqual({ value: undefined, change: undefined });
+  await waitFor(() => expect(result.current.price).toEqual({ value: 300_000, change: undefined }));
 
   act(() => result.current.preview.show((draft) => void draft.fit(DAMAGE_CONTROL_II)));
-  expect(result.current.price).toBe(800_000);
+  expect(result.current.price).toEqual({ value: 800_000, change: "worse" });
 });
 
 test("the fit price is gone with the engine's ESI", async () => {
@@ -609,15 +609,15 @@ test("the fit price is gone with the engine's ESI", async () => {
       <EveShipFitProvider engine={current}>{children}</EveShipFitProvider>
     ),
   });
-  await waitFor(() => expect(result.current).toBe(300_000));
+  await waitFor(() => expect(result.current.value).toBe(300_000));
 
   current = new Engine(engine.sde);
   rerender();
-  expect(result.current).toBeUndefined();
+  expect(result.current.value).toBeUndefined();
 });
 
 test("without ESI, the fit has no price", () => {
   const { result } = render(() => useFitPrice());
 
-  expect(result.current).toBeUndefined();
+  expect(result.current.value).toBeUndefined();
 });

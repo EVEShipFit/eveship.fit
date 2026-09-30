@@ -26,11 +26,13 @@
   color: var(--esf-bad);
 }
 
-.attribute[data-change="better"] {
+.attribute[data-change="better"],
+.price[data-change="better"] {
   color: var(--esf-good);
 }
 
-.attribute[data-change="worse"] {
+.attribute[data-change="worse"],
+.price[data-change="worse"] {
   color: var(--esf-bad);
 }
 
