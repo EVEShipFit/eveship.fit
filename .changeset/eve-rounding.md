@@ -1,5 +1,5 @@
 ---
-"@eveshipfit/react-hooks": minor
+"@eveshipfit/react-hooks": major
 "@eveshipfit/ui-ingame": patch
 ---
 
