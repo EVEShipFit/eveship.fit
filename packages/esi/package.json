@@ -1,13 +1,13 @@
 {
-  "name": "@eveshipfit/fitting",
-  "version": "1.3.0",
-  "description": "EVE Online ship fits that recalculate themselves",
+  "name": "@eveshipfit/esi",
+  "version": "0.0.0",
+  "description": "A small client for EVE Online's ESI",
   "license": "MIT",
   "author": "EVEShipFit Team <info@eveship.fit>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/EVEShipFit/eveship.fit.git",
-    "directory": "packages/fitting"
+    "directory": "packages/esi"
   },
   "files": [
     "dist"
@@ -29,17 +29,8 @@
   "scripts": {
     "build": "tsdown"
   },
-  "dependencies": {
-    "@eveshipfit/esi": "workspace:*",
-    "@eveshipfit/sde-loader": "workspace:*"
-  },
   "devDependencies": {
-    "@eveshipfit/dogma-engine": "catalog:",
-    "@eveshipfit/sde": "catalog:",
     "@types/node": "catalog:",
     "tsdown": "catalog:"
-  },
-  "peerDependencies": {
-    "@eveshipfit/dogma-engine": "^13.1.0"
   }
 }

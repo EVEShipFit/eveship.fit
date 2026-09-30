@@ -1,4 +1,5 @@
 import init, { calculate, load_sde, type InitInput } from "@eveshipfit/dogma-engine";
+import type { Esi } from "@eveshipfit/esi";
 import type { Sde } from "@eveshipfit/sde-loader";
 
 import { allSkills } from "./character.js";
@@ -11,6 +12,8 @@ import type { Character, Fit } from "./types.js";
 export interface EngineOptions {
   /** Where to load the WASM from; by default, next to the engine's JavaScript. */
   wasm?: InitInput;
+  /** ESI, to load killmail links. */
+  esi?: Esi;
 }
 
 // The WASM module holds the SDE for the rest of the page's life; `load_sde` refuses a second one.
@@ -31,15 +34,17 @@ export async function createEngine(sde: Sde, options: EngineOptions = {}): Promi
     if (loaded?.ready === ready) loaded = undefined;
     throw error;
   }
-  return new Engine(sde);
+  return new Engine(sde, options.esi);
 }
 
 export class Engine implements Calculator {
   readonly sde: Sde;
+  readonly #esi: Esi | undefined;
   #defaultCharacter: Character | undefined;
 
-  constructor(sde: Sde) {
+  constructor(sde: Sde, esi?: Esi) {
     this.sde = sde;
+    this.#esi = esi;
   }
 
   /** Every published skill at level V; what a fit is flown by until told otherwise. */
@@ -58,6 +63,6 @@ export class Engine implements Calculator {
 
   /** The fit of an EVEShip.fit link, as the `fit` value of its query string. */
   loadLink(link: string): Promise<Fit> {
-    return loadLink(link);
+    return loadLink(link, this.#esi);
   }
 }

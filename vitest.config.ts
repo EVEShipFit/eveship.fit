@@ -10,6 +10,7 @@ export default defineConfig({
   test: {
     passWithNoTests: true,
     projects: [
+      nodePackage("esi"),
       nodePackage("sde-loader"),
       nodePackage("fitting"),
       nodePackage("react-hooks"),
