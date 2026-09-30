@@ -32,7 +32,7 @@ Give the `FittingWindow` its browser and statistics to get the buttons that slid
 
 Icons are drawn from `@eveshipfit/images`: put the components inside an `ImagesProvider` of
 `@eveshipfit/react-hooks`. The tooltips of `ShipStatistics` come from `texts.dat` of `@eveshipfit/sde`: put it inside a
-`TextsProvider` too.
+`TextsProvider` too. `ShipStatistics` shows the fit's price when the engine has an `esi`.
 
 ## License
 

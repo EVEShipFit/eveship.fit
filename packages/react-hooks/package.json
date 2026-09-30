@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@babel/core": "catalog:",
+    "@eveshipfit/esi": "workspace:*",
     "@eveshipfit/images": "catalog:",
     "@eveshipfit/sde": "catalog:",
     "@rolldown/plugin-babel": "catalog:",

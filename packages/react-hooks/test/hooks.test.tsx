@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
-import type { Engine, FitStore } from "@eveshipfit/fitting";
+import { Esi } from "@eveshipfit/esi";
+import { Engine, type FitStore } from "@eveshipfit/fitting";
 import type { Images } from "@eveshipfit/images";
 import type { MarketGroupNode, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeAll, expect, test, vi } from "vitest";
 
@@ -26,6 +27,7 @@ import {
   useEngine,
   useFit,
   useFitHistory,
+  useFitPrice,
   useFitStore,
   useFighterTubes,
   useFighterTubeUsage,
@@ -574,4 +576,48 @@ test("the fitted modules that load charges, each once, in slot order", () => {
     "Light Missile Launcher II",
     "Medium Capacitor Booster II",
   ]);
+});
+
+test("the fit price is the shown fit's, at the engine's ESI prices", async () => {
+  const esi = new Esi({ userAgent: "test" });
+  vi.spyOn(esi, "marketPrices").mockResolvedValue(
+    new Map([
+      [RIFTER, { type_id: RIFTER, average_price: 300_000 }],
+      [DAMAGE_CONTROL_II, { type_id: DAMAGE_CONTROL_II, average_price: 500_000 }],
+    ]),
+  );
+  const priced = new Engine(engine.sde, esi);
+  const { result } = renderHook(() => ({ price: useFitPrice(), preview: usePreview() }), {
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <EveShipFitProvider engine={priced}>{children}</EveShipFitProvider>
+    ),
+  });
+
+  expect(result.current.price).toBeUndefined();
+  await waitFor(() => expect(result.current.price).toBe(300_000));
+
+  act(() => result.current.preview.show((draft) => void draft.fit(DAMAGE_CONTROL_II)));
+  expect(result.current.price).toBe(800_000);
+});
+
+test("the fit price is gone with the engine's ESI", async () => {
+  const esi = new Esi({ userAgent: "test" });
+  vi.spyOn(esi, "marketPrices").mockResolvedValue(new Map([[RIFTER, { type_id: RIFTER, average_price: 300_000 }]]));
+  let current = new Engine(engine.sde, esi);
+  const { result, rerender } = renderHook(() => useFitPrice(), {
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <EveShipFitProvider engine={current}>{children}</EveShipFitProvider>
+    ),
+  });
+  await waitFor(() => expect(result.current).toBe(300_000));
+
+  current = new Engine(engine.sde);
+  rerender();
+  expect(result.current).toBeUndefined();
+});
+
+test("without ESI, the fit has no price", () => {
+  const { result } = render(() => useFitPrice());
+
+  expect(result.current).toBeUndefined();
 });

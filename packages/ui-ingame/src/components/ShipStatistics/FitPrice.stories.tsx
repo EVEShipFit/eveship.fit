@@ -17,6 +17,13 @@ export const Priced: Story = {
   },
 };
 
+export const Unknown: Story = {
+  args: { price: undefined },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("group", { name: "Estimated Price" })).toBeEmptyDOMElement();
+  },
+};
+
 export const Free: Story = {
   args: { price: 0 },
   play: async ({ canvas }) => {

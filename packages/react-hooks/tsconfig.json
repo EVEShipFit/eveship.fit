@@ -6,6 +6,9 @@
   "include": ["src", "test"],
   "references": [
     {
+      "path": "../esi"
+    },
+    {
       "path": "../fitting"
     },
     {

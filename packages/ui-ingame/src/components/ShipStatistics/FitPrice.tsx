@@ -4,8 +4,8 @@ import { Icon } from "../../primitives/Icon/Icon";
 import styles from "./ShipStatistics.module.css";
 
 export interface FitPriceProps {
-  /** In ISK. */
-  price: number;
+  /** In ISK; undefined while unknown. */
+  price: number | undefined;
 }
 
 export function FitPrice({ price }: FitPriceProps) {
@@ -16,8 +16,12 @@ export function FitPrice({ price }: FitPriceProps) {
       role="group"
       aria-label="Estimated Price"
     >
-      {formatNumber(price / 1_000_000, { decimals: 1, fixed: true })}M ISK
-      <Icon name="price" />
+      {price !== undefined && (
+        <>
+          {formatNumber(price / 1_000_000, { decimals: 1, fixed: true })}M ISK
+          <Icon name="price" />
+        </>
+      )}
     </div>
   );
 }

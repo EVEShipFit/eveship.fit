@@ -308,6 +308,9 @@ importers:
       '@babel/core':
         specifier: 'catalog:'
         version: 7.29.7
+      '@eveshipfit/esi':
+        specifier: workspace:*
+        version: link:../esi
       '@eveshipfit/images':
         specifier: 'catalog:'
         version: 1.3552227.2
