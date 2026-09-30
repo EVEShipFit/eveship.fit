@@ -13,7 +13,7 @@ type Story = StoryObj<typeof meta>;
 
 export const EmptyRifter: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button", { name: /^Targeting/ })).toHaveTextContent("28.12 km");
+    await expect(canvas.getByRole("button", { name: /^Targeting/ })).toHaveTextContent("28.13 km");
     const sensor = canvas.getByRole("group", { name: "Sensor Strength" });
     await expect(sensor).toHaveTextContent("9.60 points");
     await expect(sensor.querySelector("img")).toHaveAttribute("data-icon", "stat-sensor-minmatar");

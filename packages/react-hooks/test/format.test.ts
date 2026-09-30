@@ -1,7 +1,7 @@
 import type { Sde } from "@eveshipfit/sde-loader";
 import { beforeAll, expect, test } from "vitest";
 
-import { formatAttribute, formatClock, formatDuration, formatNumber, roundingOf } from "../src/index.js";
+import { formatAttribute, formatClock, formatDuration, formatNumber } from "../src/index.js";
 import { testEngine } from "./files.js";
 
 let sde: Sde;
@@ -45,17 +45,6 @@ test("durations", () => {
   expect(formatClock(3723.9, "down")).toBe("01:02:03");
 });
 
-function rounding(name: string) {
-  return roundingOf(sde, sde.attributeId(name)!);
-}
-
-test("attributes round towards worse", () => {
-  expect(rounding("maxVelocity")).toBe("down");
-  expect(rounding("signatureRadius")).toBe("up");
-  // Shown as a resistance, which is better where the resonance is worse.
-  expect(rounding("shieldEmDamageResonance")).toBe("down");
-});
-
 test.each([
   ["cpuOutput", 187.5, "187.5 tf"],
   ["powerOutput", 50, "50 MW"],
@@ -65,7 +54,7 @@ test.each([
   ["shieldEmDamageResonance", 0.75, "25 %"],
   ["shieldEmDamageResonance", 0.625, "37.5 %"],
   ["shieldEmDamageResonance", 0.62555, "37.44 %"],
-  ["signatureRadius", 36.001, "36.01 m"],
+  ["signatureRadius", 36.001, "36 m"],
   ["damageMultiplier", 1.1, "1.1 x"],
   ["chargeSize", 1, "Small"],
 ])("%s %d shows as %s", (name, value, text) => {

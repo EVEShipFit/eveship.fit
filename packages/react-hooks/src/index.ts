@@ -4,7 +4,6 @@ export {
   formatClock,
   formatDuration,
   formatNumber,
-  roundingOf,
   type NumberFormat,
   type Rounding,
 } from "./format.js";

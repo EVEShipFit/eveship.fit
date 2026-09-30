@@ -26,7 +26,7 @@ export const Stable: Story = {
       "Stable at 100.0%",
     );
     await expect(canvas.getByRole("group", { name: "Capacity / Recharge Time" })).toHaveTextContent(
-      "312.5 GJ / 1m 34s",
+      "312.5 GJ / 1m 33s",
     );
     await expect(canvas.getByRole("group", { name: "Peak Recharge Minus Usage" })).toHaveTextContent(
       "Δ 8.3 GJ/s (100.0%)",

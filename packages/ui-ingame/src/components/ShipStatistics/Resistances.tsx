@@ -42,7 +42,7 @@ export function Resistances({ layer }: { layer: Layer }) {
 }
 
 function Resistance({ layer, damage }: { layer: Layer; damage: DamageType }) {
-  const resonance = useAttribute(resonances[layer][damage], { decimals: 0 });
+  const resonance = useAttribute(resonances[layer][damage], { decimals: 0, rounding: "up" });
 
   return (
     <ResistanceBar

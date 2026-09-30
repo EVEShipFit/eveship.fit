@@ -11,15 +11,18 @@ import { unit } from "./units";
 export function CapacitorStats() {
   // Negative while the capacitor is stable.
   const depletesIn = useAttribute("capacitorDepletesIn", {
+    rounding: "down",
     format: (value, { rounding }) => formatClock(value, rounding),
   });
   const capacity = useAttribute("capacitorCapacity", {
     decimals: 1,
     fixed: true,
     grouping: false,
+    rounding: "down",
     format: unit(" GJ"),
   });
   const rechargeTime = useAttribute("rechargeRate", {
+    rounding: "down",
     format: (value, { rounding }) => formatDuration(value / 1000, rounding),
   });
   const delta = useAttribute("capacitorPeakDelta", { decimals: 1, fixed: true, format: unit(" GJ/s") });
