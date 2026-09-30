@@ -27,6 +27,8 @@ import {
   useFit,
   useFitHistory,
   useFitStore,
+  useFighterTubes,
+  useFighterTubeUsage,
   useHardpoints,
   useHullTree,
   useImages,
@@ -294,6 +296,35 @@ test("slots the ship does not have come after the real ones", () => {
 
   expect(result.current).toHaveLength(6);
   expect(result.current[5]?.item?.type_id).toBe(DAMAGE_CONTROL_II);
+});
+
+test("fighter tubes follow the preview, and the fighter bay lists what is not launched", () => {
+  const byName = (name: string) => engine.sde.typeByName(name)!.id;
+  const fit = engine.createFit({
+    ship: { type_id: byName("Thanatos") },
+    items: [
+      { type_id: byName("Templar II"), slot: { type: "fighter_tube", index: 1 }, quantity: 6, state: "active" },
+      { type_id: byName("Templar II"), slot: { type: "fighter_bay" }, quantity: 3, state: "offline" },
+    ],
+  });
+  const { result } = render(
+    () => ({
+      preview: usePreview(),
+      tubes: useFighterTubes(),
+      usage: useFighterTubeUsage(),
+      bay: useBayContents("fighterBay"),
+    }),
+    { fit },
+  );
+
+  expect(result.current.tubes.map((tube) => tube.ref)).toEqual([undefined, 0, undefined, undefined]);
+  expect(result.current.bay.map(({ type, quantity, refs }) => [type.name, quantity, refs])).toEqual([
+    ["Templar II", 3, [1]],
+  ]);
+
+  act(() => result.current.preview.show((draft) => void draft.fit(byName("Dromi II"))));
+  expect(result.current.tubes[0]).toMatchObject({ ref: undefined, preview: true, item: { quantity: 3 } });
+  expect(result.current.usage).toMatchObject({ all: { used: 2, total: 4 }, support: { used: 1, total: 2 } });
 });
 
 test("a character without skills flies the fit worse", () => {

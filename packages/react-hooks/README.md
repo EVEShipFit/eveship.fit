@@ -42,8 +42,8 @@ Without a `fit`, the provider starts with an empty Rifter.
 ### Previews
 
 `usePreview` shows what an edit would do; while it does, `useStats`, `useAttribute` and the slot hooks return the
-previewed values, `useAttribute` says whether that is `"better"` or `"worse"`, and `useSlots` which slots only the
-preview fills:
+previewed values, `useAttribute` says whether that is `"better"` or `"worse"`, and `useSlots` and `useFighterTubes`
+which slots only the preview fills:
 
 ```tsx
 const preview = usePreview();

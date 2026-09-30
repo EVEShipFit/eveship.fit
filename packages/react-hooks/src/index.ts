@@ -43,6 +43,8 @@ export { useAttributeTooltip, useTexts } from "./hooks/texts.js";
 export {
   useBayContents,
   useBayUsage,
+  useFighterTubes,
+  useFighterTubeUsage,
   useHardpoints,
   useRackUsage,
   useSlots,

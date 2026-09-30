@@ -27,8 +27,9 @@ import { Tooltip, TooltipText } from "../../primitives/Tooltip/Tooltip";
 import { useFittingSlot } from "../FittingWheel/fittingSlot";
 import { FittingWheel } from "../FittingWheel/FittingWheel";
 import { AttributeTooltip } from "../ShipStatistics/AttributeTooltip";
-import { BayContents } from "./BayContents";
+import { BayContents, type Bay as BayName } from "./BayContents";
 import styles from "./FittingWindow.module.css";
+import { ManageFightersContext } from "./manageFighters";
 import {
   countViolations,
   missingSkills,
@@ -59,87 +60,96 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
   const statisticsId = useId();
   const browserShown = browser !== undefined && browserOpen;
   const statisticsShown = statistics !== undefined && statisticsOpen;
-  const { structure } = useSnapshot().stats;
+  const { stats } = useSnapshot();
+  const { structure } = stats;
+  const fighters = structure || stats.fighterBay.total > 0;
+  const fighterBay = useId();
 
   return (
-    <section
-      className={styles.window}
-      aria-label={label}
-      data-browser={browserShown || undefined}
-      data-statistics={statisticsShown || undefined}
-    >
-      {browser !== undefined && (
-        <div id={browserId} className={styles.browser} inert={!browserShown}>
-          <div className={styles.slide}>{browser}</div>
-        </div>
-      )}
-      <div className={styles.frame}>
-        <div className={styles.wheel}>
-          <FittingWheel />
-        </div>
-        <FitName />
-        <Violations />
+    <ManageFightersContext value={fighters ? () => popover(fighterBay)?.showPopover() : undefined}>
+      <section
+        className={styles.window}
+        aria-label={label}
+        data-browser={browserShown || undefined}
+        data-statistics={statisticsShown || undefined}
+      >
         {browser !== undefined && (
-          <div className={styles.tools}>
-            <Tooltip label="Item Browser">
-              <button
-                type="button"
-                className={styles.tool}
-                aria-label="Item Browser"
-                aria-expanded={browserShown}
-                aria-controls={browserId}
-                onClick={() => setBrowserOpen(!browserShown)}
-              >
-                <Icon name="hardware" />
-              </button>
-            </Tooltip>
+          <div id={browserId} className={styles.browser} inert={!browserShown}>
+            <div className={styles.slide}>{browser}</div>
           </div>
         )}
-        {statistics !== undefined && (
-          <div className={styles.panels}>
-            <Tooltip label="Statistics">
-              <button
-                type="button"
-                className={styles.tool}
-                aria-label="Statistics"
-                aria-expanded={statisticsShown}
-                aria-controls={statisticsId}
-                onClick={() => setStatisticsOpen(!statisticsShown)}
-              >
-                <Icon name="statistics" />
-              </button>
-            </Tooltip>
+        <div className={styles.frame}>
+          <div className={styles.wheel}>
+            <FittingWheel />
           </div>
-        )}
-        <div className={styles.bays}>
-          {structure ? (
-            <>
-              <Bay bay="cargo" icon="ammo-hold" label="Ammo Hold" unlimited />
-              <FighterBay />
-            </>
-          ) : (
-            <>
-              <Bay bay="cargo" icon="cargo" label="Cargo Hold" />
-              <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" />
-            </>
+          <FitName />
+          <Violations />
+          {browser !== undefined && (
+            <div className={styles.tools}>
+              <Tooltip label="Item Browser">
+                <button
+                  type="button"
+                  className={styles.tool}
+                  aria-label="Item Browser"
+                  aria-expanded={browserShown}
+                  aria-controls={browserId}
+                  onClick={() => setBrowserOpen(!browserShown)}
+                >
+                  <Icon name="hardware" />
+                </button>
+              </Tooltip>
+            </div>
           )}
+          {statistics !== undefined && (
+            <div className={styles.panels}>
+              <Tooltip label="Statistics">
+                <button
+                  type="button"
+                  className={styles.tool}
+                  aria-label="Statistics"
+                  aria-expanded={statisticsShown}
+                  aria-controls={statisticsId}
+                  onClick={() => setStatisticsOpen(!statisticsShown)}
+                >
+                  <Icon name="statistics" />
+                </button>
+              </Tooltip>
+            </div>
+          )}
+          <div className={styles.bays}>
+            {structure ? (
+              <Bay bay="cargo" icon="ammo-hold" label="Ammo Hold" unlimited />
+            ) : (
+              <Bay bay="cargo" icon="cargo" label="Cargo Hold" />
+            )}
+            {fighters ? (
+              <Bay id={fighterBay} bay="fighterBay" icon="fighter-bay" label="Fighter Bay" />
+            ) : (
+              <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" />
+            )}
+          </div>
+          {structure && <ServiceRack />}
+          <div className={styles.history}>
+            <SimulationHistory tooltipTitle={structure} />
+          </div>
+          <div className={styles.resources}>
+            <Resource title="CPU" free="cpuFree" output="cpuOutput" />
+            <Resource title="Power Grid" free="powerFree" output="powerOutput" />
+          </div>
         </div>
-        {structure && <ServiceRack />}
-        <div className={styles.history}>
-          <SimulationHistory tooltipTitle={structure} />
-        </div>
-        <div className={styles.resources}>
-          <Resource title="CPU" free="cpuFree" output="cpuOutput" />
-          <Resource title="Power Grid" free="powerFree" output="powerOutput" />
-        </div>
-      </div>
-      {statistics !== undefined && (
-        <div id={statisticsId} className={styles.statistics} inert={!statisticsShown}>
-          <div className={styles.slide}>{statistics}</div>
-        </div>
-      )}
-    </section>
+        {statistics !== undefined && (
+          <div id={statisticsId} className={styles.statistics} inert={!statisticsShown}>
+            <div className={styles.slide}>{statistics}</div>
+          </div>
+        )}
+      </section>
+    </ManageFightersContext>
   );
+}
+
+function popover(id: string): HTMLElement | null {
+  const element = document.getElementById(id);
+  return element?.matches(":popover-open") ? null : element;
 }
 
 function FitName() {
@@ -239,16 +249,18 @@ function NotImplementedButton({ className, icon, label }: { className?: string; 
 }
 
 interface BayProps {
-  bay: "cargo" | "droneBay";
+  bay: BayName;
   icon: IconName;
   label: string;
   unlimited?: boolean;
+  id?: string;
 }
 
-function Bay({ bay, icon, label, unlimited = false }: BayProps) {
+function Bay({ bay, icon, label, unlimited = false, id: givenId }: BayProps) {
   const { used, total } = useBayUsage(bay);
-  const id = useId();
-  const drop = useBayDrop(bay);
+  const ownId = useId();
+  const id = givenId ?? ownId;
+  const drop = useBayDrop(bay, () => popover(id)?.showPopover());
 
   return (
     <div className={styles.bayAnchor} style={{ "--bay-anchor": `--bay-${id.replace(/[^\w-]/g, "")}` } as CSSProperties}>
@@ -265,23 +277,6 @@ function Bay({ bay, icon, label, unlimited = false }: BayProps) {
       </Tooltip>
       <BayContents id={id} bay={bay} label={label} />
     </div>
-  );
-}
-
-function FighterBay() {
-  const { used, total } = useBayUsage("fighterBay");
-
-  return (
-    <Tooltip label="Fighter Bay (not implemented yet)">
-      <BayButton
-        icon="drone-bay"
-        used={used}
-        total={total}
-        aria-label="Fighter Bay"
-        aria-disabled
-        data-over={used > total || undefined}
-      />
-    </Tooltip>
   );
 }
 
@@ -303,10 +298,17 @@ function BayButton({ icon, used, total, ...props }: BayButtonProps) {
   );
 }
 
-const baySlots: Record<"cargo" | "droneBay", Slot> = { cargo: { type: "cargo" }, droneBay: { type: "drone_bay" } };
+const baySlots: Record<BayName, Slot> = {
+  cargo: { type: "cargo" },
+  droneBay: { type: "drone_bay" },
+  fighterBay: { type: "fighter_bay" },
+};
 
-/** Puts a type dragged onto a bay in it: anything in the cargo, drones in the drone bay. */
-function useBayDrop(bay: "cargo" | "droneBay") {
+/**
+ * Puts a type dragged onto a bay in it: anything in the cargo, drones in the
+ * drone bay, fighters in the fighter bay; `open` shows the fighter tubes to drop on.
+ */
+function useBayDrop(bay: BayName, open: () => void) {
   const store = useFitStore();
   const sde = useSde();
   const placement = usePlacement();
@@ -317,14 +319,16 @@ function useBayDrop(bay: "cargo" | "droneBay") {
   const type = dragging?.type === "type" ? sde.type(dragging.typeId) : undefined;
   const takes =
     type !== undefined &&
-    (bay === "cargo" ? placement(type) !== undefined : placement(type)?.type === "drone_bay" && canFit(type));
+    (bay === "cargo" ? placement(type) !== undefined : placement(type)?.type === slot.type && canFit(type));
   const taken = takes ? type : undefined;
 
   const target = `bay-${bay}`;
 
   return {
     onDragEnter: () => {
-      if (taken) show((draft) => void draft.fit(taken.id, slot), target);
+      if (!taken) return;
+      show((draft) => void draft.fit(taken.id, slot), target);
+      if (bay === "fighterBay") open();
     },
     onDragLeave: () => clear(target),
     onDragOver: (event: DragEvent) => {

@@ -21,13 +21,22 @@ export interface SlotContent {
  * subsystem, say) are listed after the real ones.
  */
 export function useSlots(rack: Rack): readonly SlotContent[] {
+  return useIndexedSlots(rack, (stats) => stats.slots[rack].total);
+}
+
+/** Every fighter tube, like `useSlots`. */
+export function useFighterTubes(): readonly SlotContent[] {
+  return useIndexedSlots("fighter_tube", (stats) => stats.fighterTubes.all.total);
+}
+
+function useIndexedSlots(slot: Rack | "fighter_tube", total: (stats: Stats) => number): readonly SlotContent[] {
   const current = useSnapshot();
   const shown = useShownSnapshot();
 
-  const refs = refsByIndex(current.fit, rack);
-  const shownRefs = refsByIndex(shown.fit, rack);
+  const refs = refsByIndex(current.fit, slot);
+  const shownRefs = refsByIndex(shown.fit, slot);
 
-  const count = Math.max(shown.stats.slots[rack].total, ...Array.from(shownRefs.keys(), (index) => index + 1));
+  const count = Math.max(total(shown.stats), ...Array.from(shownRefs.keys(), (index) => index + 1));
   return Array.from({ length: count }, (_, index) => {
     const ref = refs.get(index);
     const shownRef = shownRefs.get(index);
@@ -53,6 +62,11 @@ export function useRackUsage(rack: Rack): Usage {
   return useStats().slots[rack];
 }
 
+/** Squadrons in the fighter tubes, in all and by kind; follows the preview, like `useStats`. */
+export function useFighterTubeUsage(): Stats["fighterTubes"] {
+  return useStats().fighterTubes;
+}
+
 /** In m³; follows the preview, like `useStats`. */
 export function useBayUsage(bay: "cargo" | "droneBay" | "fighterBay"): Usage {
   return useStats()[bay];
@@ -66,10 +80,14 @@ export interface BayContent {
   readonly refs: readonly ItemRef[];
 }
 
-const baySlots: Record<"cargo" | "droneBay", SlotType> = { cargo: "cargo", droneBay: "drone_bay" };
+const baySlots: Record<"cargo" | "droneBay" | "fighterBay", SlotType> = {
+  cargo: "cargo",
+  droneBay: "drone_bay",
+  fighterBay: "fighter_bay",
+};
 
 /** What is in a bay, one entry per type, by name; does not follow the preview. */
-export function useBayContents(bay: "cargo" | "droneBay"): readonly BayContent[] {
+export function useBayContents(bay: "cargo" | "droneBay" | "fighterBay"): readonly BayContent[] {
   const sde = useSde();
   const fit = useFit();
 
@@ -88,10 +106,10 @@ export function useBayContents(bay: "cargo" | "droneBay"): readonly BayContent[]
   }, [sde, fit, bay]);
 }
 
-function refsByIndex(fit: Fit, rack: Rack): Map<number, ItemRef> {
+function refsByIndex(fit: Fit, slot: Rack | "fighter_tube"): Map<number, ItemRef> {
   const refs = new Map<number, ItemRef>();
   fit.items.forEach((item, ref) => {
-    if (item.slot.type === rack) refs.set(item.slot.index, ref);
+    if (item.slot.type === slot) refs.set(item.slot.index, ref);
   });
   return refs;
 }

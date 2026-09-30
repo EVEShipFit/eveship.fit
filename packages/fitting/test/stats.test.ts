@@ -45,7 +45,7 @@ test("drone bay", () => {
 test("a structure has a fighter bay and an ammo hold without a limit", () => {
   const fit = engine.createFit({ ship: id("Keepstar") });
   expect(fit.getSnapshot().stats.structure).toBe(true);
-  fit.fit(id("Standup Templar I"));
+  fit.fit(id("Standup Templar I"), { type: "fighter_bay" });
   fit.fit(id("Standup XL Cruise Missile"), { type: "cargo" });
 
   const { stats } = fit.getSnapshot();
@@ -53,6 +53,29 @@ test("a structure has a fighter bay and an ammo hold without a limit", () => {
   expect(stats.cargo).toEqual({ used: 0.5, total: 0 });
   expect(stats.violations).toEqual([]);
   expect(engine.createFit({ ship: id("Rifter") }).getSnapshot().stats.structure).toBe(false);
+});
+
+test("fighter tubes, in all and by kind", () => {
+  const carrier = engine.createFit({ ship: id("Thanatos") });
+  carrier.fit(id("Templar II"));
+  carrier.fit(id("Dromi II"));
+  carrier.fit(id("Templar II"));
+  expect(carrier.getSnapshot().stats.fighterTubes).toEqual({
+    all: { used: 3, total: 4 },
+    light: { used: 2, total: 3 },
+    support: { used: 1, total: 2 },
+    heavy: { used: 0, total: 0 },
+  });
+  expect(carrier.getSnapshot().stats.fighterBay.used).toBe(0);
+
+  const structure = engine.createFit({ ship: id("Fortizar") });
+  structure.fit(id("Standup Cyclops I"));
+  expect(structure.getSnapshot().stats.fighterTubes).toEqual({
+    all: { used: 1, total: 5 },
+    light: { used: 0, total: 5 },
+    support: { used: 0, total: 2 },
+    heavy: { used: 1, total: 2 },
+  });
 });
 
 test("fuel of the online service modules", () => {

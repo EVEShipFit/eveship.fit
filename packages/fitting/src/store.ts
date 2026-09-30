@@ -112,6 +112,14 @@ export class FitStore {
     this.#commit(edits.setCargoQuantity(this.#snapshot.fit, typeId, quantity));
   }
 
+  setFighterBayQuantity(typeId: number, quantity: number) {
+    this.#commit(edits.setFighterBayQuantity(this.#snapshot.fit, typeId, quantity));
+  }
+
+  setSquadronSize(ref: ItemRef, size: number) {
+    this.#commit(edits.setSquadronSize(this.#calculator.sde, this.#snapshot.fit, ref, size));
+  }
+
   setName(name: string) {
     this.#commit(edits.setName(this.#snapshot.fit, name));
   }

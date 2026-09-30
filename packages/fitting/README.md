@@ -63,7 +63,8 @@ after.stats.ship.get("cpuLoad")! - before.stats.ship.get("cpuLoad")!;
 
 `placementOf`, `canFit`, `acceptsCharge` and `chargesFor` say where a type goes, whether a module fits a hull, and
 which charges go in a module; for example to filter a market browser. `droneRoom` says how many more drones of a type
-can be active.
+can be active. `fighterKind`, `squadronSize` and `tubeTakes` say which tubes a fighter takes, how big its squadron is,
+and whether a tube can launch it.
 
 `missingSkills` says which skills a character lacks to use some types, with the skills those skills need;
 `typesInUse` gives the types of a fit that need them.

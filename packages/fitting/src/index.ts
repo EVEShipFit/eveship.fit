@@ -10,7 +10,11 @@ export {
   canFit,
   chargesFor,
   droneRoom,
+  fighterKind,
   firstFreeIndex,
   placementOf,
+  squadronSize,
+  tubeTakes,
+  type FighterKind,
   type Placement,
 } from "./rules/index.js";

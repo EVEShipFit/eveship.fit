@@ -28,6 +28,11 @@ const types = {
   "Standup Anticapital Missile Launcher I": 35921,
   "Standup XL Cruise Missile": 37844,
   "Standup Templar I": 47035,
+  Nyx: 23913,
+  "Templar II": 40556,
+  "Antaeus II": 40562,
+  "Cyclops II": 40563,
+  "Gungnir II": 40564,
 };
 
 const rifter = {
@@ -76,6 +81,17 @@ const keepstar = {
     { type_id: types["Standup Cloning Center I"], slot: { type: "service", index: 1 }, state: "offline" },
     { type_id: types["Standup XL Cruise Missile"], slot: { type: "cargo" }, quantity: 16, state: "offline" },
     { type_id: types["Standup Templar I"], slot: { type: "fighter_bay" }, quantity: 9, state: "offline" },
+  ],
+};
+
+const nyx = {
+  name: "Storybook Nyx",
+  ship: { type_id: types.Nyx },
+  items: [
+    { type_id: types["Antaeus II"], slot: { type: "fighter_tube", index: 0 }, quantity: 6, state: "active" },
+    { type_id: types["Cyclops II"], slot: { type: "fighter_tube", index: 2 }, quantity: 3, state: "active" },
+    { type_id: types["Gungnir II"], slot: { type: "fighter_bay" }, quantity: 6, state: "offline" },
+    { type_id: types["Templar II"], slot: { type: "fighter_bay" }, quantity: 12, state: "offline" },
   ],
 };
 
@@ -650,6 +666,91 @@ export const FighterSquadrons: Story = {
     await expect(canvas.getByRole("region", { name: "Fighters" })).toHaveTextContent(
       "1 Full Squadrons1 Partial Squadrons",
     );
+  },
+};
+
+/** A carrier has a fighter bay for a drone bay: its tubes above what is in it; each change is one step. */
+export const FighterBay: Story = {
+  args: { statistics: <ShipStatistics /> },
+  parameters: { fit: nyx },
+  play: async ({ canvas, userEvent }) => {
+    const bay = canvas.getByRole("button", { name: "Fighter Bay" });
+    const step = () =>
+      within(canvas.getByRole("group", { name: "Simulation History" })).getByRole("button", { current: true });
+    await expect(canvas.queryByRole("button", { name: "Drone Bay" })).toBeNull();
+    await expect(bay).toHaveTextContent("24,000.0/137,500.0m3");
+    await expect(canvas.getByRole("region", { name: "Fighters" })).toHaveTextContent(
+      "1 Full Squadrons1 Partial Squadrons",
+    );
+
+    await userEvent.click(canvas.getByRole("button", { name: "Manage" }));
+    const tubes = await canvas.findByRole("group", { name: "Fighter Tubes" });
+    await expect(tubes).toBeVisible();
+    await expect(canvas.getByLabelText("Light Fighters: 0 of 3")).toBeInTheDocument();
+    await expect(canvas.getByLabelText("Heavy Fighters: 2 of 4")).toBeInTheDocument();
+    await expect(canvas.queryByLabelText(/^Support Fighters/)).toBeNull();
+    await expect([...tubes.children].map((tube) => tube.getAttribute("data-state"))).toEqual([
+      "launched",
+      "open",
+      "launched",
+      "open",
+      "open",
+    ]);
+    await expect(
+      within(canvas.getByRole("list", { name: "Fighter Bay" }))
+        .getAllByRole("spinbutton")
+        .map((count) => [count.getAttribute("aria-label"), (count as HTMLInputElement).valueAsNumber]),
+    ).toEqual([
+      ["Number of Gungnir II", 6],
+      ["Number of Templar II", 12],
+    ]);
+
+    await userEvent.click(canvas.getByRole("button", { name: "One more Cyclops II" }));
+    await expect(within(tubes).getAllByRole("meter")[1]).toHaveAttribute("aria-valuetext", "4 of 6");
+    await userEvent.click(canvas.getByRole("button", { name: "Remove Antaeus II" }));
+    await expect(tubes.children[0]).toHaveAttribute("data-state", "open");
+    await expect(canvas.getByLabelText("Heavy Fighters: 1 of 4")).toBeInTheDocument();
+    await expect(step()).toHaveAccessibleName("3 of 3");
+
+    await userEvent.click(canvas.getByRole("button", { name: "Remove All" }));
+    await expect(step()).toHaveAccessibleName("4 of 4");
+    await userEvent.click(bay);
+    await expect(await canvas.findByText("No Fighters Simulated in Fighter Bay")).toBeVisible();
+    await expect([...tubes.children].map((tube) => tube.getAttribute("data-state"))).toEqual([
+      "open",
+      "open",
+      "open",
+      "open",
+      "open",
+    ]);
+    await expect(canvas.queryByRole("button", { name: "Remove All" })).toBeNull();
+  },
+};
+
+/** Hovering a fighter shows it in the tube it would launch from; dropping it on a tube launches it there. */
+export const LaunchFighters: Story = {
+  args: { browser: <ItemBrowser /> },
+  parameters: { fit: { ship: { type_id: types.Nyx }, items: [] } },
+  play: async ({ canvas, userEvent }) => {
+    const bay = canvas.getByRole("button", { name: "Fighter Bay" });
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "cyclops ii");
+    const cyclops = await canvas.findByRole("button", { name: "Cyclops II" });
+
+    await userEvent.click(bay);
+    const tubes = await canvas.findByRole("group", { name: "Fighter Tubes" });
+    await userEvent.hover(cyclops);
+    await expect(tubes.children[0]).toHaveAttribute("data-preview");
+    await userEvent.unhover(cyclops);
+    await expect(tubes.children[0]).toHaveAttribute("data-state", "open");
+
+    await dragAndDrop(cyclops, tubes.children[3]!);
+    await expect(tubes.children[3]).toHaveAttribute("data-state", "launched");
+    await dragAndDrop(canvas.getByRole("button", { name: "Cyclops II" }), bay);
+    await userEvent.dblClick(canvas.getByRole("button", { name: "Cyclops II" }));
+    await expect(tubes.children[0]).toHaveAttribute("data-state", "launched");
+    if (!tubes.closest("[popover]")!.matches(":popover-open")) await userEvent.click(bay);
+    await expect(await canvas.findByRole("spinbutton", { name: "Number of Cyclops II" })).toHaveValue(6);
   },
 };
 

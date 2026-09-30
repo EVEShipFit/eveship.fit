@@ -17,7 +17,7 @@ export interface ShipStatisticsProps {
 
 /** EVE's statistics of the fit, as its fitting window shows them. */
 export function ShipStatistics({ label = "Statistics" }: ShipStatisticsProps) {
-  const { structure } = useSnapshot().stats;
+  const { stats } = useSnapshot();
 
   return (
     <section className={styles.statistics} aria-label={label}>
@@ -26,7 +26,7 @@ export function ShipStatistics({ label = "Statistics" }: ShipStatisticsProps) {
         <OffenseStats />
         <DefenseStats />
         <TargetingStats />
-        {structure ? (
+        {stats.structure ? (
           <>
             <FighterStats />
             <FuelStats />
@@ -34,7 +34,7 @@ export function ShipStatistics({ label = "Statistics" }: ShipStatisticsProps) {
         ) : (
           <>
             <NavigationStats />
-            <DroneStats />
+            {stats.fighterBay.total > 0 ? <FighterStats /> : <DroneStats />}
           </>
         )}
       </div>
