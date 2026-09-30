@@ -24,7 +24,7 @@ export const EmptyRifter: Story = {
       "Navigation",
       "Drones",
     ]);
-    await expect(canvas.getByRole("group", { name: "Estimated Price" })).toHaveTextContent("0.0M ISK");
+    await expect(canvas.getByRole("group", { name: "Estimated Price" })).toBeEmptyDOMElement();
   },
 };
 

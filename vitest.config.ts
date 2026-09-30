@@ -15,6 +15,7 @@ export default defineConfig({
       nodePackage("fitting"),
       nodePackage("react-hooks"),
       nodePackage("ui-ingame"),
+      nodePackage("zkillboard"),
       {
         plugins: [storybookTest({ configDir: "apps/storybook/.storybook" })],
         test: {

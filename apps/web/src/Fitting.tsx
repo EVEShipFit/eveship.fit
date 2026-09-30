@@ -1,10 +1,13 @@
 import { EveShipFitProvider, ImagesProvider, TextsProvider } from "@eveshipfit/react-hooks";
 import { FittingWindow, ItemBrowser, ShipStatistics } from "@eveshipfit/ui-ingame";
+import { ZKillboard } from "@eveshipfit/zkillboard";
 import { use, type CSSProperties } from "react";
 
 import styles from "./App.module.css";
 import type { Data } from "./data";
 import type { Layout } from "./layout";
+
+const zkillboard = new ZKillboard();
 
 export interface FittingProps {
   data: Promise<Data | null>;
@@ -22,7 +25,7 @@ export function Fitting({ data, layout }: FittingProps) {
   const panelScale = { "--esf-scale": layout.panelScale } as CSSProperties;
 
   return (
-    <EveShipFitProvider engine={loaded.engine} fit={loaded.fit}>
+    <EveShipFitProvider engine={loaded.engine} fit={loaded.fit} zkillboard={zkillboard}>
       <ImagesProvider images={loaded.images}>
         <TextsProvider texts={loaded.texts}>
           {layout.stacked ? (

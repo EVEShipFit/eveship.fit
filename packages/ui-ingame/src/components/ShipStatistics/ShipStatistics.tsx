@@ -1,4 +1,4 @@
-import { useSnapshot } from "@eveshipfit/react-hooks";
+import { useFitPrice, useSnapshot } from "@eveshipfit/react-hooks";
 
 import { CapacitorStats } from "./CapacitorStats";
 import { DefenseStats } from "./DefenseStats";
@@ -18,6 +18,7 @@ export interface ShipStatisticsProps {
 /** EVE's statistics of the fit, as its fitting window shows them. */
 export function ShipStatistics({ label = "Statistics" }: ShipStatisticsProps) {
   const { stats } = useSnapshot();
+  const price = useFitPrice();
 
   return (
     <section className={styles.statistics} aria-label={label}>
@@ -38,7 +39,7 @@ export function ShipStatistics({ label = "Statistics" }: ShipStatisticsProps) {
           </>
         )}
       </div>
-      <FitPrice price={0} />
+      <FitPrice price={price.value} change={price.change} />
     </section>
   );
 }

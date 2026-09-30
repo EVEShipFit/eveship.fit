@@ -18,6 +18,7 @@
     "@eveshipfit/sde": "catalog:",
     "@eveshipfit/sde-loader": "workspace:*",
     "@eveshipfit/ui-ingame": "workspace:*",
+    "@eveshipfit/zkillboard": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:"
   },

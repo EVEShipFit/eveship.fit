@@ -1,4 +1,5 @@
 import type { Engine, FitStore, Preview } from "@eveshipfit/fitting";
+import type { ZKillboard } from "@eveshipfit/zkillboard";
 import { useRef, useState, type ReactNode } from "react";
 
 import {
@@ -8,6 +9,7 @@ import {
   FitContext,
   LocalFitsContext,
   PreviewContext,
+  ZKillboardContext,
   type DragItem,
   type PreviewState,
 } from "./context.js";
@@ -22,10 +24,12 @@ export interface EveShipFitProviderProps {
   fit?: FitStore;
   /** Where saved fits live; `localStorage` when left out. */
   localFits?: LocalFits;
+  /** Prices what ESI has none for. */
+  zkillboard?: ZKillboard;
   children?: ReactNode;
 }
 
-export function EveShipFitProvider({ engine, fit, localFits, children }: EveShipFitProviderProps) {
+export function EveShipFitProvider({ engine, fit, localFits, zkillboard, children }: EveShipFitProviderProps) {
   const [ownFit] = useState(() => fit ?? engine.createFit({ ship: RIFTER }));
   const [ownLocalFits] = useState(() => localFits ?? new LocalFits());
   const [preview, setPreview] = useState<Preview>();
@@ -51,7 +55,9 @@ export function EveShipFitProvider({ engine, fit, localFits, children }: EveShip
         <LocalFitsContext value={localFits ?? ownLocalFits}>
           <CharacterContext value={{ current: character, setCurrent: setCharacter }}>
             <PreviewContext value={previewState}>
-              <DragContext value={{ dragging, setDragging }}>{children}</DragContext>
+              <DragContext value={{ dragging, setDragging }}>
+                <ZKillboardContext value={zkillboard}>{children}</ZKillboardContext>
+              </DragContext>
             </PreviewContext>
           </CharacterContext>
         </LocalFitsContext>

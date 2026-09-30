@@ -86,6 +86,10 @@ drones of a type can be active.
 `useCharacters` picks who flies the fit; `useMissingSkills` says which skills that character lacks to use some types, or
 a whole fit.
 
+### Price
+
+`useFitPrice` gives the fit's estimated price in ISK, at the prices of the engine's `esi`; `undefined` without one, or until they are in. A type costs ESI's average price, else its adjusted price, else the price of the provider's `zkillboard`, asked only for what is fitted. Like `useAttribute`, it says whether a preview makes it `"better"` (cheaper) or `"worse"`.
+
 ### Saved fits
 
 `useLocalFits` lists, saves and removes fits in `localStorage`; pass a `LocalFits` to the provider to store them

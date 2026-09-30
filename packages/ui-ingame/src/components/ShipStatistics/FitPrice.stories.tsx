@@ -17,6 +17,21 @@ export const Priced: Story = {
   },
 };
 
+/** A preview that makes the fit more expensive. */
+export const Pricier: Story = {
+  args: { change: "worse" },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("group", { name: "Estimated Price" })).toHaveAttribute("data-change", "worse");
+  },
+};
+
+export const Unknown: Story = {
+  args: { price: undefined },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("group", { name: "Estimated Price" })).toBeEmptyDOMElement();
+  },
+};
+
 export const Free: Story = {
   args: { price: 0 },
   play: async ({ canvas }) => {
