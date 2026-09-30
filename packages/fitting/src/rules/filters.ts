@@ -2,21 +2,12 @@ import type { Sde, SdeType } from "@eveshipfit/sde-loader";
 
 import { Category } from "../ids.js";
 import { baseValue, baseValues } from "./attributes.js";
+import { fighterKind, isStandupFighter, kindTubes } from "./fighters.js";
 import { placementOf } from "./placement.js";
 
 const chargeGroups = ["chargeGroup1", "chargeGroup2", "chargeGroup3", "chargeGroup4", "chargeGroup5"];
 const shipGroups = Array.from({ length: 20 }, (_, i) => `canFitShipGroup${String(i + 1).padStart(2, "0")}`);
 const shipTypes = Array.from({ length: 12 }, (_, i) => `canFitShipType${i + 1}`);
-const standupFighters = [
-  "fighterSquadronIsStandupLight",
-  "fighterSquadronIsStandupSupport",
-  "fighterSquadronIsStandupHeavy",
-];
-const fighterTubes = [
-  ["fighterSquadronIsLight", "fighterLightSlots", "fighterStandupLightSlots"],
-  ["fighterSquadronIsSupport", "fighterSupportSlots", "fighterStandupSupportSlots"],
-  ["fighterSquadronIsHeavy", "fighterHeavySlots", "fighterStandupHeavySlots"],
-] as const;
 const racks = new Set(["high", "medium", "low", "rig", "subsystem", "service"]);
 
 const CAPITAL_VOLUME = 3500;
@@ -67,15 +58,12 @@ export function canFit(sde: Sde, type: SdeType, ship: SdeType): boolean {
   if (capital && !structure && !baseValue(sde, ship, "isCapitalSize")) return false;
 
   if (fighter) {
-    for (const [kind, shipTubes, structureTubes] of fighterTubes) {
-      if (baseValue(sde, type, kind) && !baseValue(sde, ship, structure ? structureTubes : shipTubes)) return false;
-    }
+    const kind = fighterKind(sde, type);
+    if (kind !== undefined && !baseValue(sde, ship, kindTubes[kind][structure ? "structure" : "ship"])) return false;
   }
 
   if (fitted || fighter) {
-    const standup =
-      type.categoryId === Category.StructureModule ||
-      baseValues(sde, type, standupFighters).some((value) => value !== 0);
+    const standup = type.categoryId === Category.StructureModule || isStandupFighter(sde, type);
     if (standup !== structure) return false;
   }
   return true;

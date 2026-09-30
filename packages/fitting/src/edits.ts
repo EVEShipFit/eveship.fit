@@ -1,7 +1,7 @@
 import type { Sde } from "@eveshipfit/sde-loader";
 
-import { baseValue } from "./rules/attributes.js";
 import { droneRoom } from "./rules/drones.js";
+import { firstFreeTube, squadronSize, tubeTakes } from "./rules/fighters.js";
 import { acceptsCharge } from "./rules/filters.js";
 import { firstFreeIndex, placementOf } from "./rules/placement.js";
 import type { Stats } from "./stats.js";
@@ -21,7 +21,8 @@ export function emptyFit(shipTypeId: number): Fit {
 
 /**
  * Put a type where EVE would: modules in the first free slot of their rack,
- * charges in every module that takes them, drones and fighters in their bay.
+ * charges in every module that takes them, drones in their bay, and a full
+ * squadron of fighters in the first free tube that takes them, else in their bay.
  * With `slot`, only that slot is tried, replacing what is there; the cargo
  * takes anything, and is the only way in for what goes nowhere else.
  */
@@ -33,7 +34,8 @@ export function fitType(sde: Sde, fit: Fit, stats: Stats, typeId: number, slot?:
   if (slot?.type === "cargo") {
     return addToStack(fit, { type_id: typeId, slot: { type: "cargo" }, quantity: 1, state: "offline" });
   }
-  if (slot !== undefined && placement.type !== "charge" && slot.type !== placement.type) return nowhere;
+  const launched = placement.type === "fighter_bay" && slot?.type === "fighter_tube";
+  if (slot !== undefined && placement.type !== "charge" && slot.type !== placement.type && !launched) return nowhere;
 
   switch (placement.type) {
     case "high":
@@ -74,8 +76,13 @@ export function fitType(sde: Sde, fit: Fit, stats: Stats, typeId: number, slot?:
     }
 
     case "fighter_bay": {
-      const quantity = baseValue(sde, type, "fighterSquadronMaxSize") ?? 1;
-      return append(fit, { type_id: typeId, slot: { type: "fighter_bay" }, quantity, state: "offline" });
+      const quantity = squadronSize(sde, type);
+      const index = slot === undefined ? firstFreeTube(sde, fit, stats, type) : slotIndex(slot);
+      if (index === undefined) {
+        return addToStack(fit, { type_id: typeId, slot: { type: "fighter_bay" }, quantity, state: "offline" });
+      }
+      if (!tubeTakes(sde, fit, stats, type, index)) return nowhere;
+      return putInSlot(fit, { type_id: typeId, slot: { type: "fighter_tube", index }, quantity, state: "active" });
     }
 
     case "cargo":
@@ -171,7 +178,24 @@ function splitDrones(fit: Fit, typeId: number, quantity: number, count: number):
 
 /** The cargo stacks of a type become one stack of `quantity`, where the first one was. */
 export function setCargoQuantity(fit: Fit, typeId: number, quantity: number): Fit {
-  const refs = fit.items.flatMap((item, ref) => (item.slot.type === "cargo" && item.type_id === typeId ? [ref] : []));
+  return setStackQuantity(fit, "cargo", typeId, quantity);
+}
+
+/** The fighter bay stacks of a type become one stack of `quantity`, where the first one was. */
+export function setFighterBayQuantity(fit: Fit, typeId: number, quantity: number): Fit {
+  return setStackQuantity(fit, "fighter_bay", typeId, quantity);
+}
+
+/** How many fighters a squadron in a tube has, from one to a full squadron. */
+export function setSquadronSize(sde: Sde, fit: Fit, ref: ItemRef, size: number): Fit {
+  const item = fit.items[ref];
+  const type = item && sde.type(item.type_id);
+  if (item?.slot.type !== "fighter_tube" || type === undefined || !Number.isSafeInteger(size)) return fit;
+  return setQuantity(fit, ref, Math.max(1, Math.min(size, squadronSize(sde, type))));
+}
+
+function setStackQuantity(fit: Fit, slot: SlotType, typeId: number, quantity: number): Fit {
+  const refs = fit.items.flatMap((item, ref) => (item.slot.type === slot && item.type_id === typeId ? [ref] : []));
   const [first, ...rest] = refs;
   if (first === undefined || !Number.isSafeInteger(quantity)) return fit;
   return setQuantity(remove(fit, ...rest), first, quantity);
@@ -198,14 +222,14 @@ function putInSlot(fit: Fit, item: FitItem): Placed {
   return { fit: { ...fit, items: fit.items.with(ref, item) }, ref };
 }
 
-/** Drones and cargo of the same type and state share a stack. */
+/** Drones, fighters and cargo of the same type and state share a stack. */
 function addToStack(fit: Fit, item: FitItem): Placed {
   const ref = fit.items.findIndex(
     (existing) =>
       existing.slot.type === item.slot.type && existing.type_id === item.type_id && existing.state === item.state,
   );
   if (ref === -1) return append(fit, item);
-  return { fit: setQuantity(fit, ref, (fit.items[ref]!.quantity ?? 1) + 1), ref };
+  return { fit: setQuantity(fit, ref, (fit.items[ref]!.quantity ?? 1) + (item.quantity ?? 1)), ref };
 }
 
 function slotIndex(slot: Slot): number | undefined {

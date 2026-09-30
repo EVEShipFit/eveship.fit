@@ -57,6 +57,9 @@
   --esf-spinner-edge: #161718;
   --esf-spinner-focus: #1a2629;
   --esf-spinner-focus-edge: #273437;
+  --esf-fighter-tube-hover: rgb(255 255 255 / 4%);
+  --esf-fighter-full: #78bf42;
+  --esf-fighter-empty: #070707;
 
   /* EVE's UI scale; 1 is 100%. */
   --esf-scale: 1;

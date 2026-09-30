@@ -74,6 +74,8 @@ describe("filters", () => {
     expect(canFit(engine.sde, type("Templar II"), type("Archon"))).toBe(true);
     expect(canFit(engine.sde, type("Cyclops II"), type("Archon"))).toBe(false);
     expect(canFit(engine.sde, type("Cyclops II"), type("Nyx"))).toBe(true);
+    expect(canFit(engine.sde, type("Standup Cyclops I"), type("Tatara"))).toBe(false);
+    expect(canFit(engine.sde, type("Standup Cyclops I"), type("Fortizar"))).toBe(true);
   });
 });
 

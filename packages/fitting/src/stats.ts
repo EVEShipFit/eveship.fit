@@ -1,6 +1,7 @@
 import type { Sde } from "@eveshipfit/sde-loader";
 
 import { Category, Effect } from "./ids.js";
+import { fighterKind, kindTubes, type FighterKind } from "./rules/fighters.js";
 import type { Calculation, Fit, ItemResult, Rack, State, Violation } from "./types.js";
 
 export interface Usage {
@@ -67,8 +68,10 @@ export class Stats {
   readonly cargo: Usage;
   /** In m³. */
   readonly droneBay: Usage;
-  /** In m³. */
+  /** In m³; without the squadrons in the tubes. */
   readonly fighterBay: Usage;
+  /** Squadrons in the fighter tubes, in all and by the kind of tube they take. */
+  readonly fighterTubes: Readonly<Record<"all" | FighterKind, Usage>>;
   /** An Upwell structure. */
   readonly structure: boolean;
   /** Fuel blocks an hour the online service modules use. */
@@ -103,6 +106,7 @@ export class Stats {
       droneBay: 0,
       fighterBay: 0,
     };
+    const tubes = { all: 0, light: 0, support: 0, heavy: 0 };
     let fuel = 0;
     for (const [index, item] of fit.items.entries()) {
       const type = sde.type(item.type_id);
@@ -134,7 +138,12 @@ export class Stats {
         case "fighter_bay":
           used.fighterBay += (type?.volume ?? 0) * (item.quantity ?? 1);
           break;
-        case "fighter_tube":
+        case "fighter_tube": {
+          tubes.all += 1;
+          const kind = type && fighterKind(sde, type);
+          if (kind !== undefined) tubes[kind] += 1;
+          break;
+        }
         case "implant":
         case "booster":
           break;
@@ -158,6 +167,16 @@ export class Stats {
     this.cargo = { used: used.cargo, total: total("capacity") };
     this.droneBay = { used: used.droneBay, total: total("droneCapacity") };
     this.fighterBay = { used: used.fighterBay, total: total("fighterCapacity") };
+    const tubeUsage = (kind: FighterKind): Usage => ({
+      used: tubes[kind],
+      total: total(kindTubes[kind][this.structure ? "structure" : "ship"]),
+    });
+    this.fighterTubes = {
+      all: { used: tubes.all, total: total("fighterTubes") },
+      light: tubeUsage("light"),
+      support: tubeUsage("support"),
+      heavy: tubeUsage("heavy"),
+    };
     this.fuel = fuel;
   }
 }

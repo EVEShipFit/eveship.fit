@@ -1,0 +1,178 @@
+/* Lengths are EVE's pixels at 100%, measured on the client. */
+.tube {
+  --tube-unit: calc(1px * var(--esf-scale, 1));
+
+  border-image: var(--tube) 6 fill / calc(6 * var(--tube-unit));
+  box-sizing: border-box;
+  color: var(--esf-text-muted);
+  height: calc(116 * var(--tube-unit));
+  position: relative;
+  user-select: none;
+  width: calc(86 * var(--tube-unit));
+}
+
+.tube:hover::before {
+  background: var(--esf-fighter-tube-hover);
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
+.tube[data-state="unavailable"] {
+  opacity: 0.4;
+}
+
+.number {
+  align-items: center;
+  color: var(--esf-text);
+  display: flex;
+  font-size: calc(11 * var(--tube-unit));
+  height: calc(14 * var(--tube-unit));
+  justify-content: center;
+  left: calc(2 * var(--tube-unit));
+  line-height: 1;
+  position: absolute;
+  top: calc(2 * var(--tube-unit));
+  width: calc(14 * var(--tube-unit));
+}
+
+.number::before {
+  background: var(--flag) center / 100% 100%;
+  content: "";
+  inset: 0;
+  opacity: 0.35;
+  position: absolute;
+}
+
+.empty,
+.squadron {
+  height: calc(86 * var(--tube-unit));
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: calc(86 * var(--tube-unit));
+}
+
+.empty {
+  background: var(--texture) center / 100% 100%;
+}
+
+.squadron {
+  background: var(--underlay) center / 100% 100%;
+}
+
+.squadron::after {
+  background: var(--overlay) center / 100% 100%;
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
+.picture {
+  border-radius: 50%;
+  height: calc(54 * var(--tube-unit));
+  left: calc(16 * var(--tube-unit));
+  overflow: hidden;
+  position: absolute;
+  top: calc(16 * var(--tube-unit));
+  width: calc(54 * var(--tube-unit));
+}
+
+.picture > span {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.tube[data-preview] .picture {
+  filter: sepia(100%) hue-rotate(190deg) saturate(200%);
+}
+
+.ring {
+  fill: none;
+  inset: 0;
+  position: absolute;
+  stroke: var(--esf-fighter-empty);
+  stroke-width: 4.5;
+}
+
+.ring > [data-lit] {
+  stroke: var(--esf-fighter-full);
+}
+
+.role {
+  bottom: calc(18 * var(--tube-unit));
+  left: 50%;
+  position: absolute;
+  translate: -50% 0;
+  z-index: 1;
+}
+
+.role > img {
+  display: block;
+  height: calc(16 * var(--tube-unit));
+  width: calc(16 * var(--tube-unit));
+}
+
+.label {
+  left: 0;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  top: calc(79 * var(--tube-unit));
+}
+
+.resize {
+  display: flex;
+  gap: calc(8 * var(--tube-unit));
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: calc(96 * var(--tube-unit));
+}
+
+.resize > button,
+.remove {
+  background: none;
+  border: none;
+  color: var(--esf-text);
+  cursor: default;
+  font: inherit;
+  line-height: 1;
+  opacity: 0.8;
+  padding: 0;
+}
+
+.resize > button {
+  font-size: calc(15 * var(--tube-unit));
+  font-weight: 600;
+  width: calc(12 * var(--tube-unit));
+}
+
+.resize > button:disabled {
+  opacity: 0.3;
+}
+
+.remove {
+  position: absolute;
+  right: calc(4 * var(--tube-unit));
+  top: calc(3 * var(--tube-unit));
+}
+
+.remove > img {
+  display: block;
+  height: calc(14 * var(--tube-unit));
+  width: calc(14 * var(--tube-unit));
+}
+
+.resize > button:enabled:hover,
+.remove:hover {
+  opacity: 1;
+}
+
+.resize > button:focus-visible,
+.remove:focus-visible {
+  opacity: 1;
+  outline: var(--tube-unit) solid var(--esf-text);
+}

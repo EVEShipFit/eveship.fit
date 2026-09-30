@@ -174,6 +174,48 @@
   text-align: left;
 }
 
+.panel[data-fighters] {
+  padding: calc(12 * var(--window-unit));
+  width: auto;
+}
+
+.panel[data-fighters] .list {
+  width: calc(5 * 88 * var(--window-unit) - 2 * var(--window-unit));
+}
+
+.kinds {
+  display: flex;
+  gap: calc(22 * var(--window-unit));
+  justify-self: start;
+  min-height: calc(16 * var(--window-unit));
+  padding-left: calc(4 * var(--window-unit));
+}
+
+.kind {
+  align-items: center;
+  display: flex;
+  gap: calc(2 * var(--window-unit));
+}
+
+.kind > img {
+  height: calc(16 * var(--window-unit));
+  width: calc(16 * var(--window-unit));
+}
+
+.tubes {
+  display: flex;
+  gap: calc(2 * var(--window-unit));
+}
+
+.none {
+  justify-self: stretch;
+  padding: calc(6 * var(--window-unit)) calc(8 * var(--window-unit));
+}
+
+.none:hover {
+  background: var(--esf-bay-row-hover);
+}
+
 .selection {
   align-items: center;
   color: var(--esf-text-muted);

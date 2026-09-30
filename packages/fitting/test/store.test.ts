@@ -115,6 +115,60 @@ describe("fit", () => {
     ]);
   });
 
+  test("a full squadron of fighters goes in the first free tube of its kind, then in the bay", () => {
+    const fit = engine.createFit({ ship: id("Thanatos") });
+    fit.fit(id("Dromi II"));
+    fit.fit(id("Dromi II"));
+    fit.fit(id("Dromi II"));
+    fit.fit(id("Templar II"));
+
+    expect(fit.getSnapshot().fit.items).toEqual([
+      { type_id: id("Dromi II"), slot: { type: "fighter_tube", index: 0 }, quantity: 3, state: "active" },
+      { type_id: id("Dromi II"), slot: { type: "fighter_tube", index: 1 }, quantity: 3, state: "active" },
+      { type_id: id("Dromi II"), slot: { type: "fighter_bay" }, quantity: 3, state: "offline" },
+      { type_id: id("Templar II"), slot: { type: "fighter_tube", index: 2 }, quantity: 6, state: "active" },
+    ]);
+    fit.fit(id("Dromi II"));
+    expect(fit.getSnapshot().fit.items[2]).toMatchObject({ slot: { type: "fighter_bay" }, quantity: 6 });
+  });
+
+  test("a given fighter tube takes a squadron of a kind it has room for", () => {
+    const fit = engine.createFit({ ship: id("Thanatos") });
+    fit.fit(id("Dromi II"));
+    fit.fit(id("Dromi II"));
+
+    expect(fit.fit(id("Dromi II"), { type: "fighter_tube", index: 3 })).toBeUndefined();
+    expect(fit.fit(id("Templar II"), { type: "fighter_tube", index: 4 })).toBeUndefined();
+    expect(fit.fit(id("Siren II"), { type: "fighter_tube", index: 1 })).toBe(1);
+    expect(fit.fit(id("Templar II"), { type: "fighter_tube", index: 0 })).toBe(0);
+    expect(fit.fit(id("Templar II"), { type: "fighter_bay" })).toBe(2);
+    expect(fit.getSnapshot().fit.items.map((item) => [item.type_id, item.slot])).toEqual([
+      [id("Templar II"), { type: "fighter_tube", index: 0 }],
+      [id("Siren II"), { type: "fighter_tube", index: 1 }],
+      [id("Templar II"), { type: "fighter_bay" }],
+    ]);
+  });
+
+  test("a carrier does not launch standup fighters, nor a structure those of a carrier", () => {
+    const carrier = engine.createFit({ ship: id("Thanatos") });
+    carrier.fit(id("Standup Templar I"));
+    expect(carrier.getSnapshot().fit.items.map((item) => item.slot)).toEqual([{ type: "fighter_bay" }]);
+
+    const structure = engine.createFit({ ship: id("Astrahus") });
+    expect(structure.fit(id("Templar II"), { type: "fighter_tube", index: 0 })).toBeUndefined();
+  });
+
+  test("a structure launches standup fighters from its tubes", () => {
+    const fit = engine.createFit({ ship: id("Astrahus") });
+    fit.fit(id("Standup Dromi I"));
+    fit.fit(id("Standup Dromi I"));
+
+    expect(fit.getSnapshot().fit.items.map((item) => item.slot)).toEqual([
+      { type: "fighter_tube", index: 0 },
+      { type: "fighter_bay" },
+    ]);
+  });
+
   test("a given slot that does not take the type takes nothing", () => {
     const fit = rifter();
     const gun = fit.fit(id("200mm AutoCannon II"))!;
@@ -274,6 +328,41 @@ describe("edits", () => {
 
     fit.setCargoQuantity(id("Nanite Repair Paste"), 0);
     expect(fit.getSnapshot().fit.items).toMatchObject([{ type_id: id("EMP S") }, { type_id: id("Hobgoblin II") }]);
+  });
+
+  test("fighter bay quantity merges every stack of the type into the first one", () => {
+    const fit = engine.createFit({
+      ship: { type_id: id("Thanatos") },
+      items: [
+        { type_id: id("Templar II"), slot: { type: "fighter_bay" }, quantity: 6, state: "offline" },
+        { type_id: id("Templar II"), slot: { type: "fighter_tube", index: 0 }, quantity: 6, state: "active" },
+        { type_id: id("Templar II"), slot: { type: "fighter_bay" }, quantity: 2, state: "offline" },
+      ],
+    });
+    fit.setFighterBayQuantity(id("Templar II"), 20);
+    expect(stacks(fit)).toEqual([
+      [20, "offline"],
+      [6, "active"],
+    ]);
+  });
+
+  test("a squadron in a tube has one fighter up to a full squadron", () => {
+    const fit = engine.createFit({ ship: id("Thanatos") });
+    const squadron = fit.fit(id("Templar II"))!;
+    const bay = fit.fit(id("Templar II"), { type: "fighter_bay" })!;
+    const before = fit.getSnapshot();
+    fit.setSquadronSize(squadron, 9);
+    fit.setSquadronSize(bay, 2);
+    fit.setSquadronSize(squadron, 2.5);
+    expect(fit.getSnapshot()).toBe(before);
+
+    fit.setSquadronSize(squadron, 0);
+    expect(stacks(fit)).toEqual([
+      [1, "active"],
+      [6, "offline"],
+    ]);
+    fit.setSquadronSize(squadron, 4);
+    expect(stacks(fit)[0]).toEqual([4, "active"]);
   });
 
   test("moving a module swaps it with what is in the other slot", () => {

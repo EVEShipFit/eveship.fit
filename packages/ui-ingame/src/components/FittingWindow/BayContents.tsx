@@ -4,19 +4,29 @@ import { useRef, useState, type KeyboardEvent } from "react";
 import { Icon } from "../../primitives/Icon/Icon";
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
 import styles from "./BayContents.module.css";
+import { FighterTubes } from "./FighterTubes";
 
-const emptyText = { cargo: "No Cargo Items Simulated", droneBay: "No Drones Simulated" };
+export type Bay = "cargo" | "droneBay" | "fighterBay";
 
-/** EVE's list of what is in a bay, as a popover anchored to `--bay-anchor`. */
-export function BayContents({ id, bay, label }: { id: string; bay: "cargo" | "droneBay"; label: string }) {
+const emptyText: Record<Bay, string> = {
+  cargo: "No Cargo Items Simulated",
+  droneBay: "No Drones Simulated",
+  fighterBay: "No Fighters Simulated in Fighter Bay",
+};
+
+/** EVE's list of what is in a bay, as a popover anchored to `--bay-anchor`; the fighter bay's has its tubes above. */
+export function BayContents({ id, bay, label }: { id: string; bay: Bay; label: string }) {
   const store = useFitStore();
   const contents = useBayContents(bay);
   const panel = useRef<HTMLDivElement>(null);
   const drones = bay === "droneBay";
-  const { stats } = useSnapshot();
+  const fighters = bay === "fighterBay";
+  const { fit, stats } = useSnapshot();
   const maxActive = stats.character.get("maxActiveDrones") ?? 0;
+  const launched = fighters ? fit.items.flatMap((item, ref) => (item.slot.type === "fighter_tube" ? [ref] : [])) : [];
+  const all = [...contents.flatMap(({ refs }) => refs), ...launched];
 
-  if (contents.length === 0) {
+  if (!fighters && contents.length === 0) {
     return (
       <div id={id} className={styles.panel} popover="auto" data-empty>
         {emptyText[bay]}
@@ -24,60 +34,74 @@ export function BayContents({ id, bay, label }: { id: string; bay: "cargo" | "dr
     );
   }
 
+  const setQuantity = (typeId: number, quantity: number) => {
+    if (drones) store.setDroneQuantity(typeId, quantity);
+    else if (fighters) store.setFighterBayQuantity(typeId, quantity);
+    else store.setCargoQuantity(typeId, quantity);
+  };
+
   return (
-    <div ref={panel} id={id} className={styles.panel} popover="auto" data-drones={drones || undefined}>
+    <div
+      ref={panel}
+      id={id}
+      className={styles.panel}
+      popover="auto"
+      data-drones={drones || undefined}
+      data-fighters={fighters || undefined}
+    >
       {drones && (
         <div className={styles.activeDrones}>
           Active drones: {stats.ship.get("droneActive") ?? 0} / {maxActive}
         </div>
       )}
-      <ul className={styles.list} aria-label={label}>
-        {contents.map((content) => {
-          const { type, quantity, refs } = content;
-          return (
-            <li key={type.id} className={styles.row}>
-              <Quantity
-                name={type.name}
-                value={quantity}
-                onChange={(value) =>
-                  drones ? store.setDroneQuantity(type.id, value) : store.setCargoQuantity(type.id, value)
-                }
-              />
-              <span className={styles.icon}>
-                <TypeIcon typeId={type.id} />
-              </span>
-              <span className={styles.middle}>
-                <span className={styles.name}>{type.name}</span>
-                {drones && <DroneSelection content={content} max={maxActive} />}
-              </span>
-              <button
-                type="button"
-                className={styles.remove}
-                aria-label={`Remove ${type.name}`}
-                onClick={(event) => {
-                  const row = event.currentTarget.closest("li")!;
-                  const next = row.nextElementSibling ?? row.previousElementSibling;
-                  store.remove(...refs);
-                  if (next === null) panel.current?.hidePopover();
-                  else next.querySelector<HTMLElement>(`.${styles.remove}`)?.focus();
-                }}
-              >
-                <Icon name="close" />
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-      <button
-        type="button"
-        className={styles.removeAll}
-        onClick={() => {
-          store.remove(...contents.flatMap(({ refs }) => refs));
-          panel.current?.hidePopover();
-        }}
-      >
-        Remove All
-      </button>
+      {fighters && <FighterTubes />}
+      {contents.length === 0 ? (
+        <div className={styles.none}>{emptyText[bay]}</div>
+      ) : (
+        <ul className={styles.list} aria-label={label}>
+          {contents.map((content) => {
+            const { type, quantity, refs } = content;
+            return (
+              <li key={type.id} className={styles.row}>
+                <Quantity name={type.name} value={quantity} onChange={(value) => setQuantity(type.id, value)} />
+                <span className={styles.icon}>
+                  <TypeIcon typeId={type.id} />
+                </span>
+                <span className={styles.middle}>
+                  <span className={styles.name}>{type.name}</span>
+                  {drones && <DroneSelection content={content} max={maxActive} />}
+                </span>
+                <button
+                  type="button"
+                  className={styles.remove}
+                  aria-label={`Remove ${type.name}`}
+                  onClick={(event) => {
+                    const row = event.currentTarget.closest("li")!;
+                    const next = row.nextElementSibling ?? row.previousElementSibling;
+                    store.remove(...refs);
+                    if (next !== null) next.querySelector<HTMLElement>(`.${styles.remove}`)?.focus();
+                    else if (!fighters) panel.current?.hidePopover();
+                  }}
+                >
+                  <Icon name="close" />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {all.length > 0 && (
+        <button
+          type="button"
+          className={styles.removeAll}
+          onClick={() => {
+            store.remove(...all);
+            panel.current?.hidePopover();
+          }}
+        >
+          Remove All
+        </button>
+      )}
     </div>
   );
 }
