@@ -346,7 +346,7 @@ describe("edits", () => {
     ]);
   });
 
-  test("a squadron in a tube has one fighter up to a full squadron", () => {
+  test("a squadron in a tube has up to a full squadron, and none removes it", () => {
     const fit = engine.createFit({ ship: id("Thanatos") });
     const squadron = fit.fit(id("Templar II"))!;
     const bay = fit.fit(id("Templar II"), { type: "fighter_bay" })!;
@@ -356,13 +356,13 @@ describe("edits", () => {
     fit.setSquadronSize(squadron, 2.5);
     expect(fit.getSnapshot()).toBe(before);
 
-    fit.setSquadronSize(squadron, 0);
+    fit.setSquadronSize(squadron, 4);
     expect(stacks(fit)).toEqual([
-      [1, "active"],
+      [4, "active"],
       [6, "offline"],
     ]);
-    fit.setSquadronSize(squadron, 4);
-    expect(stacks(fit)[0]).toEqual([4, "active"]);
+    fit.setSquadronSize(squadron, 0);
+    expect(stacks(fit)).toEqual([[6, "offline"]]);
   });
 
   test("moving a module swaps it with what is in the other slot", () => {

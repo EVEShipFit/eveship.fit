@@ -88,12 +88,7 @@ export function FighterTube({
       {available && <span className={styles.label}>{launched ? "Simulated" : "Open"}</span>}
       {actions && onResize && (
         <span className={styles.resize}>
-          <button
-            type="button"
-            aria-label={`One fewer ${typeName}`}
-            disabled={quantity <= 1}
-            onClick={() => onResize(quantity - 1)}
-          >
+          <button type="button" aria-label={`One fewer ${typeName}`} onClick={() => onResize(quantity - 1)}>
             −
           </button>
           <button

@@ -192,13 +192,15 @@
 }
 
 .kind {
-  align-items: center;
+  align-items: baseline;
   display: flex;
   gap: calc(2 * var(--window-unit));
 }
 
+/* The glyph is in the middle of the texture; this puts it in the middle of the digits. */
 .kind > img {
   height: calc(16 * var(--window-unit));
+  translate: 0 calc(8 * var(--window-unit) - 0.5cap);
   width: calc(16 * var(--window-unit));
 }
 

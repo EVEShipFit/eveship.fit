@@ -11,7 +11,7 @@
   width: calc(86 * var(--tube-unit));
 }
 
-.tube:hover::before {
+.tube:not([data-state="unavailable"]):hover::before {
   background: var(--esf-fighter-tube-hover);
   content: "";
   inset: 0;

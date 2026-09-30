@@ -186,12 +186,12 @@ export function setFighterBayQuantity(fit: Fit, typeId: number, quantity: number
   return setStackQuantity(fit, "fighter_bay", typeId, quantity);
 }
 
-/** How many fighters a squadron in a tube has, from one to a full squadron. */
+/** How many fighters a squadron in a tube has, up to a full squadron; none removes it. */
 export function setSquadronSize(sde: Sde, fit: Fit, ref: ItemRef, size: number): Fit {
   const item = fit.items[ref];
   const type = item && sde.type(item.type_id);
   if (item?.slot.type !== "fighter_tube" || type === undefined || !Number.isSafeInteger(size)) return fit;
-  return setQuantity(fit, ref, Math.max(1, Math.min(size, squadronSize(sde, type))));
+  return setQuantity(fit, ref, Math.min(size, squadronSize(sde, type)));
 }
 
 function setStackQuantity(fit: Fit, slot: SlotType, typeId: number, quantity: number): Fit {

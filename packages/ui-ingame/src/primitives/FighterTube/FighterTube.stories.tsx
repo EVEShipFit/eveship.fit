@@ -66,6 +66,15 @@ export const PartialSquadron: Story = {
   },
 };
 
+/** One fewer than one takes the squadron out of the tube, as in EVE. */
+export const LastFighter: Story = {
+  args: { ...FullSquadron.args, quantity: 1 },
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "One fewer Templar II" }));
+    await expect(args.onResize).toHaveBeenCalledWith(0);
+  },
+};
+
 /** What a hovered fighter would launch; it cannot be changed yet. */
 export const Preview: Story = {
   args: { ...FullSquadron.args, preview: true },
