@@ -1,0 +1,52 @@
+/** A killmail, as `GET /killmails/{killmail_id}/{killmail_hash}` gives it. */
+export interface Killmail {
+  killmail_id: number;
+  killmail_time: string;
+  solar_system_id: number;
+  moon_id?: number;
+  war_id?: number;
+  victim: KillmailVictim;
+  attackers: KillmailAttacker[];
+}
+
+/** The ship that died, with what it had on board. */
+export interface KillmailVictim {
+  ship_type_id: number;
+  damage_taken: number;
+  character_id?: number;
+  corporation_id?: number;
+  alliance_id?: number;
+  faction_id?: number;
+  items?: KillmailItem[];
+  position?: { x: number; y: number; z: number };
+}
+
+/** An item of a killmail. */
+export interface KillmailItem {
+  item_type_id: number;
+  flag: number;
+  singleton: number;
+  quantity_destroyed?: number;
+  quantity_dropped?: number;
+  items?: KillmailItem[];
+}
+
+/** Someone who damaged the victim. */
+export interface KillmailAttacker {
+  damage_done: number;
+  final_blow: boolean;
+  security_status: number;
+  ship_type_id?: number;
+  weapon_type_id?: number;
+  character_id?: number;
+  corporation_id?: number;
+  alliance_id?: number;
+  faction_id?: number;
+}
+
+/** The price of a type, as `GET /markets/prices` gives it. */
+export interface MarketPrice {
+  type_id: number;
+  average_price?: number;
+  adjusted_price?: number;
+}

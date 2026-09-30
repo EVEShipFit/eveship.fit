@@ -1,6 +1,7 @@
 {
   "files": [],
   "references": [
+    { "path": "./packages/esi" },
     { "path": "./packages/sde-loader" },
     { "path": "./packages/fitting" },
     { "path": "./packages/react-hooks" },

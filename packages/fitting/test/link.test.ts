@@ -1,16 +1,14 @@
 import { gzipSync } from "node:zlib";
 
-import { afterEach, expect, test, vi } from "vitest";
+import { Esi } from "@eveshipfit/esi";
+import { expect, test, vi } from "vitest";
 
+import { createEngine } from "../src/index.js";
 import { testEngine, typeIdOf } from "./engine.js";
 
 function link(version: string, payload: string): string {
   return `${version}:${gzipSync(payload).toString("base64")}`;
 }
-
-afterEach(() => {
-  vi.unstubAllGlobals();
-});
 
 test("a v2 link", async () => {
   const engine = await testEngine();
@@ -58,40 +56,42 @@ test("a + read back from a query string as a space", async () => {
 });
 
 test("a killmail link fetches the killmail from ESI", async () => {
-  const engine = await testEngine();
-  const cannon = typeIdOf(engine, "200mm AutoCannon I");
-  const fetch = vi.fn<typeof globalThis.fetch>(async () =>
-    Response.json({
-      killmail_id: 123,
-      victim: { ship_type_id: 587, items: [{ flag: 27, item_type_id: cannon, quantity_destroyed: 1 }] },
-    }),
-  );
-  vi.stubGlobal("fetch", fetch);
+  const base = await testEngine();
+  const cannon = typeIdOf(base, "200mm AutoCannon I");
+  const esi = new Esi({ userAgent: "test" });
+  const killmail = vi.spyOn(esi, "killmail").mockResolvedValue({
+    killmail_id: 123,
+    killmail_time: "2026-09-30T12:00:00Z",
+    solar_system_id: 30000142,
+    victim: {
+      ship_type_id: 587,
+      damage_taken: 1000,
+      items: [{ flag: 27, item_type_id: cannon, singleton: 0, quantity_destroyed: 1 }],
+    },
+    attackers: [],
+  });
+  const engine = await createEngine(base.sde, { esi });
 
   const fit = await engine.loadLink("killmail:123/abc");
 
-  expect(fetch).toHaveBeenCalledWith(
-    "https://esi.evetech.net/killmails/123/abc",
-    expect.objectContaining({ headers: { "X-Compatibility-Date": "2025-08-26" } }),
-  );
+  expect(killmail).toHaveBeenCalledWith(123, "abc");
   expect(fit.ship.type_id).toBe(587);
   expect(fit.items).toContainEqual(expect.objectContaining({ type_id: cannon }));
 });
 
-test("a killmail ESI does not know", async () => {
+test("a killmail link without ESI", async () => {
   const engine = await testEngine();
-  vi.stubGlobal("fetch", async () => new Response(null, { status: 422 }));
 
-  await expect(engine.loadLink("killmail:123/abc")).rejects.toThrow("HTTP 422");
+  await expect(engine.loadLink("killmail:123/abc")).rejects.toThrow("needs the engine to have `esi`");
 });
 
 test("a killmail link without a hash", async () => {
-  const engine = await testEngine();
-  const fetch = vi.fn<typeof globalThis.fetch>();
-  vi.stubGlobal("fetch", fetch);
+  const esi = new Esi({ userAgent: "test" });
+  const killmail = vi.spyOn(esi, "killmail");
+  const engine = await createEngine((await testEngine()).sde, { esi });
 
   await expect(engine.loadLink("killmail:123")).rejects.toThrow("killmail:<id>/<hash>");
-  expect(fetch).not.toHaveBeenCalled();
+  expect(killmail).not.toHaveBeenCalled();
 });
 
 test("an unknown version", async () => {

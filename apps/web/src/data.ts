@@ -1,4 +1,5 @@
 import wasmUrl from "@eveshipfit/dogma-engine/esf_dogma_engine_bg.wasm?url";
+import { Esi } from "@eveshipfit/esi";
 import { createEngine, type Engine, type FitStore } from "@eveshipfit/fitting";
 import { loadImages, type Images } from "@eveshipfit/images";
 import imagesUrl from "@eveshipfit/images/dist/images.dat?url";
@@ -18,10 +19,13 @@ export interface Data {
 /** Everything the fitting window needs; null when any of it failed to load. */
 export async function loadData(): Promise<Data | null> {
   try {
+    const esi = new Esi({
+      userAgent: `EVEShip.fit/${import.meta.env.EVESHIPFIT_VERSION} (info@eveship.fit; +https://eveship.fit)`,
+    });
     const sdeLoad = loadSde({ url: sdeUrl });
     const [sde, engine, images, texts] = await Promise.all([
       sdeLoad,
-      sdeLoad.then((loaded) => createEngine(loaded, { wasm: wasmUrl })),
+      sdeLoad.then((loaded) => createEngine(loaded, { wasm: wasmUrl, esi })),
       // vite.config.ts serves the images at /images/.
       loadImages({ url: imagesUrl }, { baseUrl: "/images/" }),
       loadTexts({ url: textsUrl }),

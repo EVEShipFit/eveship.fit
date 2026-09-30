@@ -9,6 +9,9 @@
       "path": "./tsconfig.node.json"
     },
     {
+      "path": "../../packages/esi"
+    },
+    {
       "path": "../../packages/fitting"
     },
     {

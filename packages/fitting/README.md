@@ -8,7 +8,7 @@ Part of [EVEShip.fit](https://eveship.fit).
 ## Install
 
 ```sh
-npm install @eveshipfit/fitting @eveshipfit/dogma-engine @eveshipfit/sde-loader @eveshipfit/sde
+npm install @eveshipfit/fitting @eveshipfit/dogma-engine @eveshipfit/esi @eveshipfit/sde-loader @eveshipfit/sde
 ```
 
 ## Usage
@@ -39,6 +39,9 @@ fit.undo();
 The engine can hold only one SDE per page; `createEngine` with another one throws.
 
 A fit is flown by a character with every skill at V, unless you pass another to `createFit` or `setCharacter`.
+
+`loadLink` reads the fit of an EVEShip.fit link. A killmail link needs an `Esi` of
+[`@eveshipfit/esi`](https://www.npmjs.com/package/@eveshipfit/esi) in `createEngine`'s `esi` option.
 
 ### React
 
