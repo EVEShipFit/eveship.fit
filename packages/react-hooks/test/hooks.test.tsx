@@ -3,6 +3,7 @@ import { Esi } from "@eveshipfit/esi";
 import { Engine, type FitStore } from "@eveshipfit/fitting";
 import type { Images } from "@eveshipfit/images";
 import type { MarketGroupNode, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
+import { ZKillboard } from "@eveshipfit/zkillboard";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeAll, expect, test, vi } from "vitest";
@@ -614,6 +615,68 @@ test("the fit price is gone with the engine's ESI", async () => {
   current = new Engine(engine.sde);
   rerender();
   expect(result.current.value).toBeUndefined();
+});
+
+test("the fit price falls back to ESI's adjusted price, then zKillboard's", async () => {
+  const esi = new Esi({ userAgent: "test" });
+  vi.spyOn(esi, "marketPrices").mockResolvedValue(
+    new Map([
+      [RIFTER, { type_id: RIFTER, adjusted_price: 300_000 }],
+      [DAMAGE_CONTROL_II, { type_id: DAMAGE_CONTROL_II, adjusted_price: 0 }],
+    ]),
+  );
+  const zkillboard = new ZKillboard();
+  const zkillboardPrice = vi.spyOn(zkillboard, "price").mockResolvedValue(500_000);
+  const priced = new Engine(engine.sde, esi);
+  const { result } = renderHook(() => useFitPrice(), {
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <EveShipFitProvider engine={priced} fit={withDamageControl()} zkillboard={zkillboard}>
+        {children}
+      </EveShipFitProvider>
+    ),
+  });
+
+  await waitFor(() => expect(result.current.value).toBe(800_000));
+  expect(zkillboardPrice.mock.calls).toEqual([[DAMAGE_CONTROL_II]]);
+});
+
+function renderPriced(zkillboard: ZKillboard, esiPrices: [number, number][], fit?: FitStore) {
+  const esi = new Esi({ userAgent: "test" });
+  vi.spyOn(esi, "marketPrices").mockResolvedValue(
+    new Map(esiPrices.map(([type_id, average_price]) => [type_id, { type_id, average_price }])),
+  );
+  const priced = new Engine(engine.sde, esi);
+  return renderHook(() => ({ price: useFitPrice(), preview: usePreview() }), {
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <EveShipFitProvider engine={priced} fit={fit} zkillboard={zkillboard}>
+        {children}
+      </EveShipFitProvider>
+    ),
+  });
+}
+
+test("a zKillboard failure is asked once, and prices as nothing", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  const zkillboard = new ZKillboard();
+  const zkillboardPrice = vi.spyOn(zkillboard, "price").mockRejectedValue(new Error("down"));
+  const { result } = renderPriced(zkillboard, [[RIFTER, 300_000]], withDamageControl());
+
+  await waitFor(() => expect(result.current.price.value).toBe(300_000));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(zkillboardPrice).toHaveBeenCalledTimes(1);
+});
+
+test("a preview does not ask zKillboard", async () => {
+  const zkillboard = new ZKillboard();
+  const zkillboardPrice = vi.spyOn(zkillboard, "price").mockResolvedValue(500_000);
+  const { result } = renderPriced(zkillboard, [[RIFTER, 300_000]]);
+  await waitFor(() => expect(result.current.price.value).toBe(300_000));
+
+  act(() => result.current.preview.show((draft) => void draft.fit(DAMAGE_CONTROL_II)));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  expect(result.current.price).toEqual({ value: 300_000, change: undefined });
+  expect(zkillboardPrice).not.toHaveBeenCalled();
 });
 
 test("without ESI, the fit has no price", () => {

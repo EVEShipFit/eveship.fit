@@ -31,7 +31,8 @@
   },
   "dependencies": {
     "@eveshipfit/fitting": "workspace:*",
-    "@eveshipfit/sde-loader": "workspace:*"
+    "@eveshipfit/sde-loader": "workspace:*",
+    "@eveshipfit/zkillboard": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "catalog:",

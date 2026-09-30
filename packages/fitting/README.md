@@ -72,7 +72,7 @@ and whether a tube can launch it.
 `missingSkills` says which skills a character lacks to use some types, with the skills those skills need;
 `typesInUse` gives the types of a fit that need them.
 
-`fitPrice` says what a fit costs at the `marketPrices` of an `Esi`, without implants and boosters.
+`fitPrice` says what a fit costs at a price per type, without implants and boosters.
 
 ## License
 

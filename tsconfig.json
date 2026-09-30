@@ -6,6 +6,7 @@
     { "path": "./packages/fitting" },
     { "path": "./packages/react-hooks" },
     { "path": "./packages/ui-ingame" },
+    { "path": "./packages/zkillboard" },
     { "path": "./apps/web" },
     { "path": "./apps/storybook" },
     { "path": "./tsconfig.node.json" }

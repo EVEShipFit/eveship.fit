@@ -1,6 +1,7 @@
 import type { Engine, FitStore, Preview } from "@eveshipfit/fitting";
 import type { Images } from "@eveshipfit/images";
 import type { Texts } from "@eveshipfit/sde-loader";
+import type { ZKillboard } from "@eveshipfit/zkillboard";
 import { createContext, useContext, type Context } from "react";
 
 import type { LocalFits } from "./local-fits.js";
@@ -36,6 +37,7 @@ export const CharacterContext = createContext<CharacterState | undefined>(undefi
 export const LocalFitsContext = createContext<LocalFits | undefined>(undefined);
 export const ImagesContext = createContext<Images | undefined>(undefined);
 export const TextsContext = createContext<Texts | undefined>(undefined);
+export const ZKillboardContext = createContext<ZKillboard | undefined>(undefined);
 
 /** Like `useContext`, but throws outside the provider instead of returning `undefined`. */
 export function useRequiredContext<T>(context: Context<T | undefined>, provider = "EveShipFitProvider"): T {

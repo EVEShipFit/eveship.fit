@@ -22,6 +22,9 @@
     },
     {
       "path": "../../packages/ui-ingame"
+    },
+    {
+      "path": "../../packages/zkillboard"
     }
   ]
 }

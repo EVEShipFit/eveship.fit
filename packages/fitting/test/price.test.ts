@@ -1,4 +1,3 @@
-import type { MarketPrice } from "@eveshipfit/esi";
 import { beforeAll, expect, test } from "vitest";
 
 import { fitPrice, type Engine, type Fit } from "../src/index.js";
@@ -11,13 +10,9 @@ beforeAll(async () => {
   engine = await testEngine();
 });
 
-function prices(byName: Record<string, number>): Map<number, MarketPrice> {
-  return new Map(
-    Object.entries(byName).map(([name, average_price]) => {
-      const type_id = typeIdOf(engine, name);
-      return [type_id, { type_id, average_price }];
-    }),
-  );
+function prices(byName: Record<string, number>): (typeId: number) => number | undefined {
+  const byId = new Map(Object.entries(byName).map(([name, price]) => [typeIdOf(engine, name), price]));
+  return (typeId) => byId.get(typeId);
 }
 
 function caracal(items: Fit["items"]): Fit {
@@ -84,5 +79,5 @@ test("implants and boosters are the pilot's, not the fit's", () => {
 });
 
 test("a type without a price is free", () => {
-  expect(fitPrice(engine.sde, caracal([]), new Map())).toBe(0);
+  expect(fitPrice(engine.sde, caracal([]), () => undefined)).toBe(0);
 });
