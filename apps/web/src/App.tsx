@@ -26,11 +26,11 @@ export function App({ data }: { data: Promise<Data | null> }) {
           <nav className={styles.links} aria-label="Community">
             <a className={styles.link} href="https://github.com/EVEShipFit" target="_blank">
               <GitHubIcon />
-              GitHub
+              <span className={styles.text}>GitHub</span>
             </a>
             <a className={styles.link} href="https://discord.gg/S5V5BkvNf7" target="_blank">
               <DiscordIcon />
-              Discord
+              <span className={styles.text}>Discord</span>
             </a>
             <Support />
           </nav>

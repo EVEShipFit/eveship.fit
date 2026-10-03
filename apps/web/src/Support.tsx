@@ -21,7 +21,7 @@ export function Support() {
     <>
       <button type="button" className={styles.button} popoverTarget={id}>
         <HeartIcon />
-        Support
+        <span className={styles.text}>Support</span>
       </button>
       <dialog id={id} popover="auto" className={styles.card} aria-labelledby={`${id}-title`}>
         <h2 id={`${id}-title`} className={styles.title}>

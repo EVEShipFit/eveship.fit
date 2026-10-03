@@ -6,6 +6,7 @@
   flex-wrap: wrap;
   gap: 8px 24px;
   justify-content: space-between;
+  min-width: 0;
   padding: 10px 20px;
 }
 
@@ -32,6 +33,20 @@
   align-items: center;
   display: flex;
   gap: 8px;
+}
+
+.actions,
+.skills {
+  min-width: 0;
+}
+
+.actions {
+  flex-grow: 1;
+  justify-content: flex-end;
+}
+
+.links {
+  flex: none;
 }
 
 .link {
@@ -130,5 +145,23 @@
 
   .main {
     padding: 12px 8px;
+  }
+
+  .link {
+    padding: 6px;
+  }
+
+  .skills {
+    flex-grow: 1;
+    justify-content: space-between;
+  }
+
+  .text {
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
   }
 }
