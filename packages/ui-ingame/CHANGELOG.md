@@ -1,5 +1,12 @@
 # @eveshipfit/ui-ingame
 
+## 1.4.1
+
+### Patch Changes
+
+- Updated dependencies [[`bf94f16`](https://github.com/EVEShipFit/eveship.fit/commit/bf94f1637c90c987517ec27e3f56537a124f75d4), [`1d62f20`](https://github.com/EVEShipFit/eveship.fit/commit/1d62f20580bb837e34f886d1b8d8849dea7f455c)]:
+  - @eveshipfit/react-hooks@2.1.0
+
 ## 1.4.0
 
 ### Minor Changes

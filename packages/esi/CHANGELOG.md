@@ -1,5 +1,11 @@
 # @eveshipfit/esi
 
+## 1.1.0
+
+### Minor Changes
+
+- Add `Sso`, to log in through EVE, and a character's skills and skill queue ([#190](https://github.com/EVEShipFit/eveship.fit/pull/190))
+
 ## 1.0.0
 
 ### Major Changes

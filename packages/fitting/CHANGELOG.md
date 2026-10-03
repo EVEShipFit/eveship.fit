@@ -1,5 +1,12 @@
 # @eveshipfit/fitting
 
+## 2.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`1d62f20`](https://github.com/EVEShipFit/eveship.fit/commit/1d62f20580bb837e34f886d1b8d8849dea7f455c)]:
+  - @eveshipfit/esi@1.1.0
+
 ## 2.0.0
 
 ### Major Changes
