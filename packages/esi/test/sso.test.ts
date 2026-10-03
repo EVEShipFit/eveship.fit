@@ -67,3 +67,17 @@ test("a refresh token EVE no longer accepts throws its OAuth error", async () =>
   expect(error).toBeInstanceOf(SsoError);
   expect(error).toMatchObject({ status: 400, error: "invalid_grant", message: "EVE SSO: Invalid (HTTP 400)" });
 });
+
+test("a revoke makes the refresh token invalid", async () => {
+  fetch.mockResolvedValue(new Response(null, { status: 200 }));
+
+  await sso().revoke("refresh");
+
+  const [url, init] = fetch.mock.calls[0]!;
+  expect(url).toBe("https://login.eveonline.com/v2/oauth/revoke");
+  expect(Object.fromEntries(init!.body as URLSearchParams)).toEqual({
+    token_type_hint: "refresh_token",
+    token: "refresh",
+    client_id: "client",
+  });
+});

@@ -23,7 +23,12 @@ const login = (refreshToken = "refresh"): SsoLogin => ({
   refreshToken,
 });
 
-let sso: { authorize: Mock<Sso["authorize"]>; login: Mock<Sso["login"]>; refresh: Mock<Sso["refresh"]> };
+let sso: {
+  authorize: Mock<Sso["authorize"]>;
+  login: Mock<Sso["login"]>;
+  refresh: Mock<Sso["refresh"]>;
+  revoke: Mock<Sso["revoke"]>;
+};
 let esi: { characterSkills: Mock<Esi["characterSkills"]>; characterSkillQueue: Mock<Esi["characterSkillQueue"]> };
 let storage: CharacterStorage;
 let session: CharacterStorage;
@@ -38,6 +43,7 @@ beforeEach(() => {
     })),
     login: vi.fn<Sso["login"]>(async () => login()),
     refresh: vi.fn<Sso["refresh"]>(async () => login("rotated")),
+    revoke: vi.fn<Sso["revoke"]>(async () => {}),
   };
   esi = {
     characterSkills: vi.fn<Esi["characterSkills"]>(async () => ({
@@ -61,6 +67,7 @@ async function loggedIn(): Promise<EsiCharacters> {
   const store = characters();
   await store.login();
   await store.finishLogin("code", "state");
+  await vi.runAllTimersAsync();
   return store;
 }
 
@@ -82,6 +89,20 @@ test("a login that was not started here fails", async () => {
   expect(sso.login).not.toHaveBeenCalled();
 });
 
+test("a login returns before the skills are in", async () => {
+  const { promise, resolve } = Promise.withResolvers<Awaited<ReturnType<Esi["characterSkills"]>>>();
+  esi.characterSkills.mockReturnValue(promise);
+  const store = characters();
+  await store.login();
+
+  await expect(store.finishLogin("code", "state")).resolves.toBe(PILOT);
+  expect(store.list()[0]!.status).toBe("loading");
+
+  resolve({ skills: [], total_sp: 0 });
+  await vi.runAllTimersAsync();
+  expect(store.list()[0]!.status).toBe("ready");
+});
+
 test("skills the queue finished count as trained", async () => {
   esi.characterSkillQueue.mockResolvedValue([
     { skill_id: GUNNERY, finished_level: 4, queue_position: 0, finish_date: "2026-10-03T11:00:00Z" },
@@ -92,6 +113,57 @@ test("skills the queue finished count as trained", async () => {
   const store = await loggedIn();
 
   expect(store.list()[0]!.skills).toEqual({ [GUNNERY]: 4, [NAVIGATION]: 1 });
+});
+
+test("the queue does not raise a skill an Alpha clone is capped at", async () => {
+  esi.characterSkills.mockResolvedValue({
+    skills: [{ skill_id: GUNNERY, active_skill_level: 4, trained_skill_level: 5, skillpoints_in_skill: 0 }],
+    total_sp: 0,
+  });
+  esi.characterSkillQueue.mockResolvedValue([
+    { skill_id: GUNNERY, finished_level: 5, queue_position: 0, finish_date: "2026-10-03T11:00:00Z" },
+  ]);
+
+  const store = await loggedIn();
+
+  expect(store.list()[0]!.skills).toEqual({ [GUNNERY]: 4 });
+});
+
+test("skills load without the queue when it fails", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  esi.characterSkillQueue.mockRejectedValue(new Error("403"));
+
+  const store = await loggedIn();
+
+  expect(store.list()[0]).toMatchObject({ status: "ready", skills: { [GUNNERY]: 3 } });
+});
+
+test("skills that fail to load keep the ones from before", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  await loggedIn();
+  esi.characterSkills.mockRejectedValue(new Error("503"));
+  const store = characters();
+
+  store.load(PILOT);
+  await vi.runAllTimersAsync();
+
+  expect(store.list()[0]).toMatchObject({ status: "failed", skills: { [GUNNERY]: 3 } });
+});
+
+test("a tab does not undo what another tab stored", async () => {
+  const tab = characters();
+  await loggedIn();
+  sso.login.mockResolvedValue({ ...login("other"), characterId: PILOT + 1, name: "Other" });
+  await loggedIn();
+
+  tab.refresh(PILOT);
+  await vi.runAllTimersAsync();
+
+  expect(
+    characters()
+      .list()
+      .map((character) => character.name),
+  ).toEqual(["Other", "Pilot"]);
 });
 
 test("loading refreshes the token once per page", async () => {
@@ -149,10 +221,22 @@ test("a refresh token EVE no longer accepts expires the login, and keeps the ski
   expect(store.list()[0]).toMatchObject({ status: "expired", skills: { [GUNNERY]: 3 } });
 });
 
-test("a removed character is forgotten", async () => {
+test("a removed character is forgotten, and its login revoked", async () => {
   const store = await loggedIn();
 
   store.remove(PILOT);
+
+  expect(store.list()).toEqual([]);
+  expect(characters().list()).toEqual([]);
+  expect(sso.revoke).toHaveBeenCalledWith("refresh");
+});
+
+test("a character removed while it loads stays removed", async () => {
+  const store = await loggedIn();
+
+  store.refresh(PILOT);
+  store.remove(PILOT);
+  await vi.runAllTimersAsync();
 
   expect(store.list()).toEqual([]);
   expect(characters().list()).toEqual([]);

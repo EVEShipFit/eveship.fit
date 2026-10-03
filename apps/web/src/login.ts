@@ -21,21 +21,29 @@ export async function finishLogin(characters: EsiCharacters | undefined): Promis
   const url = new URL(location.href);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
-  if (code === null || state === null) return {};
+  if (state === null) return {};
 
-  url.searchParams.delete("code");
-  url.searchParams.delete("state");
+  for (const key of ["code", "state", "error", "error_description"]) url.searchParams.delete(key);
   history.replaceState(history.state, "", url);
 
-  const kept = sessionStorage.getItem(FIT_KEY);
-  sessionStorage.removeItem(FIT_KEY);
-  const fit = kept === null ? undefined : (JSON.parse(kept) as Fit);
-
+  const fit = keptFit();
+  if (code === null) return { error: "Logging in was cancelled.", fit };
   if (characters === undefined) return { fit };
   try {
     return { character: String(await characters.finishLogin(code, state)), fit };
   } catch (error) {
     console.error(error);
     return { error: "Logging in failed. Please try again.", fit };
+  }
+}
+
+function keptFit(): Fit | undefined {
+  try {
+    const kept = sessionStorage.getItem(FIT_KEY);
+    sessionStorage.removeItem(FIT_KEY);
+    return kept === null ? undefined : (JSON.parse(kept) as Fit);
+  } catch (error) {
+    console.error(error);
+    return undefined;
   }
 }

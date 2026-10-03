@@ -18,3 +18,7 @@ pnpm dev         # the website
 pnpm storybook
 pnpm test
 ```
+
+`pnpm dev` runs on `http://localhost:5173/`, the callback URL of the client ID in `apps/web/.env.development`, so
+logging in with EVE works locally. The website's build takes its client ID from `VITE_ESI_CLIENT_ID`; CI sets it from
+the `ESI_CLIENT_ID` repository variable for the v2 deploy only.

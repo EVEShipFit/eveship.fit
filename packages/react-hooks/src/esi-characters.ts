@@ -64,6 +64,13 @@ export class EsiCharacters {
     this.#session = session;
     this.#stored = this.#read();
     this.#publish();
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", (event) => {
+        if (event.storageArea !== storage || (event.key !== KEY && event.key !== null)) return;
+        this.#stored = this.#read();
+        this.#publish();
+      });
+    }
   }
 
   /** Sorted by name. */
@@ -93,12 +100,13 @@ export class EsiCharacters {
 
     const login = await this.#sso.login(code, verifier);
     this.#loaded.add(login.characterId);
-    const known = this.#stored.find((character) => character.id === login.characterId);
-    this.#write([
-      ...this.#stored.filter((character) => character !== known),
-      { ...known, id: login.characterId, name: login.name, refreshToken: login.refreshToken },
-    ]);
-    await this.#loadSkills(login);
+    this.#change(login.characterId, (known) => ({
+      ...known,
+      id: login.characterId,
+      name: login.name,
+      refreshToken: login.refreshToken,
+    }));
+    void this.#loadSkills(login);
     return login.characterId;
   }
 
@@ -120,9 +128,12 @@ export class EsiCharacters {
     void this.#refresh(id, refreshToken);
   }
 
+  /** Forgets the character, and revokes its login at EVE. */
   remove(id: number) {
+    const refreshToken = this.#stored.find((character) => character.id === id)?.refreshToken;
     this.#status.delete(id);
-    this.#write(this.#stored.filter((character) => character.id !== id));
+    this.#change(id, () => undefined);
+    if (refreshToken !== undefined) this.#sso.revoke(refreshToken).catch((error: unknown) => console.error(error));
   }
 
   async #refresh(id: number, refreshToken: string): Promise<void> {
@@ -154,7 +165,10 @@ export class EsiCharacters {
     try {
       const [skills, queue] = await Promise.all([
         this.#esi.characterSkills(characterId, accessToken),
-        this.#esi.characterSkillQueue(characterId, accessToken),
+        this.#esi.characterSkillQueue(characterId, accessToken).catch((error: unknown) => {
+          console.error(error);
+          return [];
+        }),
       ]);
       const now = Date.now();
       this.#status.delete(characterId);
@@ -166,10 +180,21 @@ export class EsiCharacters {
   }
 
   #update(id: number, changes: Partial<Stored>) {
-    this.#write(this.#stored.map((character) => (character.id === id ? { ...character, ...changes } : character)));
+    this.#change(id, (character) => character && { ...character, ...changes });
+  }
+
+  /** Changes one character on top of what is stored, which other tabs may have changed. */
+  #change(id: number, change: (character: Stored | undefined) => Stored | undefined) {
+    const stored = this.#read();
+    const changed = change(stored.find((character) => character.id === id));
+    const others = stored.filter((character) => character.id !== id);
+    this.#stored = changed === undefined ? others : [...others, changed];
+    this.#storage.setItem(KEY, JSON.stringify(this.#stored));
+    this.#publish();
   }
 
   #setStatus(id: number, status: EsiCharacterStatus) {
+    if (!this.#stored.some((character) => character.id === id)) return;
     this.#status.set(id, status);
     this.#publish();
   }
@@ -183,12 +208,6 @@ export class EsiCharacters {
     } catch {
       return [];
     }
-  }
-
-  #write(characters: readonly Stored[]) {
-    this.#stored = characters;
-    this.#storage.setItem(KEY, JSON.stringify(characters));
-    this.#publish();
   }
 
   #publish() {

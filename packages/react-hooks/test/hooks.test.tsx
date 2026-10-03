@@ -377,12 +377,14 @@ test("a logged-in character flies the fit with its own skills", async () => {
     sso: {
       authorize: async () => ({ url: "https://login.eveonline.com/", state: "state", verifier: "verifier" }),
       login: async () => ({ characterId: 90000001, name: "Pilot", accessToken: "access", refreshToken: "refresh" }),
+      revoke: async () => {},
     } as unknown as Sso,
     storage: memoryStorage(),
     session: memoryStorage(),
   });
   await characters.login();
   const id = String(await characters.finishLogin("code", "state"));
+  await waitFor(() => expect(characters.list()[0]!.status).toBe("ready"));
 
   const { result } = render(() => ({ characters: useCharacters(), store: useFitStore() }), {
     characters,

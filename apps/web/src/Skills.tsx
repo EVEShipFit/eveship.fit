@@ -1,5 +1,5 @@
 import { useCharacters, useFitStore, type CharacterChoice, type EsiCharacter } from "@eveshipfit/react-hooks";
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import { keepFit } from "./login";
 import styles from "./Skills.module.css";
@@ -7,6 +7,11 @@ import styles from "./Skills.module.css";
 const descriptions: Record<string, string> = {
   "All L5": "Every skill at level V",
   "All L0": "No skills at all",
+};
+
+const warnings = {
+  expired: "Login expired",
+  failed: "Could not load skills",
 };
 
 /** The button to pick which skills fly the fit, and the card it pops up. */
@@ -18,6 +23,8 @@ export function Skills({ loginError }: { loginError?: string }) {
   const shown = characters.find((character) => character.id === current);
   const own = characters.filter((character) => character.login !== undefined);
   const generic = characters.filter((character) => character.login === undefined);
+
+  const [error, setError] = useState(loginError);
 
   useEffect(() => {
     if (loginError !== undefined) card.current?.showPopover();
@@ -83,14 +90,23 @@ export function Skills({ loginError }: { loginError?: string }) {
       <button type="button" className={styles.skills} popoverTarget={id}>
         <span className={styles.label}>Skills</span>
         <span className={styles.shown}>{shown?.name}</span>
-        {shown?.login?.status === "expired" && (
-          <span className={styles.warning} title="Login expired">
+        {(shown?.login?.status === "expired" || shown?.login?.status === "failed") && (
+          <span className={styles.warning} title={warnings[shown.login.status]}>
             ⚠
           </span>
         )}
       </button>
-      <dialog ref={card} id={id} popover="auto" className={styles.card} aria-label="Skills">
-        {loginError !== undefined && <p className={styles.error}>{loginError}</p>}
+      <dialog
+        ref={card}
+        id={id}
+        popover="auto"
+        className={styles.card}
+        aria-label="Skills"
+        onToggle={(event) => {
+          if (event.newState === "closed") setError(undefined);
+        }}
+      >
+        {error !== undefined && <p className={styles.error}>{error}</p>}
         {own.length > 0 && (
           <>
             <h2 className={styles.group}>Your characters</h2>
@@ -128,9 +144,8 @@ function Status({ login }: { login: EsiCharacter }) {
     case "loading":
       return "Loading skills…";
     case "expired":
-      return <span className={styles.expired}>Login expired</span>;
     case "failed":
-      return <span className={styles.expired}>Could not load skills</span>;
+      return <span className={styles.expired}>{warnings[login.status]}</span>;
     case "ready":
       return login.updated === undefined ? "No skills yet" : `Skills from ${ago(login.updated)}`;
   }

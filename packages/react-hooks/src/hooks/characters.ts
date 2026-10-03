@@ -90,11 +90,11 @@ export function useFlyCharacter(
     if (current === NO_SKILLS || skills === undefined) return noSkills;
     return { skills };
   }, [engine, current, skills]);
-  const flown = useRef(given ? undefined : character);
+  const flown = useRef(given ? undefined : { store, character });
 
   useEffect(() => {
-    if (flown.current === character) return;
-    flown.current = character;
+    if (flown.current?.store === store && flown.current.character === character) return;
+    flown.current = { store, character };
     store.setCharacter(character);
   }, [store, character]);
 }

@@ -1,6 +1,6 @@
 import wasmUrl from "@eveshipfit/dogma-engine/esf_dogma_engine_bg.wasm?url";
 import { Esi, Sso } from "@eveshipfit/esi";
-import { createEngine, type Engine, type FitStore } from "@eveshipfit/fitting";
+import { createEngine, type Engine, type Fit, type FitStore } from "@eveshipfit/fitting";
 import { loadImages, type Images } from "@eveshipfit/images";
 import imagesUrl from "@eveshipfit/images/dist/images.dat?url";
 import sdeUrl from "@eveshipfit/sde/dist/sde.dat?url";
@@ -27,10 +27,7 @@ export async function loadData(): Promise<Data | null> {
     const esi = new Esi({
       userAgent: `EVEShip.fit/${import.meta.env.EVESHIPFIT_VERSION} (info@eveship.fit; +https://eveship.fit)`,
     });
-    const clientId = import.meta.env.VITE_ESI_CLIENT_ID;
-    const characters = clientId
-      ? new EsiCharacters({ esi, sso: new Sso({ clientId, redirectUri: new URL("/", location.href).href }) })
-      : undefined;
+    const characters = loadCharacters(esi);
     const login = finishLogin(characters).then((result) => {
       characters?.loadAll();
       return result;
@@ -44,11 +41,33 @@ export async function loadData(): Promise<Data | null> {
       loadTexts({ url: textsUrl }),
     ]);
     const [linked, loggedIn] = await Promise.all([loadLinkedFit(engine), login]);
-    const fit = linked ?? (loggedIn.fit && engine.createFit(loggedIn.fit));
+    const fit = linked ?? keptFit(engine, loggedIn.fit);
     return { engine, sde, images, texts, fit, characters, login: loggedIn };
   } catch (error) {
     console.error(error);
     return null;
+  }
+}
+
+/** Undefined without a client ID, or where the browser blocks storage. */
+function loadCharacters(esi: Esi): EsiCharacters | undefined {
+  const clientId = import.meta.env.VITE_ESI_CLIENT_ID;
+  if (!clientId) return undefined;
+  try {
+    return new EsiCharacters({ esi, sso: new Sso({ clientId, redirectUri: new URL("/", location.href).href }) });
+  } catch (error) {
+    console.error(error);
+    return undefined;
+  }
+}
+
+function keptFit(engine: Engine, fit: Fit | undefined): FitStore | undefined {
+  if (fit === undefined) return undefined;
+  try {
+    return engine.createFit(fit);
+  } catch (error) {
+    console.error(error);
+    return undefined;
   }
 }
 

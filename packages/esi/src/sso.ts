@@ -74,6 +74,17 @@ export class Sso {
     return this.#token({ grant_type: "refresh_token", refresh_token: refreshToken });
   }
 
+  /** Makes the refresh token, and the login it belongs to, invalid. */
+  async revoke(refreshToken: string): Promise<void> {
+    const response = await fetch(`${baseUrl}/revoke`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ token_type_hint: "refresh_token", token: refreshToken, client_id: this.#clientId }),
+      signal: AbortSignal.timeout(timeout),
+    });
+    if (!response.ok) throw new SsoError(response.status, undefined, undefined);
+  }
+
   async #token(grant: Record<string, string>): Promise<SsoLogin> {
     const response = await fetch(`${baseUrl}/token`, {
       method: "POST",

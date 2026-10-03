@@ -99,7 +99,7 @@
   background: var(--esf-hover);
 }
 
-.current {
+.row.current {
   background: rgb(54 99 112 / 35%);
   outline: 1px solid rgb(87 166 190 / 50%);
 }
@@ -115,6 +115,11 @@
   font: inherit;
   padding: 6px 8px;
   text-align: left;
+}
+
+.pick:focus-visible {
+  border-radius: 6px;
+  outline: 1px solid var(--esf-button-active-edge);
 }
 
 .detail {
@@ -161,6 +166,13 @@
   animation: spin 1s linear infinite;
   background: none;
   cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .refresh:disabled {
+    animation: none;
+    opacity: 0.5;
+  }
 }
 
 @keyframes spin {

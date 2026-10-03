@@ -35,6 +35,7 @@ const { url, state, verifier } = await sso.authorize(["esi-skills.read_skills.v1
 const login = await sso.login(code, verifier);
 const skills = await esi.characterSkills(login.characterId, login.accessToken);
 const later = await sso.refresh(login.refreshToken);
+await sso.revoke(later.refreshToken);
 ```
 
 A failed login throws an `SsoError` with the OAuth `error`; `invalid_grant` means the refresh token is no longer valid.

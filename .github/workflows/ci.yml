@@ -49,6 +49,10 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Require the ESI client ID
+        if: github.event_name == 'push' && github.ref == 'refs/heads/v2' && vars.ESI_CLIENT_ID == ''
+        run: echo "::error::Set the ESI_CLIENT_ID repository variable" && exit 1
+
       - name: Build website
         env:
           VITE_ESI_CLIENT_ID: ${{ github.event_name == 'push' && github.ref == 'refs/heads/v2' && vars.ESI_CLIENT_ID || '' }}
