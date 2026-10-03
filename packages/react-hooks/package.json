@@ -30,13 +30,13 @@
     "build": "tsdown"
   },
   "dependencies": {
+    "@eveshipfit/esi": "workspace:*",
     "@eveshipfit/fitting": "workspace:*",
     "@eveshipfit/sde-loader": "workspace:*",
     "@eveshipfit/zkillboard": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "catalog:",
-    "@eveshipfit/esi": "workspace:*",
     "@eveshipfit/images": "catalog:",
     "@eveshipfit/sde": "catalog:",
     "@rolldown/plugin-babel": "catalog:",

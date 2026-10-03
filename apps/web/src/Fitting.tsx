@@ -29,10 +29,16 @@ export function Fitting({ data, layout, skills }: FittingProps) {
   const panelScale = { "--esf-scale": layout.panelScale } as CSSProperties;
 
   return (
-    <EveShipFitProvider engine={loaded.engine} fit={loaded.fit} zkillboard={zkillboard}>
+    <EveShipFitProvider
+      engine={loaded.engine}
+      fit={loaded.fit}
+      characters={loaded.characters}
+      character={loaded.login.character}
+      zkillboard={zkillboard}
+    >
       <ImagesProvider images={loaded.images}>
         <TextsProvider texts={loaded.texts}>
-          {skills !== null && createPortal(<Skills />, skills)}
+          {skills !== null && createPortal(<Skills loginError={loaded.login.error} />, skills)}
           {layout.stacked ? (
             <>
               <div className={`${styles.panel} ${styles.window}`} style={scale}>

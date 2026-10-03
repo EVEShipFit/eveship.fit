@@ -53,5 +53,12 @@ export {
 } from "./hooks/slots.js";
 export { ImagesProvider, type ImagesProviderProps } from "./images.js";
 export { TextsProvider, type TextsProviderProps } from "./texts.js";
+export {
+  EsiCharacters,
+  type CharacterStorage,
+  type EsiCharacter,
+  type EsiCharactersOptions,
+  type EsiCharacterStatus,
+} from "./esi-characters.js";
 export { LocalFits, type FitStorage } from "./local-fits.js";
 export { EveShipFitProvider, type EveShipFitProviderProps } from "./provider.js";

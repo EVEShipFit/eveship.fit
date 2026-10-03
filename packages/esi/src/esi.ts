@@ -1,4 +1,4 @@
-import type { Killmail, MarketPrice } from "./types.js";
+import type { CharacterSkills, Killmail, MarketPrice, SkillQueueEntry } from "./types.js";
 
 const baseUrl = "https://esi.evetech.net";
 const compatibilityDate = "2026-08-18";
@@ -41,6 +41,18 @@ export class Esi {
     return (await response.json()) as Killmail;
   }
 
+  /** A character's skills; needs the `esi-skills.read_skills.v1` scope. */
+  async characterSkills(characterId: number, accessToken: string): Promise<CharacterSkills> {
+    const response = await this.#get(`/characters/${characterId}/skills`, accessToken);
+    return (await response.json()) as CharacterSkills;
+  }
+
+  /** A character's skill queue; needs the `esi-skills.read_skillqueue.v1` scope. */
+  async characterSkillQueue(characterId: number, accessToken: string): Promise<SkillQueueEntry[]> {
+    const response = await this.#get(`/characters/${characterId}/skillqueue`, accessToken);
+    return (await response.json()) as SkillQueueEntry[];
+  }
+
   /** The price of every type on the market, by type ID. */
   marketPrices(): Promise<ReadonlyMap<number, MarketPrice>> {
     if (this.#prices !== undefined && Date.now() < this.#prices.expires) return this.#prices.value;
@@ -60,7 +72,7 @@ export class Esi {
     return cached.value;
   }
 
-  async #get(path: string): Promise<Response> {
+  async #get(path: string, accessToken?: string): Promise<Response> {
     for (let attempt = 0; ; attempt++) {
       for (let paused; (paused = this.#pausedUntil - Date.now()) > 0;) {
         await new Promise((resolve) => setTimeout(resolve, paused));
@@ -71,6 +83,7 @@ export class Esi {
           "User-Agent": this.#userAgent,
           "X-User-Agent": this.#userAgent,
           "X-Compatibility-Date": compatibilityDate,
+          ...(accessToken !== undefined && { Authorization: `Bearer ${accessToken}` }),
         },
         signal: AbortSignal.timeout(timeout),
       });

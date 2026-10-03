@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { Esi } from "@eveshipfit/esi";
+import { Esi, type Sso } from "@eveshipfit/esi";
 import { Engine, type FitStore } from "@eveshipfit/fitting";
 import type { Images } from "@eveshipfit/images";
 import type { MarketGroupNode, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
@@ -9,6 +9,7 @@ import type { ReactNode } from "react";
 import { beforeAll, expect, test, vi } from "vitest";
 
 import {
+  EsiCharacters,
   EveShipFitProvider,
   ImagesProvider,
   LocalFits,
@@ -49,6 +50,7 @@ import {
   useStats,
   useType,
   useViolations,
+  type CharacterStorage,
   type EveShipFitProviderProps,
   type FitStorage,
 } from "../src/index.js";
@@ -70,6 +72,15 @@ function render<T>(hook: () => T, props: Omit<EveShipFitProviderProps, "engine">
       </EveShipFitProvider>
     ),
   });
+}
+
+function memoryStorage(): CharacterStorage {
+  const items = new Map<string, string>();
+  return {
+    getItem: (key) => items.get(key) ?? null,
+    setItem: (key, value) => void items.set(key, value),
+    removeItem: (key) => void items.delete(key),
+  };
 }
 
 function withDamageControl(): FitStore {
@@ -351,6 +362,45 @@ test("missing skills follow the character", () => {
 
   const fitted = withDamageControl().getSnapshot().fit;
   expect(result.current.missingSkills(fitted).length).toBeGreaterThan(result.current.missingSkills([RIFTER]).length);
+});
+
+test("a logged-in character flies the fit with its own skills", async () => {
+  const gunnery = engine.sde.typeByName("Gunnery")!.id;
+  const characters = new EsiCharacters({
+    esi: {
+      characterSkills: async () => ({
+        skills: [{ skill_id: gunnery, active_skill_level: 2, trained_skill_level: 2, skillpoints_in_skill: 0 }],
+        total_sp: 0,
+      }),
+      characterSkillQueue: async () => [],
+    } as unknown as Esi,
+    sso: {
+      authorize: async () => ({ url: "https://login.eveonline.com/", state: "state", verifier: "verifier" }),
+      login: async () => ({ characterId: 90000001, name: "Pilot", accessToken: "access", refreshToken: "refresh" }),
+      revoke: async () => {},
+    } as unknown as Sso,
+    storage: memoryStorage(),
+    session: memoryStorage(),
+  });
+  await characters.login();
+  const id = String(await characters.finishLogin("code", "state"));
+  await waitFor(() => expect(characters.list()[0]!.status).toBe("ready"));
+
+  const { result } = render(() => ({ characters: useCharacters(), store: useFitStore() }), {
+    characters,
+    character: id,
+  });
+
+  expect(result.current.characters.characters.map((character) => character.name)).toEqual([
+    "Pilot",
+    "All L5",
+    "All L0",
+  ]);
+  expect(result.current.store.character.skills).toEqual({ [gunnery]: 2 });
+
+  act(() => result.current.characters.remove(id));
+  expect(result.current.characters.current).toBe("all-skills-v");
+  expect(result.current.store.character).toBe(engine.defaultCharacter);
 });
 
 test("drag and drop", () => {
