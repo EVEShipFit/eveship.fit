@@ -18,11 +18,11 @@ test("the fitting window shows its statistics", async ({ page }) => {
   await expect(page.getByText(/^EVEShip\.fit \S+ · EVE data from \d{4}-\d{2}-\d{2}$/)).toBeVisible();
 });
 
-test("No Skills flags the skills the fit misses", async ({ page }) => {
+test("No skills flags the skills the fit misses", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("img", { name: /^Missing Skills/ })).toHaveCount(0);
-  await page.getByRole("combobox", { name: "Skills:" }).selectOption("No Skills");
+  await page.getByRole("combobox", { name: "Skills:" }).selectOption("None");
   await expect(page.getByRole("img", { name: /^Missing Skills/ })).toBeVisible();
 });
 
