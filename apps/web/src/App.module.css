@@ -32,6 +32,12 @@
   gap: 8px;
 }
 
+.skills {
+  align-items: center;
+  display: flex;
+  margin-left: auto;
+}
+
 .link {
   align-items: center;
   border-radius: 999px;

@@ -1,0 +1,22 @@
+.skills {
+  align-items: center;
+  color: var(--esf-text-muted);
+  display: flex;
+  gap: 8px;
+}
+
+.select {
+  background: var(--esf-surface);
+  border: 1px solid var(--esf-border);
+  border-radius: 4px;
+  color: var(--esf-text);
+  font: inherit;
+  padding: 4px 6px;
+}
+
+.separator {
+  align-self: stretch;
+  background: var(--esf-border);
+  margin: 2px 0 2px 16px;
+  width: 1px;
+}
