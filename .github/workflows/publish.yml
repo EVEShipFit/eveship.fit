@@ -28,12 +28,12 @@ jobs:
 
     - name: Checkout
       if: always()
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         ref: ${{ steps.release.outputs.release || github.event.pull_request.head.sha }}
 
     - name: Install NodeJS
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         registry-url: https://npm.pkg.github.com
         scope: "@eveshipfit"
