@@ -28,3 +28,20 @@ export function HeartIcon() {
     </svg>
   );
 }
+
+export function RefreshIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden>
+      <path fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" d="M13 8a5 5 0 1 1-1.46-3.54" />
+      <path fill="currentColor" d="M13.5 1.5v4.5H9z" />
+    </svg>
+  );
+}
+
+export function CloseIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden>
+      <path fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" d="M4 4l8 8M12 4l-8 8" />
+    </svg>
+  );
+}
