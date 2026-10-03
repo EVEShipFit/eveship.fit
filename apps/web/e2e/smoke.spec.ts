@@ -18,6 +18,14 @@ test("the fitting window shows its statistics", async ({ page }) => {
   await expect(page.getByText(/^EVEShip\.fit \S+ · EVE data from \d{4}-\d{2}-\d{2}$/)).toBeVisible();
 });
 
+test("No skills flags the skills the fit misses", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("img", { name: /^Missing Skills/ })).toHaveCount(0);
+  await page.getByRole("combobox", { name: "Skills" }).selectOption("All L0");
+  await expect(page.getByRole("img", { name: /^Missing Skills/ })).toBeVisible();
+});
+
 test("a fit link opens its fit once", async ({ page }) => {
   // v3 link of "Link Rifter" with a 200mm AutoCannon I.
   await page.goto(

@@ -10,6 +10,7 @@ import { Support } from "./Support";
 export function App({ data }: { data: Promise<Data | null> }) {
   const [main, setMain] = useState<HTMLElement | null>(null);
   const [footer, setFooter] = useState<HTMLElement | null>(null);
+  const [skills, setSkills] = useState<HTMLElement | null>(null);
   const layout = useLayout(main, footer);
 
   return (
@@ -20,22 +21,25 @@ export function App({ data }: { data: Promise<Data | null> }) {
           <span className={styles.dash}> - </span>
           <span className={styles.tagline}>View, Create, and Share your EVE Online ship fits online</span>
         </h1>
-        <nav className={styles.links} aria-label="Community">
-          <a className={styles.link} href="https://github.com/EVEShipFit" target="_blank">
-            <GitHubIcon />
-            GitHub
-          </a>
-          <a className={styles.link} href="https://discord.gg/S5V5BkvNf7" target="_blank">
-            <DiscordIcon />
-            Discord
-          </a>
-          <Support />
-        </nav>
+        <div className={styles.actions}>
+          <div ref={setSkills} className={styles.skills} />
+          <nav className={styles.links} aria-label="Community">
+            <a className={styles.link} href="https://github.com/EVEShipFit" target="_blank">
+              <GitHubIcon />
+              GitHub
+            </a>
+            <a className={styles.link} href="https://discord.gg/S5V5BkvNf7" target="_blank">
+              <DiscordIcon />
+              Discord
+            </a>
+            <Support />
+          </nav>
+        </div>
       </header>
       <main ref={setMain} className={styles.main}>
         <div className={styles.stage}>
           <Suspense fallback={<p className={styles.message}>Loading ships…</p>}>
-            <Fitting data={data} layout={layout} />
+            <Fitting data={data} layout={layout} skills={skills} />
           </Suspense>
         </div>
         <footer ref={setFooter} className={styles.footer}>

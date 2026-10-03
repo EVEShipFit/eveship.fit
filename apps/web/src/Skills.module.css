@@ -1,0 +1,51 @@
+.skills {
+  align-items: center;
+  background: var(--esf-button);
+  border: 1px solid var(--esf-button-edge);
+  border-radius: 999px;
+  cursor: pointer;
+  display: flex;
+  gap: 6px;
+  padding-left: 12px;
+}
+
+.skills:hover,
+.skills:focus-within {
+  background: var(--esf-button-active);
+  border-color: var(--esf-button-active-edge);
+}
+
+.label {
+  color: var(--esf-text-muted);
+}
+
+.skills:hover .label,
+.skills:focus-within .label {
+  color: var(--esf-text);
+}
+
+.select {
+  appearance: none;
+  background: transparent
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23999' stroke-width='1.5'/%3E%3C/svg%3E")
+    no-repeat right 12px center / 10px 6px;
+  border: 0;
+  color: var(--esf-text);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  outline: none;
+  padding: 5px 30px 5px 0;
+}
+
+.select option {
+  background: var(--esf-surface);
+  font-weight: normal;
+}
+
+.separator {
+  align-self: stretch;
+  background: rgb(255 255 255 / 12%);
+  margin: 4px 0 4px 10px;
+  width: 1px;
+}

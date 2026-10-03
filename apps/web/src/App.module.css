@@ -26,7 +26,9 @@
   color: var(--esf-text-muted);
 }
 
-.links {
+.actions,
+.links,
+.skills {
   align-items: center;
   display: flex;
   gap: 8px;

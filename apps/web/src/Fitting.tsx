@@ -2,20 +2,24 @@ import { EveShipFitProvider, ImagesProvider, TextsProvider } from "@eveshipfit/r
 import { FittingWindow, ItemBrowser, ShipStatistics } from "@eveshipfit/ui-ingame";
 import { ZKillboard } from "@eveshipfit/zkillboard";
 import { use, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 
 import styles from "./App.module.css";
 import type { Data } from "./data";
 import type { Layout } from "./layout";
+import { Skills } from "./Skills";
 
 const zkillboard = new ZKillboard();
 
 export interface FittingProps {
   data: Promise<Data | null>;
   layout: Layout;
+  /** Where to show the skills dropdown. */
+  skills: HTMLElement | null;
 }
 
 /** The fitting window of the linked fit or an empty Rifter, with its item browser and statistics. */
-export function Fitting({ data, layout }: FittingProps) {
+export function Fitting({ data, layout, skills }: FittingProps) {
   const loaded = use(data);
   if (loaded === null) {
     return <p className={styles.message}>EVEShip.fit could not load. Please reload the page.</p>;
@@ -28,6 +32,7 @@ export function Fitting({ data, layout }: FittingProps) {
     <EveShipFitProvider engine={loaded.engine} fit={loaded.fit} zkillboard={zkillboard}>
       <ImagesProvider images={loaded.images}>
         <TextsProvider texts={loaded.texts}>
+          {skills !== null && createPortal(<Skills />, skills)}
           {layout.stacked ? (
             <>
               <div className={`${styles.panel} ${styles.window}`} style={scale}>
