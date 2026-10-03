@@ -332,7 +332,7 @@ test("fighter tubes follow the preview, and the fighter bay lists what is not la
 
 test("a character without skills flies the fit worse", () => {
   const { result } = render(() => ({ characters: useCharacters(), cpu: useAttribute("cpuOutput") }));
-  expect(result.current.characters.characters.map((character) => character.name)).toEqual(["All L5", "None"]);
+  expect(result.current.characters.characters.map((character) => character.name)).toEqual(["All L5", "All L0"]);
   const withSkills = result.current.cpu.value!;
 
   act(() => result.current.characters.select("no-skills"));

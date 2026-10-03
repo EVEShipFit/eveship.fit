@@ -22,7 +22,7 @@ export interface CharactersControls {
 
 const characters: readonly CharacterChoice[] = [
   { id: ALL_SKILLS_V, name: "All L5" },
-  { id: NO_SKILLS, name: "None" },
+  { id: NO_SKILLS, name: "All L0" },
 ];
 
 export function useCharacters(): CharactersControls {

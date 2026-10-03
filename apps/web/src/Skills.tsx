@@ -9,7 +9,7 @@ export function Skills() {
   return (
     <>
       <label className={styles.skills}>
-        Skills:
+        <span className={styles.label}>Skills</span>
         <select className={styles.select} value={current} onChange={(e) => select(e.target.value)}>
           {characters.map(({ id, name }) => (
             <option key={id} value={id}>
