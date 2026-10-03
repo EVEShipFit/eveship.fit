@@ -32,6 +32,8 @@ export interface CharactersControls {
   readonly select: (id: string) => void;
   /** Sends the browser to EVE's login; undefined without the provider's `characters`. */
   readonly login: (() => void) | undefined;
+  /** Loads a logged-in character's skills again. */
+  readonly refresh: (id: string) => void;
   /** Forgets a logged-in character. */
   readonly remove: (id: string) => void;
 }
@@ -65,6 +67,7 @@ export function useCharacters(): CharactersControls {
           (error: unknown) => console.error(error),
         );
       }),
+    refresh: (id) => esiCharacters?.refresh(Number(id)),
     remove: (id) => {
       esiCharacters?.remove(Number(id));
       if (id === current) setCurrent(ALL_SKILLS_V);

@@ -104,8 +104,18 @@ export class EsiCharacters {
 
   /** Loads the character's skills from ESI, once per page. */
   load(id: number) {
+    if (!this.#loaded.has(id)) this.refresh(id);
+  }
+
+  /** Loads every character's skills from ESI, once per page; this also keeps their logins alive. */
+  loadAll() {
+    for (const { id } of this.#stored) this.load(id);
+  }
+
+  /** Loads the character's skills from ESI again. */
+  refresh(id: number) {
     const refreshToken = this.#stored.find((character) => character.id === id)?.refreshToken;
-    if (refreshToken === undefined || this.#loaded.has(id)) return;
+    if (refreshToken === undefined || this.#status.get(id) === "loading") return;
     this.#loaded.add(id);
     void this.#refresh(id, refreshToken);
   }
@@ -115,13 +125,18 @@ export class EsiCharacters {
     this.#write(this.#stored.filter((character) => character.id !== id));
   }
 
-  async #refresh(id: number, refreshToken: string) {
+  async #refresh(id: number, refreshToken: string): Promise<void> {
     this.#setStatus(id, "loading");
     let login: SsoLogin;
     try {
       login = await this.#sso.refresh(refreshToken);
     } catch (error) {
       if (error instanceof SsoError && error.error === "invalid_grant") {
+        const latest = this.#read().find((character) => character.id === id)?.refreshToken;
+        if (latest !== undefined && latest !== refreshToken) {
+          this.#update(id, { refreshToken: latest });
+          return this.#refresh(id, latest);
+        }
         this.#status.delete(id);
         this.#update(id, { refreshToken: undefined });
       } else {

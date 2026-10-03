@@ -31,7 +31,10 @@ export async function loadData(): Promise<Data | null> {
     const characters = clientId
       ? new EsiCharacters({ esi, sso: new Sso({ clientId, redirectUri: new URL("/", location.href).href }) })
       : undefined;
-    const login = finishLogin(characters);
+    const login = finishLogin(characters).then((result) => {
+      characters?.loadAll();
+      return result;
+    });
     const sdeLoad = loadSde({ url: sdeUrl });
     const [sde, engine, images, texts] = await Promise.all([
       sdeLoad,

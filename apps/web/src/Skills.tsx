@@ -14,7 +14,7 @@ export function Skills({ loginError }: { loginError?: string }) {
   const id = useId();
   const card = useRef<HTMLDialogElement>(null);
   const store = useFitStore();
-  const { characters, current, select, login, remove } = useCharacters();
+  const { characters, current, select, login, refresh, remove } = useCharacters();
   const shown = characters.find((character) => character.id === current);
   const own = characters.filter((character) => character.login !== undefined);
   const generic = characters.filter((character) => character.login === undefined);
@@ -50,6 +50,18 @@ export function Skills({ loginError }: { loginError?: string }) {
       {character.login?.status === "expired" && startLogin && (
         <button type="button" className={styles.relogin} onClick={startLogin}>
           Log in again
+        </button>
+      )}
+      {character.login !== undefined && character.login.status !== "expired" && (
+        <button
+          type="button"
+          className={styles.refresh}
+          aria-label={`Refresh ${character.name}`}
+          title="Refresh skills"
+          disabled={character.login.status === "loading"}
+          onClick={() => refresh(character.id)}
+        >
+          ↻
         </button>
       )}
       {character.login !== undefined && (

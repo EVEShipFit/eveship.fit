@@ -139,6 +139,7 @@
   white-space: nowrap;
 }
 
+.refresh,
 .remove {
   background: none;
   border: 0;
@@ -148,6 +149,24 @@
   font: inherit;
   font-size: 14px;
   padding: 0 6px;
+}
+
+.refresh:hover,
+.refresh:focus-visible {
+  background: var(--esf-button-active);
+  color: var(--esf-text);
+}
+
+.refresh:disabled {
+  animation: spin 1s linear infinite;
+  background: none;
+  cursor: default;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .remove:hover,

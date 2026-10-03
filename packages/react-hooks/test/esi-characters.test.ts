@@ -109,6 +109,35 @@ test("loading refreshes the token once per page", async () => {
   expect(sso.refresh).toHaveBeenCalledTimes(1);
 });
 
+test("loading all skips who already loaded; a refresh loads again", async () => {
+  const store = await loggedIn();
+
+  store.loadAll();
+  expect(sso.refresh).not.toHaveBeenCalled();
+
+  store.refresh(PILOT);
+  store.refresh(PILOT);
+  await vi.runAllTimersAsync();
+  expect(sso.refresh).toHaveBeenCalledExactlyOnceWith("refresh");
+  expect(esi.characterSkills).toHaveBeenCalledTimes(2);
+});
+
+test("a refresh token another tab used first is swapped for the one it stored", async () => {
+  await loggedIn();
+  const store = characters();
+  const otherTab = characters();
+  sso.refresh.mockResolvedValueOnce(login("other"));
+  otherTab.load(PILOT);
+  await vi.runAllTimersAsync();
+  sso.refresh.mockRejectedValueOnce(new SsoError(400, "invalid_grant", undefined));
+
+  store.load(PILOT);
+  await vi.runAllTimersAsync();
+
+  expect(sso.refresh).toHaveBeenLastCalledWith("other");
+  expect(store.list()[0]!.status).toBe("ready");
+});
+
 test("a refresh token EVE no longer accepts expires the login, and keeps the skills", async () => {
   await loggedIn();
   sso.refresh.mockRejectedValue(new SsoError(400, "invalid_grant", undefined));
