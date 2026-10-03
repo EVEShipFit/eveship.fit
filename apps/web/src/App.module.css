@@ -26,16 +26,12 @@
   color: var(--esf-text-muted);
 }
 
-.links {
-  align-items: center;
-  display: flex;
-  gap: 8px;
-}
-
+.actions,
+.links,
 .skills {
   align-items: center;
   display: flex;
-  margin-left: auto;
+  gap: 8px;
 }
 
 .link {
