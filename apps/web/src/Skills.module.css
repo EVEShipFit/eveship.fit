@@ -91,7 +91,7 @@
   align-items: center;
   border-radius: 6px;
   display: flex;
-  gap: 6px;
+  gap: 2px;
   padding-right: 6px;
 }
 
@@ -129,7 +129,11 @@
 
 .check {
   color: var(--esf-button-active-edge);
+  display: flex;
+  flex: none;
   font-weight: 700;
+  justify-content: center;
+  width: 24px;
 }
 
 .relogin {
@@ -140,20 +144,31 @@
   cursor: pointer;
   font: inherit;
   font-size: 11px;
+  margin-right: 4px;
   padding: 2px 8px;
   white-space: nowrap;
 }
 
 .refresh,
 .remove {
+  align-items: center;
   background: none;
   border: 0;
   border-radius: 4px;
   color: var(--esf-text-muted);
   cursor: pointer;
-  font: inherit;
-  font-size: 14px;
-  padding: 0 6px;
+  display: flex;
+  flex: none;
+  height: 24px;
+  justify-content: center;
+  padding: 0;
+  width: 24px;
+}
+
+.refresh svg,
+.remove svg {
+  height: 14px;
+  width: 14px;
 }
 
 .refresh:hover,
