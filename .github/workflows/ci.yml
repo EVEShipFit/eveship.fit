@@ -50,6 +50,8 @@ jobs:
         run: pnpm test
 
       - name: Build website
+        env:
+          VITE_ESI_CLIENT_ID: ${{ github.event_name == 'push' && github.ref == 'refs/heads/v2' && vars.ESI_CLIENT_ID || '' }}
         run: pnpm --filter @eveshipfit/web build
 
       - name: Test website end-to-end

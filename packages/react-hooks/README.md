@@ -86,6 +86,17 @@ drones of a type can be active.
 `useCharacters` picks who flies the fit; `useMissingSkills` says which skills that character lacks to use some types, or
 a whole fit.
 
+To fly with a real character's skills, pass an `EsiCharacters` to the provider. `login` sends the browser to EVE's login;
+when it comes back, call `finishLogin` with the `code` and `state` of the URL, and pass the ID it returns as the
+provider's `character`. Characters are kept in `localStorage`; their skills, with what the skill queue finished, load
+once per page when picked.
+
+```tsx
+const characters = new EsiCharacters({ esi, sso: new Sso({ clientId, redirectUri: location.origin + "/" }) });
+
+<EveShipFitProvider engine={engine} characters={characters}>
+```
+
 ### Price
 
 `useFitPrice` gives the fit's estimated price in ISK, at the prices of the engine's `esi`; `undefined` without one, or until they are in. A type costs ESI's average price, else its adjusted price, else the price of the provider's `zkillboard`, asked only for what is fitted. Like `useAttribute`, it says whether a preview makes it `"better"` (cheaper) or `"worse"`.

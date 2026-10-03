@@ -50,3 +50,30 @@ export interface MarketPrice {
   average_price?: number;
   adjusted_price?: number;
 }
+
+/** A character's skills, as `GET /characters/{character_id}/skills` gives it. */
+export interface CharacterSkills {
+  skills: CharacterSkill[];
+  total_sp: number;
+  unallocated_sp?: number;
+}
+
+/** A skill a character trained; an Alpha clone can only use up to `active_skill_level`. */
+export interface CharacterSkill {
+  skill_id: number;
+  active_skill_level: number;
+  trained_skill_level: number;
+  skillpoints_in_skill: number;
+}
+
+/** A skill in a character's queue, as `GET /characters/{character_id}/skillqueue` gives it. */
+export interface SkillQueueEntry {
+  skill_id: number;
+  finished_level: number;
+  queue_position: number;
+  start_date?: string;
+  finish_date?: string;
+  level_start_sp?: number;
+  level_end_sp?: number;
+  training_start_sp?: number;
+}

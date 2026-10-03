@@ -6,6 +6,7 @@ import {
   CharacterContext,
   DragContext,
   EngineContext,
+  EsiCharactersContext,
   FitContext,
   LocalFitsContext,
   PreviewContext,
@@ -13,7 +14,8 @@ import {
   type DragItem,
   type PreviewState,
 } from "./context.js";
-import { ALL_SKILLS_V } from "./hooks/characters.js";
+import type { EsiCharacters } from "./esi-characters.js";
+import { ALL_SKILLS_V, useFlyCharacter } from "./hooks/characters.js";
 import { LocalFits } from "./local-fits.js";
 
 const RIFTER = 587;
@@ -24,12 +26,24 @@ export interface EveShipFitProviderProps {
   fit?: FitStore;
   /** Where saved fits live; `localStorage` when left out. */
   localFits?: LocalFits;
+  /** Characters logged in through EVE's login. */
+  characters?: EsiCharacters;
+  /** Who flies the fit at first, as `useCharacters` lists it; All L5 when left out. */
+  character?: string;
   /** Prices what ESI has none for. */
   zkillboard?: ZKillboard;
   children?: ReactNode;
 }
 
-export function EveShipFitProvider({ engine, fit, localFits, zkillboard, children }: EveShipFitProviderProps) {
+export function EveShipFitProvider({
+  engine,
+  fit,
+  localFits,
+  characters,
+  character: firstCharacter,
+  zkillboard,
+  children,
+}: EveShipFitProviderProps) {
   const [ownFit] = useState(() => fit ?? engine.createFit({ ship: RIFTER }));
   const [ownLocalFits] = useState(() => localFits ?? new LocalFits());
   const [preview, setPreview] = useState<Preview>();
@@ -47,19 +61,22 @@ export function EveShipFitProvider({ engine, fit, localFits, zkillboard, childre
     },
   };
   const [dragging, setDragging] = useState<DragItem>();
-  const [character, setCharacter] = useState(ALL_SKILLS_V);
+  const [character, setCharacter] = useState(firstCharacter ?? ALL_SKILLS_V);
+  useFlyCharacter(engine, fit ?? ownFit, characters, character, firstCharacter !== undefined);
 
   return (
     <EngineContext value={engine}>
       <FitContext value={fit ?? ownFit}>
         <LocalFitsContext value={localFits ?? ownLocalFits}>
-          <CharacterContext value={{ current: character, setCurrent: setCharacter }}>
-            <PreviewContext value={previewState}>
-              <DragContext value={{ dragging, setDragging }}>
-                <ZKillboardContext value={zkillboard}>{children}</ZKillboardContext>
-              </DragContext>
-            </PreviewContext>
-          </CharacterContext>
+          <EsiCharactersContext value={characters}>
+            <CharacterContext value={{ current: character, setCurrent: setCharacter }}>
+              <PreviewContext value={previewState}>
+                <DragContext value={{ dragging, setDragging }}>
+                  <ZKillboardContext value={zkillboard}>{children}</ZKillboardContext>
+                </DragContext>
+              </PreviewContext>
+            </CharacterContext>
+          </EsiCharactersContext>
         </LocalFitsContext>
       </FitContext>
     </EngineContext>

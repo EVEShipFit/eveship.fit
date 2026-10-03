@@ -4,6 +4,7 @@ import type { Texts } from "@eveshipfit/sde-loader";
 import type { ZKillboard } from "@eveshipfit/zkillboard";
 import { createContext, useContext, type Context } from "react";
 
+import type { EsiCharacters } from "./esi-characters.js";
 import type { LocalFits } from "./local-fits.js";
 
 export type DragItem =
@@ -34,6 +35,7 @@ export const FitContext = createContext<FitStore | undefined>(undefined);
 export const PreviewContext = createContext<PreviewState | undefined>(undefined);
 export const DragContext = createContext<DragState | undefined>(undefined);
 export const CharacterContext = createContext<CharacterState | undefined>(undefined);
+export const EsiCharactersContext = createContext<EsiCharacters | undefined>(undefined);
 export const LocalFitsContext = createContext<LocalFits | undefined>(undefined);
 export const ImagesContext = createContext<Images | undefined>(undefined);
 export const TextsContext = createContext<Texts | undefined>(undefined);

@@ -22,7 +22,12 @@ test("No skills flags the skills the fit misses", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("img", { name: /^Missing Skills/ })).toHaveCount(0);
-  await page.getByRole("combobox", { name: "Skills" }).selectOption("All L0");
+  await page.getByRole("button", { name: "Skills All L5" }).click();
+  await page
+    .getByRole("dialog", { name: "Skills" })
+    .getByRole("button", { name: /^All L0/ })
+    .click();
+  await expect(page.getByRole("button", { name: "Skills All L0" })).toBeVisible();
   await expect(page.getByRole("img", { name: /^Missing Skills/ })).toBeVisible();
 });
 
