@@ -103,3 +103,18 @@
   background: var(--esf-button-active);
   border-color: var(--esf-button-active-edge);
 }
+
+@media (max-width: 640px) {
+  .button {
+    padding: 5px 8px;
+  }
+
+  .text {
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+  }
+}
