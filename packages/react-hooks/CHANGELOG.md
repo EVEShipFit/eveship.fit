@@ -1,5 +1,18 @@
 # @eveshipfit/react-hooks
 
+## 2.1.0
+
+### Minor Changes
+
+- Fly the fit with the skills of characters logged in through EVE ([#190](https://github.com/EVEShipFit/eveship.fit/pull/190))
+
+### Patch Changes
+
+- Name the characters `All L5` and `All L0` ([#188](https://github.com/EVEShipFit/eveship.fit/pull/188))
+- Updated dependencies [[`1d62f20`](https://github.com/EVEShipFit/eveship.fit/commit/1d62f20580bb837e34f886d1b8d8849dea7f455c)]:
+  - @eveshipfit/esi@1.1.0
+  - @eveshipfit/fitting@2.0.1
+
 ## 2.0.0
 
 ### Major Changes
