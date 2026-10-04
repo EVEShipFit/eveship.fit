@@ -141,7 +141,7 @@ function ImportForm({ onDone }: { onDone: () => void }) {
 
   const load = () => {
     try {
-      store.replace(engine.loadText(text));
+      store.replace(engine.loadText(text, store.character));
       onDone();
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : String(failure));
