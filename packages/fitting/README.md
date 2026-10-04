@@ -40,7 +40,7 @@ The engine can hold only one SDE per page; `createEngine` with another one throw
 
 A fit is flown by a character with every skill at V, unless you pass another to `createFit` or `setCharacter`.
 
-`loadLink` reads the fit of an EVEShip.fit link. A killmail link needs an `Esi` of
+`loadLink` reads the fit of an EVEShip.fit link, or of `dna:<dna>`. A killmail link needs an `Esi` of
 [`@eveshipfit/esi`](https://www.npmjs.com/package/@eveshipfit/esi) in `createEngine`'s `esi` option.
 
 ### React

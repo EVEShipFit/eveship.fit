@@ -44,6 +44,16 @@ test("an eft link", async () => {
   expect(fit.items).toContainEqual(expect.objectContaining({ type_id: typeIdOf(engine, "200mm AutoCannon I") }));
 });
 
+test("a dna link", async () => {
+  const engine = await testEngine();
+  const cannon = typeIdOf(engine, "200mm AutoCannon I");
+
+  const fit = await engine.loadLink(`dna:587:${cannon};2::`);
+
+  expect(fit.ship.type_id).toBe(587);
+  expect(fit.items).toContainEqual(expect.objectContaining({ type_id: cannon, slot: { type: "high", index: 1 } }));
+});
+
 test("an esf1 link reads back as the fit it was saved from", async () => {
   const engine = await testEngine();
   const cannon = typeIdOf(engine, "200mm AutoCannon I");
