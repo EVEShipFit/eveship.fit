@@ -32,6 +32,7 @@ export function Fitting({ data, layout, skills }: FittingProps) {
     <EveShipFitProvider
       engine={loaded.engine}
       fit={loaded.fit}
+      localFits={loaded.localFits}
       characters={loaded.characters}
       character={loaded.login.character}
       zkillboard={zkillboard}

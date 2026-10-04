@@ -98,3 +98,21 @@ test("Support shows both ways to donate", async ({ page }) => {
   );
   await expect(card.getByRole("button", { name: "Copy corporation name" })).toBeVisible();
 });
+
+test("fits saved by v1 move into the browser fittings", async ({ page }) => {
+  const v1 = [{ name: "Old Rifter", shipTypeId: 587, modules: [], drones: [], cargo: [] }];
+  await page.goto("/");
+  await page.evaluate((fits) => localStorage.setItem("fits", JSON.stringify(fits)), v1);
+  await page.reload();
+
+  await page.getByRole("button", { name: "Browser Fittings" }).click({ timeout: 30_000 });
+  const hulls = page.getByRole("list", { name: "Hulls" });
+  await hulls.getByRole("button", { name: "Frigate" }).click();
+  await hulls.getByRole("button", { name: /^Minmatar/ }).click();
+  await expect(hulls.getByRole("button", { name: "Rifter", exact: true })).toHaveAccessibleDescription(
+    /^Browser Fittings: 1 /,
+  );
+  await expect
+    .poll(() => page.evaluate(() => [localStorage.getItem("fits"), localStorage.getItem("fits-v1")]))
+    .toEqual([null, JSON.stringify(v1)]);
+});

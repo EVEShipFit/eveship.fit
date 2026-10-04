@@ -5,10 +5,11 @@ import { loadImages, type Images } from "@eveshipfit/images";
 import imagesUrl from "@eveshipfit/images/dist/images.dat?url";
 import sdeUrl from "@eveshipfit/sde/dist/sde.dat?url";
 import textsUrl from "@eveshipfit/sde/dist/texts.dat?url";
-import { EsiCharacters } from "@eveshipfit/react-hooks";
+import { EsiCharacters, LocalFits } from "@eveshipfit/react-hooks";
 import { loadSde, loadTexts, type Sde, type Texts } from "@eveshipfit/sde-loader";
 
 import { finishLogin, type Login } from "./login";
+import { moveV1Fits } from "./v1-fits";
 
 const RIFTER = 587;
 
@@ -18,6 +19,7 @@ export interface Data {
   images: Images;
   texts: Texts;
   fit: FitStore;
+  localFits: LocalFits;
   characters?: EsiCharacters;
   login: Login;
 }
@@ -29,6 +31,8 @@ export async function loadData(): Promise<Data | null> {
       userAgent: `EVEShip.fit/${import.meta.env.EVESHIPFIT_VERSION} (info@eveship.fit; +https://eveship.fit)`,
     });
     const characters = loadCharacters(esi);
+    const localFits = new LocalFits();
+    moveV1Fits(localFits).catch(console.error);
     const login = finishLogin(characters).then((result) => {
       characters?.loadAll();
       return result;
@@ -44,7 +48,7 @@ export async function loadData(): Promise<Data | null> {
     const [linked, loggedIn] = await Promise.all([loadLinkedFit(engine), login]);
     const fit = linked ?? keptFit(engine, loggedIn.fit) ?? engine.createFit({ ship: RIFTER });
     keepInUrl(engine, fit);
-    return { engine, sde, images, texts, fit, characters, login: loggedIn };
+    return { engine, sde, images, texts, fit, localFits, characters, login: loggedIn };
   } catch (error) {
     console.error(error);
     return null;
