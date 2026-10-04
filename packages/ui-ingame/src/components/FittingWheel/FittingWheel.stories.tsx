@@ -264,6 +264,7 @@ export const HideStats: Story = {
     await expect(canvasElement.querySelectorAll('[data-state="active"]')).toHaveLength(3);
     await expect(canvas.queryByRole("meter")).toBeNull();
     await expect(canvas.queryByRole("img", { name: /turret|launcher/i })).toBeNull();
+    await expect(canvasElement.querySelector("[data-scales]")).toBeNull();
   },
 };
 

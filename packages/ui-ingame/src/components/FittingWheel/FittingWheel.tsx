@@ -30,7 +30,7 @@ export interface FittingWheelProps {
   label?: string;
   /** Shows the fit without letting it be changed. */
   readOnly?: boolean;
-  /** Leaves out the hardpoints and the CPU, powergrid and calibration gauges. */
+  /** Leaves out the hardpoints, and the CPU, powergrid and calibration gauges and their scales. */
   hideStats?: boolean;
 }
 
@@ -40,7 +40,7 @@ export function FittingWheel({ label = "Fitting", readOnly = false, hideStats = 
   const { turret, launcher } = useHardpoints();
 
   return (
-    <Wheel label={label}>
+    <Wheel label={label} hideScales={hideStats}>
       <WheelHull typeId={ship} />
       {!readOnly && <FittingCentre />}
       {markedRacks.map((rack) => (
