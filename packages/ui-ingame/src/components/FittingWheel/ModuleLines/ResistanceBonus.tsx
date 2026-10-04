@@ -1,9 +1,9 @@
 import type { ItemRef } from "@eveshipfit/fitting";
-import { useAttribute, useImages, useSde } from "@eveshipfit/react-hooks";
+import { useAttribute, useSde } from "@eveshipfit/react-hooks";
 
 import { unit } from "../../ShipStatistics/units";
 import styles from "../ModuleTooltip.module.css";
-import { Attribute } from "./Attribute";
+import { Attribute, Bonus } from "./Attribute";
 import type { LineProps } from "./index";
 
 export function ResistanceBonus({ itemRef }: LineProps) {
@@ -42,22 +42,4 @@ export function ResistanceBonus({ itemRef }: LineProps) {
 function useBonus(name: string, itemRef: ItemRef) {
   const { value, text } = useAttribute(name, { of: itemRef, decimals: 1, format: unit("%") });
   return { name, value, text };
-}
-
-function Bonus({ name, text }: { name: string; text: string }) {
-  const sde = useSde();
-  const images = useImages();
-  const id = sde.attributeId(name);
-  return (
-    <span className={styles.bonus}>
-      <img
-        src={id === undefined ? undefined : images.attributeIcon(id)}
-        width={24}
-        height={24}
-        alt=""
-        draggable={false}
-      />
-      {text}
-    </span>
-  );
 }

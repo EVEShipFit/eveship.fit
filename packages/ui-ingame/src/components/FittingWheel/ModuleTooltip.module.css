@@ -29,6 +29,24 @@
   gap: 4px;
 }
 
+.iconless {
+  align-items: center;
+  display: flex;
+  min-height: 24px;
+  padding-left: 32px;
+}
+
+.damages {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  padding-left: 27px;
+}
+
+.damages .bonus {
+  gap: 0;
+}
+
 .status[data-tone="muted"] {
   color: var(--esf-text-muted);
 }
