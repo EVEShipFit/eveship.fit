@@ -36,6 +36,10 @@
   color: var(--esf-bad);
 }
 
+.limit[data-over] {
+  color: var(--esf-violation-error);
+}
+
 .lines {
   display: grid;
 }
