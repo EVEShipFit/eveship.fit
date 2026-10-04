@@ -87,6 +87,8 @@ export interface TreeLeafProps {
   typeId?: number;
   title?: string;
   onActivate?: () => void;
+  /** Activates on a single click. */
+  activateOnClick?: boolean;
   onHover?: (hovering: boolean) => void;
   onDragStart?: (event: DragEvent) => void;
   onDragEnd?: () => void;
@@ -94,8 +96,18 @@ export interface TreeLeafProps {
   after?: ReactNode;
 }
 
-/** Activates on double click, as EVE's own lists do; single clicks are for selecting text and dragging. */
-export function TreeLeaf({ label, typeId, title, onActivate, onHover, onDragStart, onDragEnd, after }: TreeLeafProps) {
+/** Activates on double click, as EVE's own lists do, unless `activateOnClick` is set. */
+export function TreeLeaf({
+  label,
+  typeId,
+  title,
+  onActivate,
+  activateOnClick = false,
+  onHover,
+  onDragStart,
+  onDragEnd,
+  after,
+}: TreeLeafProps) {
   return (
     <li className={`${styles.head} ${styles.leaf}`}>
       <div
@@ -105,7 +117,8 @@ export function TreeLeaf({ label, typeId, title, onActivate, onHover, onDragStar
         className={styles.row}
         title={title}
         draggable={onDragStart !== undefined}
-        onDoubleClick={onActivate}
+        onClick={activateOnClick ? onActivate : undefined}
+        onDoubleClick={activateOnClick ? undefined : onActivate}
         onKeyDown={(event) => {
           if (event.key === "Enter") onActivate?.();
         }}
