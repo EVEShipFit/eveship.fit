@@ -137,11 +137,12 @@ The theme uses [Noto Sans](https://fonts.google.com/noto/specimen/Noto+Sans) if 
 
 ## Keeping up with EVE
 
-New ships and modules come with new versions of `@eveshipfit/sde` and `@eveshipfit/images`. Update both after an EVE
-release.
+New ships and modules come with new versions of [`@eveshipfit/sde`](https://www.npmjs.com/package/@eveshipfit/sde) and
+[`@eveshipfit/images`](https://www.npmjs.com/package/@eveshipfit/images). Update both after an EVE release.
 
 ## Going further
 
-`@eveshipfit/ui-ingame` has more of EVEShip.fit, like `ShipStatistics` and the whole `FittingWindow`. To draw things
-your own way, the hooks of `@eveshipfit/react-hooks` give you everything the wheel shows. Each package has a README in
-[packages/](../packages).
+[`@eveshipfit/ui-ingame`](../packages/ui-ingame) has more of EVEShip.fit, like `ShipStatistics` and the whole
+`FittingWindow`. To draw things your own way, the hooks of [`@eveshipfit/react-hooks`](../packages/react-hooks) give you
+everything the wheel shows. [`@eveshipfit/fitting`](../packages/fitting) does the calculations, and
+[`@eveshipfit/esi`](../packages/esi) talks to ESI.
