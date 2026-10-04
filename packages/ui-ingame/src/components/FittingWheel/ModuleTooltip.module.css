@@ -29,6 +29,10 @@
   gap: 4px;
 }
 
+.iconless {
+  padding-left: 32px;
+}
+
 .status[data-tone="muted"] {
   color: var(--esf-text-muted);
 }

@@ -56,7 +56,7 @@ function DamageCaused({ itemRef }: { itemRef: ItemRef }) {
 
   return (
     <span className={styles.block}>
-      Damage caused
+      <span className={styles.iconless}>Damage caused</span>
       <span className={styles.bonuses}>
         {damages.map(({ name, value = 0 }) => (
           <Bonus key={name} name={name} text={hp(value * multiplier, { decimals: 0 })} />
