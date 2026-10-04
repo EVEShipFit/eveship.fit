@@ -41,10 +41,11 @@ With another bundler, copy all four into your public folder, and use their URLs 
 
 ```ts
 import wasmUrl from "@eveshipfit/dogma-engine/esf_dogma_engine_bg.wasm?url";
-import { createEngine } from "@eveshipfit/fitting";
-import { loadImages } from "@eveshipfit/images";
 import imagesUrl from "@eveshipfit/images/dist/images.dat?url";
 import sdeUrl from "@eveshipfit/sde/dist/sde.dat?url";
+
+import { createEngine } from "@eveshipfit/fitting";
+import { loadImages } from "@eveshipfit/images";
 import { loadSde } from "@eveshipfit/sde-loader";
 
 const [engine, images] = await Promise.all([
@@ -82,6 +83,22 @@ To link to the fit on EVEShip.fit: `https://eveship.fit/?fit=${engine.saveLink(f
 `EveShipFitProvider` takes `fit` only once. To show another fit in the same place, give the provider a new `key`, or
 call `replace` on the fit.
 
+### Killmails
+
+A killmail loads as a link, `killmail:<id>/<hash>`. The engine fetches it from ESI, so give it an `Esi` of
+`@eveshipfit/esi` (`npm install @eveshipfit/esi`), with a user agent that tells ESI who you are:
+
+```ts
+import { Esi } from "@eveshipfit/esi";
+
+const esi = new Esi({ userAgent: "MySite/1.0 (me@example.com; +https://example.com)" });
+const engine = await createEngine(sde, { wasm: wasmUrl, esi });
+
+const fit = await engine.loadLink(`killmail:${killmailId}/${killmailHash}`);
+```
+
+ESI lists the id and hash of the killmails of a character or corporation; zKillboard's API gives them for every kill.
+
 ### Several fits on a page
 
 Give each fit its own `EveShipFitProvider`. They share the engine and the `ImagesProvider`:
@@ -98,9 +115,9 @@ Give each fit its own `EveShipFitProvider`. They share the engine and the `Image
 
 ## Options
 
-By default, visitors can change the fit: click a module to change its state, and drag modules on and off the wheel.
-
-- `readOnly`: shows the fit as it is.
+- `readOnly`: visitors can only look at the fit. Without it, the wheel works as on EVEShip.fit: visitors can click a
+  module to change its state (offline, online, active, overheated), drag modules to other slots or off the wheel, and
+  use the buttons that show when hovering a module. Their changes stay on your page; nothing is saved.
 - `hideStats`: leaves out the hardpoints and the CPU, powergrid and calibration gauges.
 
 ## Styling
