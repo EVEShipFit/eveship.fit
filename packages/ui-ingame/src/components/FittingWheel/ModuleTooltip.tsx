@@ -46,8 +46,9 @@ function moduleStatus(rack: Rack, state: SlotState, maxState: SlotState): { text
   if (rack === "subsystem") return undefined;
   if (rack === "rig")
     return state === "offline" ? { text: "Inactive Rig", tone: "muted" } : { text: "Active Rig", tone: "normal" };
-  if (state === "offline") return { text: "Offline Module", tone: "muted" };
+  const module = maxState === "online" ? "Passive Module" : "Module";
+  if (state === "offline") return { text: `Offline ${module}`, tone: "muted" };
   if (state === "overload") return { text: "Overheated Module", tone: "overload" };
   if (state === "active") return { text: "Active Module", tone: "active" };
-  return { text: maxState === "online" ? "Online Passive Module" : "Online Module", tone: "normal" };
+  return { text: `Online ${module}`, tone: "normal" };
 }

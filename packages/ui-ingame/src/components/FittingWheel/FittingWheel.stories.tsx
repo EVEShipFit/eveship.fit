@@ -260,6 +260,9 @@ export const ModuleTooltip: Story = {
     await expect(tooltip.right).toBeGreaterThan(left);
     await expect(tooltip.left).toBeLessThan(right);
 
+    await userEvent.click(autocannon);
+    await expect(slot.getByText("Overheated Module")).toBeVisible();
+
     await userEvent.unhover(autocannon);
     await expect(status).not.toBeVisible();
   },

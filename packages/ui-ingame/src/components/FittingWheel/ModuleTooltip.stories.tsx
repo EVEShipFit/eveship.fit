@@ -60,6 +60,13 @@ export const Passive: Story = {
   },
 };
 
+export const OfflinePassive: Story = {
+  args: { rack: "medium", typeId: 380, state: "offline", maxState: "online" },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Offline Passive Module")).toBeVisible();
+  },
+};
+
 export const Rig: Story = {
   args: { rack: "rig", typeId: 31668, state: "online", maxState: "online" },
   play: async ({ canvas }) => {

@@ -27,9 +27,12 @@ export function Tooltip({ label, children }: TooltipProps) {
       style={{ "--tooltip-anchor": `--tooltip-anchor-${id}`, "--tooltip-box": `--tooltip-box-${id}` } as CSSProperties}
       onPointerEnter={() => show(true)}
       onPointerLeave={() => show(false)}
+      onClick={() => show(true)}
       onFocus={(event: FocusEvent) => {
         const target = event.target;
-        setTimeout(() => show(target.matches(":focus-visible")));
+        setTimeout(() => {
+          if (target.matches(":focus-visible")) show(true);
+        });
       }}
       onBlur={() => show(false)}
       onKeyDown={(event: KeyboardEvent) => {
