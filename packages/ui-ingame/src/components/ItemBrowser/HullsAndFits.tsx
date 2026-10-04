@@ -98,9 +98,7 @@ export function HullsAndFits() {
       <div className={styles.tree}>
         {personalFits && personal.character?.canReadFits !== true && (
           <p className={styles.empty}>
-            {personal.character === undefined
-              ? "Log in and pick the character to see its fittings"
-              : "Log in again to see this character's fittings"}
+            {personal.character === undefined ? "Pick a logged-in character" : "Log in again to see fittings"}
           </p>
         )}
         <TreeList key={collapses} label="Hulls">

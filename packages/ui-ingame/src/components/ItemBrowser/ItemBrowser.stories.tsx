@@ -226,7 +226,7 @@ export const PersonalFittings: Story = {
   parameters: { localFits },
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Personal Fittings" }));
-    await expect(canvas.getByText("Log in and pick the character to see its fittings")).toBeVisible();
+    await expect(canvas.getByText("Pick a logged-in character")).toBeVisible();
     await expect(within(canvas.getByRole("list", { name: "Hulls" })).queryByRole("button")).toBeNull();
   },
 };
