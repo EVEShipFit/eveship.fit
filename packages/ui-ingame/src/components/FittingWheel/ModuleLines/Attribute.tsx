@@ -4,9 +4,17 @@ import type { ReactNode } from "react";
 import styles from "../ModuleTooltip.module.css";
 
 /** A tooltip line with an icon. */
-export function Line({ src, children }: { src: string | undefined; children: ReactNode }) {
+export function Line({
+  src,
+  className = styles.line,
+  children,
+}: {
+  src: string | undefined;
+  className?: string;
+  children: ReactNode;
+}) {
   return (
-    <span className={styles.line}>
+    <span className={className}>
       <img src={src} width={24} height={24} alt="" draggable={false} />
       {children}
     </span>
@@ -21,10 +29,9 @@ export function Attribute({ name, children }: { name: string; children: ReactNod
 /** One value in a row of values, with the icon of its attribute. */
 export function Bonus({ name, text }: { name: string; text: string }) {
   return (
-    <span className={styles.bonus}>
-      <img src={useAttributeIcon(name)} width={24} height={24} alt="" draggable={false} />
+    <Line src={useAttributeIcon(name)} className={styles.bonus}>
       {text}
-    </span>
+    </Line>
   );
 }
 

@@ -19,7 +19,9 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["modifyShieldResonancePostPercent", [ResistanceBonus]],
   ["modifyActiveShieldResonancePostPercent", [ResistanceBonus]],
   ["modifyActiveArmorResonancePostPercent", [ResistanceBonus]],
-  ["turretFitted", [Turret]],
+  ["targetAttack", [Turret]],
+  ["projectileFired", [Turret]],
+  ["targetDisintegratorAttack", [Turret]],
 ]);
 
 /** Tooltip lines from the effects of a module. */

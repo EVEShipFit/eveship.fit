@@ -8,10 +8,15 @@ import { Attribute, Bonus, Line } from "./Attribute";
 import type { LineProps } from "./index";
 
 const meters = unit(" m");
+const hp = unit(" HP");
 
 export function Turret({ itemRef }: LineProps) {
-  const optimal = useAttribute("maxRange", { of: itemRef }).value ?? 0;
-  const falloff = useAttribute("falloff", { of: itemRef }).value ?? 0;
+  const optimal = useAttribute("maxRange", { of: itemRef, decimals: 0, format: meters });
+  const falloff = useAttribute("falloff", {
+    of: itemRef,
+    decimals: 0,
+    format: (value, format) => meters(value + (optimal.value ?? 0), format),
+  });
   const dps = useAttribute("damagePerSecondWithoutReload", {
     of: itemRef,
     decimals: 1,
@@ -25,8 +30,8 @@ export function Turret({ itemRef }: LineProps) {
     <>
       <Attribute name="falloff">
         <span className={styles.block}>
-          <span>Falloff range within {meters(optimal + falloff, { decimals: 0 })}</span>
-          <span>Optimal range within {meters(optimal, { decimals: 0 })}</span>
+          <span>Falloff range within {falloff.text}</span>
+          <span>Optimal range within {optimal.text}</span>
         </span>
       </Attribute>
       <Line src={useIconUrl("stat-turret-dps")}>Damage Per Second {dps.text}</Line>
@@ -51,7 +56,7 @@ function DamageCaused({ itemRef }: { itemRef: ItemRef }) {
       Damage caused
       <span className={styles.bonuses}>
         {damages.map(({ name, value = 0 }) => (
-          <Bonus key={name} name={name} text={unit(" HP")(value * multiplier, { decimals: 0 })} />
+          <Bonus key={name} name={name} text={hp(value * multiplier, { decimals: 0 })} />
         ))}
       </span>
     </span>
