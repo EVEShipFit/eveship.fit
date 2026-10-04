@@ -1,10 +1,9 @@
 import type { ItemRef } from "@eveshipfit/fitting";
 import { useAttribute } from "@eveshipfit/react-hooks";
 
-import { useIconUrl } from "../../../primitives/Icon/Icon";
 import { unit } from "../../ShipStatistics/units";
 import styles from "../ModuleTooltip.module.css";
-import { Attribute, Bonus, Line } from "./Attribute";
+import { Attribute, Bonus } from "./Attribute";
 import type { LineProps } from "./index";
 
 const meters = unit(" m");
@@ -28,13 +27,13 @@ export function Turret({ itemRef }: LineProps) {
 
   return (
     <>
-      <Attribute name="falloff">
+      <Attribute name="maxRange">
         <span className={styles.block}>
           <span>Falloff range within {falloff.text}</span>
           <span>Optimal range within {optimal.text}</span>
         </span>
       </Attribute>
-      <Line src={useIconUrl("stat-turret-dps")}>Damage Per Second {dps.text}</Line>
+      <Attribute name="damageMultiplier">Damage Per Second {dps.text}</Attribute>
       <DamageCaused itemRef={itemRef} />
       <Attribute name="trackingSpeed">Turret Tracking: {tracking.text}</Attribute>
     </>

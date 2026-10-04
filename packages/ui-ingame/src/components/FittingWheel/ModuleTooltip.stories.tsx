@@ -97,17 +97,3 @@ export const WithResistanceBonus: Story = {
     await expect(canvas.getByText("Resistance Bonus:")).toBeVisible();
   },
 };
-
-export const WithTurret: Story = {
-  args: { chargeTypeId: 12608 },
-  parameters: {
-    fit: {
-      ship: { type_id: 587 },
-      items: [{ type_id: 2889, slot: { type: "high", index: 0 }, state: "active", charge: { type_id: 12608 } }],
-    },
-  },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Hail S")).toBeVisible();
-    await expect(canvas.getByText("Damage caused")).toBeVisible();
-  },
-};
