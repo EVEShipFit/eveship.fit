@@ -10,13 +10,14 @@ import { loadSde, loadTexts, type Sde, type Texts } from "@eveshipfit/sde-loader
 
 import { finishLogin, type Login } from "./login";
 
+const RIFTER = 587;
+
 export interface Data {
   engine: Engine;
   sde: Sde;
   images: Images;
   texts: Texts;
-  /** The fit of the `fit` link the page opened with. */
-  fit?: FitStore;
+  fit: FitStore;
   characters?: EsiCharacters;
   login: Login;
 }
@@ -41,7 +42,8 @@ export async function loadData(): Promise<Data | null> {
       loadTexts({ url: textsUrl }),
     ]);
     const [linked, loggedIn] = await Promise.all([loadLinkedFit(engine), login]);
-    const fit = linked ?? keptFit(engine, loggedIn.fit);
+    const fit = linked ?? keptFit(engine, loggedIn.fit) ?? engine.createFit({ ship: RIFTER });
+    keepInUrl(engine, fit);
     return { engine, sde, images, texts, fit, characters, login: loggedIn };
   } catch (error) {
     console.error(error);
@@ -76,13 +78,30 @@ async function loadLinkedFit(engine: Engine): Promise<FitStore | undefined> {
   const link = url.searchParams.get("fit");
   if (link === null) return undefined;
 
-  url.searchParams.delete("fit");
-  history.replaceState(history.state, "", url);
-
   try {
     return engine.createFit(await engine.loadLink(link));
   } catch (error) {
     console.error(error);
     return undefined;
   }
+}
+
+function keepInUrl(engine: Engine, store: FitStore) {
+  let fit: Fit | undefined;
+  const update = () => {
+    const snapshot = store.getSnapshot();
+    if (snapshot.fit === fit) return;
+    fit = snapshot.fit;
+
+    const url = new URL(location.href);
+    try {
+      url.searchParams.set("fit", engine.saveLink(fit));
+    } catch (error) {
+      console.error(error);
+      url.searchParams.delete("fit");
+    }
+    history.replaceState(history.state, "", url);
+  };
+  update();
+  store.subscribe(update);
 }

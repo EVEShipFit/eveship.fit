@@ -31,19 +31,25 @@ test("No skills flags the skills the fit misses", async ({ page }) => {
   await expect(page.getByRole("img", { name: /^Missing Skills/ })).toBeVisible();
 });
 
-test("a fit link opens its fit once", async ({ page }) => {
+test("a fit link opens its fit, and the url keeps it", async ({ page }) => {
   // v3 link of "Link Rifter" with a 200mm AutoCannon I.
   await page.goto(
     "/?fit=v3:H4sIAAAAAAAAAyvOyCzQMbUw1/HJzMtWCMpMK0kt0uHKzU8pzUnV8chMz9Ax1DGyMDfWcUwuySxL1TG0MEWRNcKQTSnKz0vVMTKxMNMx1DHgSk4sSs8HSegYGhhwAQBLJK6dbwAAAA==&x=1#h",
   );
   await expect(page.getByText("Link Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
-  expect(new URL(page.url()).search + new URL(page.url()).hash).toBe("?x=1#h");
+  const url = new URL(page.url());
+  expect(url.searchParams.get("fit")).toMatch(/^esf1:[\w-]+$/);
+  expect(url.searchParams.get("x")).toBe("1");
+  expect(url.hash).toBe("#h");
+
+  await page.reload();
+  await expect(page.getByText("Link Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
 });
 
 test("a broken fit link opens a Rifter", async ({ page }) => {
   await page.goto("/?fit=v3:broken");
   await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
-  expect(new URL(page.url()).search).toBe("");
+  expect(new URL(page.url()).searchParams.get("fit")).toMatch(/^esf1:/);
 });
 
 test("the item browser and statistics go below the window on a phone", async ({ page }) => {
