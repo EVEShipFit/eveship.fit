@@ -1,11 +1,12 @@
-import { canFit, droneRoom, placementOf, type Placement, type Rack } from "@eveshipfit/fitting";
+import { canFit, droneRoom, modesOf, placementOf, type Placement, type Rack } from "@eveshipfit/fitting";
 import type { SdeType } from "@eveshipfit/sde-loader";
 import { useMemo } from "react";
 
-import { useSnapshot } from "./fit.js";
-import { useSde } from "./sde.js";
+import { useFit, useSnapshot } from "./fit.js";
+import { useSde, useType } from "./sde.js";
 
 const racks: readonly Rack[] = ["high", "medium", "low", "rig", "subsystem", "service"];
+const noModes: readonly SdeType[] = [];
 
 /** Where a type goes when fitted; `undefined` for what cannot be part of a fit, like a ship. */
 export function usePlacement(): (type: SdeType) => Placement | undefined {
@@ -40,4 +41,11 @@ export function useDroneRoom(type: SdeType): number {
   const sde = useSde();
   const { stats } = useSnapshot();
   return droneRoom(sde, stats, type);
+}
+
+/** The modes of the fit's ship, in the order EVE shows them; empty for a ship without modes. */
+export function useModes(): readonly SdeType[] {
+  const sde = useSde();
+  const ship = useType(useFit().ship.type_id);
+  return ship === undefined ? noModes : modesOf(sde, ship);
 }

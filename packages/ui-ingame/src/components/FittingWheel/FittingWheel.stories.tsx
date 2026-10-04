@@ -5,6 +5,7 @@ import { FittingWheel } from "./FittingWheel";
 
 const types = {
   Rifter: 587,
+  Confessor: 34317,
   "200mm AutoCannon II": 2889,
   "EMP S": 185,
   "Rocket Launcher II": 10631,
@@ -265,6 +266,31 @@ export const ModuleTooltip: Story = {
 
     await userEvent.unhover(autocannon);
     await expect(status).not.toBeVisible();
+  },
+};
+
+export const Modes: Story = {
+  parameters: { fit: { ship: types.Confessor } },
+  play: async ({ canvas, userEvent }) => {
+    const modes = canvas.getAllByRole("radio");
+    await expect(modes.map((mode) => mode.getAttribute("aria-label"))).toEqual([
+      "Confessor Defense Mode",
+      "Confessor Sharpshooter Mode",
+      "Confessor Propulsion Mode",
+    ]);
+    await expect(modes[0]).toBeChecked();
+
+    await userEvent.click(modes[1]!);
+    await expect(canvas.getByRole("radio", { name: "Confessor Sharpshooter Mode" })).toBeChecked();
+  },
+};
+
+export const ModesReadOnly: Story = {
+  args: { readOnly: true },
+  parameters: { fit: { ship: types.Confessor } },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("radio", { name: "Confessor Defense Mode" })).toBeChecked();
+    for (const mode of canvas.getAllByRole("radio")) await expect(mode).toBeDisabled();
   },
 };
 

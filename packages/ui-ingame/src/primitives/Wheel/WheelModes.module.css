@@ -1,0 +1,66 @@
+.modes {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* Centred with margins: Firefox anchors tooltips as if there were no transform. */
+.place {
+  height: calc(32 * var(--wheel-unit));
+  margin: calc(-16 * var(--wheel-unit));
+  pointer-events: auto;
+  position: absolute;
+  width: calc(32 * var(--wheel-unit));
+}
+
+.mode {
+  background: radial-gradient(circle closest-side, rgb(28 30 32 / 85%) 90%, transparent);
+  border-radius: 50%;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  position: relative;
+  width: 100%;
+}
+
+.mode > input {
+  appearance: none;
+  border-radius: 50%;
+  cursor: inherit;
+  inset: 0;
+  margin: 0;
+  outline: none;
+  position: absolute;
+}
+
+.mode:has(:disabled) {
+  cursor: default;
+}
+
+.mode:hover:not(:has(:disabled)) {
+  background: radial-gradient(circle closest-side, rgb(255 255 255 / 10%) 90%, transparent);
+}
+
+.mode:has(:checked) {
+  background: radial-gradient(
+    circle closest-side,
+    color-mix(in srgb, var(--esf-button-active-edge) 55%, transparent) 70%,
+    transparent
+  );
+}
+
+.mode:has(:checked) > img {
+  filter: drop-shadow(0 0 calc(2 * var(--wheel-unit)) var(--esf-button-active-edge));
+}
+
+.mode:has(:focus-visible) {
+  outline: calc(1 * var(--wheel-unit)) solid var(--esf-text);
+}
+
+.mode > img {
+  display: block;
+  height: 100%;
+  pointer-events: none;
+  position: relative;
+  width: 100%;
+}

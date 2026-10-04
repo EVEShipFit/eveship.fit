@@ -40,6 +40,7 @@ import {
   useLocalFits,
   useMarketTree,
   useMissingSkills,
+  useModes,
   useModuleSearch,
   useModuleTree,
   usePersonalFits,
@@ -575,6 +576,18 @@ test("a tech III cruiser takes its own subsystems", () => {
   });
   expect(result.current(byName("Loki Core - Augmented Nuclear Reactor"))).toBe(true);
   expect(result.current(byName("Tengu Core - Augmented Graviton Reactor"))).toBe(false);
+});
+
+test("the modes of the fit's ship", () => {
+  const { result } = render(() => ({ store: useFitStore(), modes: useModes() }));
+  expect(result.current.modes).toEqual([]);
+
+  act(() => result.current.store.replace({ ship: { type_id: byName("Jackdaw").id }, items: [] }));
+  expect(result.current.modes.map((mode) => mode.name)).toEqual([
+    "Jackdaw Defense Mode",
+    "Jackdaw Sharpshooter Mode",
+    "Jackdaw Propulsion Mode",
+  ]);
 });
 
 test("the fit check stays the same while the fit changes in ways it does not read", () => {

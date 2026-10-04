@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "vitest";
 
-import { canFit, chargesFor, droneRoom, placementOf, type Engine } from "../src/index.js";
+import { canFit, chargesFor, droneRoom, modesOf, placementOf, type Engine } from "../src/index.js";
 import { testEngine } from "./engine.js";
 
 let engine: Engine;
@@ -100,5 +100,29 @@ describe("drones", () => {
 
     const rifter = engine.createFit({ ship: { type_id: type("Rifter").id }, items: [] });
     expect(droneRoom(engine.sde, rifter.getSnapshot().stats, type("Hobgoblin II"))).toBe(0);
+  });
+});
+
+function modeNames(ship: string) {
+  return modesOf(engine.sde, type(ship)).map((mode) => mode.name);
+}
+
+describe("modes", () => {
+  test("a ship's modes are named after it, in the order EVE shows them", () => {
+    expect(modeNames("Svipul")).toEqual(["Svipul Defense Mode", "Svipul Sharpshooter Mode", "Svipul Propulsion Mode"]);
+    expect(modeNames("Anhinga")).toEqual(["Anhinga Primary Mode", "Anhinga Secondary Mode", "Anhinga Tertiary Mode"]);
+  });
+
+  test("only the tactical destroyers and the Anhinga have modes, three each", () => {
+    const withModes = [...engine.sde.types()].filter((ship) => modesOf(engine.sde, ship).length > 0);
+    expect(withModes.map((ship) => ship.name).toSorted()).toEqual([
+      "Anhinga",
+      "Confessor",
+      "Hecate",
+      "Jackdaw",
+      "Skua",
+      "Svipul",
+    ]);
+    for (const ship of withModes) expect(modesOf(engine.sde, ship)).toHaveLength(3);
   });
 });
