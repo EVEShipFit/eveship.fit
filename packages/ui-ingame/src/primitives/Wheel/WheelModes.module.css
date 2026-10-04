@@ -6,24 +6,19 @@
 
 /* Centred with margins: Firefox anchors tooltips as if there were no transform. */
 .place {
-  height: calc(28 * var(--wheel-unit));
-  margin: calc(-14 * var(--wheel-unit));
+  height: calc(32 * var(--wheel-unit));
+  margin: calc(-16 * var(--wheel-unit));
   pointer-events: auto;
   position: absolute;
-  width: calc(28 * var(--wheel-unit));
+  width: calc(32 * var(--wheel-unit));
 }
 
 .mode {
-  align-items: center;
-  background: rgb(0 0 0 / 35%);
-  border: calc(1.5 * var(--wheel-unit)) solid transparent;
+  background: radial-gradient(circle closest-side, rgb(28 30 32 / 85%) 90%, transparent);
   border-radius: 50%;
-  box-sizing: border-box;
   cursor: pointer;
-  display: flex;
+  display: block;
   height: 100%;
-  justify-content: center;
-  opacity: 0.75;
   position: relative;
   width: 100%;
 }
@@ -38,18 +33,24 @@
   position: absolute;
 }
 
-.mode:hover:not(:has(:disabled)) {
-  opacity: 0.9;
-}
-
 .mode:has(:disabled) {
   cursor: default;
 }
 
+.mode:hover:not(:has(:disabled)) {
+  background: radial-gradient(circle closest-side, rgb(255 255 255 / 10%) 90%, transparent);
+}
+
 .mode:has(:checked) {
-  border-color: var(--esf-button-active-edge);
-  box-shadow: 0 0 calc(4 * var(--wheel-unit)) var(--esf-button-active-edge);
-  opacity: 1;
+  background: radial-gradient(
+    circle closest-side,
+    color-mix(in srgb, var(--esf-button-active-edge) 55%, transparent) 70%,
+    transparent
+  );
+}
+
+.mode:has(:checked) > img {
+  filter: drop-shadow(0 0 calc(2 * var(--wheel-unit)) var(--esf-button-active-edge));
 }
 
 .mode:has(:focus-visible) {
@@ -57,7 +58,9 @@
 }
 
 .mode > img {
-  height: calc(20 * var(--wheel-unit));
+  display: block;
+  height: 100%;
   pointer-events: none;
-  width: calc(20 * var(--wheel-unit));
+  position: relative;
+  width: 100%;
 }

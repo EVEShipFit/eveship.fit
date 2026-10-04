@@ -7,9 +7,9 @@ import styles from "./WheelModes.module.css";
 
 /** Measured from EVE, in the order it shows the modes. */
 const places: readonly { angle: number; icon: IconName }[] = [
-  { angle: -100, icon: "mode-defense" },
-  { angle: -112.5, icon: "mode-sharpshooter" },
-  { angle: -124.5, icon: "mode-propulsion" },
+  { angle: -99, icon: "mode-defense" },
+  { angle: -109, icon: "mode-sharpshooter" },
+  { angle: -119, icon: "mode-propulsion" },
 ];
 
 export interface WheelMode {
@@ -32,7 +32,7 @@ export function WheelModes({ modes, active, onSelect }: WheelModesProps) {
   return (
     <div className={styles.modes} role="radiogroup" aria-label="Mode">
       {modes.slice(0, places.length).map((mode, index) => (
-        <span key={mode.typeId} className={styles.place} style={placeAt(places[index]!.angle, 232)}>
+        <span key={mode.typeId} className={styles.place} style={placeAt(places[index]!.angle, 242)}>
           <Tooltip label={mode.name}>
             <label className={styles.mode}>
               <input
