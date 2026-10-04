@@ -55,7 +55,7 @@
     "tsdown": "catalog:"
   },
   "peerDependencies": {
-    "@eveshipfit/images": "^1.0.0 || ^2.0.0",
+    "@eveshipfit/images": "^2.0.0",
     "react": "^19.0.0"
   }
 }
