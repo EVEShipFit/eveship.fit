@@ -331,21 +331,25 @@
   outline: none;
 }
 
-.import {
+.form {
   display: flex;
   flex-direction: column;
   gap: 8px;
   width: min(420px, 80vw);
 }
 
-.import > label {
+.form > label {
   color: var(--esf-text-muted);
 }
 
-.import > textarea {
+.form > input,
+.form > textarea {
   background: var(--esf-input-bg);
   border: 1px solid var(--esf-input-border);
   color: var(--esf-text);
+}
+
+.form > textarea {
   font-family: ui-monospace, monospace;
   resize: vertical;
 }

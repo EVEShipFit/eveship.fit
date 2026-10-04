@@ -18,7 +18,16 @@ import {
   useType,
   type SlotContent,
 } from "@eveshipfit/react-hooks";
-import { useId, useState, type ButtonHTMLAttributes, type CSSProperties, type DragEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ButtonHTMLAttributes,
+  type CSSProperties,
+  type DragEvent,
+  type ReactNode,
+} from "react";
 
 import { HistoryBar } from "../../primitives/HistoryBar/HistoryBar";
 import { Icon, type IconName } from "../../primitives/Icon/Icon";
@@ -154,13 +163,52 @@ function popover(id: string): HTMLElement | null {
 
 function FitName() {
   const fit = useFit();
+  const store = useFitStore();
   const ship = useType(fit.ship.type_id);
+  const [editing, setEditing] = useState(false);
+  const input = useRef<HTMLInputElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const refocus = useRef(false);
+
+  useEffect(() => {
+    if (editing) input.current?.focus();
+    else if (refocus.current) button.current?.focus();
+    refocus.current = false;
+  }, [editing]);
+
+  const rename = (name: string) => {
+    setEditing(false);
+    if (name.trim() !== (fit.name ?? "")) store.setName(name.trim());
+  };
 
   return (
     <div className={styles.name}>
       <NotImplementedButton className={styles.icon} icon="module-info" label="Show Info" />
       <NotImplementedButton className={styles.icon} icon="link" label="Link Fit" />
-      <span className={styles.fitName}>{fit.name || ship?.name}</span>
+      {editing ? (
+        <input
+          className={styles.fitNameInput}
+          aria-label="Fit Name"
+          defaultValue={fit.name}
+          placeholder={ship?.name}
+          ref={input}
+          onFocus={(event) => event.currentTarget.select()}
+          onBlur={(event) => rename(event.currentTarget.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") event.currentTarget.value = fit.name ?? "";
+            if (event.key !== "Enter" && event.key !== "Escape") return;
+            event.preventDefault();
+            refocus.current = true;
+            event.currentTarget.blur();
+          }}
+        />
+      ) : (
+        <Tooltip label="Rename Fit">
+          <button ref={button} type="button" className={styles.fitName} onClick={() => setEditing(true)}>
+            {fit.name || ship?.name}
+          </button>
+        </Tooltip>
+      )}
     </div>
   );
 }

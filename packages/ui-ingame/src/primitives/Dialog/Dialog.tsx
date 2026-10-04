@@ -9,7 +9,7 @@ export interface DialogProps {
   children: ReactNode;
 }
 
-/** A modal; `onClose` is called when the user closes it, by Escape or the close button. */
+/** A modal that opens on its first field; `onClose` is called when the user closes it, by Escape or the close button. */
 export function Dialog({ open, title, onClose, children }: DialogProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -17,7 +17,10 @@ export function Dialog({ open, title, onClose, children }: DialogProps) {
   useEffect(() => {
     const element = dialog.current;
     if (element === null) return;
-    if (open && !element.open) element.showModal();
+    if (open && !element.open) {
+      element.showModal();
+      element.querySelector<HTMLElement>("input, textarea")?.focus();
+    }
     if (!open && element.open) element.close();
   }, [open]);
 

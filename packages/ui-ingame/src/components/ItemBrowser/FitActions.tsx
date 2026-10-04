@@ -1,4 +1,4 @@
-import type { TextFormat } from "@eveshipfit/fitting";
+import type { Fit, TextFormat } from "@eveshipfit/fitting";
 import { useEngine, useFit, useFitStore, useLocalFits } from "@eveshipfit/react-hooks";
 import { useEffect, useId, useState } from "react";
 
@@ -13,24 +13,26 @@ const FLASH_MS = 2000;
 export function FitActions() {
   const engine = useEngine();
   const fit = useFit();
+  const store = useFitStore();
   const { fits, save } = useLocalFits();
   const menu = useId();
   const [saved, flashSaved] = useFlash();
   const [copied, flashCopied] = useFlash();
   const [importing, setImporting] = useState(false);
-  const [overwriting, setOverwriting] = useState(false);
-  const named = { ...fit, name: fit.name || engine.sde.type(fit.ship.type_id)?.name };
+  const [naming, setNaming] = useState(false);
+  const [overwriting, setOverwriting] = useState<Fit>();
 
-  const saveNow = () => {
-    setOverwriting(false);
+  const saveNow = (named: Fit) => {
+    setOverwriting(undefined);
+    store.setName(named.name ?? "");
     save(named);
     flashSaved();
   };
 
-  const trySave = () => {
-    const existing = fits.find((one) => one.ship.type_id === fit.ship.type_id && one.name === named.name);
-    if (existing === undefined || JSON.stringify(existing) === JSON.stringify(named)) saveNow();
-    else setOverwriting(true);
+  const trySave = (named: Fit) => {
+    const existing = fits.find((one) => one.ship.type_id === named.ship.type_id && one.name === named.name);
+    if (existing === undefined || JSON.stringify(existing) === JSON.stringify(named)) saveNow(named);
+    else setOverwriting(named);
   };
 
   const copy = (format: TextFormat) => {
@@ -40,7 +42,7 @@ export function FitActions() {
 
   return (
     <div className={styles.actions}>
-      <button type="button" className={styles.action} onClick={trySave}>
+      <button type="button" className={styles.action} onClick={() => (fit.name ? trySave(fit) : setNaming(true))}>
         {saved ? "Saved" : "Save"}
       </button>
       <button type="button" className={styles.action} onClick={() => setImporting(true)}>
@@ -61,14 +63,23 @@ export function FitActions() {
           Copy as esf/1
         </button>
       </div>
-      <Dialog open={overwriting} title="Overwrite Fit?" onClose={() => setOverwriting(false)}>
+      <Dialog open={naming} title="Save Fit" onClose={() => setNaming(false)}>
+        <NameForm
+          onCancel={() => setNaming(false)}
+          onSave={(named) => {
+            setNaming(false);
+            trySave(named);
+          }}
+        />
+      </Dialog>
+      <Dialog open={overwriting !== undefined} title="Overwrite Fit?" onClose={() => setOverwriting(undefined)}>
         <div className={styles.confirm}>
-          <p>A fit named &quot;{named.name}&quot; is already saved for this hull. Overwrite it?</p>
+          <p>A fit named &quot;{overwriting?.name}&quot; is already saved for this hull. Overwrite it?</p>
           <div className={styles.dialogButtons}>
-            <button type="button" className={styles.action} onClick={() => setOverwriting(false)}>
+            <button type="button" className={styles.action} onClick={() => setOverwriting(undefined)}>
               Cancel
             </button>
-            <button type="button" className={styles.action} onClick={saveNow}>
+            <button type="button" className={styles.action} onClick={() => overwriting && saveNow(overwriting)}>
               Overwrite
             </button>
           </div>
@@ -78,6 +89,39 @@ export function FitActions() {
         <ImportForm onDone={() => setImporting(false)} />
       </Dialog>
     </div>
+  );
+}
+
+function NameForm({ onCancel, onSave }: { onCancel: () => void; onSave: (named: Fit) => void }) {
+  const engine = useEngine();
+  const fit = useFit();
+  const id = useId();
+  const [name, setName] = useState(() => engine.sde.type(fit.ship.type_id)?.name ?? "");
+
+  return (
+    <form
+      className={styles.form}
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSave({ ...fit, name: name.trim() });
+      }}
+    >
+      <label htmlFor={id}>Name this fit.</label>
+      <input
+        id={id}
+        value={name}
+        onFocus={(event) => event.currentTarget.select()}
+        onChange={(event) => setName(event.target.value)}
+      />
+      <div className={styles.dialogButtons}>
+        <button type="button" className={styles.action} onClick={onCancel}>
+          Cancel
+        </button>
+        <button type="submit" className={styles.action} disabled={name.trim() === ""}>
+          Save
+        </button>
+      </div>
+    </form>
   );
 }
 
@@ -106,7 +150,7 @@ function ImportForm({ onDone }: { onDone: () => void }) {
 
   return (
     <form
-      className={styles.import}
+      className={styles.form}
       onSubmit={(event) => {
         event.preventDefault();
         load();
