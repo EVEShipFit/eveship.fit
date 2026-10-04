@@ -9,6 +9,7 @@ catalog:
   "@eveshipfit/dogma-engine": ^13.2.0
   "@eveshipfit/images": ^1.3552227.2
   "@eveshipfit/sde": ^8.3542233.1
+  "@fontsource-variable/noto-sans": ^5.3.0
   "@playwright/test": ^1.63.0
   "@rolldown/plugin-babel": ^0.2.4
   "@storybook/addon-vitest": ^10.6.0

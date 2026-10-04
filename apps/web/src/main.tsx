@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+import "@fontsource-variable/noto-sans";
 import "@eveshipfit/ui-ingame/theme.css";
 import "./global.css";
 

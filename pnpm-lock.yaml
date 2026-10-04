@@ -24,6 +24,9 @@ catalogs:
     '@eveshipfit/sde':
       specifier: ^8.3542233.1
       version: 8.3542233.1
+    '@fontsource-variable/noto-sans':
+      specifier: ^5.3.0
+      version: 5.3.0
     '@playwright/test':
       specifier: ^1.63.0
       version: 1.63.0
@@ -242,6 +245,9 @@ importers:
       '@eveshipfit/zkillboard':
         specifier: workspace:*
         version: link:../../packages/zkillboard
+      '@fontsource-variable/noto-sans':
+        specifier: 'catalog:'
+        version: 5.3.0
       react:
         specifier: 'catalog:'
         version: 19.3.0
@@ -1050,6 +1056,9 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
+
+  '@fontsource-variable/noto-sans@5.3.0':
+    resolution: {integrity: sha512-e3ZuxzY9AL2psXPZlhwhnYrHUHv6PMoyK9MQ7croF0CUgURLqu9EMjW7q2FgVLwij1tjLsIHQrnwQ8aUcg4BiA==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -3959,6 +3968,8 @@ snapshots:
   '@eveshipfit/sde@8.3542233.1': {}
 
   '@exodus/bytes@1.16.0': {}
+
+  '@fontsource-variable/noto-sans@5.3.0': {}
 
   '@img/colour@1.1.0': {}
 

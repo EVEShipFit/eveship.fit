@@ -1,6 +1,6 @@
 /* Every colour and size the components use; override any of these to restyle. */
 :root {
-  --esf-font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --esf-font: "Noto Sans Variable", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --esf-font-size: 13px;
 
   --esf-bg: #0b0d0f;
