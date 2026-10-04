@@ -4,6 +4,7 @@ export { createEngine, Engine, type EngineOptions } from "./engine.js";
 export { fitPrice } from "./price.js";
 export { Attributes, Stats, type ItemStats, type Usage } from "./stats.js";
 export { FitStore, type Calculator, type Preview, type Snapshot } from "./store.js";
+export type { TextFormat } from "./text.js";
 export type * from "./types.js";
 export {
   acceptsCharge,

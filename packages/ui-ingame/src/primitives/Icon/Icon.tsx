@@ -20,6 +20,7 @@ const textures = {
   checkmark: "eveicon/system_icons/checkmark_16px",
   close: "eveicon/system_icons/close_16px",
   folder: "eveicon/system_icons/folder_16px",
+  export: "eveicon/system_icons/export_16px",
   "fits-browser": "windowicons/browser",
   "fits-personal": "windowicons/member",
   "fits-corporation": "windowicons/corporation",

@@ -7,6 +7,7 @@ import { emptyFit } from "./edits.js";
 import { loadLink, saveLink } from "./link.js";
 import { Stats } from "./stats.js";
 import { FitStore, type Calculator } from "./store.js";
+import { loadText, saveText, type TextFormat } from "./text.js";
 import type { Character, Fit } from "./types.js";
 
 export interface EngineOptions {
@@ -69,5 +70,14 @@ export class Engine implements Calculator {
   /** The `fit` value of an EVEShip.fit link to the fit. */
   saveLink(fit: Fit): string {
     return saveLink(fit);
+  }
+
+  /** The fit in EFT or esf/1 text, as copied from EVE, Pyfa or EVEShip.fit. */
+  loadText(text: string): Fit {
+    return loadText(text);
+  }
+
+  saveText(fit: Fit, format: TextFormat): string {
+    return saveText(fit, format);
   }
 }

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { CSSProperties } from "react";
-import { expect, waitFor, within } from "storybook/test";
+import { expect, spyOn, waitFor, within } from "storybook/test";
 
 import { ItemBrowser } from "./ItemBrowser";
 
@@ -257,6 +257,124 @@ export const MissingSkills: Story = {
 const modules = (canvas: ReturnType<typeof within>) => within(canvas.getByRole("list", { name: "Modules" }));
 
 /** The Modules tab keeps its own search and filters, next to those of Hulls & Fits. */
+/** Save keeps the fit in the browser, under its hull. */
+export const SaveFit: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await expect(canvas.getByRole("button", { name: "Saved" })).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "Saved" }));
+    await expect(canvas.queryByRole("dialog")).toBeNull();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Browser Fittings" }));
+    const hulls = within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.click(hulls.getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls.getByRole("button", { name: /^Minmatar/ }));
+    await expect(hulls.getByRole("button", { name: "Rifter" })).toHaveAccessibleDescription(/^Browser Fittings: 1 /);
+  },
+};
+
+/** Saving over a different fit with the same hull and name asks first. */
+export const OverwriteFit: Story = {
+  parameters: { localFits, fit: { name: "Brawler", ship: { type_id: 587 }, items: [] } },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    const dialog = within(canvas.getByRole("dialog", { name: "Overwrite Fit?" }));
+    await expect(dialog.getByText(/"Brawler"/)).toBeVisible();
+    await userEvent.click(dialog.getByRole("button", { name: "Cancel" }));
+    await expect(canvas.queryByRole("dialog")).toBeNull();
+    await expect(canvas.getByRole("button", { name: "Save" })).toBeVisible();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Overwrite" }));
+    await expect(canvas.queryByRole("dialog")).toBeNull();
+    await expect(canvas.getByRole("button", { name: "Saved" })).toBeVisible();
+  },
+};
+
+/** A fit without a name is saved under its hull's, so saving it asks before overwriting one named after the hull. */
+export const OverwriteUnnamedFit: Story = {
+  parameters: {
+    localFits: [
+      {
+        name: "Rifter",
+        ship: { type_id: 587 },
+        items: [{ type_id: 2048, slot: { type: "low", index: 0 }, state: "active" }],
+      },
+    ],
+  },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    const dialog = within(canvas.getByRole("dialog", { name: "Overwrite Fit?" }));
+    await expect(dialog.getByText(/"Rifter"/)).toBeVisible();
+    await userEvent.click(dialog.getByRole("button", { name: "Overwrite" }));
+
+    await userEvent.click(canvas.getByRole("button", { name: "Browser Fittings" }));
+    const hulls = within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.click(hulls.getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls.getByRole("button", { name: /^Minmatar/ }));
+    await expect(hulls.getByRole("button", { name: "Rifter" })).toHaveAccessibleDescription(/^Browser Fittings: 1 /);
+  },
+};
+
+/** The copy menu puts the fit on the clipboard as EFT or esf/1 text. */
+export const CopyFit: Story = {
+  play: async ({ canvas, userEvent }) => {
+    const writeText = spyOn(navigator.clipboard, "writeText").mockResolvedValue();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Copy" }));
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Copy as EFT" }));
+    await expect(writeText).toHaveBeenLastCalledWith(expect.stringMatching(/^\[Rifter, /));
+    await expect(canvas.queryByRole("menu")).toBeNull();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Copy" }));
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Copy as esf/1" }));
+    await expect(writeText).toHaveBeenLastCalledWith(expect.stringMatching(/^%esf\/1\nRifter/));
+  },
+};
+
+/** Import starts from what is on the clipboard, and replaces the fit with it. */
+export const ImportFit: Story = {
+  play: async ({ canvas, userEvent }) => {
+    spyOn(navigator.clipboard, "readText").mockResolvedValue("[Slasher, Imported]\n200mm AutoCannon II");
+
+    await userEvent.click(canvas.getByRole("button", { name: "Import…" }));
+    const dialog = within(canvas.getByRole("dialog", { name: "Import Fit" }));
+    await waitFor(() => expect(dialog.getByRole("textbox")).toHaveValue("[Slasher, Imported]\n200mm AutoCannon II"));
+    await userEvent.click(dialog.getByRole("button", { name: "Import" }));
+    await expect(canvas.queryByRole("dialog")).toBeNull();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await userEvent.type(canvas.getByRole("searchbox"), "imported");
+    const hulls = within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.click(hulls.getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls.getByRole("button", { name: /^Minmatar/ }));
+    await userEvent.click(hulls.getByRole("button", { name: "Slasher" }));
+    await expect(hulls.getByRole("button", { name: "Imported" })).toBeVisible();
+  },
+};
+
+/** A fit that does not import says why, and keeps the text to fix it. */
+export const ImportError: Story = {
+  play: async ({ canvas, userEvent }) => {
+    spyOn(navigator.clipboard, "readText").mockRejectedValue(new Error("Denied"));
+
+    await userEvent.click(canvas.getByRole("button", { name: "Import…" }));
+    const dialog = within(canvas.getByRole("dialog", { name: "Import Fit" }));
+    const text = dialog.getByRole("textbox");
+    await expect(text).toHaveValue("");
+    await expect(dialog.getByRole("button", { name: "Import" })).toBeDisabled();
+
+    await userEvent.click(text);
+    await userEvent.paste("[Rifter, Broken]\nDamage Contrl II");
+    await userEvent.click(dialog.getByRole("button", { name: "Import" }));
+    await expect(dialog.getByRole("alert")).toHaveTextContent("Could not import: unknown type Damage Contrl II");
+    await expect(text).toHaveValue("[Rifter, Broken]\nDamage Contrl II");
+
+    await userEvent.type(text, " ");
+    await expect(dialog.queryByRole("alert")).toBeNull();
+  },
+};
+
 export const Modules: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));

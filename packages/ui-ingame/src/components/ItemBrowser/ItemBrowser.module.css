@@ -251,3 +251,120 @@
   position: fixed;
   top: 0;
 }
+
+.actions {
+  display: flex;
+  gap: calc(8 * var(--browser-unit));
+  margin-top: calc(8 * var(--browser-unit));
+}
+
+.action {
+  background: var(--esf-button);
+  border: var(--browser-unit) solid var(--esf-button-edge);
+  color: var(--esf-text);
+  cursor: pointer;
+  font: inherit;
+  height: calc(32 * var(--browser-unit));
+  min-width: calc(80 * var(--browser-unit));
+  padding: 0 calc(16 * var(--browser-unit));
+}
+
+.action:hover:not(:disabled),
+.action:focus-visible {
+  background: var(--esf-button-active);
+  border-color: var(--esf-button-active-edge);
+}
+
+.action:disabled {
+  color: var(--esf-text-muted);
+  cursor: default;
+}
+
+.copyAnchor {
+  anchor-name: --fit-copy;
+  display: flex;
+}
+
+.copy {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+  padding: 0;
+  width: calc(32 * var(--browser-unit));
+}
+
+.copy > img {
+  height: calc(16 * var(--browser-unit));
+  width: calc(16 * var(--browser-unit));
+}
+
+.menu {
+  background: var(--esf-menu-bg);
+  border: var(--browser-unit) solid var(--esf-input-border);
+  color: var(--esf-text);
+  font-family: var(--esf-font);
+  font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
+  inset: auto;
+  margin: calc(4 * var(--browser-unit)) 0;
+  padding: calc(6 * var(--browser-unit)) 0;
+  position-anchor: --fit-copy;
+  position-area: top span-right;
+  position-try-fallbacks: flip-block;
+}
+
+.menu > button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  display: block;
+  font: inherit;
+  padding: calc(5 * var(--browser-unit)) calc(16 * var(--browser-unit));
+  text-align: left;
+  width: 100%;
+}
+
+.menu > button:hover,
+.menu > button:focus-visible {
+  background: var(--esf-menu-hover);
+  outline: none;
+}
+
+.import {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(420px, 80vw);
+}
+
+.import > label {
+  color: var(--esf-text-muted);
+}
+
+.import > textarea {
+  background: var(--esf-input-bg);
+  border: 1px solid var(--esf-input-border);
+  color: var(--esf-text);
+  font-family: ui-monospace, monospace;
+  resize: vertical;
+}
+
+.importError {
+  color: var(--esf-bad);
+  margin: 0;
+}
+
+.confirm {
+  max-width: min(360px, 80vw);
+}
+
+.confirm > p {
+  margin: 0 0 12px;
+}
+
+.dialogButtons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
