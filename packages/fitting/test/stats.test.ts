@@ -128,3 +128,14 @@ test("violations are what the engine reports", () => {
   expect(rules).toContain("rig_size");
   expect(rules).toContain("skill");
 });
+
+test("an offline rig gives no bonus", () => {
+  const fit = engine.createFit({ ship: id("Rifter") });
+  const armor = () => fit.getSnapshot().stats.ship.get("armorHP");
+  const bare = armor();
+  const rig = fit.fit(id("Small Trimark Armor Pump I"))!;
+  expect(armor()).toBeGreaterThan(bare!);
+
+  fit.setState(rig, "offline");
+  expect(armor()).toBe(bare);
+});

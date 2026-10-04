@@ -17,8 +17,7 @@ import type { WheelSlotProps } from "../../primitives/Wheel/WheelSlot";
 import { ModuleTooltip } from "./ModuleTooltip";
 import { nextState } from "./states";
 
-/** EVE does not let rigs and subsystems be put offline. */
-const switchedRacks: Rack[] = ["high", "medium", "low", "service"];
+const switchedRacks: Rack[] = ["high", "medium", "low", "rig", "service"];
 
 export type SlotBehaviour = Omit<WheelSlotProps, "rack" | "angle">;
 

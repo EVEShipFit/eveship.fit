@@ -96,13 +96,16 @@ export const ClickToSwitch: Story = {
   },
 };
 
-export const RigsStayOnline: Story = {
+export const ClickToSwitchRig: Story = {
   parameters: { fit: rifter },
-  play: async ({ canvas }) => {
-    await expect(canvas.queryByRole("button", { name: /^Small Projectile Burst Aerator I/ })).toBeNull();
-    const rig = within(canvas.getByRole("group", { name: "Small Projectile Burst Aerator I" }));
-    await expect(rig.getByRole("button", { name: "Unfit Module" })).toBeInTheDocument();
-    await expect(rig.queryByRole("button", { name: /^Put / })).toBeNull();
+  play: async ({ canvas, userEvent }) => {
+    const rig = () => canvas.getByRole("button", { name: /^Small Projectile Burst Aerator I/ });
+    await expect(rig()).toHaveAccessibleName("Small Projectile Burst Aerator I, online");
+
+    await userEvent.click(rig());
+    await expect(rig()).toHaveAccessibleName("Small Projectile Burst Aerator I, offline");
+    await userEvent.click(rig());
+    await expect(rig()).toHaveAccessibleName("Small Projectile Burst Aerator I, online");
   },
 };
 
@@ -151,6 +154,11 @@ export const PutOfflineAndOnline: Story = {
     focusAction(canvas, "1MN Afterburner II", "Put Online");
     await userEvent.keyboard("{Enter}");
     await expect(afterburner()).toHaveAccessibleName("1MN Afterburner II, online");
+
+    const rig = () => canvas.getByRole("button", { name: /^Small Projectile Burst Aerator I/ });
+    focusAction(canvas, "Small Projectile Burst Aerator I", "Put Offline");
+    await userEvent.keyboard("{Enter}");
+    await expect(rig()).toHaveAccessibleName("Small Projectile Burst Aerator I, offline");
   },
 };
 
