@@ -101,7 +101,7 @@ test("a character's fits are kept apart from the browser's, by fitting ID", asyn
   expect(again.list()).toEqual([brawler]);
 });
 
-test("a character's fits replace the ones it had", async () => {
+test("a character's fits replace the ones it had, and leave the others", async () => {
   const db = database();
   const fits = open(db);
   await fits.setCharacterFits(
@@ -113,10 +113,14 @@ test("a character's fits replace the ones it had", async () => {
   );
   await fits.setCharacterFits(90000002, new Map([[1, brawler]]));
 
+  await fits.save(brawler);
+
   await fits.setCharacterFits(90000001, new Map([[2, kiter]]));
+  await fits.setCharacterFits(90000002, new Map());
 
   expect(fits.list(90000001)).toEqual([kiter]);
   const again = open(db);
   await vi.waitFor(() => expect(again.list(90000001)).toEqual([kiter]));
-  expect(again.list(90000002)).toEqual([brawler]);
+  expect(again.list(90000002)).toEqual([]);
+  expect(again.list()).toEqual([brawler]);
 });

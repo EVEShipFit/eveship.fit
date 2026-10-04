@@ -51,6 +51,8 @@ export function HullsAndFits() {
     ...(!anySource || personalFits ? personal.fits.map((fit) => ({ fit, kind: "fits-personal" as const })) : []),
   ];
   const fitsByHull = Map.groupBy(listed, ({ fit }) => fit.ship.type_id);
+  const browserByHull = Map.groupBy(fits, (fit) => fit.ship.type_id);
+  const personalByHull = Map.groupBy(personal.fits, (fit) => fit.ship.type_id);
   const shownFits = (ship: { id: number; name: string }) => {
     const saved = fitsByHull.get(ship.id) ?? noFits;
     const kept = flyable ? saved.filter(({ fit }) => missingSkills(fit).length === 0) : saved;
@@ -136,7 +138,12 @@ export function HullsAndFits() {
                             key={ship.id}
                             label={<span className={styles.hull}>{ship.name}</span>}
                             description={
-                              shown.length > 0 ? <Counts fits={fitsByHull.get(ship.id) ?? noFits} /> : undefined
+                              shown.length > 0 ? (
+                                <Counts
+                                  browserFits={browserByHull.get(ship.id)?.length ?? 0}
+                                  personalFits={personalByHull.get(ship.id)?.length ?? 0}
+                                />
+                              ) : undefined
                             }
                             typeId={ship.id}
                             after={simulateShip}
@@ -153,7 +160,7 @@ export function HullsAndFits() {
                               ) : (
                                 shown.map(({ fit, kind }, index) => (
                                   <TreeLeaf
-                                    key={`${kind}:${index}`}
+                                    key={`${kind}:${fit.name ?? ""}:${index}`}
                                     label={
                                       <>
                                         <span className={styles.kind}>
@@ -183,13 +190,11 @@ export function HullsAndFits() {
   );
 }
 
-function Counts({ fits }: { fits: readonly Listed[] }) {
-  const count = (kind: Listed["kind"]) => fits.filter((one) => one.kind === kind).length;
-
+function Counts({ browserFits, personalFits }: { browserFits: number; personalFits: number }) {
   return (
     <span className={styles.counts}>
-      <Count icon="fits-browser" label="Browser Fittings" count={count("fits-browser")} />
-      <Count icon="fits-personal" label="Personal Fittings" count={count("fits-personal")} />
+      <Count icon="fits-browser" label="Browser Fittings" count={browserFits} />
+      <Count icon="fits-personal" label="Personal Fittings" count={personalFits} />
       <Count icon="fits-corporation" label="Corporation Fittings" count={0} />
       <Count icon="fits-community-small" label="Community Fittings" count={0} />
       <Count icon="fits-alliance-small" label="Alliance Fittings" count={0} />

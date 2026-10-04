@@ -291,6 +291,12 @@ test("a login from before fittings were asked for cannot read them", async () =>
   expect(store.list()[0]!.canReadFits).toBe(false);
 });
 
+test("a character stored before scopes were kept cannot read fittings", async () => {
+  storage.setItem("eveshipfit.characters", JSON.stringify([{ id: PILOT, name: "Pilot", refreshToken: "refresh" }]));
+
+  expect(characters().list()[0]!.canReadFits).toBe(false);
+});
+
 test("a removed character is forgotten with its fits, and its login revoked", async () => {
   const store = await loggedIn();
 

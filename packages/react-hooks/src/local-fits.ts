@@ -18,11 +18,7 @@ interface Entry {
 const STORE = "fits";
 const noFits: readonly Fit[] = [];
 
-/**
- * Fits kept in the browser, in IndexedDB, by owner. The browser's fits are known by their
- * ship and name: saving one with the same pair again overwrites it. A character's fits are
- * known by their ESI fitting ID.
- */
+/** Fits kept in IndexedDB: the browser's by ship and name, a character's by ESI fitting ID. */
 export class LocalFits {
   readonly #factory: IDBFactory;
   readonly #db: Promise<IDBDatabase>;
@@ -72,7 +68,9 @@ export class LocalFits {
 
   /** Replaces all fits of the character with `fits`, by ESI fitting ID. */
   setCharacterFits(characterId: number, fits: ReadonlyMap<number, Fit>): Promise<void> {
-    const added = [...fits].map(([fittingId, fit]) => ({ key: [characterId, fittingId], fit }));
+    const added = [...fits]
+      .toSorted(([a], [b]) => a - b)
+      .map(([fittingId, fit]) => ({ key: [characterId, fittingId], fit }));
     return this.#change([...this.#entries.filter((entry) => ownerOf(entry.key) !== characterId), ...added], (store) => {
       for (const { key, fit } of added) store.put(fit, key);
       const keys = store.getAllKeys();

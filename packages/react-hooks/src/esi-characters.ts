@@ -38,7 +38,7 @@ export interface EsiCharacter {
   /** When `skills` were loaded, in milliseconds since the epoch. */
   readonly updated: number | undefined;
   readonly status: EsiCharacterStatus;
-  /** False when the login is from before EVEShip.fit asked for fittings. */
+  /** Whether the login may read the character's fittings. */
   readonly canReadFits: boolean;
 }
 
@@ -179,16 +179,17 @@ export class EsiCharacters {
   }
 
   async #load(login: SsoLogin) {
-    await Promise.all([this.#loadSkills(login), login.scopes.includes(FITTINGS_SCOPE) && this.#loadFittings(login)]);
+    await Promise.all([this.#loadSkills(login), this.#loadFittings(login)]);
   }
 
-  async #loadFittings({ characterId, accessToken }: SsoLogin) {
+  async #loadFittings({ characterId, accessToken, scopes }: SsoLogin) {
+    if (!scopes.includes(FITTINGS_SCOPE)) return;
     try {
       const [fittings, engine] = await Promise.all([
         this.#esi.characterFittings(characterId, accessToken),
         this.#engine,
       ]);
-      if (!this.#stored.some((character) => character.id === characterId)) return;
+      if (!this.#read().some((character) => character.id === characterId)) return;
       await this.#localFits.setCharacterFits(characterId, new Map(fittings.flatMap((one) => fitOf(engine, one))));
     } catch (error) {
       console.error(error);
@@ -253,7 +254,7 @@ export class EsiCharacters {
         skills,
         updated,
         status: this.#status.get(id) ?? (refreshToken === undefined ? "expired" : "ready"),
-        canReadFits: scopes?.includes(FITTINGS_SCOPE) ?? true,
+        canReadFits: scopes?.includes(FITTINGS_SCOPE) ?? false,
       }))
       .toSorted((a, b) => a.name.localeCompare(b.name));
     for (const listener of this.#listeners) listener();
