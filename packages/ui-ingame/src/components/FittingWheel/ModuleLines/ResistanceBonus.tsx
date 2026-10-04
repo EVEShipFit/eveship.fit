@@ -3,34 +3,51 @@ import { useAttribute, useImages, useSde } from "@eveshipfit/react-hooks";
 
 import { unit } from "../../ShipStatistics/units";
 import styles from "../ModuleTooltip.module.css";
+import { Attribute } from "./Attribute";
 import type { LineProps } from "./index";
 
-const bonuses = [
-  "emDamageResistanceBonus",
-  "explosiveDamageResistanceBonus",
-  "kineticDamageResistanceBonus",
-  "thermalDamageResistanceBonus",
-];
-
 export function ResistanceBonus({ itemRef }: LineProps) {
+  const sde = useSde();
+  const bonuses = [
+    useBonus("emDamageResistanceBonus", itemRef),
+    useBonus("explosiveDamageResistanceBonus", itemRef),
+    useBonus("kineticDamageResistanceBonus", itemRef),
+    useBonus("thermalDamageResistanceBonus", itemRef),
+  ].filter((bonus) => bonus.value);
+
+  const [first] = bonuses;
+  if (first === undefined) return null;
+  if (bonuses.length === 1) {
+    const { name, text } = first;
+    const displayName = sde.attribute(sde.attributeId(name) ?? 0)?.displayName;
+    return (
+      <Attribute name={name}>
+        {text} {displayName}
+      </Attribute>
+    );
+  }
+
   return (
     <span className={styles.block}>
       Resistance Bonus:
       <span className={styles.bonuses}>
-        {bonuses.map((name) => (
-          <Bonus key={name} name={name} itemRef={itemRef} />
+        {bonuses.map(({ name, text }) => (
+          <Bonus key={name} name={name} text={text} />
         ))}
       </span>
     </span>
   );
 }
 
-function Bonus({ name, itemRef }: { name: string; itemRef: ItemRef }) {
+function useBonus(name: string, itemRef: ItemRef) {
+  const { value, text } = useAttribute(name, { of: itemRef, decimals: 1, format: unit("%") });
+  return { name, value, text };
+}
+
+function Bonus({ name, text }: { name: string; text: string }) {
   const sde = useSde();
   const images = useImages();
-  const bonus = useAttribute(name, { of: itemRef, decimals: 1, format: unit("%") });
   const id = sde.attributeId(name);
-  if (!bonus.value) return null;
   return (
     <span className={styles.bonus}>
       <img
@@ -40,7 +57,7 @@ function Bonus({ name, itemRef }: { name: string; itemRef: ItemRef }) {
         alt=""
         draggable={false}
       />
-      {bonus.text}
+      {text}
     </span>
   );
 }

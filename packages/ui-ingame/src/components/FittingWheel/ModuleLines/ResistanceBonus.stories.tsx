@@ -46,8 +46,8 @@ export const ShieldHardener: Story = {
 export const ArmorHardener: Story = {
   ...fitted(types["Thermal Armor Hardener II"], "low"),
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("-55%")).toBeVisible();
-    await expect(canvas.getAllByRole("presentation")).toHaveLength(1);
+    await expect(canvas.getByText("-55% Thermal Damage Resistance Bonus")).toBeVisible();
+    await expect(canvas.queryByText("Resistance Bonus:")).toBeNull();
   },
 };
 
@@ -61,6 +61,6 @@ export const Coating: Story = {
 export const Rig: Story = {
   ...fitted(types["Small EM Shield Reinforcer I"], "rig"),
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("-30%")).toBeVisible();
+    await expect(canvas.getByText("-30% EM Damage Resistance Bonus")).toBeVisible();
   },
 };
