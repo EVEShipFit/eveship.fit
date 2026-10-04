@@ -1,62 +1,81 @@
 import type { Fit } from "@eveshipfit/fitting";
-import { expect, test, vi } from "vitest";
+import { IDBFactory } from "fake-indexeddb";
+import { afterEach, expect, test, vi } from "vitest";
 
-import { LocalFits, type FitStorage } from "../src/index.js";
+import { LocalFits, type LocalFitsOptions } from "../src/index.js";
 
-function memoryStorage(): FitStorage & { items: Map<string, string> } {
-  const items = new Map<string, string>();
-  return {
-    items,
-    getItem: (key) => items.get(key) ?? null,
-    setItem: (key, value) => void items.set(key, value),
-  };
+const opened: LocalFits[] = [];
+let databases = 0;
+
+function database(): Required<LocalFitsOptions> {
+  return { factory: new IDBFactory(), name: `fits-${++databases}` };
 }
+
+function open(options: LocalFitsOptions): LocalFits {
+  const fits = new LocalFits(options);
+  opened.push(fits);
+  return fits;
+}
+
+afterEach(async () => {
+  await Promise.all(opened.splice(0).map((fits) => fits.close()));
+});
 
 const brawler: Fit = { name: "Brawler", ship: { type_id: 587 }, items: [] };
 const kiter: Fit = { name: "Kiter", ship: { type_id: 587 }, items: [] };
 
-test("saves and lists", () => {
-  const storage = memoryStorage();
-  const fits = new LocalFits(storage);
-  fits.save(brawler);
-  fits.save(kiter);
-
+test("saves and lists", async () => {
+  const db = database();
+  const fits = open(db);
+  const saved = [fits.save(brawler), fits.save(kiter)];
   expect(fits.list()).toEqual([brawler, kiter]);
-  expect(new LocalFits(storage).list()).toEqual([brawler, kiter]);
+  await Promise.all(saved);
+
+  const again = open(db);
+  await vi.waitFor(() => expect(again.list()).toEqual([brawler, kiter]));
 });
 
-test("the same ship and name overwrites", () => {
-  const fits = new LocalFits(memoryStorage());
-  fits.save(brawler);
+test("the same ship and name overwrites", async () => {
+  const fits = open(database());
+  await fits.save(brawler);
   const updated = { ...brawler, items: [{ type_id: 2048, slot: { type: "low", index: 0 }, state: "active" }] } as Fit;
-  fits.save(updated);
+  await fits.save(updated);
 
   expect(fits.list()).toEqual([updated]);
 });
 
-test("removes", () => {
-  const fits = new LocalFits(memoryStorage());
-  fits.save(brawler);
-  fits.save(kiter);
-  fits.remove(brawler);
-
+test("removes", async () => {
+  const db = database();
+  const fits = open(db);
+  await fits.save(brawler);
+  await fits.save(kiter);
+  await fits.remove(brawler);
   expect(fits.list()).toEqual([kiter]);
+
+  const again = open(db);
+  await vi.waitFor(() => expect(again.list()).toEqual([kiter]));
 });
 
-test("the list only changes identity when it changes, and says so", () => {
-  const fits = new LocalFits(memoryStorage());
+test("the list only changes identity when it changes, and says so", async () => {
+  const fits = open(database());
   const listener = vi.fn<() => void>();
   fits.subscribe(listener);
 
   const before = fits.list();
   expect(fits.list()).toBe(before);
-  fits.save(brawler);
+  const saved = fits.save(brawler);
   expect(fits.list()).not.toBe(before);
   expect(listener).toHaveBeenCalledOnce();
+  await saved;
 });
 
-test("survives storage it cannot read", () => {
-  const storage = memoryStorage();
-  storage.setItem("eveshipfit.fits", "{not json");
-  expect(new LocalFits(storage).list()).toEqual([]);
+test("another tab saving keeps what this one saved, and shows up here", async () => {
+  const db = database();
+  const one = open(db);
+  const other = open(db);
+  await one.save(brawler);
+  await other.save(kiter);
+
+  await vi.waitFor(() => expect(one.list()).toEqual([brawler, kiter]));
+  expect(other.list()).toEqual([brawler, kiter]);
 });

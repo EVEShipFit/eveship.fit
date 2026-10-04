@@ -15,7 +15,7 @@ export function useLocalFits(): LocalFitsControls {
 
   return {
     fits,
-    save: (fit) => localFits.save(fit),
-    remove: (fit) => localFits.remove(fit),
+    save: (fit) => void localFits.save(fit),
+    remove: (fit) => void localFits.remove(fit),
   };
 }

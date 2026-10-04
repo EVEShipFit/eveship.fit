@@ -60,5 +60,5 @@ export {
   type EsiCharactersOptions,
   type EsiCharacterStatus,
 } from "./esi-characters.js";
-export { LocalFits, type FitStorage } from "./local-fits.js";
+export { LocalFits, type LocalFitsOptions } from "./local-fits.js";
 export { EveShipFitProvider, type EveShipFitProviderProps } from "./provider.js";

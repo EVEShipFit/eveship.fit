@@ -63,6 +63,9 @@ catalogs:
     babel-plugin-react-compiler:
       specifier: ^1.0.0
       version: 1.0.0
+    fake-indexeddb:
+      specifier: ^6.2.5
+      version: 6.2.5
     flatbuffers:
       specifier: ^25.9.23
       version: 25.9.23
@@ -194,6 +197,9 @@ importers:
       babel-plugin-react-compiler:
         specifier: 'catalog:'
         version: 1.0.0
+      fake-indexeddb:
+        specifier: 'catalog:'
+        version: 6.2.5
       react:
         specifier: 'catalog:'
         version: 19.3.0
@@ -347,6 +353,9 @@ importers:
       babel-plugin-react-compiler:
         specifier: 'catalog:'
         version: 1.0.0
+      fake-indexeddb:
+        specifier: 'catalog:'
+        version: 6.2.5
       jsdom:
         specifier: 'catalog:'
         version: 30.1.1
@@ -2582,6 +2591,10 @@ packages:
   expect-type@1.4.0:
     resolution: {integrity: sha512-KfYbmpRm0VbLjEvVa9yGwCi9GI34xvi7A/HXYWQO65CSD2u3MczUJSuwXKFIxlGsgBQizV9q5J9NHj4VG0n+pA==}
     engines: {node: '>=12.0.0'}
+
+  fake-indexeddb@6.2.5:
+    resolution: {integrity: sha512-CGnyrvbhPlWYMngksqrSSUT1BAVP49dZocrHuK0SvtR0D5TMs5wP0o3j7jexDJW01KSadjBp1M/71o/KR3nD1w==}
+    engines: {node: '>=18'}
 
   fast-string-truncated-width@3.0.3:
     resolution: {integrity: sha512-0jjjIEL6+0jag3l2XWWizO64/aZVtpiGE3t0Zgqxv0DPuxiMjvB3M24fCyhZUO4KomJQPj3LTSUnDP3GpdwC0g==}
@@ -5079,6 +5092,8 @@ snapshots:
   esutils@2.0.3: {}
 
   expect-type@1.4.0: {}
+
+  fake-indexeddb@6.2.5: {}
 
   fast-string-truncated-width@3.0.3: {}
 

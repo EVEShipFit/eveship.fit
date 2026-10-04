@@ -24,7 +24,7 @@ export interface EveShipFitProviderProps {
   engine: Engine;
   /** The fit to show and edit; an empty Rifter when left out. */
   fit?: FitStore;
-  /** Where saved fits live; `localStorage` when left out. */
+  /** Where saved fits live; IndexedDB when left out. */
   localFits?: LocalFits;
   /** Characters logged in through EVE's login. */
   characters?: EsiCharacters;
