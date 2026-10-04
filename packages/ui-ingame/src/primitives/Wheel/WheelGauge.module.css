@@ -27,3 +27,7 @@
 .gauge[data-over] {
   --colour: var(--esf-state-overload);
 }
+
+.gauge[data-loading] {
+  opacity: 0;
+}
