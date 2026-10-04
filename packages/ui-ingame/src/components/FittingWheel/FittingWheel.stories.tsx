@@ -244,6 +244,30 @@ export const DragToUnfit: Story = {
   },
 };
 
+/** Nothing on a read-only wheel can be pressed, hovered or dragged. */
+export const ReadOnly: Story = {
+  args: { readOnly: true },
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement }) => {
+    await expect(canvasElement.querySelectorAll('[data-state="active"]')).toHaveLength(3);
+    await expect(canvas.queryByRole("button")).toBeNull();
+    await expect(canvas.queryByRole("group")).toBeNull();
+    await expect(canvasElement.querySelector("[draggable=true]")).toBeNull();
+    await expect(canvasElement.querySelector("[data-centre]")).toBeNull();
+  },
+};
+
+export const HideStats: Story = {
+  args: { hideStats: true },
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement }) => {
+    await expect(canvasElement.querySelectorAll('[data-state="active"]')).toHaveLength(3);
+    await expect(canvas.queryByRole("meter")).toBeNull();
+    await expect(canvas.queryByRole("img", { name: /turret|launcher/i })).toBeNull();
+    await expect(canvasElement.querySelector("[data-scales]")).toBeNull();
+  },
+};
+
 /** Storybook's `userEvent` cannot drag, so the events are fired as a browser would. */
 async function dragAndDrop(from: Element, to: Element) {
   const dataTransfer = new DataTransfer();
