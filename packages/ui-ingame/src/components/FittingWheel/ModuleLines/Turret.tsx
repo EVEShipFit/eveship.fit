@@ -1,5 +1,5 @@
 import type { ItemRef } from "@eveshipfit/fitting";
-import { useAttribute } from "@eveshipfit/react-hooks";
+import { formatNumber, useAttribute } from "@eveshipfit/react-hooks";
 
 import { unit } from "../../ShipStatistics/units";
 import styles from "../ModuleTooltip.module.css";
@@ -16,12 +16,16 @@ export function Turret({ itemRef }: LineProps) {
     decimals: 0,
     format: (value, format) => meters(value + (optimal.value ?? 0), format),
   });
+  const spool = useAttribute("damageMultiplierBonusMax", { of: itemRef }).value;
   const dps = useAttribute("damagePerSecondWithoutReload", {
     of: itemRef,
     decimals: 1,
     fixed: true,
     fallback: 0,
-    format: unit(""),
+    format: (value, format) =>
+      spool
+        ? `${formatNumber(value / (1 + spool), format)}-${formatNumber(value, format)}`
+        : formatNumber(value, format),
   });
   const tracking = useAttribute("trackingSpeed", { of: itemRef, decimals: 2, fixed: true });
 

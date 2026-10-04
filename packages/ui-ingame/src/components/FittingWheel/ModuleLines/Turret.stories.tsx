@@ -7,16 +7,19 @@ const types = {
   Rifter: 587,
   "200mm AutoCannon II": 2889,
   "Hail S": 12608,
+  Kikimora: 49710,
+  "Light Entropic Disintegrator II": 47914,
+  "Baryon Exotic Plasma S": 47924,
 };
 
-const fitted = (chargeTypeId?: number) => ({
+const fitted = (chargeTypeId?: number, shipTypeId = types.Rifter, typeId = types["200mm AutoCannon II"]) => ({
   args: { itemRef: 0, state: "active" as const },
   parameters: {
     fit: {
-      ship: { type_id: types.Rifter },
+      ship: { type_id: shipTypeId },
       items: [
         {
-          type_id: types["200mm AutoCannon II"],
+          type_id: typeId,
           slot: { type: "high", index: 0 },
           state: "active",
           ...(chargeTypeId === undefined ? {} : { charge: { type_id: chargeTypeId } }),
@@ -59,5 +62,12 @@ export const Empty: Story = {
     await expect(canvas.getByText("Damage Per Second 0.0")).toBeVisible();
     await expect(canvas.queryByText("Damage caused")).toBeNull();
     await expect(canvas.getByText("Turret Tracking: 393.75")).toBeVisible();
+  },
+};
+
+export const Disintegrator: Story = {
+  ...fitted(types["Baryon Exotic Plasma S"], types.Kikimora, types["Light Entropic Disintegrator II"]),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Damage Per Second 134.2-419.3")).toBeVisible();
   },
 };
