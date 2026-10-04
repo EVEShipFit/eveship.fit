@@ -130,11 +130,11 @@
   --colour: var(--esf-state-overload);
 }
 
-.slot[data-state="offline"] > .body {
+.slot[data-state="offline"] .body {
   opacity: 0.3;
 }
 
-.slot[data-state="unavailable"] > .body {
+.slot[data-state="unavailable"] .body {
   opacity: 0.1;
 }
 
@@ -173,6 +173,13 @@
 }
 
 /* Centred with margins: Firefox anchors tooltips as if there were no transform. */
+.anchor {
+  height: calc(var(--slot-size) * var(--wheel-unit));
+  margin: calc(var(--slot-size) / -2 * var(--wheel-unit));
+  position: absolute;
+  width: calc(var(--slot-size) * var(--wheel-unit));
+}
+
 .action {
   height: calc(var(--action-size) * var(--wheel-unit));
   margin: calc(var(--action-size) / -2 * var(--wheel-unit));

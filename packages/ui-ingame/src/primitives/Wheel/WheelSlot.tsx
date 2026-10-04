@@ -39,6 +39,8 @@ export interface WheelSlotProps extends HTMLAttributes<HTMLDivElement> {
   available?: boolean;
   /** Shown, but not fitted yet. */
   preview?: boolean;
+  /** Shown when hovering the slot. */
+  tooltip?: ReactNode;
   /** Makes the slot a button, named `label`. */
   onPress?: MouseEventHandler<HTMLElement>;
   /** Makes the slot draggable. */
@@ -63,6 +65,7 @@ export function WheelSlot({
   activatable = false,
   available = true,
   preview = false,
+  tooltip,
   onPress,
   onDragStart,
   onDragEnd,
@@ -118,6 +121,40 @@ export function WheelSlot({
   const last = row.findLastIndex((action) => action !== undefined);
   const innermost = actions.first - last * actions.step - actions.size / 2;
 
+  const body = (
+    <div
+      className={styles.body}
+      draggable={onDragStart !== undefined || undefined}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+    >
+      {fitted && <span className={styles.fill} style={texture("classes/fitting/moduleslotfill")} />}
+      <span className={styles.frame} style={texture(frameTexture(fitted, preview, state, activatable))} />
+      {fitted &&
+        chargeable &&
+        ammoBars.map((offset) => (
+          <span
+            key={offset}
+            className={styles.ammo}
+            style={{ "--offset": `${offset}deg` } as CSSProperties}
+            data-loaded={chargeTypeId !== undefined || undefined}
+          />
+        ))}
+      {iconTypeId !== undefined ? (
+        <span className={styles.icon}>
+          <TypeIcon typeId={iconTypeId} size={64} marker={false} />
+        </span>
+      ) : (
+        available && (
+          <span className={styles.empty} style={{ scale: emptyIconScale[rack] }}>
+            <Icon name={`slot-${rack}`} />
+          </span>
+        )
+      )}
+      {onPress && <SlotPress className={styles.press} label={label} onPress={onPress} />}
+    </div>
+  );
+
   return (
     <div
       {...props}
@@ -126,37 +163,10 @@ export function WheelSlot({
       data-state={fitted ? state : available ? "empty" : "unavailable"}
       data-preview={preview || undefined}
     >
-      <div
-        className={styles.body}
-        draggable={onDragStart !== undefined || undefined}
-        onDragStart={onDragStart}
-        onDragEnd={onDragEnd}
-      >
-        {fitted && <span className={styles.fill} style={texture("classes/fitting/moduleslotfill")} />}
-        <span className={styles.frame} style={texture(frameTexture(fitted, preview, state, activatable))} />
-        {fitted &&
-          chargeable &&
-          ammoBars.map((offset) => (
-            <span
-              key={offset}
-              className={styles.ammo}
-              style={{ "--offset": `${offset}deg` } as CSSProperties}
-              data-loaded={chargeTypeId !== undefined || undefined}
-            />
-          ))}
-        {iconTypeId !== undefined ? (
-          <span className={styles.icon}>
-            <TypeIcon typeId={iconTypeId} size={64} marker={false} />
-          </span>
-        ) : (
-          available && (
-            <span className={styles.empty} style={{ scale: emptyIconScale[rack] }}>
-              <Icon name={`slot-${rack}`} />
-            </span>
-          )
-        )}
-        {onPress && <SlotPress className={styles.press} label={label} onPress={onPress} />}
-      </div>
+      <Tooltip label={tooltip}>
+        <span className={styles.anchor} style={placeAt(angle, box["--slot-centre"])} />
+        {body}
+      </Tooltip>
       {last >= 0 && (
         <fieldset
           className={styles.actions}

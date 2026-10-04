@@ -14,6 +14,7 @@ import {
 import type { DragEvent } from "react";
 
 import type { WheelSlotProps } from "../../primitives/Wheel/WheelSlot";
+import { ModuleTooltip } from "./ModuleTooltip";
 import { nextState } from "./states";
 
 /** EVE does not let rigs and subsystems be put offline. */
@@ -64,6 +65,16 @@ export function useFittingSlot(
     state: stats?.state,
     activatable: stats?.maxState === "active" || stats?.maxState === "overload",
     label: type && stats && `${type.name}, ${stats.state}`,
+    tooltip:
+      item && stats && !content.preview ? (
+        <ModuleTooltip
+          rack={rack}
+          typeId={item.type_id}
+          chargeTypeId={item.charge?.type_id}
+          state={stats.state}
+          maxState={stats.maxState}
+        />
+      ) : undefined,
   };
   if (readOnly) return { ...shown, actions: false };
 
