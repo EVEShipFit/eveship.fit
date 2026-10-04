@@ -98,10 +98,10 @@ enough.
 
 The engine reads fits in these forms:
 
-- `engine.loadText(text)`: EFT, as copied from EVE or Pyfa, or esf/1, as copied from EVEShip.fit.
+- `engine.loadText(text)`: EFT or esf/1 text.
 - `await engine.loadLink(link)`: the `fit` value of an EVEShip.fit link.
 - `await engine.loadLink("killmail:<id>/<hash>")`: the fit of a killmail.
-- `engine.loadEsiFitting(fitting)`: a fitting a character saved in game, as ESI returns it.
+- `engine.loadEsiFitting(fitting)`: a fitting from ESI.
 
 A killmail is fetched from ESI, so it needs an `Esi` of `@eveshipfit/esi` in `createEngine`:
 

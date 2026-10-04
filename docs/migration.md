@@ -75,7 +75,7 @@ import { FittingWheel } from "@eveshipfit/ui-ingame";
 ## 5. Convert your fits
 
 v1's `EsfFit` (`shipTypeId`, `modules`, `drones`, `cargo`) is replaced by `Fit` (`ship`, `items`). The engine reads and
-writes every format v1 did, and esf/1, EVEShip.fit's own text format:
+writes every format v1 did, and esf/1:
 
 | v1                              | v2                                                     |
 | ------------------------------- | ------------------------------------------------------ |
@@ -89,7 +89,7 @@ writes every format v1 did, and esf/1, EVEShip.fit's own text format:
 | `CurrentFitProvider`'s `setFit` | `fit` of `EveShipFitProvider`, or `store.replace(fit)` |
 
 If you kept `EsfFit` objects, for example in a database, `loadV1Fits` of `@eveshipfit/fitting` converts them:
-`loadV1Fits(JSON.stringify([esfFit]))[0]`. From then on, store fits as EFT or esf/1 text.
+`loadV1Fits(JSON.stringify([esfFit]))[0]`.
 
 ## Other components
 
