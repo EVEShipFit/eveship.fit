@@ -44,6 +44,21 @@ test("an eft link", async () => {
   expect(fit.items).toContainEqual(expect.objectContaining({ type_id: typeIdOf(engine, "200mm AutoCannon I") }));
 });
 
+test("an esf1 link reads back as the fit it was saved from", async () => {
+  const engine = await testEngine();
+  const cannon = typeIdOf(engine, "200mm AutoCannon I");
+  const fit = await engine.loadLink(link("v3", `ship,587,My Rifter,\nmodule,High,1,${cannon},Active,\n`));
+
+  const saved = engine.saveLink(fit);
+
+  expect(saved).toMatch(/^esf1:[\w-]+$/);
+  const loaded = await engine.loadLink(saved);
+  expect(loaded.name).toBe("My Rifter");
+  expect(loaded.items).toContainEqual(
+    expect.objectContaining({ type_id: cannon, slot: { type: "high", index: 0 }, state: "active" }),
+  );
+});
+
 test("a + read back from a query string as a space", async () => {
   const engine = await testEngine();
   const payload = [...Array(64).keys()].map((index) => `27,${index},1`).join("\n");

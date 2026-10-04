@@ -31,19 +31,48 @@ test("No skills flags the skills the fit misses", async ({ page }) => {
   await expect(page.getByRole("img", { name: /^Missing Skills/ })).toBeVisible();
 });
 
-test("a fit link opens its fit once", async ({ page }) => {
+test("a fit link opens its fit, and the url keeps it", async ({ page }) => {
   // v3 link of "Link Rifter" with a 200mm AutoCannon I.
   await page.goto(
     "/?fit=v3:H4sIAAAAAAAAAyvOyCzQMbUw1/HJzMtWCMpMK0kt0uHKzU8pzUnV8chMz9Ax1DGyMDfWcUwuySxL1TG0MEWRNcKQTSnKz0vVMTKxMNMx1DHgSk4sSs8HSegYGhhwAQBLJK6dbwAAAA==&x=1#h",
   );
   await expect(page.getByText("Link Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
-  expect(new URL(page.url()).search + new URL(page.url()).hash).toBe("?x=1#h");
+  expect(new URL(page.url()).search + new URL(page.url()).hash).toMatch(/^\?x=1&fit=esf1:[\w-]+#h$/);
+
+  await page.reload();
+  await expect(page.getByText("Link Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
+});
+
+test("an edit to the fit updates the url", async ({ page }) => {
+  const link = () => new URL(page.url()).searchParams.get("fit");
+  await page.goto("/");
+  await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
+  const empty = link();
+  expect(empty).toMatch(/^esf1:/);
+
+  await page.getByRole("tab", { name: "Modules" }).click();
+  await page.getByRole("searchbox", { name: "Search" }).fill("damage control ii");
+  await page.getByRole("button", { name: "Damage Control II", exact: true }).dblclick();
+  const fitting = page.getByRole("region", { name: "Fitting" });
+  await expect(fitting.getByRole("button", { name: /^Damage Control II,/ })).toBeVisible();
+  await expect.poll(link).not.toBe(empty);
+  const edited = link();
+
+  const history = page.getByRole("group", { name: "Simulation History" });
+  await history.getByRole("button", { name: "Back" }).click();
+  await expect(fitting.getByRole("button", { name: /^Damage Control II,/ })).toHaveCount(0);
+  expect(link()).toBe(empty);
+  await history.getByRole("button", { name: "Forward" }).click();
+  expect(link()).toBe(edited);
+
+  await page.reload();
+  await expect(fitting.getByRole("button", { name: /^Damage Control II,/ })).toBeVisible({ timeout: 30_000 });
 });
 
 test("a broken fit link opens a Rifter", async ({ page }) => {
   await page.goto("/?fit=v3:broken");
   await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
-  expect(new URL(page.url()).search).toBe("");
+  expect(new URL(page.url()).searchParams.get("fit")).toMatch(/^esf1:/);
 });
 
 test("the item browser and statistics go below the window on a phone", async ({ page }) => {

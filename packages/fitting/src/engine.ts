@@ -4,7 +4,7 @@ import type { Sde } from "@eveshipfit/sde-loader";
 
 import { allSkills } from "./character.js";
 import { emptyFit } from "./edits.js";
-import { loadLink } from "./link.js";
+import { loadLink, saveLink } from "./link.js";
 import { Stats } from "./stats.js";
 import { FitStore, type Calculator } from "./store.js";
 import type { Character, Fit } from "./types.js";
@@ -64,5 +64,10 @@ export class Engine implements Calculator {
   /** The fit of an EVEShip.fit link, as the `fit` value of its query string. */
   loadLink(link: string): Promise<Fit> {
     return loadLink(link, this.esi);
+  }
+
+  /** The `fit` value of an EVEShip.fit link to the fit. */
+  saveLink(fit: Fit): string {
+    return saveLink(fit);
   }
 }
