@@ -46,6 +46,32 @@ test("a fit link opens its fit, and the url keeps it", async ({ page }) => {
   await expect(page.getByText("Link Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
 });
 
+test("an edit to the fit updates the url", async ({ page }) => {
+  const link = () => new URL(page.url()).searchParams.get("fit");
+  await page.goto("/");
+  await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
+  const empty = link();
+  expect(empty).toMatch(/^esf1:/);
+
+  await page.getByRole("tab", { name: "Modules" }).click();
+  await page.getByRole("searchbox", { name: "Search" }).fill("damage control ii");
+  await page.getByRole("button", { name: "Damage Control II", exact: true }).dblclick();
+  const fitting = page.getByRole("region", { name: "Fitting" });
+  await expect(fitting.getByRole("button", { name: /^Damage Control II,/ })).toBeVisible();
+  await expect.poll(link).not.toBe(empty);
+  const edited = link();
+
+  const history = page.getByRole("group", { name: "Simulation History" });
+  await history.getByRole("button", { name: "Back" }).click();
+  await expect(fitting.getByRole("button", { name: /^Damage Control II,/ })).toHaveCount(0);
+  expect(link()).toBe(empty);
+  await history.getByRole("button", { name: "Forward" }).click();
+  expect(link()).toBe(edited);
+
+  await page.reload();
+  await expect(fitting.getByRole("button", { name: /^Damage Control II,/ })).toBeVisible({ timeout: 30_000 });
+});
+
 test("a broken fit link opens a Rifter", async ({ page }) => {
   await page.goto("/?fit=v3:broken");
   await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
