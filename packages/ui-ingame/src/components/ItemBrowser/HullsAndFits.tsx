@@ -7,6 +7,7 @@ import {
   useImages,
   useLocalFits,
   useMissingSkills,
+  usePersonalFits,
 } from "@eveshipfit/react-hooks";
 import { useState, type CSSProperties } from "react";
 
@@ -17,7 +18,12 @@ import { TreeGroup, TreeLeaf, TreeList } from "../../primitives/TreeList/TreeLis
 import styles from "./ItemBrowser.module.css";
 import { Search } from "./Search";
 
-const noFits: readonly Fit[] = [];
+interface Listed {
+  fit: Fit;
+  kind: "fits-browser" | "fits-personal";
+}
+
+const noFits: readonly Listed[] = [];
 const SHIPS_MARKET_GROUP_ID = 4;
 
 /** The Hulls & Fits tab of the `ItemBrowser`: EVE's hulls by group and race, with the fits saved for each. */
@@ -27,9 +33,11 @@ export function HullsAndFits() {
   const store = useFitStore();
   const missingSkills = useMissingSkills();
   const { fits } = useLocalFits();
+  const personal = usePersonalFits();
   const { start, end } = useDrag();
   const [search, setSearch] = useState("");
   const [browserFits, setBrowserFits] = useState(false);
+  const [personalFits, setPersonalFits] = useState(false);
   const [currentHull, setCurrentHull] = useState(false);
   const [flyable, setFlyable] = useState(false);
   const [collapses, setCollapses] = useState(0);
@@ -37,20 +45,27 @@ export function HullsAndFits() {
   const query = search.trim().toLowerCase();
   const matches = (name: string | undefined) => (name ?? "").toLowerCase().includes(query);
 
-  const fitsByHull = Map.groupBy(fits, (saved) => saved.ship.type_id);
+  const anySource = browserFits || personalFits;
+  const listed: Listed[] = [
+    ...(!anySource || browserFits ? fits.map((fit) => ({ fit, kind: "fits-browser" as const })) : []),
+    ...(!anySource || personalFits ? personal.fits.map((fit) => ({ fit, kind: "fits-personal" as const })) : []),
+  ];
+  const fitsByHull = Map.groupBy(listed, ({ fit }) => fit.ship.type_id);
+  const browserByHull = Map.groupBy(fits, (fit) => fit.ship.type_id);
+  const personalByHull = Map.groupBy(personal.fits, (fit) => fit.ship.type_id);
   const shownFits = (ship: { id: number; name: string }) => {
     const saved = fitsByHull.get(ship.id) ?? noFits;
-    const kept = flyable ? saved.filter((one) => missingSkills(one).length === 0) : saved;
-    return matches(ship.name) ? kept : kept.filter((one) => matches(one.name));
+    const kept = flyable ? saved.filter(({ fit }) => missingSkills(fit).length === 0) : saved;
+    return matches(ship.name) ? kept : kept.filter(({ fit }) => matches(fit.name));
   };
 
   const groups = useHullTree(
-    query !== "" || currentHull || browserFits || flyable
+    query !== "" || currentHull || anySource || flyable
       ? (ship) => {
           if (currentHull && ship.id !== currentShipId) return false;
           if (flyable && missingSkills([ship.id]).length > 0) return false;
           const shown = shownFits(ship);
-          if (browserFits && shown.length === 0) return false;
+          if (anySource && shown.length === 0) return false;
           return matches(ship.name) || shown.length > 0;
         }
       : undefined,
@@ -68,7 +83,12 @@ export function HullsAndFits() {
           pressed={browserFits}
           onPressedChange={setBrowserFits}
         />
-        <FilterToggle icon="fits-personal" label="Personal Fittings" />
+        <FilterToggle
+          icon="fits-personal"
+          label="Personal Fittings"
+          pressed={personalFits}
+          onPressedChange={setPersonalFits}
+        />
         <FilterToggle icon="fits-corporation" label="Corporation Fittings" />
         <FilterToggle icon="fits-alliance" label="Alliance Fittings" />
         <FilterToggle icon="fits-community" label="Community Fittings" />
@@ -76,6 +96,11 @@ export function HullsAndFits() {
         <FilterToggle icon="skills" label="Skills" pressed={flyable} onPressedChange={setFlyable} />
       </fieldset>
       <div className={styles.tree}>
+        {personalFits && personal.character?.canReadFits !== true && (
+          <p className={styles.empty}>
+            {personal.character === undefined ? "Pick a logged-in character" : "Log in again to see fittings"}
+          </p>
+        )}
         <TreeList key={collapses} label="Hulls">
           {groups.map(({ group, races }) => (
             <TreeGroup key={group.id} label={group.name}>
@@ -112,7 +137,10 @@ export function HullsAndFits() {
                             label={<span className={styles.hull}>{ship.name}</span>}
                             description={
                               shown.length > 0 ? (
-                                <Counts browserFits={fitsByHull.get(ship.id)?.length ?? 0} />
+                                <Counts
+                                  browserFits={browserByHull.get(ship.id)?.length ?? 0}
+                                  personalFits={personalByHull.get(ship.id)?.length ?? 0}
+                                />
                               ) : undefined
                             }
                             typeId={ship.id}
@@ -128,19 +156,19 @@ export function HullsAndFits() {
                               shown.length === 0 ? (
                                 <TreeLeaf label="No Item" />
                               ) : (
-                                shown.map((saved) => (
+                                shown.map(({ fit, kind }, index) => (
                                   <TreeLeaf
-                                    key={saved.name ?? ""}
+                                    key={`${kind}:${fit.name ?? ""}:${index}`}
                                     label={
                                       <>
                                         <span className={styles.kind}>
-                                          <Icon name="fits-browser" />
+                                          <Icon name={kind} />
                                         </span>
-                                        {saved.name || ship.name}
+                                        {fit.name || ship.name}
                                       </>
                                     }
-                                    onActivate={() => store.replace(saved)}
-                                    after={<Flyable fit={saved} />}
+                                    onActivate={() => store.replace(fit)}
+                                    after={<Flyable fit={fit} />}
                                   />
                                 ))
                               )
@@ -160,10 +188,11 @@ export function HullsAndFits() {
   );
 }
 
-function Counts({ browserFits }: { browserFits: number }) {
+function Counts({ browserFits, personalFits }: { browserFits: number; personalFits: number }) {
   return (
     <span className={styles.counts}>
       <Count icon="fits-browser" label="Browser Fittings" count={browserFits} />
+      <Count icon="fits-personal" label="Personal Fittings" count={personalFits} />
       <Count icon="fits-corporation" label="Corporation Fittings" count={0} />
       <Count icon="fits-community-small" label="Community Fittings" count={0} />
       <Count icon="fits-alliance-small" label="Alliance Fittings" count={0} />

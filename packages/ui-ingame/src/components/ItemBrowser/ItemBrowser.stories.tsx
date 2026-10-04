@@ -99,7 +99,7 @@ export const Filters: Story = {
     for (const name of filters) {
       const filter = canvas.getByRole("button", { name });
       await expect(filter).toHaveAttribute("aria-pressed", "false");
-      if (["Browser Fittings", "Current Hull", "Skills"].includes(name)) {
+      if (["Browser Fittings", "Personal Fittings", "Current Hull", "Skills"].includes(name)) {
         await expect(filter).not.toHaveAttribute("aria-disabled");
       } else {
         await expect(filter).toHaveAttribute("aria-disabled", "true");
@@ -180,7 +180,7 @@ export const SavedFits: Story = {
 
     const rifter = hulls().getByRole("button", { name: "Rifter" });
     await expect(rifter).toHaveAccessibleDescription(
-      "Browser Fittings: 2 Corporation Fittings: 0 Community Fittings: 0 Alliance Fittings: 0",
+      "Browser Fittings: 2 Personal Fittings: 0 Corporation Fittings: 0 Community Fittings: 0 Alliance Fittings: 0",
     );
     await expect(hulls().getByRole("button", { name: "Simulate Rifter" })).toBeVisible();
 
@@ -218,6 +218,16 @@ export const BrowserFittings: Story = {
     await expect(hulls().getByRole("button", { name: /^Rifter/ })).toBeVisible();
     await expect(hulls().getByRole("button", { name: /^Slasher/ })).toBeVisible();
     await expect(hulls().queryByRole("button", { name: /^Breacher/ })).toBeNull();
+  },
+};
+
+/** Personal Fittings without a logged-in character asks to log in. */
+export const PersonalFittings: Story = {
+  parameters: { localFits },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Personal Fittings" }));
+    await expect(canvas.getByText("Pick a logged-in character")).toBeVisible();
+    await expect(within(canvas.getByRole("list", { name: "Hulls" })).queryByRole("button")).toBeNull();
   },
 };
 

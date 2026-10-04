@@ -23,7 +23,7 @@ export {
   type PreviewControls,
 } from "./hooks/fit.js";
 export { useImages } from "./hooks/images.js";
-export { useLocalFits, type LocalFitsControls } from "./hooks/local-fits.js";
+export { useLocalFits, usePersonalFits, type LocalFitsControls, type PersonalFitsValue } from "./hooks/local-fits.js";
 export { useFitPrice, type FitPriceValue } from "./hooks/price.js";
 export { useCanFit, useDroneRoom, usePlacement } from "./hooks/rules.js";
 export {
@@ -60,5 +60,5 @@ export {
   type EsiCharactersOptions,
   type EsiCharacterStatus,
 } from "./esi-characters.js";
-export { LocalFits, type LocalFitsOptions } from "./local-fits.js";
+export { LocalFits, type FitOwner, type LocalFitsOptions } from "./local-fits.js";
 export { EveShipFitProvider, type EveShipFitProviderProps } from "./provider.js";

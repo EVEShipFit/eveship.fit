@@ -1,9 +1,12 @@
-import { SsoError, type Esi, type Sso, type SsoLogin } from "@eveshipfit/esi";
+import { SsoError, type CharacterFitting, type Esi, type Sso, type SsoLogin } from "@eveshipfit/esi";
+import type { Engine, Fit } from "@eveshipfit/fitting";
 import { afterEach, beforeEach, expect, test, vi, type Mock } from "vitest";
 
-import { EsiCharacters, type CharacterStorage } from "../src/index.js";
+import { EsiCharacters, type CharacterStorage, type LocalFits } from "../src/index.js";
 
 const PILOT = 90000001;
+const RIFTER = 587;
+const SCOPES = ["esi-skills.read_skills.v1", "esi-skills.read_skillqueue.v1", "esi-fittings.read_fittings.v1"];
 const GUNNERY = 3300;
 const NAVIGATION = 3449;
 
@@ -19,6 +22,7 @@ function memoryStorage(): CharacterStorage {
 const login = (refreshToken = "refresh"): SsoLogin => ({
   characterId: PILOT,
   name: "Pilot",
+  scopes: SCOPES,
   accessToken: "access",
   refreshToken,
 });
@@ -29,7 +33,13 @@ let sso: {
   refresh: Mock<Sso["refresh"]>;
   revoke: Mock<Sso["revoke"]>;
 };
-let esi: { characterSkills: Mock<Esi["characterSkills"]>; characterSkillQueue: Mock<Esi["characterSkillQueue"]> };
+let esi: {
+  characterSkills: Mock<Esi["characterSkills"]>;
+  characterSkillQueue: Mock<Esi["characterSkillQueue"]>;
+  characterFittings: Mock<Esi["characterFittings"]>;
+};
+let engine: { loadEsiFitting: Mock<Engine["loadEsiFitting"]> };
+let localFits: { setCharacterFits: Mock<LocalFits["setCharacterFits"]> };
 let storage: CharacterStorage;
 let session: CharacterStorage;
 
@@ -51,7 +61,16 @@ beforeEach(() => {
       total_sp: 0,
     })),
     characterSkillQueue: vi.fn<Esi["characterSkillQueue"]>(async () => []),
+    characterFittings: vi.fn<Esi["characterFittings"]>(async () => [fitting(1, "Fleet Rifter")]),
   };
+  engine = {
+    loadEsiFitting: vi.fn<Engine["loadEsiFitting"]>((one) => ({
+      name: one.name,
+      ship: { type_id: one.ship_type_id },
+      items: [],
+    })),
+  };
+  localFits = { setCharacterFits: vi.fn<LocalFits["setCharacterFits"]>(async () => {}) };
   storage = memoryStorage();
   session = memoryStorage();
 });
@@ -61,7 +80,20 @@ afterEach(() => {
 });
 
 const characters = () =>
-  new EsiCharacters({ esi: esi as unknown as Esi, sso: sso as unknown as Sso, storage, session });
+  new EsiCharacters({
+    esi: esi as unknown as Esi,
+    sso: sso as unknown as Sso,
+    engine: Promise.resolve(engine as unknown as Engine),
+    localFits: localFits as unknown as LocalFits,
+    storage,
+    session,
+  });
+
+function fitting(id: number, name: string): CharacterFitting {
+  return { fitting_id: id, name, description: "", ship_type_id: RIFTER, items: [] };
+}
+
+const fit = (name: string): Fit => ({ name, ship: { type_id: RIFTER }, items: [] });
 
 async function loggedIn(): Promise<EsiCharacters> {
   const store = characters();
@@ -76,7 +108,7 @@ test("a login adds the character with its skills, and is kept in storage", async
 
   expect(sso.login).toHaveBeenCalledWith("code", "verifier");
   expect(store.list()).toEqual([
-    { id: PILOT, name: "Pilot", skills: { [GUNNERY]: 3 }, updated: Date.now(), status: "ready" },
+    { id: PILOT, name: "Pilot", skills: { [GUNNERY]: 3 }, updated: Date.now(), status: "ready", canReadFits: true },
   ]);
   expect(characters().list()).toEqual(store.list());
 });
@@ -221,13 +253,58 @@ test("a refresh token EVE no longer accepts expires the login, and keeps the ski
   expect(store.list()[0]).toMatchObject({ status: "expired", skills: { [GUNNERY]: 3 } });
 });
 
-test("a removed character is forgotten, and its login revoked", async () => {
+test("a login keeps the character's fittings as its fits", async () => {
+  await loggedIn();
+
+  expect(esi.characterFittings).toHaveBeenCalledWith(PILOT, "access");
+  expect(localFits.setCharacterFits).toHaveBeenCalledExactlyOnceWith(PILOT, new Map([[1, fit("Fleet Rifter")]]));
+});
+
+test("a fitting the engine cannot read is left out", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  esi.characterFittings.mockResolvedValue([fitting(1, "Broken"), fitting(2, "Fleet Rifter")]);
+  engine.loadEsiFitting.mockImplementationOnce(() => {
+    throw new Error("unknown type");
+  });
+
+  await loggedIn();
+
+  expect(localFits.setCharacterFits).toHaveBeenCalledExactlyOnceWith(PILOT, new Map([[2, fit("Fleet Rifter")]]));
+});
+
+test("fittings that fail to load keep the fits from before", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  esi.characterFittings.mockRejectedValue(new Error("503"));
+
+  const store = await loggedIn();
+
+  expect(localFits.setCharacterFits).not.toHaveBeenCalled();
+  expect(store.list()[0]!.status).toBe("ready");
+});
+
+test("a login from before fittings were asked for cannot read them", async () => {
+  sso.login.mockResolvedValue({ ...login(), scopes: SCOPES.slice(0, 2) });
+
+  const store = await loggedIn();
+
+  expect(esi.characterFittings).not.toHaveBeenCalled();
+  expect(store.list()[0]!.canReadFits).toBe(false);
+});
+
+test("a character stored before scopes were kept cannot read fittings", async () => {
+  storage.setItem("eveshipfit.characters", JSON.stringify([{ id: PILOT, name: "Pilot", refreshToken: "refresh" }]));
+
+  expect(characters().list()[0]!.canReadFits).toBe(false);
+});
+
+test("a removed character is forgotten with its fits, and its login revoked", async () => {
   const store = await loggedIn();
 
   store.remove(PILOT);
 
   expect(store.list()).toEqual([]);
   expect(characters().list()).toEqual([]);
+  expect(localFits.setCharacterFits).toHaveBeenLastCalledWith(PILOT, new Map());
   expect(sso.revoke).toHaveBeenCalledWith("refresh");
 });
 
@@ -240,4 +317,5 @@ test("a character removed while it loads stays removed", async () => {
 
   expect(store.list()).toEqual([]);
   expect(characters().list()).toEqual([]);
+  expect(localFits.setCharacterFits).toHaveBeenLastCalledWith(PILOT, new Map());
 });

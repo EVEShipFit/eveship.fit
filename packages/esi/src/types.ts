@@ -77,3 +77,19 @@ export interface SkillQueueEntry {
   level_end_sp?: number;
   training_start_sp?: number;
 }
+
+/** A fitting a character saved in game, as `GET /characters/{character_id}/fittings` gives it. */
+export interface CharacterFitting {
+  fitting_id: number;
+  name: string;
+  description: string;
+  ship_type_id: number;
+  items: FittingItem[];
+}
+
+/** An item of a fitting; `flag` is where it sits, like `HiSlot0` or `DroneBay`. */
+export interface FittingItem {
+  type_id: number;
+  flag: string;
+  quantity: number;
+}

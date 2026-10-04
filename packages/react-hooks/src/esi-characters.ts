@@ -1,11 +1,15 @@
 import {
   SsoError,
+  type CharacterFitting,
   type CharacterSkills,
   type Esi,
   type SkillQueueEntry,
   type Sso,
   type SsoLogin,
 } from "@eveshipfit/esi";
+import type { Engine, Fit } from "@eveshipfit/fitting";
+
+import type { LocalFits } from "./local-fits.js";
 
 /** The part of the Web Storage API this needs. */
 export type CharacterStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
@@ -13,6 +17,10 @@ export type CharacterStorage = Pick<Storage, "getItem" | "setItem" | "removeItem
 export interface EsiCharactersOptions {
   esi: Esi;
   sso: Sso;
+  /** Turns the characters' fittings into fits. */
+  engine: Promise<Engine>;
+  /** Where the characters' fittings live. */
+  localFits: LocalFits;
   /** Where the characters live; `localStorage` when left out. */
   storage?: CharacterStorage;
   /** Where a login in progress lives; `sessionStorage` when left out. */
@@ -30,6 +38,8 @@ export interface EsiCharacter {
   /** When `skills` were loaded, in milliseconds since the epoch. */
   readonly updated: number | undefined;
   readonly status: EsiCharacterStatus;
+  /** Whether the login may read the character's fittings. */
+  readonly canReadFits: boolean;
 }
 
 interface Stored {
@@ -37,11 +47,13 @@ interface Stored {
   name: string;
   /** Undefined once EVE no longer accepts it. */
   refreshToken: string | undefined;
+  scopes?: readonly string[];
   skills?: Record<number, number>;
   updated?: number;
 }
 
-const SCOPES = ["esi-skills.read_skills.v1", "esi-skills.read_skillqueue.v1"];
+const FITTINGS_SCOPE = "esi-fittings.read_fittings.v1";
+const SCOPES = ["esi-skills.read_skills.v1", "esi-skills.read_skillqueue.v1", FITTINGS_SCOPE];
 const KEY = "eveshipfit.characters";
 const LOGIN_KEY = "eveshipfit.login";
 
@@ -49,6 +61,8 @@ const LOGIN_KEY = "eveshipfit.login";
 export class EsiCharacters {
   readonly #esi: Esi;
   readonly #sso: Sso;
+  readonly #engine: Promise<Engine>;
+  readonly #localFits: LocalFits;
   readonly #storage: CharacterStorage;
   readonly #session: CharacterStorage;
   readonly #listeners = new Set<() => void>();
@@ -57,9 +71,11 @@ export class EsiCharacters {
   #stored: readonly Stored[];
   #list: readonly EsiCharacter[] = [];
 
-  constructor({ esi, sso, storage = localStorage, session = sessionStorage }: EsiCharactersOptions) {
+  constructor({ esi, sso, engine, localFits, storage = localStorage, session = sessionStorage }: EsiCharactersOptions) {
     this.#esi = esi;
     this.#sso = sso;
+    this.#engine = engine;
+    this.#localFits = localFits;
     this.#storage = storage;
     this.#session = session;
     this.#stored = this.#read();
@@ -105,22 +121,23 @@ export class EsiCharacters {
       id: login.characterId,
       name: login.name,
       refreshToken: login.refreshToken,
+      scopes: login.scopes,
     }));
-    void this.#loadSkills(login);
+    void this.#load(login);
     return login.characterId;
   }
 
-  /** Loads the character's skills from ESI, once per page. */
+  /** Loads the character's skills and fittings from ESI, once per page. */
   load(id: number) {
     if (!this.#loaded.has(id)) this.refresh(id);
   }
 
-  /** Loads every character's skills from ESI, once per page; this also keeps their logins alive. */
+  /** Loads every character's skills and fittings from ESI, once per page; this also keeps their logins alive. */
   loadAll() {
     for (const { id } of this.#stored) this.load(id);
   }
 
-  /** Loads the character's skills from ESI again. */
+  /** Loads the character's skills and fittings from ESI again. */
   refresh(id: number) {
     const refreshToken = this.#stored.find((character) => character.id === id)?.refreshToken;
     if (refreshToken === undefined || this.#status.get(id) === "loading") return;
@@ -128,11 +145,12 @@ export class EsiCharacters {
     void this.#refresh(id, refreshToken);
   }
 
-  /** Forgets the character, and revokes its login at EVE. */
+  /** Forgets the character and its fittings, and revokes its login at EVE. */
   remove(id: number) {
     const refreshToken = this.#stored.find((character) => character.id === id)?.refreshToken;
     this.#status.delete(id);
     this.#change(id, () => undefined);
+    this.#localFits.setCharacterFits(id, new Map()).catch((error: unknown) => console.error(error));
     if (refreshToken !== undefined) this.#sso.revoke(refreshToken).catch((error: unknown) => console.error(error));
   }
 
@@ -156,8 +174,26 @@ export class EsiCharacters {
       }
       return;
     }
-    this.#update(id, { name: login.name, refreshToken: login.refreshToken });
-    await this.#loadSkills(login);
+    this.#update(id, { name: login.name, refreshToken: login.refreshToken, scopes: login.scopes });
+    await this.#load(login);
+  }
+
+  async #load(login: SsoLogin) {
+    await Promise.all([this.#loadSkills(login), this.#loadFittings(login)]);
+  }
+
+  async #loadFittings({ characterId, accessToken, scopes }: SsoLogin) {
+    if (!scopes.includes(FITTINGS_SCOPE)) return;
+    try {
+      const [fittings, engine] = await Promise.all([
+        this.#esi.characterFittings(characterId, accessToken),
+        this.#engine,
+      ]);
+      if (!this.#read().some((character) => character.id === characterId)) return;
+      await this.#localFits.setCharacterFits(characterId, new Map(fittings.flatMap((one) => fitOf(engine, one))));
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async #loadSkills({ characterId, accessToken }: SsoLogin) {
@@ -212,15 +248,26 @@ export class EsiCharacters {
 
   #publish() {
     this.#list = this.#stored
-      .map(({ id, name, refreshToken, skills, updated }) => ({
+      .map(({ id, name, refreshToken, scopes, skills, updated }) => ({
         id,
         name,
         skills,
         updated,
         status: this.#status.get(id) ?? (refreshToken === undefined ? "expired" : "ready"),
+        canReadFits: scopes?.includes(FITTINGS_SCOPE) ?? false,
       }))
       .toSorted((a, b) => a.name.localeCompare(b.name));
     for (const listener of this.#listeners) listener();
+  }
+}
+
+/** The fitting as a fit with its fitting ID; none when the engine cannot read it. */
+function fitOf(engine: Engine, fitting: CharacterFitting): [number, Fit][] {
+  try {
+    return [[fitting.fitting_id, engine.loadEsiFitting(fitting)]];
+  } catch (error) {
+    console.error(error);
+    return [];
   }
 }
 

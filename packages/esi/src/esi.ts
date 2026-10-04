@@ -1,4 +1,4 @@
-import type { CharacterSkills, Killmail, MarketPrice, SkillQueueEntry } from "./types.js";
+import type { CharacterFitting, CharacterSkills, Killmail, MarketPrice, SkillQueueEntry } from "./types.js";
 
 const baseUrl = "https://esi.evetech.net";
 const compatibilityDate = "2026-08-18";
@@ -51,6 +51,12 @@ export class Esi {
   async characterSkillQueue(characterId: number, accessToken: string): Promise<SkillQueueEntry[]> {
     const response = await this.#get(`/characters/${characterId}/skillqueue`, accessToken);
     return (await response.json()) as SkillQueueEntry[];
+  }
+
+  /** A character's fittings; needs the `esi-fittings.read_fittings.v1` scope. */
+  async characterFittings(characterId: number, accessToken: string): Promise<CharacterFitting[]> {
+    const response = await this.#get(`/characters/${characterId}/fittings`, accessToken);
+    return (await response.json()) as CharacterFitting[];
   }
 
   /** The price of every type on the market, by type ID. */

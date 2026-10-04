@@ -153,16 +153,18 @@ test("a request that gave up still makes the next one wait", async () => {
   await expect(next).resolves.toEqual({ killmail_id: 456 });
 });
 
-test("a character's skills and skill queue go with its access token", async () => {
+test("a character's skills, skill queue and fittings go with its access token", async () => {
   fetch.mockImplementation(async () => Response.json([]));
   const client = esi();
 
   await client.characterSkills(90000001, "token");
   await client.characterSkillQueue(90000001, "token");
+  await client.characterFittings(90000001, "token");
 
   expect(fetch).toHaveBeenCalledWith(
     "https://esi.evetech.net/characters/90000001/skills",
     expect.objectContaining({ headers: expect.objectContaining({ Authorization: "Bearer token" }) }),
   );
   expect(fetch).toHaveBeenCalledWith("https://esi.evetech.net/characters/90000001/skillqueue", expect.anything());
+  expect(fetch).toHaveBeenCalledWith("https://esi.evetech.net/characters/90000001/fittings", expect.anything());
 });

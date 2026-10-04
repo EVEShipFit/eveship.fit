@@ -51,3 +51,27 @@ test("an unknown type names it", async () => {
 
   expect(() => engine.loadText("[Rifter, My Rifter]\nDamage Contrl II")).toThrow("unknown type Damage Contrl II");
 });
+
+test("an ESI fitting", async () => {
+  const engine = await testEngine();
+  const autocannon = typeIdOf(engine, "200mm AutoCannon II");
+  const hobgoblin = typeIdOf(engine, "Hobgoblin II");
+
+  const fit = engine.loadEsiFitting({
+    fitting_id: 1,
+    name: "My Rifter",
+    description: "",
+    ship_type_id: 587,
+    items: [
+      { type_id: autocannon, flag: "HiSlot0", quantity: 1 },
+      { type_id: hobgoblin, flag: "DroneBay", quantity: 5 },
+    ],
+  });
+
+  expect(fit.name).toBe("My Rifter");
+  expect(fit.ship.type_id).toBe(587);
+  expect(fit.items).toContainEqual(expect.objectContaining({ type_id: autocannon, slot: { type: "high", index: 0 } }));
+  expect(fit.items).toContainEqual(
+    expect.objectContaining({ type_id: hobgoblin, slot: { type: "drone_bay" }, quantity: 5 }),
+  );
+});

@@ -19,6 +19,8 @@ export interface SsoAuthorization {
 export interface SsoLogin {
   characterId: number;
   name: string;
+  /** The scopes the character agreed to. */
+  scopes: readonly string[];
   accessToken: string;
   refreshToken: string;
 }
@@ -102,20 +104,30 @@ export class Sso {
       throw new SsoError(response.status, body.error, body.error_description);
     }
 
-    const { sub, name } = decodeJwt(body.access_token);
+    const { sub, name, scp = [] } = decodeJwt(body.access_token);
     const characterId = Number(/^CHARACTER:EVE:(\d+)$/.exec(sub ?? "")?.[1]);
     if (!characterId || name === undefined) throw new SsoError(response.status, undefined, "not a character");
-    return { characterId, name, accessToken: body.access_token, refreshToken: body.refresh_token };
+    return {
+      characterId,
+      name,
+      scopes: typeof scp === "string" ? [scp] : scp,
+      accessToken: body.access_token,
+      refreshToken: body.refresh_token,
+    };
   }
 }
 
-function decodeJwt(token: string): { sub?: string; name?: string } {
+interface JwtPayload {
+  sub?: string;
+  name?: string;
+  /** A single scope is a string. */
+  scp?: string | string[];
+}
+
+function decodeJwt(token: string): JwtPayload {
   const payload = token.split(".")[1] ?? "";
   const binary = atob(payload.replaceAll("-", "+").replaceAll("_", "/"));
-  return JSON.parse(new TextDecoder().decode(Uint8Array.from(binary, (c) => c.charCodeAt(0)))) as {
-    sub?: string;
-    name?: string;
-  };
+  return JSON.parse(new TextDecoder().decode(Uint8Array.from(binary, (c) => c.charCodeAt(0)))) as JwtPayload;
 }
 
 function randomString(bytes: number): string {
