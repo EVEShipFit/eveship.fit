@@ -257,6 +257,16 @@ export const ReadOnly: Story = {
   },
 };
 
+export const HideStats: Story = {
+  args: { hideStats: true },
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement }) => {
+    await expect(canvasElement.querySelectorAll('[data-state="active"]')).toHaveLength(3);
+    await expect(canvas.queryByRole("meter")).toBeNull();
+    await expect(canvas.queryByRole("img", { name: /turret|launcher/i })).toBeNull();
+  },
+};
+
 /** Storybook's `userEvent` cannot drag, so the events are fired as a browser would. */
 async function dragAndDrop(from: Element, to: Element) {
   const dataTransfer = new DataTransfer();

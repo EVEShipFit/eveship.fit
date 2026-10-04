@@ -30,10 +30,12 @@ export interface FittingWheelProps {
   label?: string;
   /** Shows the fit without letting it be changed. */
   readOnly?: boolean;
+  /** Leaves out the hardpoints and the CPU, powergrid and calibration gauges. */
+  hideStats?: boolean;
 }
 
 /** The fitting wheel of the fit in the surrounding `EveShipFitProvider`. */
-export function FittingWheel({ label = "Fitting", readOnly = false }: FittingWheelProps) {
+export function FittingWheel({ label = "Fitting", readOnly = false, hideStats = false }: FittingWheelProps) {
   const ship = useFit().ship.type_id;
   const { turret, launcher } = useHardpoints();
 
@@ -47,10 +49,14 @@ export function FittingWheel({ label = "Fitting", readOnly = false }: FittingWhe
       {racks.map((rack) => (
         <FittingRack key={rack} rack={rack} readOnly={readOnly} />
       ))}
-      <WheelHardpoints turrets={turret} launchers={launcher} />
-      <FittingGauge resource="cpu" load="cpuLoad" output="cpuOutput" />
-      <FittingGauge resource="powergrid" load="powerLoad" output="powerOutput" />
-      <FittingGauge resource="calibration" load="upgradeLoad" output="upgradeCapacity" />
+      {!hideStats && (
+        <>
+          <WheelHardpoints turrets={turret} launchers={launcher} />
+          <FittingGauge resource="cpu" load="cpuLoad" output="cpuOutput" />
+          <FittingGauge resource="powergrid" load="powerLoad" output="powerOutput" />
+          <FittingGauge resource="calibration" load="upgradeLoad" output="upgradeCapacity" />
+        </>
+      )}
     </Wheel>
   );
 }
