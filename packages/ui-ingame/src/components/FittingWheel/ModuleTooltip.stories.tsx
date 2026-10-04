@@ -98,7 +98,9 @@ const propulsion = (typeId: number, state: "offline" | "active" | "overload") =>
 export const Microwarpdrive: Story = {
   ...propulsion(types["5MN Y-T8 Compact Microwarpdrive"], "active"),
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Max Velocity with: 3213.19 m/s")).toBeVisible();
+    const line = canvas.getByText("Max Velocity with: 3213.19 m/s");
+    await expect(line).toBeVisible();
+    await expect(line.querySelector("img")).toHaveAttribute("src", expect.stringMatching(/\.webp$/));
   },
 };
 

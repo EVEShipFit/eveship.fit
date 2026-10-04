@@ -135,8 +135,13 @@ modifiersLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+iconId():number {
+  const offset = this.bb!.__offset(this.bb_pos, 44);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
 static startDogmaEffect(builder:flatbuffers.Builder) {
-  builder.startObject(20);
+  builder.startObject(21);
 }
 
 static addId(builder:flatbuffers.Builder, id:number) {
@@ -223,13 +228,17 @@ static startModifiersVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(20, numElems, 4);
 }
 
+static addIconId(builder:flatbuffers.Builder, iconId:number) {
+  builder.addFieldInt32(20, iconId, 0);
+}
+
 static endDogmaEffect(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 6) // name
   return offset;
 }
 
-static createDogmaEffect(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers.Offset, displayNameOffset:flatbuffers.Offset, effectCategory:EffectCategory, published:boolean, electronicChance:boolean, isAssistance:boolean, isOffensive:boolean, isWarpSafe:boolean, propulsionChance:boolean, rangeChance:boolean, disallowAutoRepeat:boolean, dischargeAttributeId:number, durationAttributeId:number, falloffAttributeId:number, fittingUsageChanceAttributeId:number, rangeAttributeId:number, resistanceAttributeId:number, trackingSpeedAttributeId:number, modifiersOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createDogmaEffect(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers.Offset, displayNameOffset:flatbuffers.Offset, effectCategory:EffectCategory, published:boolean, electronicChance:boolean, isAssistance:boolean, isOffensive:boolean, isWarpSafe:boolean, propulsionChance:boolean, rangeChance:boolean, disallowAutoRepeat:boolean, dischargeAttributeId:number, durationAttributeId:number, falloffAttributeId:number, fittingUsageChanceAttributeId:number, rangeAttributeId:number, resistanceAttributeId:number, trackingSpeedAttributeId:number, modifiersOffset:flatbuffers.Offset, iconId:number):flatbuffers.Offset {
   DogmaEffect.startDogmaEffect(builder);
   DogmaEffect.addId(builder, id);
   DogmaEffect.addName(builder, nameOffset);
@@ -251,6 +260,7 @@ static createDogmaEffect(builder:flatbuffers.Builder, id:number, nameOffset:flat
   DogmaEffect.addResistanceAttributeId(builder, resistanceAttributeId);
   DogmaEffect.addTrackingSpeedAttributeId(builder, trackingSpeedAttributeId);
   DogmaEffect.addModifiers(builder, modifiersOffset);
+  DogmaEffect.addIconId(builder, iconId);
   return DogmaEffect.endDogmaEffect(builder);
 }
 }
