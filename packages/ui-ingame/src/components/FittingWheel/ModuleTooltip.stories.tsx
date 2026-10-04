@@ -80,3 +80,45 @@ export const InactiveRig: Story = {
     await expect(canvas.getByText("Inactive Rig")).toHaveStyle({ color: "rgb(138, 144, 150)" });
   },
 };
+
+const types = {
+  Rifter: 587,
+  "5MN Y-T8 Compact Microwarpdrive": 5973,
+  "1MN Afterburner II": 438,
+};
+
+const propulsion = (typeId: number, state: "offline" | "active" | "overload") =>
+  ({
+    args: { rack: "medium", typeId, state, maxState: "overload" },
+    parameters: {
+      fit: { ship: { type_id: types.Rifter }, items: [{ type_id: typeId, slot: { type: "medium", index: 0 }, state }] },
+    },
+  }) as const;
+
+export const Microwarpdrive: Story = {
+  ...propulsion(types["5MN Y-T8 Compact Microwarpdrive"], "active"),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Max Velocity with: 3213.19 m/s")).toBeVisible();
+  },
+};
+
+export const OverheatedMicrowarpdrive: Story = {
+  ...propulsion(types["5MN Y-T8 Compact Microwarpdrive"], "overload"),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Max Velocity with: 4591.65 m/s")).toBeVisible();
+  },
+};
+
+export const OfflineMicrowarpdrive: Story = {
+  ...propulsion(types["5MN Y-T8 Compact Microwarpdrive"], "offline"),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Max Velocity without: 456.25 m/s")).toBeVisible();
+  },
+};
+
+export const Afterburner: Story = {
+  ...propulsion(types["1MN Afterburner II"], "active"),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Max Velocity with: 1193.25 m/s")).toBeVisible();
+  },
+};

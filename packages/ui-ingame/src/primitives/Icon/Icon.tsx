@@ -84,6 +84,7 @@ const textures = {
   "stat-inertia": "classes/fitting/statsicons/inertiamodifier",
   "stat-warp-speed": "classes/fitting/statsicons/warpspeed",
   "stat-align-time": "classes/fitting/statsicons/aligntime",
+  "stat-max-velocity": "icons/speed",
   "stat-drone-bandwidth": "classes/fitting/statsicons/bandwidth",
   "stat-drone-control-range": "classes/fitting/statsicons/controlrange",
   "stat-fuel": "classes/fitting/statsicons/fuel",
