@@ -1,5 +1,5 @@
 import { useImages } from "@eveshipfit/react-hooks";
-import type { CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 import styles from "./WheelGauge.module.css";
 
@@ -15,6 +15,27 @@ const gauges: Record<WheelResource, { name: string; turn: string; from: number; 
   calibration: { name: "Calibration", turn: "rotate(180deg)", from: 133, sweep: 30.5 },
 };
 
+const decoded = new Set<string>();
+
+function useDecoded(src: string | undefined) {
+  const [ready, setReady] = useState<string>();
+
+  useEffect(() => {
+    if (src === undefined || decoded.has(src)) return;
+    const image = new Image();
+    image.src = src;
+    image.decode().then(
+      () => {
+        decoded.add(src);
+        setReady(src);
+      },
+      () => {},
+    );
+  }, [src]);
+
+  return src !== undefined && (ready === src || decoded.has(src));
+}
+
 export interface WheelGaugeProps {
   resource: WheelResource;
   used: number;
@@ -25,6 +46,8 @@ export interface WheelGaugeProps {
 export function WheelGauge({ resource, used, total, valueText }: WheelGaugeProps) {
   const images = useImages();
   const { name, turn, from, sweep } = gauges[resource];
+  const texture = images.uiTexture("classes/fitting/fittingbase_gauge");
+  const ready = useDecoded(texture);
   const share = total > 0 ? Math.min(used / total, 1) : 0;
   const to = from - sweep * share;
 
@@ -33,7 +56,7 @@ export function WheelGauge({ resource, used, total, valueText }: WheelGaugeProps
       className={styles.gauge}
       style={
         {
-          "--texture": `url(${images.uiTexture("classes/fitting/fittingbase_gauge")})`,
+          "--texture": `url(${texture})`,
           "--used": `conic-gradient(transparent ${to}deg, black ${to}deg ${from}deg, transparent ${from}deg)`,
           "--turn": turn,
         } as CSSProperties
@@ -47,6 +70,7 @@ export function WheelGauge({ resource, used, total, valueText }: WheelGaugeProps
       aria-valuetext={valueText}
       data-resource={resource}
       data-over={used > total || undefined}
+      data-loading={!ready || undefined}
     />
   );
 }
