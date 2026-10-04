@@ -1,5 +1,11 @@
 # @eveshipfit/sde-loader
 
+## 1.4.0
+
+### Minor Changes
+
+- Show the max velocity in the tooltip of a microwarpdrive or afterburner ([#210](https://github.com/EVEShipFit/eveship.fit/pull/210))
+
 ## 1.3.0
 
 ### Minor Changes

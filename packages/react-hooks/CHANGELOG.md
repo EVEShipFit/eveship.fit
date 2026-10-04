@@ -1,5 +1,29 @@
 # @eveshipfit/react-hooks
 
+## 2.1.0
+
+### Minor Changes
+
+- Fly the fit with the skills of characters logged in through EVE ([#190](https://github.com/EVEShipFit/eveship.fit/pull/190))
+
+- Show the fittings of the logged-in character under Personal Fittings ([#199](https://github.com/EVEShipFit/eveship.fit/pull/199))
+
+- Keep saved fits in IndexedDB, and show fits saved in other tabs ([#196](https://github.com/EVEShipFit/eveship.fit/pull/196))
+
+- Show the max velocity in the tooltip of a microwarpdrive or afterburner ([#210](https://github.com/EVEShipFit/eveship.fit/pull/210))
+
+- Switch the mode of a tactical destroyer or Anhinga on the fitting wheel ([#207](https://github.com/EVEShipFit/eveship.fit/pull/207))
+
+### Patch Changes
+
+- Name the characters `All L5` and `All L0` ([#188](https://github.com/EVEShipFit/eveship.fit/pull/188))
+
+- Set an imported EFT or ESI fit to the states EVE gives it ([#204](https://github.com/EVEShipFit/eveship.fit/pull/204))
+- Updated dependencies [[`8f8a171`](https://github.com/EVEShipFit/eveship.fit/commit/8f8a171886bba06f8baf68552afbd667c83bee09), [`8de62cd`](https://github.com/EVEShipFit/eveship.fit/commit/8de62cd2c2bc4b077c74f15a351f271bdc168539), [`0dd12de`](https://github.com/EVEShipFit/eveship.fit/commit/0dd12de0baf887771615a1c29addd345247b6ed8), [`1d62f20`](https://github.com/EVEShipFit/eveship.fit/commit/1d62f20580bb837e34f886d1b8d8849dea7f455c), [`01510af`](https://github.com/EVEShipFit/eveship.fit/commit/01510af02697a8b512f82084ffc12b0c24b5ebcf), [`3970335`](https://github.com/EVEShipFit/eveship.fit/commit/3970335be9da0aeca645b928656167ff5e122945), [`d59db39`](https://github.com/EVEShipFit/eveship.fit/commit/d59db39904b94227efa7ed205b8db86a59470276), [`a15584d`](https://github.com/EVEShipFit/eveship.fit/commit/a15584d586e55db9f0893b921d2b575633626820), [`e106f8a`](https://github.com/EVEShipFit/eveship.fit/commit/e106f8ab312bcbe64cd126e1aff6771bf10ea150), [`9c4c190`](https://github.com/EVEShipFit/eveship.fit/commit/9c4c190f0ea66c0f0304da31580d90b73103c9e4)]:
+  - @eveshipfit/fitting@2.1.0
+  - @eveshipfit/esi@1.1.0
+  - @eveshipfit/sde-loader@1.4.0
+
 ## 2.0.0
 
 ### Major Changes

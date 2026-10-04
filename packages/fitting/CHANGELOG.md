@@ -1,5 +1,30 @@
 # @eveshipfit/fitting
 
+## 2.1.0
+
+### Minor Changes
+
+- Load fits from DNA, in `loadText` and as a `dna:` link, and require `@eveshipfit/dogma-engine` 13.4.0 ([#206](https://github.com/EVEShipFit/eveship.fit/pull/206))
+
+- Add `Engine.saveLink`, and read `esf1` links ([#193](https://github.com/EVEShipFit/eveship.fit/pull/193))
+
+- Show the fittings of the logged-in character under Personal Fittings ([#199](https://github.com/EVEShipFit/eveship.fit/pull/199))
+
+- Add `Engine.loadText` and `Engine.saveText`, for EFT and esf/1 text ([#195](https://github.com/EVEShipFit/eveship.fit/pull/195))
+
+- Set an imported EFT or ESI fit to the states EVE gives it ([#204](https://github.com/EVEShipFit/eveship.fit/pull/204))
+
+- Switch the mode of a tactical destroyer or Anhinga on the fitting wheel ([#207](https://github.com/EVEShipFit/eveship.fit/pull/207))
+
+- Add `loadV1Fits`, to read the fits v1 kept in localStorage ([#198](https://github.com/EVEShipFit/eveship.fit/pull/198))
+
+### Patch Changes
+
+- Put rigs offline and back online on the fitting wheel, and require `@eveshipfit/dogma-engine` 13.5.0 ([#209](https://github.com/EVEShipFit/eveship.fit/pull/209))
+- Updated dependencies [[`0dd12de`](https://github.com/EVEShipFit/eveship.fit/commit/0dd12de0baf887771615a1c29addd345247b6ed8), [`1d62f20`](https://github.com/EVEShipFit/eveship.fit/commit/1d62f20580bb837e34f886d1b8d8849dea7f455c), [`d59db39`](https://github.com/EVEShipFit/eveship.fit/commit/d59db39904b94227efa7ed205b8db86a59470276)]:
+  - @eveshipfit/esi@1.1.0
+  - @eveshipfit/sde-loader@1.4.0
+
 ## 2.0.0
 
 ### Major Changes
