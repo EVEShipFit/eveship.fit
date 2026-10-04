@@ -60,14 +60,29 @@
   display: flex;
   gap: calc(2 * var(--window-unit));
   left: calc(20 * var(--window-unit));
-  max-width: calc(200 * var(--window-unit));
+  max-width: calc(150 * var(--window-unit));
   top: calc(40 * var(--window-unit));
   white-space: nowrap;
 }
 
 .fitName {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: text;
+  font: inherit;
   overflow: hidden;
+  padding: 0;
   text-overflow: ellipsis;
+}
+
+.fitNameInput {
+  background: var(--esf-input-bg);
+  border: var(--window-unit) solid var(--esf-input-border);
+  color: var(--esf-text);
+  font: inherit;
+  min-width: 0;
+  padding: 0 calc(2 * var(--window-unit));
 }
 
 .icon {

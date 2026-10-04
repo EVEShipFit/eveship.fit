@@ -257,10 +257,23 @@ export const MissingSkills: Story = {
 const modules = (canvas: ReturnType<typeof within>) => within(canvas.getByRole("list", { name: "Modules" }));
 
 /** The Modules tab keeps its own search and filters, next to those of Hulls & Fits. */
-/** Save keeps the fit in the browser, under its hull. */
+/** Save keeps the fit in the browser, under its hull; a fit without a name is named first. */
 export const SaveFit: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    let dialog = within(canvas.getByRole("dialog", { name: "Save Fit" }));
+    await expect(dialog.getByRole("textbox")).toHaveValue("Rifter");
+    await expect(dialog.getByRole("textbox")).toHaveFocus();
+    await userEvent.click(dialog.getByRole("button", { name: "Cancel" }));
+    await expect(canvas.queryByRole("dialog")).toBeNull();
+    await expect(canvas.getByRole("button", { name: "Save" })).toBeVisible();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    dialog = within(canvas.getByRole("dialog", { name: "Save Fit" }));
+    await userEvent.clear(dialog.getByRole("textbox"));
+    await expect(dialog.getByRole("button", { name: "Save" })).toBeDisabled();
+    await userEvent.type(dialog.getByRole("textbox"), "My Rifter{Enter}");
+    await expect(canvas.queryByRole("dialog")).toBeNull();
     await expect(canvas.getByRole("button", { name: "Saved" })).toBeVisible();
     await userEvent.click(canvas.getByRole("button", { name: "Saved" }));
     await expect(canvas.queryByRole("dialog")).toBeNull();
@@ -269,7 +282,8 @@ export const SaveFit: Story = {
     const hulls = within(canvas.getByRole("list", { name: "Hulls" }));
     await userEvent.click(hulls.getByRole("button", { name: "Frigate" }));
     await userEvent.click(hulls.getByRole("button", { name: /^Minmatar/ }));
-    await expect(hulls.getByRole("button", { name: "Rifter" })).toHaveAccessibleDescription(/^Browser Fittings: 1 /);
+    await userEvent.click(hulls.getByRole("button", { name: "Rifter" }));
+    await expect(hulls.getByRole("button", { name: "My Rifter" })).toBeVisible();
   },
 };
 
@@ -291,7 +305,7 @@ export const OverwriteFit: Story = {
   },
 };
 
-/** A fit without a name is saved under its hull's, so saving it asks before overwriting one named after the hull. */
+/** Naming a fit after its hull asks before overwriting one saved under that name; Cancel leaves it unnamed. */
 export const OverwriteUnnamedFit: Story = {
   parameters: {
     localFits: [
@@ -303,9 +317,18 @@ export const OverwriteUnnamedFit: Story = {
     ],
   },
   play: async ({ canvas, userEvent }) => {
-    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
-    const dialog = within(canvas.getByRole("dialog", { name: "Overwrite Fit?" }));
+    const nameAndSave = async () => {
+      await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+      await userEvent.click(
+        within(canvas.getByRole("dialog", { name: "Save Fit" })).getByRole("button", { name: "Save" }),
+      );
+      return within(canvas.getByRole("dialog", { name: "Overwrite Fit?" }));
+    };
+    let dialog = await nameAndSave();
     await expect(dialog.getByText(/"Rifter"/)).toBeVisible();
+    await userEvent.click(dialog.getByRole("button", { name: "Cancel" }));
+
+    dialog = await nameAndSave();
     await userEvent.click(dialog.getByRole("button", { name: "Overwrite" }));
 
     await userEvent.click(canvas.getByRole("button", { name: "Browser Fittings" }));

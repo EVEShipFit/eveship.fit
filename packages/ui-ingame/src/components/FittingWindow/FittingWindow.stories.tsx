@@ -118,6 +118,27 @@ export const EmptyRifter: Story = {
   },
 };
 
+/** Clicking the name renames the fit; Escape keeps the old name, and an empty one shows the hull's. */
+export const RenameFit: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Rifter" }));
+    await expect(canvas.getByRole("textbox", { name: "Fit Name" })).toHaveFocus();
+    await userEvent.keyboard("Brawler{Enter}");
+    await expect(canvas.queryByRole("textbox", { name: "Fit Name" })).toBeNull();
+    await expect(canvas.getByRole("button", { name: "Brawler" })).toHaveFocus();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Brawler" }));
+    await expect(canvas.getByRole("textbox", { name: "Fit Name" })).toHaveValue("Brawler");
+    await userEvent.keyboard("Kiter{Escape}");
+    await expect(canvas.getByRole("button", { name: "Brawler" })).toBeVisible();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Brawler" }));
+    await userEvent.clear(canvas.getByRole("textbox", { name: "Fit Name" }));
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Rifter" })).toBeVisible();
+  },
+};
+
 export const WithItemBrowser: Story = {
   args: { browser: <ItemBrowser /> },
   play: async ({ canvas, userEvent }) => {
@@ -181,8 +202,9 @@ export const LoadFit: Story = {
     await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "saved");
     await userEvent.click(canvas.getByRole("button", { name: "Frigate" }));
     await userEvent.click(canvas.getByRole("button", { name: /^Minmatar/ }));
-    await userEvent.click(canvas.getByRole("button", { name: "Rifter" }));
-    await userEvent.dblClick(canvas.getByRole("button", { name: "Saved Rifter" }));
+    const hulls = within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.click(hulls.getByRole("button", { name: "Rifter" }));
+    await userEvent.dblClick(hulls.getByRole("button", { name: "Saved Rifter" }));
 
     const history = within(canvas.getByRole("group", { name: "Simulation History" }));
     await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("2 of 2");
