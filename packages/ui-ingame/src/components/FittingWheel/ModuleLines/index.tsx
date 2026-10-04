@@ -2,7 +2,7 @@ import { useType } from "@eveshipfit/react-hooks";
 import type { ComponentType } from "react";
 
 import type { SlotState } from "../../../primitives/Wheel/WheelSlot";
-import { Velocity } from "./Velocity";
+import { MaxVelocity } from "./MaxVelocity";
 
 export interface LineProps {
   state: SlotState;
@@ -14,8 +14,8 @@ const Effect = {
 } as const;
 
 const lines = new Map<number, ComponentType<LineProps>[]>([
-  [Effect.MicrowarpdriveBonus, [Velocity]],
-  [Effect.AfterburnerBonus, [Velocity]],
+  [Effect.MicrowarpdriveBonus, [MaxVelocity]],
+  [Effect.AfterburnerBonus, [MaxVelocity]],
 ]);
 
 /** Tooltip lines from the effects of a module. */
