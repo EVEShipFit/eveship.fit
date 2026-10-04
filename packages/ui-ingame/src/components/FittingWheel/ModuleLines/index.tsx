@@ -16,8 +16,6 @@ const Effect = {
   AfterburnerBonus: 6731,
   ArmorResonance: 2041,
   ShieldResonance: 2052,
-  ArmorResonancePassive: 2792,
-  ShieldResonancePassive: 2795,
   ActiveShieldResonance: 5230,
   ActiveArmorResonance: 5231,
 } as const;
@@ -27,8 +25,6 @@ const lines = new Map<number, ComponentType<LineProps>[]>([
   [Effect.AfterburnerBonus, [MaxVelocity]],
   [Effect.ArmorResonance, [ResistanceBonus]],
   [Effect.ShieldResonance, [ResistanceBonus]],
-  [Effect.ArmorResonancePassive, [ResistanceBonus]],
-  [Effect.ShieldResonancePassive, [ResistanceBonus]],
   [Effect.ActiveShieldResonance, [ResistanceBonus]],
   [Effect.ActiveArmorResonance, [ResistanceBonus]],
 ]);
