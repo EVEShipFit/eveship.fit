@@ -23,8 +23,9 @@ export interface Calculator {
 const HISTORY_LIMIT = 25;
 
 /**
- * A fit that recalculates itself on every change. `subscribe` and
- * `getSnapshot` are bound, so they can go straight into `useSyncExternalStore`.
+ * A fit that recalculates itself on every change, always in a mode when its ship
+ * has modes. `subscribe` and `getSnapshot` are bound, so they can go straight
+ * into `useSyncExternalStore`.
  */
 export class FitStore {
   readonly #calculator: Calculator;
@@ -38,7 +39,7 @@ export class FitStore {
   constructor(calculator: Calculator, fit: Fit, character: Character) {
     this.#calculator = calculator;
     this.#character = character;
-    this.#snapshot = this.#calculate(withoutCharacter(fit));
+    this.#snapshot = this.#calculate(edits.withMode(calculator.sde, withoutCharacter(fit)));
     this.#history = [this.#snapshot.fit];
     this.#position = 0;
   }
@@ -124,9 +125,14 @@ export class FitStore {
     this.#commit(edits.setName(this.#snapshot.fit, name));
   }
 
+  /** Only to a mode of the ship. */
+  setMode(modeTypeId: number) {
+    this.#commit(edits.setMode(this.#calculator.sde, this.#snapshot.fit, modeTypeId));
+  }
+
   /** Swap in another fit entirely, like an import. */
   replace(fit: Fit) {
-    this.#commit(withoutCharacter(fit));
+    this.#commit(edits.withMode(this.#calculator.sde, withoutCharacter(fit)));
   }
 
   /** Who flies the fit is not an edit of it, so this does not go in the history. */

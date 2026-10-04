@@ -13,6 +13,10 @@ export const Category = {
   Fighter: 87,
 } as const;
 
+export const Group = {
+  ShipModifier: 1306,
+} as const;
+
 export const Effect = {
   LowPower: 11,
   HighPower: 12,

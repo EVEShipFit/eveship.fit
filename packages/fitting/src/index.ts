@@ -15,6 +15,7 @@ export {
   droneRoom,
   fighterKind,
   firstFreeIndex,
+  modesOf,
   placementOf,
   squadronSize,
   tubeTakes,

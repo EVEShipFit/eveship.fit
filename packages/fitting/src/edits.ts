@@ -1,8 +1,9 @@
-import type { Sde } from "@eveshipfit/sde-loader";
+import type { Sde, SdeType } from "@eveshipfit/sde-loader";
 
 import { droneRoom } from "./rules/drones.js";
 import { firstFreeTube, squadronSize, tubeTakes } from "./rules/fighters.js";
 import { acceptsCharge } from "./rules/filters.js";
+import { modesOf } from "./rules/modes.js";
 import { firstFreeIndex, placementOf } from "./rules/placement.js";
 import type { Stats } from "./stats.js";
 import type { Fit, FitItem, ItemRef, Slot, SlotType, State } from "./types.js";
@@ -203,6 +204,27 @@ function setStackQuantity(fit: Fit, slot: SlotType, typeId: number, quantity: nu
 
 export function setName(fit: Fit, name: string): Fit {
   return fit.name === name ? fit : { ...fit, name };
+}
+
+/** Only to a mode of the fit's ship. */
+export function setMode(sde: Sde, fit: Fit, modeTypeId: number): Fit {
+  if (fit.ship.mode === modeTypeId || !shipModes(sde, fit).some(({ id }) => id === modeTypeId)) return fit;
+  return { ...fit, ship: { ...fit.ship, mode: modeTypeId } };
+}
+
+/** The fit in a mode of its ship: the one it is in, else the one EVE starts in; in none for a ship without modes. */
+export function withMode(sde: Sde, fit: Fit): Fit {
+  const modes = shipModes(sde, fit);
+  if (modes.some(({ id }) => id === fit.ship.mode)) return fit;
+  if (modes[0] !== undefined) return { ...fit, ship: { ...fit.ship, mode: modes[0].id } };
+  if (fit.ship.mode === undefined) return fit;
+  const { mode: _, ...ship } = fit.ship;
+  return { ...fit, ship };
+}
+
+function shipModes(sde: Sde, fit: Fit): readonly SdeType[] {
+  const ship = sde.type(fit.ship.type_id);
+  return ship === undefined ? [] : modesOf(sde, ship);
 }
 
 function update(fit: Fit, ref: ItemRef, change: (item: FitItem) => FitItem): Fit {

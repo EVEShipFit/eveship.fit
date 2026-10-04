@@ -6,6 +6,7 @@ import {
   useFit,
   useFitStore,
   useHardpoints,
+  useModes,
   usePreview,
   useRackUsage,
   useSlots,
@@ -18,6 +19,7 @@ import { Wheel } from "../../primitives/Wheel/Wheel";
 import { WheelGauge, type WheelResource } from "../../primitives/Wheel/WheelGauge";
 import { WheelHardpoints } from "../../primitives/Wheel/WheelHardpoints";
 import { WheelHull } from "../../primitives/Wheel/WheelHull";
+import { WheelModes } from "../../primitives/Wheel/WheelModes";
 import { WheelRackMarker, type MarkedRack } from "../../primitives/Wheel/WheelRackMarker";
 import { WheelSlot } from "../../primitives/Wheel/WheelSlot";
 import { allowDrop, useFittingSlot } from "./fittingSlot";
@@ -49,6 +51,7 @@ export function FittingWheel({ label = "Fitting", readOnly = false, hideStats = 
       {racks.map((rack) => (
         <FittingRack key={rack} rack={rack} readOnly={readOnly} />
       ))}
+      <FittingModes readOnly={readOnly} />
       {!hideStats && (
         <>
           <WheelHardpoints turrets={turret} launchers={launcher} />
@@ -114,6 +117,21 @@ function FittingCentre() {
         else store.remove(dragging.ref);
         end();
       }}
+    />
+  );
+}
+
+function FittingModes({ readOnly }: { readOnly: boolean }) {
+  const store = useFitStore();
+  const modes = useModes();
+  const active = useFit().ship.mode;
+  if (modes.length === 0) return null;
+
+  return (
+    <WheelModes
+      modes={modes.map(({ id, name }) => ({ typeId: id, name }))}
+      active={active}
+      onSelect={readOnly ? undefined : (typeId) => store.setMode(typeId)}
     />
   );
 }

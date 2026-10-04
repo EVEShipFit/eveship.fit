@@ -424,6 +424,59 @@ describe("edits", () => {
   });
 });
 
+function mode(fit: FitStore) {
+  return fit.getSnapshot().fit.ship.mode;
+}
+
+describe("modes", () => {
+  test("a ship with modes starts in the first", () => {
+    expect(mode(engine.createFit({ ship: id("Confessor") }))).toBe(id("Confessor Defense Mode"));
+
+    const fit = rifter();
+    fit.replace({ ship: { type_id: id("Anhinga") }, items: [] });
+    expect(mode(fit)).toBe(id("Anhinga Primary Mode"));
+  });
+
+  test("keeps the mode a fit is in, unless its ship does not have it", () => {
+    const sharpshooter = id("Confessor Sharpshooter Mode");
+    expect(mode(engine.createFit({ ship: { type_id: id("Confessor"), mode: sharpshooter }, items: [] }))).toBe(
+      sharpshooter,
+    );
+
+    const fit = rifter();
+    fit.replace({ ship: { type_id: id("Svipul"), mode: sharpshooter }, items: [] });
+    expect(mode(fit)).toBe(id("Svipul Defense Mode"));
+    fit.replace({ ship: { type_id: id("Rifter"), mode: sharpshooter }, items: [] });
+    expect(fit.getSnapshot().fit.ship).toEqual({ type_id: id("Rifter") });
+  });
+
+  test("set to another mode of the ship, which the stats follow", () => {
+    const fit = engine.createFit({ ship: id("Confessor") });
+    const range = () => fit.getSnapshot().stats.ship.get("maxTargetRange")!;
+    const defense = range();
+
+    fit.setMode(id("Confessor Sharpshooter Mode"));
+    expect(mode(fit)).toBe(id("Confessor Sharpshooter Mode"));
+    expect(range()).toBeCloseTo(defense * 2);
+
+    fit.undo();
+    expect(mode(fit)).toBe(id("Confessor Defense Mode"));
+  });
+
+  test("not to the mode it is in, nor to a mode of another ship", () => {
+    const fit = engine.createFit({ ship: id("Confessor") });
+    const before = fit.getSnapshot();
+    fit.setMode(id("Confessor Defense Mode"));
+    fit.setMode(id("Svipul Sharpshooter Mode"));
+    expect(fit.getSnapshot()).toBe(before);
+    expect(fit.historyLength).toBe(1);
+
+    const ship = rifter();
+    ship.setMode(id("Confessor Defense Mode"));
+    expect(ship.historyLength).toBe(1);
+  });
+});
+
 describe("history", () => {
   test("undo and redo", () => {
     const fit = rifter();

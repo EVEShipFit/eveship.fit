@@ -79,7 +79,7 @@ const texts = await loadTexts({ url: "/texts.dat" });
 its charges, cut down to what a filter keeps. `useModuleSearch` and `useChargeSearch` give what can be fitted and
 the charges by root market group, as EVE shows search results. `useChargedModules` lists the fitted modules that load charges.
 `usePlacement` says where a type goes, `useCanFit` whether it may go on the fit's ship, and `useDroneRoom` how many more
-drones of a type can be active.
+drones of a type can be active. `useModes` gives the modes of the fit's ship.
 
 ### Skills
 
