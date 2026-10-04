@@ -116,8 +116,10 @@ To link to a fit on EVEShip.fit, use `https://eveship.fit/?fit=${engine.saveLink
 
 ## Options
 
-- `readOnly`: visitors can look at the fit, but not change it. Without it, they can switch modules between offline,
-  online, active and overheated, move and remove modules, and remove charges.
+By default, visitors can change the fit on the wheel: switch modules between offline, online, active and overheated,
+move and remove modules, and remove charges.
+
+- `readOnly`: visitors can look at the fit, but not change it.
 - `hideStats`: leaves out the hardpoints, and the CPU, powergrid and calibration gauges.
 
 ## Styling
