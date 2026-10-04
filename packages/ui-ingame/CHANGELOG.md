@@ -1,5 +1,45 @@
 # @eveshipfit/ui-ingame
 
+## 1.5.0
+
+### Minor Changes
+
+- Show the fittings of the logged-in character under Personal Fittings ([#199](https://github.com/EVEShipFit/eveship.fit/pull/199))
+
+- Add Save, Import and Copy buttons under the `ItemBrowser` ([#195](https://github.com/EVEShipFit/eveship.fit/pull/195))
+
+- Show just the fit with `<FittingWheel readOnly />`, and leave out its gauges with `hideStats` ([#202](https://github.com/EVEShipFit/eveship.fit/pull/202))
+
+- Show a tooltip with the module, its charge and its state when hovering a slot of the fitting wheel ([#208](https://github.com/EVEShipFit/eveship.fit/pull/208))
+
+- Show the max velocity in the tooltip of a microwarpdrive or afterburner ([#210](https://github.com/EVEShipFit/eveship.fit/pull/210))
+
+- Rename the fit by clicking its name, and ask for a name when saving a fit without one ([#197](https://github.com/EVEShipFit/eveship.fit/pull/197))
+
+- Show the resistance bonus in the tooltip of a hardener, amplifier, coating or membrane ([#211](https://github.com/EVEShipFit/eveship.fit/pull/211))
+
+- Switch the mode of a tactical destroyer or Anhinga on the fitting wheel ([#207](https://github.com/EVEShipFit/eveship.fit/pull/207))
+
+- Show range, damage and tracking in the tooltip of a turret ([#212](https://github.com/EVEShipFit/eveship.fit/pull/212))
+
+### Patch Changes
+
+- Load fits from DNA, in `loadText` and as a `dna:` link, and require `@eveshipfit/dogma-engine` 13.4.0 ([#206](https://github.com/EVEShipFit/eveship.fit/pull/206))
+
+- Show drone bandwidth in red when over the limit ([#205](https://github.com/EVEShipFit/eveship.fit/pull/205))
+
+- Load a fit in Hulls & Fits with a single click ([#200](https://github.com/EVEShipFit/eveship.fit/pull/200))
+
+- Hide the fitting gauges until their texture is loaded ([#194](https://github.com/EVEShipFit/eveship.fit/pull/194))
+
+- Use Noto Sans as the default font ([#201](https://github.com/EVEShipFit/eveship.fit/pull/201))
+
+- Set an imported EFT or ESI fit to the states EVE gives it ([#204](https://github.com/EVEShipFit/eveship.fit/pull/204))
+
+- Put rigs offline and back online on the fitting wheel, and require `@eveshipfit/dogma-engine` 13.5.0 ([#209](https://github.com/EVEShipFit/eveship.fit/pull/209))
+- Updated dependencies [[`bf94f16`](https://github.com/EVEShipFit/eveship.fit/commit/bf94f1637c90c987517ec27e3f56537a124f75d4), [`1d62f20`](https://github.com/EVEShipFit/eveship.fit/commit/1d62f20580bb837e34f886d1b8d8849dea7f455c), [`0dd12de`](https://github.com/EVEShipFit/eveship.fit/commit/0dd12de0baf887771615a1c29addd345247b6ed8), [`9c446d6`](https://github.com/EVEShipFit/eveship.fit/commit/9c446d6a53091d739a846f0643f302e54ce9034d), [`3970335`](https://github.com/EVEShipFit/eveship.fit/commit/3970335be9da0aeca645b928656167ff5e122945), [`d59db39`](https://github.com/EVEShipFit/eveship.fit/commit/d59db39904b94227efa7ed205b8db86a59470276), [`e106f8a`](https://github.com/EVEShipFit/eveship.fit/commit/e106f8ab312bcbe64cd126e1aff6771bf10ea150)]:
+  - @eveshipfit/react-hooks@2.1.0
+
 ## 1.4.0
 
 ### Minor Changes
