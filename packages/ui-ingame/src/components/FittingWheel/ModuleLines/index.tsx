@@ -5,6 +5,7 @@ import type { ComponentType } from "react";
 import type { SlotState } from "../../../primitives/Wheel/WheelSlot";
 import { MaxVelocity } from "./MaxVelocity";
 import { ResistanceBonus } from "./ResistanceBonus";
+import { Turret } from "./Turret";
 
 export interface LineProps {
   itemRef: ItemRef;
@@ -18,6 +19,7 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["modifyShieldResonancePostPercent", [ResistanceBonus]],
   ["modifyActiveShieldResonancePostPercent", [ResistanceBonus]],
   ["modifyActiveArmorResonancePostPercent", [ResistanceBonus]],
+  ["turretFitted", [Turret]],
 ]);
 
 /** Tooltip lines from the effects of a module. */
