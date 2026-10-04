@@ -1,4 +1,4 @@
-import { load_esf_link, load_killmail, load_link, save_esf_link } from "@eveshipfit/dogma-engine";
+import { load_dna, load_esf_link, load_killmail, load_link, save_esf_link } from "@eveshipfit/dogma-engine";
 import type { Esi, Killmail } from "@eveshipfit/esi";
 
 import { postLoad } from "./post-load.js";
@@ -11,6 +11,7 @@ export async function loadLink(link: string, esi: Esi | undefined, character: Ch
   const payload = link.slice(separator + 1);
 
   if (version === "esf1") return load_esf_link(payload);
+  if (version === "dna") return postLoad(load_dna(payload), character);
   if (version === "killmail") return load_killmail(await fetchKillmail(payload, esi));
   const fit = load_link(version, await gunzip(payload));
   return version === "eft" ? postLoad(fit, character) : fit;

@@ -16,6 +16,18 @@ test("EFT text", async () => {
   );
 });
 
+test("DNA text, with or without its fitting: prefix", async () => {
+  const engine = await testEngine();
+  const cannon = typeIdOf(engine, "200mm AutoCannon I");
+
+  for (const dna of [`587:${cannon};1::`, `fitting:587:${cannon};1::`]) {
+    const fit = engine.loadText(dna);
+
+    expect(fit.ship.type_id).toBe(587);
+    expect(fit.items).toContainEqual(expect.objectContaining({ type_id: cannon, slot: { type: "high", index: 0 } }));
+  }
+});
+
 test("esf/1 text reads back as the fit it was saved from", async () => {
   const engine = await testEngine();
   const fit = engine.loadText(eft);

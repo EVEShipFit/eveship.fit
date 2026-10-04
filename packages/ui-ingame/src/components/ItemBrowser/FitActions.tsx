@@ -156,7 +156,7 @@ function ImportForm({ onDone }: { onDone: () => void }) {
         load();
       }}
     >
-      <label htmlFor={id}>Paste a fit in EFT or esf/1 format.</label>
+      <label htmlFor={id}>Paste a fit in EFT, DNA or esf/1 format.</label>
       <textarea
         id={id}
         rows={12}

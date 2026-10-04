@@ -73,7 +73,7 @@ export class Engine implements Calculator {
     return saveLink(fit);
   }
 
-  /** The fit in EFT or esf/1 text, as copied from EVE, Pyfa or EVEShip.fit. */
+  /** The fit in EFT, DNA or esf/1 text, as copied from EVE, Pyfa or EVEShip.fit. */
   loadText(text: string, character: Character = this.defaultCharacter): Fit {
     return loadText(text, character);
   }
