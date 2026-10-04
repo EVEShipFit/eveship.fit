@@ -1,4 +1,4 @@
-import type { Rack } from "@eveshipfit/fitting";
+import type { ItemRef, Rack } from "@eveshipfit/fitting";
 import { useType } from "@eveshipfit/react-hooks";
 
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
@@ -10,6 +10,7 @@ type Tone = "normal" | "muted" | "active" | "overload";
 
 export interface ModuleTooltipProps {
   rack: Rack;
+  itemRef: ItemRef;
   typeId: number;
   chargeTypeId?: number;
   state: SlotState;
@@ -17,13 +18,13 @@ export interface ModuleTooltipProps {
 }
 
 /** What EVE shows when hovering a fitted module. */
-export function ModuleTooltip({ rack, typeId, chargeTypeId, state, maxState }: ModuleTooltipProps) {
+export function ModuleTooltip({ rack, itemRef, typeId, chargeTypeId, state, maxState }: ModuleTooltipProps) {
   const status = moduleStatus(rack, state, maxState);
   return (
     <span className={styles.tooltip}>
       <TypeRow typeId={typeId} />
       {chargeTypeId !== undefined && <TypeRow typeId={chargeTypeId} />}
-      <ModuleLines typeId={typeId} state={state} />
+      <ModuleLines typeId={typeId} itemRef={itemRef} state={state} />
       {status && (
         <span className={styles.status} data-tone={status.tone}>
           {status.text}

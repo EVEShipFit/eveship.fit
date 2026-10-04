@@ -1,26 +1,29 @@
-import { useType } from "@eveshipfit/react-hooks";
+import type { ItemRef } from "@eveshipfit/fitting";
+import { useSde, useType } from "@eveshipfit/react-hooks";
 import type { ComponentType } from "react";
 
 import type { SlotState } from "../../../primitives/Wheel/WheelSlot";
 import { MaxVelocity } from "./MaxVelocity";
+import { ResistanceBonus } from "./ResistanceBonus";
 
 export interface LineProps {
+  itemRef: ItemRef;
   state: SlotState;
 }
 
-const Effect = {
-  MicrowarpdriveBonus: 6730,
-  AfterburnerBonus: 6731,
-} as const;
-
-const lines = new Map<number, ComponentType<LineProps>[]>([
-  [Effect.MicrowarpdriveBonus, [MaxVelocity]],
-  [Effect.AfterburnerBonus, [MaxVelocity]],
+const lines = new Map<string, ComponentType<LineProps>[]>([
+  ["moduleBonusMicrowarpdrive", [MaxVelocity]],
+  ["moduleBonusAfterburner", [MaxVelocity]],
+  ["modifyArmorResonancePostPercent", [ResistanceBonus]],
+  ["modifyShieldResonancePostPercent", [ResistanceBonus]],
+  ["modifyActiveShieldResonancePostPercent", [ResistanceBonus]],
+  ["modifyActiveArmorResonancePostPercent", [ResistanceBonus]],
 ]);
 
 /** Tooltip lines from the effects of a module. */
-export function ModuleLines({ typeId, state }: { typeId: number; state: SlotState }) {
+export function ModuleLines({ typeId, ...props }: { typeId: number } & LineProps) {
+  const sde = useSde();
   const type = useType(typeId);
-  const shown = new Set([...(type?.effectIds ?? [])].flatMap((id) => lines.get(id) ?? []));
-  return [...shown].map((Line, index) => <Line key={index} state={state} />);
+  const shown = new Set([...(type?.effectIds ?? [])].flatMap((id) => lines.get(sde.effect(id)?.name ?? "") ?? []));
+  return [...shown].map((Line, index) => <Line key={index} {...props} />);
 }

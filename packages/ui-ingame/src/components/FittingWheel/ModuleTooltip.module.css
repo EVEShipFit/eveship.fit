@@ -4,7 +4,9 @@
 }
 
 .type,
-.line {
+.line,
+.bonuses,
+.bonus {
   align-items: center;
   display: flex;
   gap: 8px;
@@ -12,6 +14,19 @@
 
 .type {
   font-weight: 600;
+}
+
+.block {
+  display: grid;
+  gap: 4px;
+}
+
+.bonuses {
+  gap: 12px;
+}
+
+.bonus {
+  gap: 4px;
 }
 
 .status[data-tone="muted"] {

@@ -65,9 +65,10 @@ export function useFittingSlot(
     activatable: stats?.maxState === "active" || stats?.maxState === "overload",
     label: type && stats && `${type.name}, ${stats.state}`,
     tooltip:
-      item && stats && !content.preview ? (
+      item && stats && ref !== undefined && !content.preview ? (
         <ModuleTooltip
           rack={rack}
+          itemRef={ref}
           typeId={item.type_id}
           chargeTypeId={item.charge?.type_id}
           state={stats.state}

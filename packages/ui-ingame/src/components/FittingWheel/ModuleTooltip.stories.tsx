@@ -5,7 +5,7 @@ import { ModuleTooltip } from "./ModuleTooltip";
 
 const meta = {
   component: ModuleTooltip,
-  args: { rack: "high", typeId: 2889, state: "active", maxState: "overload" },
+  args: { rack: "high", itemRef: 0, typeId: 2889, state: "active", maxState: "overload" },
   decorators: [
     (Story) => (
       <div style={{ background: "var(--esf-bg)", border: "1px solid var(--esf-border)", padding: "8px 14px" }}>
@@ -85,5 +85,15 @@ export const WithLines: Story = {
   args: { rack: "medium", typeId: 5973, state: "active", maxState: "overload" },
   play: async ({ canvas }) => {
     await expect(canvas.getByText(/^Max Velocity with: /)).toBeVisible();
+  },
+};
+
+export const WithResistanceBonus: Story = {
+  args: { rack: "medium", typeId: 2281, state: "active", maxState: "overload" },
+  parameters: {
+    fit: { ship: { type_id: 587 }, items: [{ type_id: 2281, slot: { type: "medium", index: 0 }, state: "active" }] },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Resistance Bonus:")).toBeVisible();
   },
 };
