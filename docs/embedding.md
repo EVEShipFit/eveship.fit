@@ -10,15 +10,17 @@ npm install @eveshipfit/ui-ingame @eveshipfit/react-hooks @eveshipfit/fitting @e
 
 ## Data files
 
-EVE's data comes with the npm packages; serve these from your site:
+The wheel needs EVE's data. It comes with the npm packages, and you serve it from your own site:
 
-- `@eveshipfit/sde/dist/sde.dat`
-- `@eveshipfit/dogma-engine/esf_dogma_engine_bg.wasm`
-- `@eveshipfit/images/dist/images.dat`
-- `@eveshipfit/images/dist/images/`
+| File                                                | What it is                          |
+| --------------------------------------------------- | ----------------------------------- |
+| `@eveshipfit/sde/dist/sde.dat`                      | EVE's types, attributes and effects |
+| `@eveshipfit/dogma-engine/esf_dogma_engine_bg.wasm` | The engine that calculates the fit  |
+| `@eveshipfit/images/dist/images.dat`                | Which image belongs to which type   |
+| `@eveshipfit/images/dist/images/`                   | The icons and textures              |
 
-With [Vite](https://vite.dev/), `?url` imports take care of the first three. Copy the images folder, for example with
-[vite-plugin-static-copy](https://github.com/sapphi-red/vite-plugin-static-copy):
+With [Vite](https://vite.dev/), the `?url` imports below take care of the first three. The images folder you copy
+yourself, for example with [vite-plugin-static-copy](https://github.com/sapphi-red/vite-plugin-static-copy):
 
 ```js
 // vite.config.js
@@ -32,6 +34,8 @@ export default {
   ],
 };
 ```
+
+With another bundler, copy all four into your public folder, and use their URLs in the code below.
 
 ## Load the data
 
@@ -73,21 +77,44 @@ A fit can come from:
 - `await engine.loadLink(link)`: the `fit` value of an EVEShip.fit link.
 - `engine.loadEsiFitting(fitting)`: a fitting from ESI.
 
-`engine.saveLink(fit)` gives the `fit` value for a link to it on EVEShip.fit.
+To link to the fit on EVEShip.fit: `https://eveship.fit/?fit=${engine.saveLink(fit)}`.
 
-`EveShipFitProvider` takes `fit` once; to show another, give it a new `key`, or call `replace` on the fit.
+`EveShipFitProvider` takes `fit` only once. To show another fit in the same place, give the provider a new `key`, or
+call `replace` on the fit.
 
-For several fits on a page, give each its own `EveShipFitProvider`; they share the engine and the `ImagesProvider`.
+### Several fits on a page
 
-### Options
+Give each fit its own `EveShipFitProvider`. They share the engine and the `ImagesProvider`:
 
-- `readOnly`: the fit cannot be changed.
+```tsx
+<ImagesProvider images={images}>
+  {fits.map((fit) => (
+    <EveShipFitProvider key={fit.id} engine={engine} fit={engine.createFit(engine.loadText(fit.eft))}>
+      <FittingWheel readOnly />
+    </EveShipFitProvider>
+  ))}
+</ImagesProvider>
+```
+
+## Options
+
+By default, visitors can change the fit: click a module to change its state, and drag modules on and off the wheel.
+
+- `readOnly`: shows the fit as it is.
 - `hideStats`: leaves out the hardpoints and the CPU, powergrid and calibration gauges.
 
-Set `--esf-wheel-size` to change the width of the wheel.
+## Styling
+
+Set `--esf-wheel-size` to change the width of the wheel:
+
+```css
+.my-fit {
+  --esf-wheel-size: 400px;
+}
+```
 
 The theme uses [Noto Sans](https://fonts.google.com/noto/specimen/Noto+Sans) if the page loads it, for example with
-`@fontsource-variable/noto-sans`.
+[`@fontsource-variable/noto-sans`](https://fontsource.org/fonts/noto-sans), and the system font otherwise.
 
 ## Updating
 
@@ -95,5 +122,5 @@ Update `@eveshipfit/sde` and `@eveshipfit/images` to get the ships and modules o
 
 ## More
 
-Everything the wheel shows comes from the hooks of `@eveshipfit/react-hooks`; [the packages](../packages) have a
-README each.
+Everything the wheel shows comes from the hooks of `@eveshipfit/react-hooks`, if you want to draw parts yourself.
+[The packages](../packages) each have a README.
