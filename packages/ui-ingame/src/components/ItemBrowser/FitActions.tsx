@@ -19,16 +19,17 @@ export function FitActions() {
   const [copied, flashCopied] = useFlash();
   const [importing, setImporting] = useState(false);
   const [overwriting, setOverwriting] = useState(false);
+  const named = { ...fit, name: fit.name || engine.sde.type(fit.ship.type_id)?.name };
 
   const saveNow = () => {
     setOverwriting(false);
-    save(fit);
+    save(named);
     flashSaved();
   };
 
   const trySave = () => {
-    const existing = fits.find((one) => one.ship.type_id === fit.ship.type_id && one.name === fit.name);
-    if (existing === undefined || JSON.stringify(existing) === JSON.stringify(fit)) saveNow();
+    const existing = fits.find((one) => one.ship.type_id === fit.ship.type_id && one.name === named.name);
+    if (existing === undefined || JSON.stringify(existing) === JSON.stringify(named)) saveNow();
     else setOverwriting(true);
   };
 
@@ -62,7 +63,7 @@ export function FitActions() {
       </div>
       <Dialog open={overwriting} title="Overwrite Fit?" onClose={() => setOverwriting(false)}>
         <div className={styles.confirm}>
-          <p>A fit named &quot;{fit.name ?? ""}&quot; is already saved for this hull. Overwrite it?</p>
+          <p>A fit named &quot;{named.name}&quot; is already saved for this hull. Overwrite it?</p>
           <div className={styles.dialogButtons}>
             <button type="button" className={styles.action} onClick={() => setOverwriting(false)}>
               Cancel
