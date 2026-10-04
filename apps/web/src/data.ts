@@ -94,11 +94,11 @@ function keepInUrl(engine: Engine, store: FitStore) {
     fit = snapshot.fit;
 
     const url = new URL(location.href);
+    url.searchParams.delete("fit");
     try {
-      url.searchParams.set("fit", engine.saveLink(fit));
+      url.search += `${url.search === "" ? "" : "&"}fit=${engine.saveLink(fit)}`;
     } catch (error) {
       console.error(error);
-      url.searchParams.delete("fit");
     }
     history.replaceState(history.state, "", url);
   };

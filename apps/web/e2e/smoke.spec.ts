@@ -37,10 +37,7 @@ test("a fit link opens its fit, and the url keeps it", async ({ page }) => {
     "/?fit=v3:H4sIAAAAAAAAAyvOyCzQMbUw1/HJzMtWCMpMK0kt0uHKzU8pzUnV8chMz9Ax1DGyMDfWcUwuySxL1TG0MEWRNcKQTSnKz0vVMTKxMNMx1DHgSk4sSs8HSegYGhhwAQBLJK6dbwAAAA==&x=1#h",
   );
   await expect(page.getByText("Link Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
-  const url = new URL(page.url());
-  expect(url.searchParams.get("fit")).toMatch(/^esf1:[\w-]+$/);
-  expect(url.searchParams.get("x")).toBe("1");
-  expect(url.hash).toBe("#h");
+  expect(new URL(page.url()).search + new URL(page.url()).hash).toMatch(/^\?x=1&fit=esf1:[\w-]+#h$/);
 
   await page.reload();
   await expect(page.getByText("Link Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
