@@ -13,11 +13,24 @@ const FLASH_MS = 2000;
 export function FitActions() {
   const engine = useEngine();
   const fit = useFit();
-  const { save } = useLocalFits();
+  const { fits, save } = useLocalFits();
   const menu = useId();
   const [saved, flashSaved] = useFlash();
   const [copied, flashCopied] = useFlash();
   const [importing, setImporting] = useState(false);
+  const [overwriting, setOverwriting] = useState(false);
+
+  const saveNow = () => {
+    setOverwriting(false);
+    save(fit);
+    flashSaved();
+  };
+
+  const trySave = () => {
+    const existing = fits.find((one) => one.ship.type_id === fit.ship.type_id && one.name === fit.name);
+    if (existing === undefined || JSON.stringify(existing) === JSON.stringify(fit)) saveNow();
+    else setOverwriting(true);
+  };
 
   const copy = (format: TextFormat) => {
     document.getElementById(menu)?.hidePopover();
@@ -26,14 +39,7 @@ export function FitActions() {
 
   return (
     <div className={styles.actions}>
-      <button
-        type="button"
-        className={styles.action}
-        onClick={() => {
-          save(fit);
-          flashSaved();
-        }}
-      >
+      <button type="button" className={styles.action} onClick={trySave}>
         {saved ? "Saved" : "Save"}
       </button>
       <button type="button" className={styles.action} onClick={() => setImporting(true)}>
@@ -54,6 +60,19 @@ export function FitActions() {
           Copy as esf/1
         </button>
       </div>
+      <Dialog open={overwriting} title="Overwrite Fit?" onClose={() => setOverwriting(false)}>
+        <div className={styles.confirm}>
+          <p>A fit named &quot;{fit.name ?? ""}&quot; is already saved for this hull. Overwrite it?</p>
+          <div className={styles.dialogButtons}>
+            <button type="button" className={styles.action} onClick={() => setOverwriting(false)}>
+              Cancel
+            </button>
+            <button type="button" className={styles.action} onClick={saveNow}>
+              Overwrite
+            </button>
+          </div>
+        </div>
+      </Dialog>
       <Dialog open={importing} title="Import Fit" onClose={() => setImporting(false)}>
         <ImportForm onDone={() => setImporting(false)} />
       </Dialog>
@@ -108,7 +127,7 @@ function ImportForm({ onDone }: { onDone: () => void }) {
           Could not import: {error}
         </p>
       )}
-      <div className={styles.importButtons}>
+      <div className={styles.dialogButtons}>
         <button type="button" className={styles.action} onClick={onDone}>
           Cancel
         </button>

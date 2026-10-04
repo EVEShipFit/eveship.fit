@@ -262,12 +262,32 @@ export const SaveFit: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Save" }));
     await expect(canvas.getByRole("button", { name: "Saved" })).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "Saved" }));
+    await expect(canvas.queryByRole("dialog")).toBeNull();
 
     await userEvent.click(canvas.getByRole("button", { name: "Browser Fittings" }));
     const hulls = within(canvas.getByRole("list", { name: "Hulls" }));
     await userEvent.click(hulls.getByRole("button", { name: "Frigate" }));
     await userEvent.click(hulls.getByRole("button", { name: /^Minmatar/ }));
     await expect(hulls.getByRole("button", { name: "Rifter" })).toHaveAccessibleDescription(/^Browser Fittings: 1 /);
+  },
+};
+
+/** Saving over a different fit with the same hull and name asks first. */
+export const OverwriteFit: Story = {
+  parameters: { localFits, fit: { name: "Brawler", ship: { type_id: 587 }, items: [] } },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    const dialog = within(canvas.getByRole("dialog", { name: "Overwrite Fit?" }));
+    await expect(dialog.getByText(/"Brawler"/)).toBeVisible();
+    await userEvent.click(dialog.getByRole("button", { name: "Cancel" }));
+    await expect(canvas.queryByRole("dialog")).toBeNull();
+    await expect(canvas.getByRole("button", { name: "Save" })).toBeVisible();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Overwrite" }));
+    await expect(canvas.queryByRole("dialog")).toBeNull();
+    await expect(canvas.getByRole("button", { name: "Saved" })).toBeVisible();
   },
 };
 

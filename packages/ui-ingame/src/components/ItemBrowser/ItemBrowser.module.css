@@ -355,7 +355,15 @@
   margin: 0;
 }
 
-.importButtons {
+.confirm {
+  max-width: min(360px, 80vw);
+}
+
+.confirm > p {
+  margin: 0 0 12px;
+}
+
+.dialogButtons {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
