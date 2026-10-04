@@ -4,6 +4,7 @@ import { Stat } from "../../primitives/Stat/Stat";
 import { StatsSection } from "../../primitives/StatsSection/StatsSection";
 import { AttributeText } from "./AttributeText";
 import { AttributeTooltip } from "./AttributeTooltip";
+import styles from "./ShipStatistics.module.css";
 import { unit } from "./units";
 
 export function DroneStats() {
@@ -16,6 +17,7 @@ export function DroneStats() {
     fixed: true,
     format: unit(" km", 1000),
   });
+  const over = (bandwidthUsed.value ?? 0) > (bandwidth.value ?? 0);
   const active = useAttribute("droneActive", { decimals: 0, fallback: 0, format: unit(" Active") });
 
   return (
@@ -25,7 +27,9 @@ export function DroneStats() {
         label="Drone Bandwidth"
         tooltip={<AttributeTooltip attribute="droneBandwidth" />}
       >
-        <AttributeText value={bandwidthUsed} />/<AttributeText value={bandwidth} />
+        <span className={styles.limit} data-over={over || undefined}>
+          <AttributeText value={bandwidthUsed} />/<AttributeText value={bandwidth} />
+        </span>
       </Stat>
       <Stat icon="stat-drone-control-range" label="Drone Control Range">
         <AttributeText value={controlRange} />

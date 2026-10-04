@@ -6,6 +6,7 @@ import { DroneStats } from "./DroneStats";
 const types = {
   Tristan: 593,
   "Hobgoblin II": 2456,
+  "Hammerhead II": 2185,
 };
 
 const meta = {
@@ -37,5 +38,19 @@ export const TwoHobgoblins: Story = {
     await expect(canvas.getByRole("button", { name: /^Drones/ })).toHaveTextContent("39.6 dps");
     await expect(canvas.getByRole("group", { name: "Drone Bandwidth" })).toHaveTextContent("10/25 Mbit/sec");
     await expect(canvas.getByRole("group", { name: "Active Drones" })).toHaveTextContent("2 Active");
+  },
+};
+
+export const OverBandwidth: Story = {
+  parameters: {
+    fit: {
+      ship: { type_id: types.Tristan },
+      items: [{ type_id: types["Hammerhead II"], slot: { type: "drone_bay" }, quantity: 3, state: "active" }],
+    },
+  },
+  play: async ({ canvas }) => {
+    const bandwidth = canvas.getByRole("group", { name: "Drone Bandwidth" });
+    await expect(bandwidth).toHaveTextContent("30/25 Mbit/sec");
+    await expect(bandwidth.querySelector("[data-over]")).not.toBeNull();
   },
 };
