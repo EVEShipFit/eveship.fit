@@ -5,6 +5,7 @@ import type { Images } from "@eveshipfit/images";
 import type { MarketGroupNode, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
 import { ZKillboard } from "@eveshipfit/zkillboard";
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { IDBFactory } from "fake-indexeddb";
 import type { ReactNode } from "react";
 import { beforeAll, expect, test, vi } from "vitest";
 
@@ -52,7 +53,6 @@ import {
   useViolations,
   type CharacterStorage,
   type EveShipFitProviderProps,
-  type FitStorage,
 } from "../src/index.js";
 import { testEngine, testTexts } from "./files.js";
 
@@ -61,6 +61,7 @@ const DAMAGE_CONTROL_II = 2048;
 
 let engine: Engine;
 beforeAll(async () => {
+  vi.stubGlobal("indexedDB", new IDBFactory());
   engine = await testEngine();
 });
 
@@ -414,13 +415,8 @@ test("drag and drop", () => {
 });
 
 test("saved fits", () => {
-  const items = new Map<string, string>();
-  const storage: FitStorage = {
-    getItem: (key) => items.get(key) ?? null,
-    setItem: (key, value) => void items.set(key, value),
-  };
   const { result } = render(() => ({ localFits: useLocalFits(), fit: useFit() }), {
-    localFits: new LocalFits(storage),
+    localFits: new LocalFits({ factory: new IDBFactory() }),
   });
 
   act(() => result.current.localFits.save(result.current.fit));

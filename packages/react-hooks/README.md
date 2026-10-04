@@ -107,8 +107,8 @@ characters.loadAll();
 
 ### Saved fits
 
-`useLocalFits` lists, saves and removes fits in `localStorage`; pass a `LocalFits` to the provider to store them
-elsewhere.
+`useLocalFits` lists, saves and removes fits in IndexedDB, and follows changes made in other tabs; pass a `LocalFits`
+to the provider to store them elsewhere.
 
 ## License
 
