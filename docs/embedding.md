@@ -8,7 +8,7 @@ The fitting wheel of [EVEShip.fit](https://eveship.fit) is a React component you
 npm install @eveshipfit/ui-ingame @eveshipfit/react-hooks @eveshipfit/fitting @eveshipfit/dogma-engine @eveshipfit/sde-loader @eveshipfit/sde @eveshipfit/images react react-dom
 ```
 
-You need React 19. Every package is on the public npm registry.
+You need React 19.
 
 ## The data files
 
