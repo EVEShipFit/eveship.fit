@@ -19,6 +19,7 @@
     "@eveshipfit/sde-loader": "workspace:*",
     "@eveshipfit/ui-ingame": "workspace:*",
     "@eveshipfit/zkillboard": "workspace:*",
+    "@fontsource-variable/noto-sans": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
   },
