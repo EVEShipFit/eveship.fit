@@ -7,7 +7,7 @@ import {
   type Sso,
   type SsoLogin,
 } from "@eveshipfit/esi";
-import type { Engine, Fit } from "@eveshipfit/fitting";
+import type { Character, Engine, Fit } from "@eveshipfit/fitting";
 
 import type { LocalFits } from "./local-fits.js";
 
@@ -179,7 +179,8 @@ export class EsiCharacters {
   }
 
   async #load(login: SsoLogin) {
-    await Promise.all([this.#loadSkills(login), this.#loadFittings(login)]);
+    await this.#loadSkills(login);
+    await this.#loadFittings(login);
   }
 
   async #loadFittings({ characterId, accessToken, scopes }: SsoLogin) {
@@ -189,8 +190,13 @@ export class EsiCharacters {
         this.#esi.characterFittings(characterId, accessToken),
         this.#engine,
       ]);
-      if (!this.#read().some((character) => character.id === characterId)) return;
-      await this.#localFits.setCharacterFits(characterId, new Map(fittings.flatMap((one) => fitOf(engine, one))));
+      const character = this.#read().find((one) => one.id === characterId);
+      if (character === undefined) return;
+      const flownBy = character.skills === undefined ? engine.defaultCharacter : { skills: character.skills };
+      await this.#localFits.setCharacterFits(
+        characterId,
+        new Map(fittings.flatMap((one) => fitOf(engine, one, flownBy))),
+      );
     } catch (error) {
       console.error(error);
     }
@@ -262,9 +268,9 @@ export class EsiCharacters {
 }
 
 /** The fitting as a fit with its fitting ID; none when the engine cannot read it. */
-function fitOf(engine: Engine, fitting: CharacterFitting): [number, Fit][] {
+function fitOf(engine: Engine, fitting: CharacterFitting, character: Character): [number, Fit][] {
   try {
-    return [[fitting.fitting_id, engine.loadEsiFitting(fitting)]];
+    return [[fitting.fitting_id, engine.loadEsiFitting(fitting, character)]];
   } catch (error) {
     console.error(error);
     return [];

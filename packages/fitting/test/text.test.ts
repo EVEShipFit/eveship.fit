@@ -75,3 +75,28 @@ test("an ESI fitting", async () => {
     expect.objectContaining({ type_id: hobgoblin, slot: { type: "drone_bay" }, quantity: 5 }),
   );
 });
+
+test("EFT text gets the states EVE gives an imported fit", async () => {
+  const engine = await testEngine();
+
+  const fit = engine.loadText("[Rifter, My Rifter]\n\n5MN Microwarpdrive II\n1MN Afterburner II\n");
+
+  expect(fit.items.map((item) => item.state)).toEqual(["active", "online"]);
+});
+
+test("an ESI fitting gets the states EVE gives an imported fit", async () => {
+  const engine = await testEngine();
+
+  const fit = engine.loadEsiFitting({
+    fitting_id: 1,
+    name: "My Rifter",
+    description: "",
+    ship_type_id: 587,
+    items: [
+      { type_id: typeIdOf(engine, "5MN Microwarpdrive II"), flag: "MedSlot0", quantity: 1 },
+      { type_id: typeIdOf(engine, "1MN Afterburner II"), flag: "MedSlot1", quantity: 1 },
+    ],
+  });
+
+  expect(fit.items.map((item) => item.state)).toEqual(["active", "online"]);
+});

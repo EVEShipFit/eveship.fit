@@ -5,6 +5,7 @@ import type { Sde } from "@eveshipfit/sde-loader";
 import { allSkills } from "./character.js";
 import { emptyFit } from "./edits.js";
 import { loadLink, saveLink } from "./link.js";
+import { postLoad } from "./post-load.js";
 import { Stats } from "./stats.js";
 import { FitStore, type Calculator } from "./store.js";
 import { loadText, saveText, type TextFormat } from "./text.js";
@@ -63,8 +64,8 @@ export class Engine implements Calculator {
   }
 
   /** The fit of an EVEShip.fit link, as the `fit` value of its query string. */
-  loadLink(link: string): Promise<Fit> {
-    return loadLink(link, this.esi);
+  loadLink(link: string, character: Character = this.defaultCharacter): Promise<Fit> {
+    return loadLink(link, this.esi, character);
   }
 
   /** The `fit` value of an EVEShip.fit link to the fit. */
@@ -73,8 +74,8 @@ export class Engine implements Calculator {
   }
 
   /** The fit in EFT or esf/1 text, as copied from EVE, Pyfa or EVEShip.fit. */
-  loadText(text: string): Fit {
-    return loadText(text);
+  loadText(text: string, character: Character = this.defaultCharacter): Fit {
+    return loadText(text, character);
   }
 
   saveText(fit: Fit, format: TextFormat): string {
@@ -82,7 +83,7 @@ export class Engine implements Calculator {
   }
 
   /** The fit of a fitting a character saved in game. */
-  loadEsiFitting(fitting: CharacterFitting): Fit {
-    return load_esi_fitting(fitting);
+  loadEsiFitting(fitting: CharacterFitting, character: Character = this.defaultCharacter): Fit {
+    return postLoad(load_esi_fitting(fitting), character);
   }
 }

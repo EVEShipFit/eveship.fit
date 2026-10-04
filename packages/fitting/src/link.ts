@@ -1,9 +1,10 @@
 import { load_esf_link, load_killmail, load_link, save_esf_link } from "@eveshipfit/dogma-engine";
 import type { Esi, Killmail } from "@eveshipfit/esi";
 
-import type { Fit } from "./types.js";
+import { postLoad } from "./post-load.js";
+import type { Character, Fit } from "./types.js";
 
-export async function loadLink(link: string, esi: Esi | undefined): Promise<Fit> {
+export async function loadLink(link: string, esi: Esi | undefined, character: Character): Promise<Fit> {
   const separator = link.indexOf(":");
   if (separator === -1) throw new Error("A fit link is <version>:<payload>");
   const version = link.slice(0, separator);
@@ -11,7 +12,8 @@ export async function loadLink(link: string, esi: Esi | undefined): Promise<Fit>
 
   if (version === "esf1") return load_esf_link(payload);
   if (version === "killmail") return load_killmail(await fetchKillmail(payload, esi));
-  return load_link(version, await gunzip(payload));
+  const fit = load_link(version, await gunzip(payload));
+  return version === "eft" ? postLoad(fit, character) : fit;
 }
 
 export function saveLink(fit: Fit): string {
