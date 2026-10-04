@@ -41,12 +41,22 @@ test("the login URL asks for the scopes, with a PKCE challenge of the verifier",
 });
 
 test("a login trades the code for the character and its tokens", async () => {
-  const token = accessToken({ sub: "CHARACTER:EVE:90000001", name: "Pilot Ünïcode" });
+  const token = accessToken({
+    sub: "CHARACTER:EVE:90000001",
+    name: "Pilot Ünïcode",
+    scp: ["esi-skills.read_skills.v1", "esi-fittings.read_fittings.v1"],
+  });
   fetch.mockResolvedValue(Response.json({ access_token: token, refresh_token: "refresh" }));
 
   const login = await sso().login("code", "verifier");
 
-  expect(login).toEqual({ characterId: 90000001, name: "Pilot Ünïcode", accessToken: token, refreshToken: "refresh" });
+  expect(login).toEqual({
+    characterId: 90000001,
+    name: "Pilot Ünïcode",
+    scopes: ["esi-skills.read_skills.v1", "esi-fittings.read_fittings.v1"],
+    accessToken: token,
+    refreshToken: "refresh",
+  });
   const [url, init] = fetch.mock.calls[0]!;
   expect(url).toBe("https://login.eveonline.com/v2/oauth/token");
   expect(Object.fromEntries(init!.body as URLSearchParams)).toEqual({
@@ -55,6 +65,15 @@ test("a login trades the code for the character and its tokens", async () => {
     code_verifier: "verifier",
     client_id: "client",
   });
+});
+
+test("a single scope comes as a string", async () => {
+  const token = accessToken({ sub: "CHARACTER:EVE:90000001", name: "Pilot", scp: "esi-skills.read_skills.v1" });
+  fetch.mockResolvedValue(Response.json({ access_token: token, refresh_token: "refresh" }));
+
+  const login = await sso().refresh("refresh");
+
+  expect(login.scopes).toEqual(["esi-skills.read_skills.v1"]);
 });
 
 test("a refresh token EVE no longer accepts throws its OAuth error", async () => {

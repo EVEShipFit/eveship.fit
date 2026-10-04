@@ -99,7 +99,7 @@ export function useFlyCharacter(
   }, [store, character]);
 }
 
-function useEsiCharacters(esiCharacters: EsiCharacters | undefined): readonly EsiCharacter[] {
+export function useEsiCharacters(esiCharacters: EsiCharacters | undefined): readonly EsiCharacter[] {
   return useSyncExternalStore(esiCharacters?.subscribe ?? noSubscribe, esiCharacters?.list ?? (() => noCharacters));
 }
 

@@ -42,6 +42,7 @@ import {
   useMissingSkills,
   useModuleSearch,
   useModuleTree,
+  usePersonalFits,
   usePlacement,
   usePreview,
   useRackUsage,
@@ -365,8 +366,9 @@ test("missing skills follow the character", () => {
   expect(result.current.missingSkills(fitted).length).toBeGreaterThan(result.current.missingSkills([RIFTER]).length);
 });
 
-test("a logged-in character flies the fit with its own skills", async () => {
+test("a logged-in character flies the fit with its own skills, and has its fittings", async () => {
   const gunnery = engine.sde.typeByName("Gunnery")!.id;
+  const localFits = new LocalFits({ factory: new IDBFactory() });
   const characters = new EsiCharacters({
     esi: {
       characterSkills: async () => ({
@@ -374,12 +376,23 @@ test("a logged-in character flies the fit with its own skills", async () => {
         total_sp: 0,
       }),
       characterSkillQueue: async () => [],
+      characterFittings: async () => [
+        { fitting_id: 1, name: "Fleet Rifter", description: "", ship_type_id: RIFTER, items: [] },
+      ],
     } as unknown as Esi,
     sso: {
       authorize: async () => ({ url: "https://login.eveonline.com/", state: "state", verifier: "verifier" }),
-      login: async () => ({ characterId: 90000001, name: "Pilot", accessToken: "access", refreshToken: "refresh" }),
+      login: async () => ({
+        characterId: 90000001,
+        name: "Pilot",
+        scopes: ["esi-fittings.read_fittings.v1"],
+        accessToken: "access",
+        refreshToken: "refresh",
+      }),
       revoke: async () => {},
     } as unknown as Sso,
+    engine: Promise.resolve(engine),
+    localFits,
     storage: memoryStorage(),
     session: memoryStorage(),
   });
@@ -387,10 +400,10 @@ test("a logged-in character flies the fit with its own skills", async () => {
   const id = String(await characters.finishLogin("code", "state"));
   await waitFor(() => expect(characters.list()[0]!.status).toBe("ready"));
 
-  const { result } = render(() => ({ characters: useCharacters(), store: useFitStore() }), {
-    characters,
-    character: id,
-  });
+  const { result } = render(
+    () => ({ characters: useCharacters(), store: useFitStore(), personal: usePersonalFits() }),
+    { characters, character: id, localFits },
+  );
 
   expect(result.current.characters.characters.map((character) => character.name)).toEqual([
     "Pilot",
@@ -398,10 +411,12 @@ test("a logged-in character flies the fit with its own skills", async () => {
     "All L0",
   ]);
   expect(result.current.store.character.skills).toEqual({ [gunnery]: 2 });
+  await waitFor(() => expect(result.current.personal.fits.map((fit) => fit.name)).toEqual(["Fleet Rifter"]));
 
   act(() => result.current.characters.remove(id));
   expect(result.current.characters.current).toBe("all-skills-v");
   expect(result.current.store.character).toBe(engine.defaultCharacter);
+  expect(result.current.personal.fits).toEqual([]);
 });
 
 test("drag and drop", () => {

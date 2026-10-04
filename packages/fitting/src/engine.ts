@@ -1,5 +1,5 @@
-import init, { calculate, load_sde, type InitInput } from "@eveshipfit/dogma-engine";
-import type { Esi } from "@eveshipfit/esi";
+import init, { calculate, load_esi_fitting, load_sde, type InitInput } from "@eveshipfit/dogma-engine";
+import type { CharacterFitting, Esi } from "@eveshipfit/esi";
 import type { Sde } from "@eveshipfit/sde-loader";
 
 import { allSkills } from "./character.js";
@@ -79,5 +79,10 @@ export class Engine implements Calculator {
 
   saveText(fit: Fit, format: TextFormat): string {
     return saveText(fit, format);
+  }
+
+  /** The fit of a fitting a character saved in game. */
+  loadEsiFitting(fitting: CharacterFitting): Fit {
+    return load_esi_fitting(fitting);
   }
 }

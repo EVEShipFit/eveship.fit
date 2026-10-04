@@ -30,17 +30,18 @@ export async function loadData(): Promise<Data | null> {
     const esi = new Esi({
       userAgent: `EVEShip.fit/${import.meta.env.EVESHIPFIT_VERSION} (info@eveship.fit; +https://eveship.fit)`,
     });
-    const characters = loadCharacters(esi);
+    const sdeLoad = loadSde({ url: sdeUrl });
+    const engineLoad = sdeLoad.then((loaded) => createEngine(loaded, { wasm: wasmUrl, esi }));
     const localFits = new LocalFits();
     moveV1Fits(localFits).catch(console.error);
+    const characters = loadCharacters(esi, engineLoad, localFits);
     const login = finishLogin(characters).then((result) => {
       characters?.loadAll();
       return result;
     });
-    const sdeLoad = loadSde({ url: sdeUrl });
     const [sde, engine, images, texts] = await Promise.all([
       sdeLoad,
-      sdeLoad.then((loaded) => createEngine(loaded, { wasm: wasmUrl, esi })),
+      engineLoad,
       // vite.config.ts serves the images at /images/.
       loadImages({ url: imagesUrl }, { baseUrl: "/images/" }),
       loadTexts({ url: textsUrl }),
@@ -56,11 +57,16 @@ export async function loadData(): Promise<Data | null> {
 }
 
 /** Undefined without a client ID, or where the browser blocks storage. */
-function loadCharacters(esi: Esi): EsiCharacters | undefined {
+function loadCharacters(esi: Esi, engine: Promise<Engine>, localFits: LocalFits): EsiCharacters | undefined {
   const clientId = import.meta.env.VITE_ESI_CLIENT_ID;
   if (!clientId) return undefined;
   try {
-    return new EsiCharacters({ esi, sso: new Sso({ clientId, redirectUri: new URL("/", location.href).href }) });
+    return new EsiCharacters({
+      esi,
+      sso: new Sso({ clientId, redirectUri: new URL("/", location.href).href }),
+      engine,
+      localFits,
+    });
   } catch (error) {
     console.error(error);
     return undefined;
