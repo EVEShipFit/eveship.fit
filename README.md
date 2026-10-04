@@ -4,6 +4,8 @@ View, create and share EVE Online ship fits: [eveship.fit](https://eveship.fit).
 
 This repository holds the website and the packages it is built from.
 
+To show fits on your own site, see [docs/embedding.md](docs/embedding.md).
+
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) 22 or newer.
