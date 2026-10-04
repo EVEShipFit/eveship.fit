@@ -3,11 +3,15 @@
   gap: 8px;
 }
 
-.type {
+.type,
+.line {
   align-items: center;
   display: flex;
-  font-weight: 600;
   gap: 8px;
+}
+
+.type {
+  font-weight: 600;
 }
 
 .status[data-tone="muted"] {

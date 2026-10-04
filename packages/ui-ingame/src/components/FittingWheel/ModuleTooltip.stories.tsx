@@ -80,3 +80,10 @@ export const InactiveRig: Story = {
     await expect(canvas.getByText("Inactive Rig")).toHaveStyle({ color: "rgb(138, 144, 150)" });
   },
 };
+
+export const WithLines: Story = {
+  args: { rack: "medium", typeId: 5973, state: "active", maxState: "overload" },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/^Max Velocity with: /)).toBeVisible();
+  },
+};

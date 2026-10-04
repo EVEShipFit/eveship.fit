@@ -81,8 +81,13 @@ categoryId():number {
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
+iconId():number {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
 static startDogmaAttribute(builder:flatbuffers.Builder) {
-  builder.startObject(11);
+  builder.startObject(12);
 }
 
 static addId(builder:flatbuffers.Builder, id:number) {
@@ -129,13 +134,17 @@ static addCategoryId(builder:flatbuffers.Builder, categoryId:number) {
   builder.addFieldInt32(10, categoryId, 0);
 }
 
+static addIconId(builder:flatbuffers.Builder, iconId:number) {
+  builder.addFieldInt32(11, iconId, 0);
+}
+
 static endDogmaAttribute(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 6) // name
   return offset;
 }
 
-static createDogmaAttribute(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers.Offset, displayNameOffset:flatbuffers.Offset, defaultValue:number, highIsGood:boolean, stackable:boolean, published:boolean, unitId:number, minAttributeId:number, maxAttributeId:number, categoryId:number):flatbuffers.Offset {
+static createDogmaAttribute(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers.Offset, displayNameOffset:flatbuffers.Offset, defaultValue:number, highIsGood:boolean, stackable:boolean, published:boolean, unitId:number, minAttributeId:number, maxAttributeId:number, categoryId:number, iconId:number):flatbuffers.Offset {
   DogmaAttribute.startDogmaAttribute(builder);
   DogmaAttribute.addId(builder, id);
   DogmaAttribute.addName(builder, nameOffset);
@@ -148,6 +157,7 @@ static createDogmaAttribute(builder:flatbuffers.Builder, id:number, nameOffset:f
   DogmaAttribute.addMinAttributeId(builder, minAttributeId);
   DogmaAttribute.addMaxAttributeId(builder, maxAttributeId);
   DogmaAttribute.addCategoryId(builder, categoryId);
+  DogmaAttribute.addIconId(builder, iconId);
   return DogmaAttribute.endDogmaAttribute(builder);
 }
 }

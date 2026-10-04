@@ -3,6 +3,7 @@ import { useType } from "@eveshipfit/react-hooks";
 
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
 import type { SlotState } from "../../primitives/Wheel/WheelSlot";
+import { ModuleLines } from "./ModuleLines";
 import styles from "./ModuleTooltip.module.css";
 
 type Tone = "normal" | "muted" | "active" | "overload";
@@ -22,6 +23,7 @@ export function ModuleTooltip({ rack, typeId, chargeTypeId, state, maxState }: M
     <span className={styles.tooltip}>
       <TypeRow typeId={typeId} />
       {chargeTypeId !== undefined && <TypeRow typeId={chargeTypeId} />}
+      <ModuleLines typeId={typeId} state={state} />
       {status && (
         <span className={styles.status} data-tone={status.tone}>
           {status.text}
