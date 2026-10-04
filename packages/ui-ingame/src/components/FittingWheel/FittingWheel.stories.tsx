@@ -244,7 +244,28 @@ export const DragToUnfit: Story = {
   },
 };
 
-/** Nothing on a read-only wheel can be pressed, hovered or dragged. */
+export const ModuleTooltip: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    const autocannon = canvas.getByRole("button", { name: "200mm AutoCannon II, active" });
+    const slot = within(autocannon.closest<HTMLElement>("[data-state]")!);
+    const status = slot.getByText("Active Module");
+    await expect(status).not.toBeVisible();
+
+    await userEvent.hover(autocannon);
+    await expect(status).toBeVisible();
+    await expect(slot.getByText("EMP S")).toBeVisible();
+    const tooltip = status.getBoundingClientRect();
+    const { left, right } = autocannon.getBoundingClientRect();
+    await expect(tooltip.right).toBeGreaterThan(left);
+    await expect(tooltip.left).toBeLessThan(right);
+
+    await userEvent.unhover(autocannon);
+    await expect(status).not.toBeVisible();
+  },
+};
+
+/** Nothing on a read-only wheel can be pressed or dragged, nor shows its actions. */
 export const ReadOnly: Story = {
   args: { readOnly: true },
   parameters: { fit: rifter },

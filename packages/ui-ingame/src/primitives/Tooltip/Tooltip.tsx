@@ -3,8 +3,9 @@ import { useId, useRef, type CSSProperties, type FocusEvent, type KeyboardEvent,
 import styles from "./Tooltip.module.css";
 
 export interface TooltipProps {
-  label: ReactNode;
-  /** One element, which the tooltip points at. */
+  /** Without one, there is no tooltip. */
+  label?: ReactNode;
+  /** The tooltip points at the first element. */
   children: ReactNode;
 }
 
@@ -36,10 +37,12 @@ export function Tooltip({ label, children }: TooltipProps) {
       }}
     >
       {children}
-      <span ref={tooltip} className={styles.tooltip} popover="hint" aria-hidden>
-        <span className={styles.notch} />
-        <span className={styles.label}>{label}</span>
-      </span>
+      {label !== undefined && (
+        <span ref={tooltip} className={styles.tooltip} popover="hint" aria-hidden>
+          <span className={styles.notch} />
+          <span className={styles.label}>{label}</span>
+        </span>
+      )}
     </span>
   );
 }

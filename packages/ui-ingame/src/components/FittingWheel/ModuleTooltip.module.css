@@ -1,0 +1,23 @@
+.tooltip {
+  display: grid;
+  gap: 8px;
+}
+
+.type {
+  align-items: center;
+  display: flex;
+  font-weight: 600;
+  gap: 8px;
+}
+
+.status[data-tone="muted"] {
+  color: var(--esf-text-muted);
+}
+
+.status[data-tone="active"] {
+  color: var(--esf-state-active);
+}
+
+.status[data-tone="overload"] {
+  color: var(--esf-state-overload);
+}
