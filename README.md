@@ -4,8 +4,7 @@ View, create and share EVE Online ship fits: [eveship.fit](https://eveship.fit).
 
 This repository holds the website and the packages it is built from.
 
-To show fits on your own site, see [docs/embedding.md](docs/embedding.md); moving from `@eveshipfit/react`, see
-[docs/migration.md](docs/migration.md).
+To show fits on your own site, see [docs/embedding.md](docs/embedding.md).
 
 ## Prerequisites
 

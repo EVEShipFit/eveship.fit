@@ -1,7 +1,6 @@
 # Showing a fit on your own site
 
 The fitting wheel of [EVEShip.fit](https://eveship.fit) is a React component you can put on your own site.
-Moving from `@eveshipfit/react`? See [migration.md](migration.md).
 
 ## Install
 
