@@ -3,9 +3,9 @@
 The fitting wheel of [EVEShip.fit](https://eveship.fit) is a React component you can use on your own site. It is
 built from a few packages:
 
-- `@eveshipfit/fitting` calculates fits, using EVE's data from `@eveshipfit/sde`.
-- `@eveshipfit/react-hooks` makes a fit available to React components.
-- `@eveshipfit/ui-ingame` draws the wheel, using the icons of `@eveshipfit/images`.
+- [`@eveshipfit/fitting`](../packages/fitting) calculates fits, using EVE's data from [`@eveshipfit/sde`](https://www.npmjs.com/package/@eveshipfit/sde).
+- [`@eveshipfit/react-hooks`](../packages/react-hooks) makes a fit available to React components.
+- [`@eveshipfit/ui-ingame`](../packages/ui-ingame) draws the wheel, using the icons of [`@eveshipfit/images`](https://www.npmjs.com/package/@eveshipfit/images).
 
 This guide takes you from installing them to a wheel on your page.
 
@@ -103,7 +103,7 @@ The engine reads fits in these forms:
 - `await engine.loadLink("killmail:<id>/<hash>")`: the fit of a killmail.
 - `engine.loadEsiFitting(fitting)`: a fitting from ESI.
 
-A killmail is fetched from ESI, so it needs an `Esi` of `@eveshipfit/esi` in `createEngine`:
+A killmail is fetched from ESI, so it needs an `Esi` of [`@eveshipfit/esi`](../packages/esi) in `createEngine`:
 
 ```ts
 import { Esi } from "@eveshipfit/esi";

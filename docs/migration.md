@@ -1,6 +1,6 @@
 # Moving from `@eveshipfit/react`
 
-`@eveshipfit/react` (v1) is replaced by a set of smaller packages. This guide is for sites that draw a fit with
+[`@eveshipfit/react`](https://github.com/EVEShipFit/react) (v1) is replaced by a set of smaller packages. This guide is for sites that draw a fit with
 `<ShipFit>`, and walks through the move step by step. [embedding.md](embedding.md) has the full setup of v2.
 
 In short:
@@ -13,7 +13,7 @@ In short:
 
 ## 1. Change the packages
 
-Remove `@eveshipfit/react`, and the GitHub Packages registry from your `.npmrc`; the new packages are on npm. Then
+Remove [`@eveshipfit/react`](https://github.com/EVEShipFit/react), and the GitHub Packages registry from your `.npmrc`; the new packages are on npm. Then
 install them as in [step 1 of embedding.md](embedding.md#1-install).
 
 ## 2. Serve the data files
@@ -88,17 +88,17 @@ writes every format v1 did, and esf/1:
 | `useImportEsiFitting`           | `engine.loadEsiFitting(fitting)`                       |
 | `CurrentFitProvider`'s `setFit` | `fit` of `EveShipFitProvider`, or `store.replace(fit)` |
 
-If you kept `EsfFit` objects, for example in a database, `loadV1Fits` of `@eveshipfit/fitting` converts them:
+If you kept `EsfFit` objects, for example in a database, `loadV1Fits` of [`@eveshipfit/fitting`](../packages/fitting) converts them:
 `loadV1Fits(JSON.stringify([esfFit]))[0]`.
 
 ## Other components
 
 If you used more than `<ShipFit>`:
 
-| v1                   | v2                                                                        |
-| -------------------- | ------------------------------------------------------------------------- |
-| `ShipStatistics`     | `ShipStatistics` of `@eveshipfit/ui-ingame`; also needs a `TextsProvider` |
-| `ShipFitExtended`    | `FittingWindow`                                                           |
-| `HardwareListing`    | `ItemBrowser`                                                             |
-| `StatisticsProvider` | `useStats` and `useAttribute` of `@eveshipfit/react-hooks`                |
-| `useEveData`         | `engine.sde`, see `@eveshipfit/sde-loader`                                |
+| v1                   | v2                                                                                                 |
+| -------------------- | -------------------------------------------------------------------------------------------------- |
+| `ShipStatistics`     | `ShipStatistics` of [`@eveshipfit/ui-ingame`](../packages/ui-ingame); also needs a `TextsProvider` |
+| `ShipFitExtended`    | `FittingWindow`                                                                                    |
+| `HardwareListing`    | `ItemBrowser`                                                                                      |
+| `StatisticsProvider` | `useStats` and `useAttribute` of [`@eveshipfit/react-hooks`](../packages/react-hooks)              |
+| `useEveData`         | `engine.sde`, see [`@eveshipfit/sde-loader`](../packages/sde-loader)                               |
