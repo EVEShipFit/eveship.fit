@@ -45,6 +45,8 @@ export interface WheelSlotProps extends HTMLAttributes<HTMLDivElement> {
   onDragStart?: DragEventHandler<HTMLDivElement>;
   onDragEnd?: DragEventHandler<HTMLDivElement>;
   label?: string;
+  /** False leaves out the actions shown on hover. */
+  actions?: boolean;
   onUnfit?: () => void;
   onRemoveCharge?: () => void;
   onTogglePower?: () => void;
@@ -65,6 +67,7 @@ export function WheelSlot({
   onDragStart,
   onDragEnd,
   label,
+  actions: showActions = true,
   onUnfit,
   onRemoveCharge,
   onTogglePower,
@@ -79,7 +82,7 @@ export function WheelSlot({
 
   // Each action has its place in the row, even when it is missing, as in EVE.
   const row: ({ key: string; node: ReactNode } | undefined)[] = [];
-  if (fitted && !preview) {
+  if (fitted && !preview && showActions) {
     if (chargeTypeId !== undefined) {
       row.push(
         onRemoveCharge && {

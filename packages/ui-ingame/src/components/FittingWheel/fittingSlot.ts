@@ -65,7 +65,7 @@ export function useFittingSlot(
     activatable: stats?.maxState === "active" || stats?.maxState === "overload",
     label: type && stats && `${type.name}, ${stats.state}`,
   };
-  if (readOnly) return shown;
+  if (readOnly) return { ...shown, actions: false };
 
   return {
     ...shown,
