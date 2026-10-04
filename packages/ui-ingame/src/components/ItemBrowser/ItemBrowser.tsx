@@ -1,6 +1,7 @@
 import { useId, useState, type ReactNode } from "react";
 
 import { Charges } from "./Charges";
+import { FitActions } from "./FitActions";
 import { HullsAndFits } from "./HullsAndFits";
 import styles from "./ItemBrowser.module.css";
 import { Modules } from "./Modules";
@@ -52,6 +53,7 @@ export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
           {each.panel}
         </div>
       ))}
+      <FitActions />
     </section>
   );
 }
