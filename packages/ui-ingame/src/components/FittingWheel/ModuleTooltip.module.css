@@ -30,7 +30,21 @@
 }
 
 .iconless {
+  align-items: center;
+  display: flex;
+  min-height: 24px;
   padding-left: 32px;
+}
+
+.damages {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-left: 27px;
+  row-gap: 8px;
+}
+
+.damages .bonus {
+  gap: 0;
 }
 
 .status[data-tone="muted"] {

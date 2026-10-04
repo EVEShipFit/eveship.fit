@@ -55,14 +55,14 @@ function DamageCaused({ itemRef }: { itemRef: ItemRef }) {
   if (damages.length === 0) return null;
 
   return (
-    <span className={styles.block}>
+    <>
       <span className={styles.iconless}>Damage caused</span>
-      <span className={styles.bonuses}>
+      <span className={styles.damages}>
         {damages.map(({ name, value = 0 }) => (
           <Bonus key={name} name={name} text={hp(value * multiplier, { decimals: 0 })} />
         ))}
       </span>
-    </span>
+    </>
   );
 }
 
