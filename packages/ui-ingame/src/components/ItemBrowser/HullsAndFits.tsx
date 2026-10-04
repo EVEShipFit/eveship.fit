@@ -168,6 +168,7 @@ export function HullsAndFits() {
                                       </>
                                     }
                                     onActivate={() => store.replace(fit)}
+                                    activateOnClick
                                     after={<Flyable fit={fit} />}
                                   />
                                 ))

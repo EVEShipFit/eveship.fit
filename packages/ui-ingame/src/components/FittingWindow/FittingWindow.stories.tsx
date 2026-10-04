@@ -204,7 +204,7 @@ export const LoadFit: Story = {
     await userEvent.click(canvas.getByRole("button", { name: /^Minmatar/ }));
     const hulls = within(canvas.getByRole("list", { name: "Hulls" }));
     await userEvent.click(hulls.getByRole("button", { name: "Rifter" }));
-    await userEvent.dblClick(hulls.getByRole("button", { name: "Saved Rifter" }));
+    await userEvent.click(hulls.getByRole("button", { name: "Saved Rifter" }));
 
     const history = within(canvas.getByRole("group", { name: "Simulation History" }));
     await expect(history.getByRole("button", { current: true })).toHaveAccessibleName("2 of 2");
