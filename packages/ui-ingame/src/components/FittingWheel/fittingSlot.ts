@@ -27,6 +27,7 @@ export function useFittingSlot(
   index: number,
   content: SlotContent | undefined,
   available: boolean,
+  readOnly = false,
 ): SlotBehaviour {
   const store = useFitStore();
   const sde = useSde();
@@ -53,7 +54,7 @@ export function useFittingSlot(
     return place?.type === rack && (place.type !== "subsystem" || place.index === index);
   };
 
-  return {
+  const shown: SlotBehaviour = {
     available,
     preview: content?.preview,
     typeId: item?.type_id,
@@ -63,6 +64,11 @@ export function useFittingSlot(
     state: stats?.state,
     activatable: stats?.maxState === "active" || stats?.maxState === "overload",
     label: type && stats && `${type.name}, ${stats.state}`,
+  };
+  if (readOnly) return shown;
+
+  return {
+    ...shown,
     onPress: switchable
       ? (event) => store.setState(ref, nextState(stats.state, stats.maxState, event.shiftKey))
       : undefined,

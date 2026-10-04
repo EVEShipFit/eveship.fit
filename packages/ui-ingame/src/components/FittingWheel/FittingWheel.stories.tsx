@@ -244,6 +244,21 @@ export const DragToUnfit: Story = {
   },
 };
 
+/** Nothing on a read-only wheel can be pressed or dragged. */
+export const ReadOnly: Story = {
+  args: { readOnly: true },
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement }) => {
+    await expect(canvasElement.querySelectorAll('[data-state="active"]')).toHaveLength(3);
+    await expect(canvas.queryByRole("button", { name: /^1MN Afterburner II/ })).toBeNull();
+    await expect(canvas.queryByRole("button", { name: "Unfit Module" })).toBeNull();
+    await expect(canvas.queryByRole("button", { name: /^Put / })).toBeNull();
+    await expect(canvas.queryByRole("button", { name: "Remove Charge" })).toBeNull();
+    await expect(canvasElement.querySelector("[draggable=true]")).toBeNull();
+    await expect(canvasElement.querySelector("[data-centre]")).toBeNull();
+  },
+};
+
 /** Storybook's `userEvent` cannot drag, so the events are fired as a browser would. */
 async function dragAndDrop(from: Element, to: Element) {
   const dataTransfer = new DataTransfer();
