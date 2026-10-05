@@ -77,7 +77,6 @@ export function BayContents({ id, bay, label }: { id: string; bay: Bay; label: s
                 event.dataTransfer.effectAllowed = "copy";
                 event.dataTransfer.setData("text/plain", type.name);
                 start({ type: "type", typeId: type.id });
-                if (!fighters) setTimeout(() => panel.current?.hidePopover());
               },
               onDragEnd: end,
             };
