@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { Resistance } from "./Resistance";
+import { DamageControl, Resistance } from "./Resistance";
 
 const types = {
   Rifter: 587,
@@ -35,8 +35,9 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const DamageControl: Story = {
+export const DamageControlII: Story = {
   ...fitted(types["Damage Control II"], "low"),
+  render: (args) => <DamageControl {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Shield damage resistance")).toBeVisible();
     await expect(canvas.getByText("Armor damage resistance")).toBeVisible();
@@ -58,9 +59,12 @@ export const ReactiveArmorHardener: Story = {
 
 export const EmergencyHullEnergizer: Story = {
   ...fitted(types["Capital Emergency Hull Energizer II"], "low", types.Revelation),
+  render: (args) => <DamageControl {...args} />,
   play: async ({ canvas }) => {
+    await expect(canvas.getByText("Shield damage resistance")).toBeVisible();
+    await expect(canvas.getByText("Armor damage resistance")).toBeVisible();
     await expect(canvas.getByText("Hull damage resistance")).toBeVisible();
-    await expect(canvas.queryByText("Shield damage resistance")).toBeNull();
+    await expect(canvas.getAllByText("0.0%")).toHaveLength(8);
     await expect(canvas.getAllByText("95.0%")).toHaveLength(4);
   },
 };

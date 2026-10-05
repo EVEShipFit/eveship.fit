@@ -8,15 +8,24 @@ import type { LineProps } from "./index";
 
 const percent = unit("%");
 
-/** The resistances a module gives, per layer. */
+/** The resistances a module gives, per layer it changes. */
 export function Resistance({ itemRef }: LineProps) {
-  const layers = [
+  const layers = useLayers(itemRef).filter(({ resistances }) => resistances.some(({ value }) => value !== 1));
+
+  return layers.map((layer) => <Layer key={layer.label} {...layer} withIcon={layers.length > 1} />);
+}
+
+/** The resistances a module gives, for every layer. */
+export function DamageControl({ itemRef }: LineProps) {
+  return useLayers(itemRef).map((layer) => <Layer key={layer.label} {...layer} withIcon />);
+}
+
+function useLayers(itemRef: ItemRef) {
+  return [
     { label: "Shield", icon: "shieldCapacity", resistances: useResistances("shield", itemRef) },
     { label: "Armor", icon: "armorHP", resistances: useResistances("armor", itemRef) },
     { label: "Hull", icon: "hp", resistances: useResistances("hull", itemRef) },
-  ].filter(({ resistances }) => resistances.some(({ value }) => value !== undefined && value !== 1));
-
-  return layers.map((layer) => <Layer key={layer.label} {...layer} withIcon={layers.length > 1} />);
+  ];
 }
 
 function Layer({
@@ -66,6 +75,7 @@ function useResistance(name: string, itemRef: ItemRef): Value {
     of: itemRef,
     decimals: 1,
     fixed: true,
+    fallback: 1,
     format: (resonance, format) => percent((1 - resonance) * 100, format),
   });
   return { name, value, text };

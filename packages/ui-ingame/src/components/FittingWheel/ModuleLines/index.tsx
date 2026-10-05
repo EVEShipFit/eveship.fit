@@ -25,7 +25,7 @@ import {
   RemoteShieldBooster,
   ShieldBooster,
 } from "./Repairer";
-import { Resistance } from "./Resistance";
+import { DamageControl, Resistance } from "./Resistance";
 import { ResistanceBonus } from "./ResistanceBonus";
 import { RemoteSensorBooster, SensorBooster } from "./SensorBooster";
 import { CargoScanner, ShipScanner } from "./ShipScanner";
@@ -49,10 +49,10 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["cloaking", [Cloak]],
   ["cloakingPrototype", [Cloak]],
   ["cloakingWarpSafe", [Cloak]],
-  ["damageControl", [Resistance]],
+  ["damageControl", [DamageControl]],
   ["doHacking", [ActivationRange]],
   ["ECMBurstJammer", [BurstJammer]],
-  ["emergencyHullEnergizer", [Resistance]],
+  ["emergencyHullEnergizer", [DamageControl]],
   ["empWave", [Smartbomb]],
   ["energyNeutralizerFalloff", [EnergyNeutralizer]],
   ["energyNosferatuFalloff", [EnergyNosferatu]],
