@@ -7,17 +7,19 @@ import { Attribute } from "./Attribute";
 /** Optimal range and optimal plus falloff; only the optimal range without falloff. */
 export function Range({
   itemRef,
+  optimal: optimalName = "maxRange",
   falloff,
   label,
   format,
 }: {
   itemRef: ItemRef;
+  optimal?: string;
   falloff?: string;
   label: string;
   format: (value: number, format: NumberFormat) => string;
 }) {
-  const optimal = useAttribute("maxRange", { of: itemRef, decimals: 0, format });
-  const total = useAttribute(falloff ?? "maxRange", {
+  const optimal = useAttribute(optimalName, { of: itemRef, decimals: 0, format });
+  const total = useAttribute(falloff ?? optimalName, {
     of: itemRef,
     decimals: 0,
     format: (value, numberFormat) => format(value + (optimal.value ?? 0), numberFormat),

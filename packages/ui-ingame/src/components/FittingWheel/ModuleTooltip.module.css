@@ -29,6 +29,12 @@
   gap: 4px;
 }
 
+.noIcon {
+  flex: none;
+  height: 24px;
+  width: 24px;
+}
+
 .iconless {
   align-items: center;
   display: flex;

@@ -15,7 +15,11 @@ function Line({
 }) {
   return (
     <span className={className}>
-      <img src={src} width={24} height={24} alt="" draggable={false} />
+      {src === undefined ? (
+        <span className={styles.noIcon} />
+      ) : (
+        <img src={src} width={24} height={24} alt="" draggable={false} />
+      )}
       {children}
     </span>
   );
