@@ -8,6 +8,7 @@ import textsUrl from "@eveshipfit/sde/dist/texts.dat?url";
 import { EsiCharacters, LocalFits } from "@eveshipfit/react-hooks";
 import { loadSde, loadTexts, type Sde, type Texts } from "@eveshipfit/sde-loader";
 
+import { keptCharacter } from "./character";
 import { finishLogin, type Login } from "./login";
 import { moveV1Fits } from "./v1-fits";
 
@@ -21,6 +22,8 @@ export interface Data {
   fit: FitStore;
   localFits: LocalFits;
   characters?: EsiCharacters;
+  /** Who flies the fit at first, as `useCharacters` lists it. */
+  character?: string;
   login: Login;
 }
 
@@ -49,7 +52,8 @@ export async function loadData(): Promise<Data | null> {
     const [linked, loggedIn] = await Promise.all([loadLinkedFit(engine), login]);
     const fit = linked ?? keptFit(engine, loggedIn.fit) ?? engine.createFit({ ship: RIFTER });
     keepInUrl(engine, fit);
-    return { engine, sde, images, texts, fit, localFits, characters, login: loggedIn };
+    const character = loggedIn.character ?? keptCharacter(characters);
+    return { engine, sde, images, texts, fit, localFits, characters, character, login: loggedIn };
   } catch (error) {
     console.error(error);
     return null;
