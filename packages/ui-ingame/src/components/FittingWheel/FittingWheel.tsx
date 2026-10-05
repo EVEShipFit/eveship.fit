@@ -3,6 +3,7 @@ import {
   formatNumber,
   useAttribute,
   useDrag,
+  useEngine,
   useFit,
   useFitStore,
   useHardpoints,
@@ -13,12 +14,14 @@ import {
   type DragItem,
   type SlotContent,
 } from "@eveshipfit/react-hooks";
+import { useMemo } from "react";
 
 import { rackSize, slotAngle, type WheelRack } from "../../primitives/Wheel/layout";
 import { Wheel } from "../../primitives/Wheel/Wheel";
 import { WheelGauge, type WheelResource } from "../../primitives/Wheel/WheelGauge";
 import { WheelHardpoints } from "../../primitives/Wheel/WheelHardpoints";
 import { WheelHull } from "../../primitives/Wheel/WheelHull";
+import { WheelLink } from "../../primitives/Wheel/WheelLink";
 import { WheelModes } from "../../primitives/Wheel/WheelModes";
 import { WheelRackMarker, type MarkedRack } from "../../primitives/Wheel/WheelRackMarker";
 import { WheelSlot } from "../../primitives/Wheel/WheelSlot";
@@ -60,8 +63,22 @@ export function FittingWheel({ label = "Fitting", readOnly = false, hideStats = 
           <FittingGauge resource="calibration" load="upgradeLoad" output="upgradeCapacity" />
         </>
       )}
+      {!onEveShipFit() && <EveShipFitLink />}
     </Wheel>
   );
+}
+
+function onEveShipFit(): boolean {
+  if (typeof location === "undefined") return false;
+  return location.hostname === "eveship.fit" || location.hostname.endsWith(".eveship.fit");
+}
+
+function EveShipFitLink() {
+  const engine = useEngine();
+  const fit = useFit();
+  const href = useMemo(() => `https://eveship.fit/?fit=${engine.saveLink(fit)}`, [engine, fit]);
+
+  return <WheelLink href={href} text="open on eveship.fit" />;
 }
 
 function FittingRack({ rack, readOnly }: { rack: WheelRack; readOnly: boolean }) {
