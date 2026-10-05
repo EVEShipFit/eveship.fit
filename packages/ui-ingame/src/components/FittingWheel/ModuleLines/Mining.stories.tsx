@@ -1,15 +1,20 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { CargoScanner as CargoScannerLine, ShipScanner } from "./ShipScanner";
+import { Mining } from "./Mining";
 
 const types = {
-  Rifter: 587,
-  "Ship Scanner II": 1855,
-  "Cargo Scanner II": 2038,
+  Venture: 32880,
+  "Miner II": 482,
+  "Gas Cloud Scoop I": 25266,
 };
 
-const fitted = (typeId: number, slot: "high" | "medium", chargeTypeId?: number, shipTypeId = types.Rifter) => ({
+const fitted = (
+  typeId: number,
+  slot: "high" | "medium" | "low",
+  chargeTypeId?: number,
+  shipTypeId = types.Venture,
+) => ({
   args: { itemRef: 0, state: "active" as const },
   parameters: {
     fit: {
@@ -27,7 +32,7 @@ const fitted = (typeId: number, slot: "high" | "medium", chargeTypeId?: number, 
 });
 
 const meta = {
-  component: ShipScanner,
+  component: Mining,
   decorators: [
     (Story) => (
       <div style={{ background: "var(--esf-bg)", display: "grid", gap: 8, padding: "8px 14px" }}>
@@ -35,23 +40,23 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof ShipScanner>;
+} satisfies Meta<typeof Mining>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  ...fitted(types["Ship Scanner II"], "medium"),
+export const Miner: Story = {
+  ...fitted(types["Miner II"], "high"),
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Range within 60 km")).toBeVisible();
-    await expect(canvas.queryByText(/Optimal range/)).toBeNull();
+    await expect(canvas.getByText("Optimal range within 12 km")).toBeVisible();
+    await expect(canvas.getByText("59 m³ per 15s (3.9 m³/s)")).toBeVisible();
   },
 };
 
-export const CargoScanner: Story = {
-  ...fitted(types["Cargo Scanner II"], "medium"),
-  render: (args) => <CargoScannerLine {...args} />,
+export const GasCloudScoop: Story = {
+  ...fitted(types["Gas Cloud Scoop I"], "high"),
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Range within 70 km")).toBeVisible();
+    await expect(canvas.getByText("Optimal range within 1,500 m")).toBeVisible();
+    await expect(canvas.getByText("20 m³ per 22.5s (0.9 m³/s)")).toBeVisible();
   },
 };
