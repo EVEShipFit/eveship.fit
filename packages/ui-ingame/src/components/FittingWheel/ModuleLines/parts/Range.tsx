@@ -10,12 +10,14 @@ export function Range({
   optimal: optimalName = "maxRange",
   falloff,
   label,
+  falloffLabel = label,
   format,
 }: {
   itemRef: ItemRef;
   optimal?: string;
   falloff?: string;
   label: string;
+  falloffLabel?: string;
   format: (value: number, format: NumberFormat) => string;
 }) {
   const optimal = useAttribute(optimalName, { of: itemRef, decimals: 0, format });
@@ -37,7 +39,7 @@ export function Range({
     <Attribute name="maxRange">
       <span className={styles.block}>
         <span>
-          {label} within {total.text}
+          {falloffLabel} within {total.text}
         </span>
         <span>Optimal range within {optimal.text}</span>
       </span>

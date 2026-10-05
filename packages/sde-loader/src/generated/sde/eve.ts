@@ -12,6 +12,7 @@ export { DogmaAttributeCategory } from './eve/dogma-attribute-category.js';
 export { DogmaEffect } from './eve/dogma-effect.js';
 export { DogmaUnit } from './eve/dogma-unit.js';
 export { EffectCategory } from './eve/effect-category.js';
+export { FighterAbility } from './eve/fighter-ability.js';
 export { Group } from './eve/group.js';
 export { MarketGroup } from './eve/market-group.js';
 export { MetaGroup } from './eve/meta-group.js';

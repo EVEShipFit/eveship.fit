@@ -66,6 +66,16 @@ export const PartialSquadron: Story = {
   },
 };
 
+export const Tooltip: Story = {
+  args: { ...FullSquadron.args, tooltip: "6x Templar II" },
+  play: async ({ canvas, userEvent }) => {
+    const tooltip = canvas.getByText("6x Templar II");
+    await expect(tooltip).not.toBeVisible();
+    await userEvent.hover(canvas.getByRole("meter", { name: "Fighters" }));
+    await expect(tooltip).toBeVisible();
+  },
+};
+
 /** One fewer than one takes the squadron out of the tube, as in EVE. */
 export const LastFighter: Story = {
   args: { ...FullSquadron.args, quantity: 1 },

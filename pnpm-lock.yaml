@@ -22,8 +22,8 @@ catalogs:
       specifier: ^3.3561556.0
       version: 3.3561556.0
     '@eveshipfit/sde':
-      specifier: ^9.3561556.0
-      version: 9.3561556.0
+      specifier: ^10.3561556.0
+      version: 10.3561556.0
     '@fontsource-variable/noto-sans':
       specifier: ^5.3.0
       version: 5.3.0
@@ -172,7 +172,7 @@ importers:
         version: link:../../packages/react-hooks
       '@eveshipfit/sde':
         specifier: 'catalog:'
-        version: 9.3561556.0
+        version: 10.3561556.0
       '@eveshipfit/sde-loader':
         specifier: workspace:*
         version: link:../../packages/sde-loader
@@ -235,7 +235,7 @@ importers:
         version: link:../../packages/react-hooks
       '@eveshipfit/sde':
         specifier: 'catalog:'
-        version: 9.3561556.0
+        version: 10.3561556.0
       '@eveshipfit/sde-loader':
         specifier: workspace:*
         version: link:../../packages/sde-loader
@@ -303,7 +303,7 @@ importers:
         version: 13.5.0
       '@eveshipfit/sde':
         specifier: 'catalog:'
-        version: 9.3561556.0
+        version: 10.3561556.0
       '@types/node':
         specifier: 'catalog:'
         version: 22.20.4
@@ -334,7 +334,7 @@ importers:
         version: 3.3561556.0
       '@eveshipfit/sde':
         specifier: 'catalog:'
-        version: 9.3561556.0
+        version: 10.3561556.0
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7)(@babel/runtime@7.29.7)(rolldown@1.2.10)(vite@8.3.0(@types/node@22.20.4)(esbuild@0.28.2)(yaml@2.9.1))
@@ -386,7 +386,7 @@ importers:
     devDependencies:
       '@eveshipfit/sde':
         specifier: 'catalog:'
-        version: 9.3561556.0
+        version: 10.3561556.0
       '@types/node':
         specifier: 'catalog:'
         version: 22.20.4
@@ -1045,8 +1045,8 @@ packages:
   '@eveshipfit/images@3.3561556.0':
     resolution: {integrity: sha512-615155qRDz0V5uWZryf2rahXLuUQMHleVDHr3pmZHCsuEO0DJBw1ALJDIt27JNHQbEy47Vo7EpOS0wUUlifK9Q==}
 
-  '@eveshipfit/sde@9.3561556.0':
-    resolution: {integrity: sha512-9oq1bKrlP2Hs1zHA/LbR5xrsoeW8skGUo3d6jXt2MHQJ2/Lp5xwkO71uMcc0vJrXJ0QGuOTXo+Sju560CAplzA==}
+  '@eveshipfit/sde@10.3561556.0':
+    resolution: {integrity: sha512-Il8vthemNg+JWBn1yjG3DjZovxoQMQMBCb3HRHAPo97IWgDuzBGWDxW9GN6B3h2woDsH/wWrKSrVbG9myBqFLQ==}
 
   '@exodus/bytes@1.16.0':
     resolution: {integrity: sha512-IcpW84uEn3N7ETtNZMlxKhfl6Pec8rUNGOTBtWbK1FKhJxIFAptZyVrvVRVBimAJxJCgc3PxepxkdWWG4DVzfA==}
@@ -3965,7 +3965,7 @@ snapshots:
     dependencies:
       flatbuffers: 25.9.23
 
-  '@eveshipfit/sde@9.3561556.0': {}
+  '@eveshipfit/sde@10.3561556.0': {}
 
   '@exodus/bytes@1.16.0': {}
 

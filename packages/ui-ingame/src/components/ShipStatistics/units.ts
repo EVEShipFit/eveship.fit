@@ -13,6 +13,11 @@ export function hitpoints(value: number, format: NumberFormat): string {
   return unit(" hp")(value, format);
 }
 
+/** Damage per second; "0" without decimals when there is none. */
+export function damagePerSecond(value: number, format: NumberFormat): string {
+  return value ? formatNumber(value, format) : "0";
+}
+
 /** Like EVE's ranges: in meters below 10 km, in kilometers above. */
 export function range(value: number, format: NumberFormat): string {
   if (value < 10_000) return unit(" m")(value, format);

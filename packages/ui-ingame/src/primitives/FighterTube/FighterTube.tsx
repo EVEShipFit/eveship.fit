@@ -1,7 +1,8 @@
 import { useImages } from "@eveshipfit/react-hooks";
-import type { CSSProperties, HTMLAttributes } from "react";
+import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 
 import { Icon, type IconName } from "../Icon/Icon";
+import { Tooltip } from "../Tooltip/Tooltip";
 import { TypeIcon } from "../TypeIcon/TypeIcon";
 import styles from "./FighterTube.module.css";
 
@@ -18,6 +19,8 @@ export interface FighterTubeProps extends HTMLAttributes<HTMLDivElement> {
   available?: boolean;
   /** Shown, but not launched yet. */
   preview?: boolean;
+  /** Shown when hovering the squadron. */
+  tooltip?: ReactNode;
   onRemove?: () => void;
   onResize?: (quantity: number) => void;
 }
@@ -32,6 +35,7 @@ export function FighterTube({
   role,
   available = true,
   preview = false,
+  tooltip,
   onRemove,
   onResize,
   className,
@@ -60,25 +64,27 @@ export function FighterTube({
     >
       <span className={styles.number}>{index + 1}</span>
       {launched ? (
-        <span
-          className={styles.squadron}
-          style={
-            {
-              "--underlay": texture("classes/shipui/fighters/fighteritemunderlay"),
-              "--overlay": texture("classes/shipui/fighters/fighteritemoverlay"),
-            } as CSSProperties
-          }
-        >
-          <span className={styles.picture}>
-            <TypeIcon typeId={typeId} size={64} marker={false} />
-          </span>
-          <SquadronRing quantity={quantity} size={size} />
-          {role && (
-            <span className={styles.role}>
-              <Icon name={role} />
+        <Tooltip label={tooltip}>
+          <span
+            className={styles.squadron}
+            style={
+              {
+                "--underlay": texture("classes/shipui/fighters/fighteritemunderlay"),
+                "--overlay": texture("classes/shipui/fighters/fighteritemoverlay"),
+              } as CSSProperties
+            }
+          >
+            <span className={styles.picture}>
+              <TypeIcon typeId={typeId} size={64} marker={false} />
             </span>
-          )}
-        </span>
+            <SquadronRing quantity={quantity} size={size} />
+            {role && (
+              <span className={styles.role}>
+                <Icon name={role} />
+              </span>
+            )}
+          </span>
+        </Tooltip>
       ) : (
         <span
           className={styles.empty}

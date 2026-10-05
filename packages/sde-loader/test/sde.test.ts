@@ -51,6 +51,18 @@ describe("lookups", () => {
     expect(sde.effect(11)).toMatchObject({ name: "loPower", category: "passive" });
   });
 
+  test("fighter abilities, with the effect each one is", () => {
+    const einherji = sde.typeByName("Einherji I")!;
+    const abilities = einherji.fighterAbilities.map(({ abilityId }) => sde.fighterAbility(abilityId));
+    expect(abilities.map((ability) => ability?.name)).toEqual(["Autocannon", "Microwarpdrive", "Heavy Rocket Salvo"]);
+    expect(abilities.map((ability) => sde.effect(ability!.effectId)?.name)).toEqual([
+      "fighterAbilityAttackM",
+      "fighterAbilityMicroWarpDrive",
+      "fighterAbilityMissiles",
+    ]);
+    expect(sde.fighterAbility(-1)).toBeUndefined();
+  });
+
   test("the engine's own attributes have negative IDs", () => {
     expect(sde.attribute(-1)?.name).toBe("alignTime");
     expect(sde.attributeId("alignTime")).toBe(-1);
