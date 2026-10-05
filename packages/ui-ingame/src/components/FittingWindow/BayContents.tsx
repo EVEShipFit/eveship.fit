@@ -13,7 +13,6 @@ import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
 import styles from "./BayContents.module.css";
 import { DroneTooltip } from "./DroneTooltip";
-import { FighterTooltip } from "./FighterTooltip";
 import { FighterTubes } from "./FighterTubes";
 
 export type Bay = "cargo" | "droneBay" | "fighterBay";
@@ -84,23 +83,18 @@ export function BayContents({ id, bay, label }: { id: string; bay: Bay; label: s
               onDragEnd: end,
             };
             const shown = refs.find((ref) => fit.items[ref]?.state === "active") ?? refs[0]!;
-            const tooltip = drones ? (
-              <DroneTooltip itemRef={shown} typeId={type.id} />
-            ) : fighters ? (
-              <FighterTooltip itemRef={shown} typeId={type.id} quantity={quantity} />
-            ) : undefined;
             return (
               <li key={type.id} className={styles.row}>
                 <Quantity name={type.name} value={quantity} onChange={(value) => setQuantity(type.id, value)} />
-                <Tooltip label={tooltip}>
+                <Tooltip label={drones ? <DroneTooltip itemRef={shown} typeId={type.id} /> : undefined}>
                   <span className={styles.icon} {...drag}>
                     <TypeIcon typeId={type.id} />
                   </span>
-                  <span className={styles.middle} {...drag}>
-                    <span className={styles.name}>{type.name}</span>
-                    {drones && <DroneSelection content={content} max={maxActive} />}
-                  </span>
                 </Tooltip>
+                <span className={styles.middle} {...drag}>
+                  <span className={styles.name}>{type.name}</span>
+                  {drones && <DroneSelection content={content} max={maxActive} />}
+                </span>
                 <button
                   type="button"
                   className={styles.remove}

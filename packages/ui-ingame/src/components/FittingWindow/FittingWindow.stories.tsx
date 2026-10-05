@@ -550,8 +550,9 @@ export const DroneTooltip: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Drone Bay" }));
     const range = canvas.getByText("Optimal range within 2,625 m");
-    await expect(range).not.toBeVisible();
     await userEvent.hover(canvas.getByRole("group", { name: "Active Hobgoblin II" }));
+    await expect(range).not.toBeVisible();
+    await userEvent.hover(canvas.getByRole("listitem").querySelector<HTMLElement>("[draggable=true]")!);
     await expect(range).toBeVisible();
   },
 };

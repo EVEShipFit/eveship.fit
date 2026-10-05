@@ -9,19 +9,12 @@ const types = {
   "Scarab I": 40345,
 };
 
-const squadron = (typeId: number, quantity: number, slot: "fighter_tube" | "fighter_bay" = "fighter_tube") => ({
+const squadron = (typeId: number, quantity: number) => ({
   args: { itemRef: 0, typeId, quantity },
   parameters: {
     fit: {
       ship: { type_id: types.Thanatos },
-      items: [
-        {
-          type_id: typeId,
-          slot: slot === "fighter_tube" ? { type: slot, index: 0 } : { type: slot },
-          quantity,
-          state: slot === "fighter_tube" ? "active" : "offline",
-        },
-      ],
+      items: [{ type_id: typeId, slot: { type: "fighter_tube", index: 0 }, quantity, state: "active" }],
     },
   },
 });
@@ -70,13 +63,5 @@ export const Support: Story = {
     await expect(canvas.getByText("Falloff range within 11 km")).toBeVisible();
     await expect(canvas.getByText("Optimal range within 5,000 m")).toBeVisible();
     await expect(canvas.queryByText(/Damage Per Second/)).toBeNull();
-  },
-};
-
-export const InTheBay: Story = {
-  ...squadron(types["Einherji I"], 6, "fighter_bay"),
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Autocannon - Damage Per Second 0")).toBeVisible();
-    await expect(canvas.getByText("Heavy Rocket Salvo - Damage Per Second 0")).toBeVisible();
   },
 };
