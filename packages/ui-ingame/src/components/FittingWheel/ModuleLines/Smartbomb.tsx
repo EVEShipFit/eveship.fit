@@ -10,6 +10,18 @@ export function Smartbomb({ itemRef }: LineProps) {
   return (
     <>
       <Attribute name="empFieldRange">Area of Effect Radius {radius.text}</Attribute>
+      <DamageLines itemRef={itemRef} />
+    </>
+  );
+}
+
+export function Doomsday({ itemRef }: LineProps) {
+  return <DamageLines itemRef={itemRef} />;
+}
+
+function DamageLines({ itemRef }: { itemRef: ItemRef }) {
+  return (
+    <>
       <DamageLine itemRef={itemRef} name="emDamage" />
       <DamageLine itemRef={itemRef} name="thermalDamage" />
       <DamageLine itemRef={itemRef} name="kineticDamage" />

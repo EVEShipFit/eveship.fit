@@ -1,16 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { Smartbomb } from "./Smartbomb";
+import { Doomsday, Smartbomb } from "./Smartbomb";
 
 const types = {
   Rifter: 587,
   "Large EMP Smartbomb II": 3995,
+  Avatar: 11567,
+  "'Judgment' Electromagnetic Doomsday": 24550,
 };
 
 const meta = {
   component: Smartbomb,
-  args: { itemRef: 0, state: "active" },
+  args: { itemRef: 0, typeId: types["Large EMP Smartbomb II"], state: "active" },
   parameters: {
     fit: {
       ship: { type_id: types.Rifter },
@@ -33,5 +35,21 @@ export const Default: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Area of Effect Radius 6,000 m")).toBeVisible();
     await expect(canvas.getByText("300 HP - EM damage")).toBeVisible();
+  },
+};
+
+export const JudgmentDoomsday: Story = {
+  args: { typeId: types["'Judgment' Electromagnetic Doomsday"] },
+  parameters: {
+    fit: {
+      ship: { type_id: types.Avatar },
+      items: [
+        { type_id: types["'Judgment' Electromagnetic Doomsday"], slot: { type: "high", index: 0 }, state: "active" },
+      ],
+    },
+  },
+  render: (args) => <Doomsday {...args} />,
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("4,950,000 HP - EM damage")).toBeVisible();
   },
 };

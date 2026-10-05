@@ -1,13 +1,16 @@
-import { useAttribute } from "@eveshipfit/react-hooks";
+import { useAttribute, useSde, useType } from "@eveshipfit/react-hooks";
 
 import { range, unit } from "../../ShipStatistics/units";
 import { Attribute } from "./parts/Attribute";
 import { Range } from "./parts/Range";
 import type { LineProps } from "./index";
 
-export function Mining({ itemRef }: LineProps) {
-  const amount = useAttribute("miningAmount", { of: itemRef, decimals: 0, format: unit(" m³") });
-  const duration = useAttribute("duration", { of: itemRef, format: unit("s", 1000) });
+export function Mining({ itemRef, typeId }: LineProps) {
+  const sde = useSde();
+  const type = useType(typeId);
+  const turret = [...(type?.effectIds ?? [])].some((id) => sde.effect(id)?.name === "turretFitted");
+  const amount = useAttribute("miningAmount", { of: itemRef, decimals: 0, grouping: false, format: unit(" m³") });
+  const duration = useAttribute("duration", { of: itemRef, decimals: 1, format: unit("s", 1000) });
   const rate = useAttribute("miningAmount", {
     of: itemRef,
     decimals: 1,
@@ -16,7 +19,7 @@ export function Mining({ itemRef }: LineProps) {
   });
   return (
     <>
-      <Range itemRef={itemRef} label="Optimal range" format={range} />
+      <Range itemRef={itemRef} label={turret ? "Optimal range" : "Range"} format={range} />
       <Attribute name="miningAmount">
         {amount.text} per {duration.text} ({rate.text})
       </Attribute>

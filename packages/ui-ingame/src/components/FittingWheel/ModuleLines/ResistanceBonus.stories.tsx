@@ -11,7 +11,7 @@ const types = {
 };
 
 const fitted = (typeId: number, slot: "medium" | "low") => ({
-  args: { itemRef: 0, state: "online" as const },
+  args: { itemRef: 0, typeId, state: "online" as const },
   parameters: {
     fit: {
       ship: { type_id: types.Rifter },

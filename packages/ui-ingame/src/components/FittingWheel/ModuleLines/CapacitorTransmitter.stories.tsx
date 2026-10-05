@@ -10,7 +10,7 @@ const types = {
 
 const meta = {
   component: RemoteCapacitorTransmitter,
-  args: { itemRef: 0, state: "active" },
+  args: { itemRef: 0, typeId: types["Medium Remote Capacitor Transmitter II"], state: "active" },
   parameters: {
     fit: {
       ship: { type_id: types.Rifter },

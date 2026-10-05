@@ -113,3 +113,17 @@ export const WithResistance: Story = {
     await expect(canvas.getByText("Hull damage resistance")).toBeVisible();
   },
 };
+
+export const FlexHardener: Story = {
+  args: { rack: "low", typeId: 41515, chargeTypeId: 41519, state: "active", maxState: "overload" },
+  parameters: {
+    fit: {
+      ship: { type_id: 19720 },
+      items: [{ type_id: 41515, slot: { type: "low", index: 0 }, state: "active", charge: { type_id: 41519 } }],
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Armor Kinetic Resistance Script")).toBeVisible();
+    await expect(canvas.queryByText(/Resistance Bonus/)).toBeNull();
+  },
+};

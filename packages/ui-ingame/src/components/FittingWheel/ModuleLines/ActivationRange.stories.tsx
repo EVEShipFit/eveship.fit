@@ -11,6 +11,10 @@ const types = {
   "Mining Foreman Burst II": 43551,
   "Data Analyzer II": 30834,
   "Relic Analyzer II": 30832,
+  Avatar: 11567,
+  "Amarr Phenomena Generator": 43658,
+  "Salvager I": 25861,
+  "Entosis Link I": 34593,
 };
 
 const fitted = (
@@ -19,7 +23,7 @@ const fitted = (
   chargeTypeId?: number,
   shipTypeId = types.Claymore,
 ) => ({
-  args: { itemRef: 0, state: "active" as const },
+  args: { itemRef: 0, typeId, state: "active" as const },
   parameters: {
     fit: {
       ship: { type_id: shipTypeId },
@@ -74,5 +78,26 @@ export const RelicAnalyzer: Story = {
   ...fitted(types["Relic Analyzer II"], "medium", undefined, types.Heron),
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 6,000 m")).toBeVisible();
+  },
+};
+
+export const Salvager: Story = {
+  ...fitted(types["Salvager I"], "high", undefined, types.Heron),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 5,000 m")).toBeVisible();
+  },
+};
+
+export const EntosisLink: Story = {
+  ...fitted(types["Entosis Link I"], "high", undefined, types.Heron),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 20 km")).toBeVisible();
+  },
+};
+
+export const PhenomenaGenerator: Story = {
+  ...fitted(types["Amarr Phenomena Generator"], "high", undefined, types.Avatar),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 20,000 km")).toBeVisible();
   },
 };

@@ -46,7 +46,7 @@ function TypeRow({ typeId, count }: { typeId: number; count?: string }) {
 
 function ChargeRow({ itemRef, typeId }: { itemRef: ItemRef; typeId: number }) {
   const count = useAttribute("chargeAmount", { of: itemRef, decimals: 0, rounding: "down" });
-  return <TypeRow typeId={typeId} count={count.value === undefined ? undefined : count.text} />;
+  return <TypeRow typeId={typeId} count={count.value === undefined || count.value === 1 ? undefined : count.text} />;
 }
 
 /** The last line of the tooltip; none for subsystems. */
