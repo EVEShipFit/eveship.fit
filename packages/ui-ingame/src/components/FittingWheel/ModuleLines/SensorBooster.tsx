@@ -1,59 +1,30 @@
-import type { ItemRef } from "@eveshipfit/fitting";
-import { useAttribute } from "@eveshipfit/react-hooks";
-
-import { range, unit } from "../../ShipStatistics/units";
-import styles from "../ModuleTooltip.module.css";
-import { Attribute, useDisplayName } from "./parts/Attribute";
+import { range } from "../../ShipStatistics/units";
+import { BonusLine, SensorStrengths, useBonus } from "./parts/Bonus";
 import { Range } from "./parts/Range";
 import type { LineProps } from "./index";
 
-const percent = unit("%");
-
-export function RemoteSensorBooster({ itemRef }: LineProps) {
-  const strengths = [
-    useBonus("scanGravimetricStrengthPercent", itemRef),
-    useBonus("scanLadarStrengthPercent", itemRef),
-    useBonus("scanMagnetometricStrengthPercent", itemRef),
-    useBonus("scanRadarStrengthPercent", itemRef),
-  ].filter(({ value }) => value);
-
+export function RemoteSensorBooster({ itemRef, state }: LineProps) {
   return (
     <>
       <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
-      <BonusLine bonus={useBonus("scanResolutionBonus", itemRef)} />
-      <BonusLine bonus={useBonus("maxTargetRangeBonus", itemRef)} />
-      {strengths.length > 0 && (
-        <Attribute name="ECMResistance">
-          <span className={styles.block}>
-            {strengths.map((strength) => (
-              <span key={strength.name}>
-                {strength.text} {strength.displayName}
-              </span>
-            ))}
-          </span>
-        </Attribute>
-      )}
+      <SensorBooster itemRef={itemRef} state={state} />
     </>
   );
 }
 
-interface Bonus {
-  name: string;
-  value: number | undefined;
-  text: string;
-  displayName: string | undefined;
-}
-
-function BonusLine({ bonus }: { bonus: Bonus }) {
-  if (!bonus.value) return null;
+export function SensorBooster({ itemRef }: LineProps) {
   return (
-    <Attribute name={bonus.name}>
-      {bonus.text} {bonus.displayName}
-    </Attribute>
+    <>
+      <BonusLine bonus={useBonus("scanResolutionBonus", itemRef)} />
+      <BonusLine bonus={useBonus("maxTargetRangeBonus", itemRef)} />
+      <SensorStrengths
+        strengths={[
+          useBonus("scanGravimetricStrengthPercent", itemRef),
+          useBonus("scanLadarStrengthPercent", itemRef),
+          useBonus("scanMagnetometricStrengthPercent", itemRef),
+          useBonus("scanRadarStrengthPercent", itemRef),
+        ]}
+      />
+    </>
   );
-}
-
-function useBonus(name: string, itemRef: ItemRef): Bonus {
-  const { value, text } = useAttribute(name, { of: itemRef, decimals: 0, format: percent });
-  return { name, value, text, displayName: useDisplayName(name) };
 }
