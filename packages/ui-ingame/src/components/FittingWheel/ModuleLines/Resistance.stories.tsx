@@ -5,15 +5,17 @@ import { Resistance } from "./Resistance";
 
 const types = {
   Rifter: 587,
+  Revelation: 19720,
   "Damage Control II": 2048,
   "Reactive Armor Hardener": 4403,
+  "Capital Emergency Hull Energizer II": 40717,
 };
 
-const fitted = (typeId: number, slot: "high" | "medium" | "low") => ({
+const fitted = (typeId: number, slot: "high" | "medium" | "low", shipTypeId = types.Rifter) => ({
   args: { itemRef: 0, state: "active" as const },
   parameters: {
     fit: {
-      ship: { type_id: types.Rifter },
+      ship: { type_id: shipTypeId },
       items: [{ type_id: typeId, slot: { type: slot, index: 0 }, state: "active" }],
     },
   },
@@ -51,5 +53,14 @@ export const ReactiveArmorHardener: Story = {
     await expect(canvas.getByText("Armor damage resistance")).toBeVisible();
     await expect(canvas.queryByText("Shield damage resistance")).toBeNull();
     await expect(canvas.getAllByText("15.0%")).toHaveLength(4);
+  },
+};
+
+export const EmergencyHullEnergizer: Story = {
+  ...fitted(types["Capital Emergency Hull Energizer II"], "low", types.Revelation),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Hull damage resistance")).toBeVisible();
+    await expect(canvas.queryByText("Shield damage resistance")).toBeNull();
+    await expect(canvas.getAllByText("95.0%")).toHaveLength(4);
   },
 };

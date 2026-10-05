@@ -7,6 +7,8 @@ const types = {
   Helios: 11172,
   Rifter: 587,
   "Covert Ops Cloaking Device II": 11578,
+  "Improved Cloaking Device II": 11577,
+  "Prototype Cloaking Device I": 11370,
 };
 
 const fitted = (typeId: number, slot: "high" | "medium" | "low", chargeTypeId?: number, shipTypeId = types.Helios) => ({
@@ -44,6 +46,20 @@ export const CovertOps: Story = {
   ...fitted(types["Covert Ops Cloaking Device II"], "high"),
   play: async ({ canvas }) => {
     await expect(canvas.getByText("25% Maximum Velocity Modifier")).toBeVisible();
+  },
+};
+
+export const Improved: Story = {
+  ...fitted(types["Improved Cloaking Device II"], "high"),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("-69% Maximum Velocity Modifier")).toBeVisible();
+  },
+};
+
+export const Prototype: Story = {
+  ...fitted(types["Prototype Cloaking Device I"], "high"),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("-87% Maximum Velocity Modifier")).toBeVisible();
   },
 };
 
