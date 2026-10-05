@@ -3,7 +3,11 @@ import { useSde, useType } from "@eveshipfit/react-hooks";
 import type { ComponentType } from "react";
 
 import type { SlotState } from "../../../primitives/Wheel/WheelSlot";
+import { EnergyNeutralizer, EnergyNosferatu } from "./EnergyNeutralizer";
 import { MaxVelocity } from "./MaxVelocity";
+import { Missile } from "./Missile";
+import { ArmorRepairer, CapacitorBooster, ShieldBooster } from "./Repairer";
+import { Resistance } from "./Resistance";
 import { ResistanceBonus } from "./ResistanceBonus";
 import { Turret } from "./Turret";
 
@@ -22,6 +26,16 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["targetAttack", [Turret]],
   ["projectileFired", [Turret]],
   ["targetDisintegratorAttack", [Turret]],
+  ["useMissiles", [Missile]],
+  ["energyNeutralizerFalloff", [EnergyNeutralizer]],
+  ["energyNosferatuFalloff", [EnergyNosferatu]],
+  ["shieldBoosting", [ShieldBooster]],
+  ["fueledShieldBoosting", [ShieldBooster]],
+  ["armorRepair", [ArmorRepairer]],
+  ["fueledArmorRepair", [ArmorRepairer]],
+  ["powerBooster", [CapacitorBooster]],
+  ["damageControl", [Resistance]],
+  ["adaptiveArmorHardener", [Resistance]],
 ]);
 
 /** Tooltip lines from the effects of a module. */
