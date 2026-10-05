@@ -1,5 +1,12 @@
-import { useBayContents, useDroneRoom, useFitStore, useSnapshot, type BayContent } from "@eveshipfit/react-hooks";
-import { useRef, useState, type KeyboardEvent } from "react";
+import {
+  useBayContents,
+  useDrag,
+  useDroneRoom,
+  useFitStore,
+  useSnapshot,
+  type BayContent,
+} from "@eveshipfit/react-hooks";
+import { useRef, useState, type DragEvent, type KeyboardEvent } from "react";
 
 import { Icon } from "../../primitives/Icon/Icon";
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
@@ -17,6 +24,7 @@ const emptyText: Record<Bay, string> = {
 /** EVE's list of what is in a bay, as a popover anchored to `--bay-anchor`; the fighter bay's has its tubes above. */
 export function BayContents({ id, bay, label }: { id: string; bay: Bay; label: string }) {
   const store = useFitStore();
+  const { start, end } = useDrag();
   const contents = useBayContents(bay);
   const panel = useRef<HTMLDivElement>(null);
   const drones = bay === "droneBay";
@@ -61,13 +69,25 @@ export function BayContents({ id, bay, label }: { id: string; bay: Bay; label: s
         <ul className={styles.list} aria-label={label}>
           {contents.map((content) => {
             const { type, quantity, refs } = content;
+            const drag = {
+              draggable: true,
+              onDragStart: (event: DragEvent<HTMLElement>) => {
+                const icon = event.currentTarget.closest("li")!.querySelector(`.${styles.icon}`)!;
+                event.dataTransfer.setDragImage(icon, 0, 0);
+                event.dataTransfer.effectAllowed = "copy";
+                event.dataTransfer.setData("text/plain", type.name);
+                start({ type: "type", typeId: type.id });
+                if (!fighters) setTimeout(() => panel.current?.hidePopover());
+              },
+              onDragEnd: end,
+            };
             return (
               <li key={type.id} className={styles.row}>
                 <Quantity name={type.name} value={quantity} onChange={(value) => setQuantity(type.id, value)} />
-                <span className={styles.icon}>
+                <span className={styles.icon} {...drag}>
                   <TypeIcon typeId={type.id} />
                 </span>
-                <span className={styles.middle}>
+                <span className={styles.middle} {...drag}>
                   <span className={styles.name}>{type.name}</span>
                   {drones && <DroneSelection content={content} max={maxActive} />}
                 </span>
