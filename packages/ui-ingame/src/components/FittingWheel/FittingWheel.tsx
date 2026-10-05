@@ -78,7 +78,7 @@ function EveShipFitLink() {
   const fit = useFit();
   const href = useMemo(() => `https://eveship.fit/?fit=${engine.saveLink(fit)}`, [engine, fit]);
 
-  return <WheelLink href={href} text="Open on eveship.fit" />;
+  return <WheelLink href={href} text="open on eveship.fit" />;
 }
 
 function FittingRack({ rack, readOnly }: { rack: WheelRack; readOnly: boolean }) {

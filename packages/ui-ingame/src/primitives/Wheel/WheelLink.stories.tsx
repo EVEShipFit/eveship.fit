@@ -6,7 +6,7 @@ import { WheelLink } from "./WheelLink";
 
 const meta = {
   component: WheelLink,
-  args: { href: "https://eveship.fit/", text: "Open on eveship.fit" },
+  args: { href: "https://eveship.fit/", text: "open on eveship.fit" },
   decorators: [onAWheel],
 } satisfies Meta<typeof WheelLink>;
 
@@ -15,7 +15,7 @@ type Story = StoryObj<typeof meta>;
 
 export const OpenOnEveShipFit: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("link", { name: "Open on eveship.fit" })).toHaveAttribute(
+    await expect(canvas.getByRole("link", { name: "open on eveship.fit" })).toHaveAttribute(
       "href",
       "https://eveship.fit/",
     );
