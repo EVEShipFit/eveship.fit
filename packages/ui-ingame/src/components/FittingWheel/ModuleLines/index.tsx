@@ -7,9 +7,18 @@ import { CapacitorBooster } from "./CapacitorBooster";
 import { EnergyNeutralizer, EnergyNosferatu } from "./EnergyWarfare";
 import { MaxVelocity } from "./MaxVelocity";
 import { Missile } from "./Missile";
-import { ArmorRepairer, ShieldBooster } from "./Repairer";
+import {
+  AncillaryRemoteArmorRepairer,
+  ArmorRepairer,
+  HullRepairer,
+  RemoteArmorRepairer,
+  RemoteHullRepairer,
+  ShieldBooster,
+} from "./Repairer";
 import { Resistance } from "./Resistance";
 import { ResistanceBonus } from "./ResistanceBonus";
+import { RemoteSensorBooster } from "./SensorBooster";
+import { RemoteTrackingComputer } from "./TrackingComputer";
 import { Turret } from "./Turret";
 
 export interface LineProps {
@@ -34,6 +43,12 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["fueledShieldBoosting", [ShieldBooster]],
   ["armorRepair", [ArmorRepairer]],
   ["fueledArmorRepair", [ArmorRepairer]],
+  ["shipModuleRemoteArmorRepairer", [RemoteArmorRepairer]],
+  ["shipModuleAncillaryRemoteArmorRepairer", [AncillaryRemoteArmorRepairer]],
+  ["structureRepair", [HullRepairer]],
+  ["shipModuleRemoteHullRepairer", [RemoteHullRepairer]],
+  ["remoteSensorBoostFalloff", [RemoteSensorBooster]],
+  ["shipModuleRemoteTrackingComputer", [RemoteTrackingComputer]],
   ["powerBooster", [CapacitorBooster]],
   ["damageControl", [Resistance]],
   ["adaptiveArmorHardener", [Resistance]],

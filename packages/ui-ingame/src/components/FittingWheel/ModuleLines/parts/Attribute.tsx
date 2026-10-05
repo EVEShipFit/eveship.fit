@@ -41,3 +41,9 @@ function useAttributeIcon(name: string) {
   const id = sde.attributeId(name);
   return id === undefined ? undefined : images.attributeIcon(id);
 }
+
+/** The name EVE shows for an attribute. */
+export function useDisplayName(name: string) {
+  const sde = useSde();
+  return sde.attribute(sde.attributeId(name) ?? 0)?.displayName;
+}
