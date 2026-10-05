@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { Turret } from "./Turret";
+import { Turret, VortonProjector } from "./Turret";
 
 const types = {
   Rifter: 587,
@@ -10,6 +10,9 @@ const types = {
   Kikimora: 49710,
   "Light Entropic Disintegrator II": 47914,
   "Baryon Exotic Plasma S": 47924,
+  Skybreaker: 54731,
+  "Small Vorton Projector I": 54739,
+  "GalvaSurge Condenser Pack S": 54769,
 };
 
 const fitted = (chargeTypeId?: number, shipTypeId = types.Rifter, typeId = types["200mm AutoCannon II"]) => ({
@@ -69,5 +72,16 @@ export const Disintegrator: Story = {
   ...fitted(types["Baryon Exotic Plasma S"], types.Kikimora, types["Light Entropic Disintegrator II"]),
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Damage Per Second 134.2-419.3")).toBeVisible();
+  },
+};
+
+export const Vorton: Story = {
+  ...fitted(types["GalvaSurge Condenser Pack S"], types.Skybreaker, types["Small Vorton Projector I"]),
+  render: (args) => <VortonProjector {...args} />,
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Optimal range within 21 km")).toBeVisible();
+    await expect(canvas.getByText("Damage Per Second 44.3")).toBeVisible();
+    await expect(canvas.getByText("208 HP")).toBeVisible();
+    await expect(canvas.getByText("31 HP")).toBeVisible();
   },
 };

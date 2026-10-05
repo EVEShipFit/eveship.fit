@@ -5,11 +5,19 @@ import { unit } from "../../ShipStatistics/units";
 import { Attribute, useDisplayName } from "./parts/Attribute";
 import type { LineProps } from "./index";
 
-export function Smartbomb({ itemRef }: LineProps) {
-  const radius = useAttribute("empFieldRange", { of: itemRef, decimals: 0, format: unit(" m") });
+export function Smartbomb(props: LineProps) {
+  const radius = useAttribute("empFieldRange", { of: props.itemRef, decimals: 0, format: unit(" m") });
   return (
     <>
       <Attribute name="empFieldRange">Area of Effect Radius {radius.text}</Attribute>
+      <Doomsday {...props} />
+    </>
+  );
+}
+
+export function Doomsday({ itemRef }: LineProps) {
+  return (
+    <>
       <DamageLine itemRef={itemRef} name="emDamage" />
       <DamageLine itemRef={itemRef} name="thermalDamage" />
       <DamageLine itemRef={itemRef} name="kineticDamage" />

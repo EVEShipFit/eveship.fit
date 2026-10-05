@@ -4,6 +4,7 @@ import type { ComponentType } from "react";
 
 import type { SlotState } from "../../../primitives/Wheel/WheelSlot";
 import { ActivationRange } from "./ActivationRange";
+import { BreacherPodLauncher } from "./BreacherPodLauncher";
 import { CapacitorBooster } from "./CapacitorBooster";
 import { RemoteCapacitorTransmitter } from "./CapacitorTransmitter";
 import { Cloak } from "./Cloak";
@@ -30,11 +31,11 @@ import { ResistanceBonus } from "./ResistanceBonus";
 import { RemoteSensorBooster, SensorBooster } from "./SensorBooster";
 import { CargoScanner, ShipScanner } from "./ShipScanner";
 import { SignatureSuppressor, TargetPainter } from "./SignatureRadius";
-import { Smartbomb } from "./Smartbomb";
+import { Doomsday, Smartbomb } from "./Smartbomb";
 import { StasisWebifier } from "./StasisWebifier";
 import { RemoteTrackingComputer, TrackingComputer } from "./TrackingComputer";
 import { TractorBeam } from "./TractorBeam";
-import { Turret } from "./Turret";
+import { Turret, VortonProjector } from "./Turret";
 import { WarpDisruptionFieldGenerator, WarpScrambler } from "./WarpScrambler";
 
 export interface LineProps {
@@ -46,6 +47,7 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["adaptiveArmorHardener", [Resistance]],
   ["armorRepair", [ArmorRepairer]],
   ["cargoScan", [CargoScanner]],
+  ["ChainLightning", [VortonProjector]],
   ["cloaking", [Cloak]],
   ["cloakingPrototype", [Cloak]],
   ["cloakingWarpSafe", [Cloak]],
@@ -56,6 +58,7 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["empWave", [Smartbomb]],
   ["energyNeutralizerFalloff", [EnergyNeutralizer]],
   ["energyNosferatuFalloff", [EnergyNosferatu]],
+  ["entosisLink", [ActivationRange]],
   ["fueledArmorRepair", [ArmorRepairer]],
   ["fueledShieldBoosting", [ShieldBooster]],
   ["gunneryMaxRangeFalloffTrackingSpeedBonus", [TrackingComputer]],
@@ -73,6 +76,7 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["moduleBonusWarfareLinkMining", [ActivationRange]],
   ["moduleBonusWarfareLinkShield", [ActivationRange]],
   ["moduleBonusWarfareLinkSkirmish", [ActivationRange]],
+  ["moduleTitanEffectGenerator", [ActivationRange]],
   ["powerBooster", [CapacitorBooster]],
   ["projectileFired", [Turret]],
   ["remoteECMFalloff", [Ecm]],
@@ -80,6 +84,7 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["remoteSensorDampFalloff", [RemoteSensorBooster]],
   ["remoteTargetPaintFalloff", [TargetPainter]],
   ["remoteWebifierFalloff", [StasisWebifier]],
+  ["salvaging", [ActivationRange]],
   ["sensorBoosterActivePercentage", [SensorBooster]],
   ["shieldBoosting", [ShieldBooster]],
   ["shipModuleAncillaryRemoteArmorRepairer", [AncillaryRemoteArmorRepairer]],
@@ -95,6 +100,10 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["shipScan", [ShipScanner]],
   ["signatureRadiusBonusOnline", [SignatureSuppressor]],
   ["structureRepair", [HullRepairer]],
+  ["superWeaponAmarr", [Doomsday]],
+  ["superWeaponCaldari", [Doomsday]],
+  ["superWeaponGallente", [Doomsday]],
+  ["superWeaponMinmatar", [Doomsday]],
   ["targetAttack", [Turret]],
   ["targetDisintegratorAttack", [Turret]],
   ["tractorBeamCan", [TractorBeam]],
@@ -106,6 +115,9 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
 
 /** Tooltip lines of a group, in place of those from its effects. */
 const groupLines = new Map<string, ComponentType<LineProps>[]>([
+  ["Breacher Pod Launchers", [BreacherPodLauncher]],
+  ["Flex Armor Hardener", []],
+  ["Flex Shield Hardener", []],
   ["Scan Probe Launcher", [ProbeLauncher]],
   ["Survey Probe Launcher", [ProbeLauncher]],
 ]);

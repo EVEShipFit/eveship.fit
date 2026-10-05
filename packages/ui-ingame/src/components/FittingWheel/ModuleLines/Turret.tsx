@@ -1,6 +1,6 @@
 import { formatNumber, useAttribute } from "@eveshipfit/react-hooks";
 
-import { unit } from "../../ShipStatistics/units";
+import { range, unit } from "../../ShipStatistics/units";
 import { Attribute } from "./parts/Attribute";
 import { Damage } from "./parts/Damage";
 import type { LineProps } from "./index";
@@ -28,6 +28,24 @@ export function Turret({ itemRef }: LineProps) {
       <Attribute name="damageMultiplier">Damage Per Second {dps.text}</Attribute>
       <Damage itemRef={itemRef} />
       <Attribute name="trackingSpeed">Turret Tracking: {tracking.text}</Attribute>
+    </>
+  );
+}
+
+export function VortonProjector({ itemRef }: LineProps) {
+  const dps = useAttribute("damagePerSecondWithoutReload", {
+    of: itemRef,
+    decimals: 1,
+    fixed: true,
+    fallback: 0,
+    format: formatNumber,
+  });
+
+  return (
+    <>
+      <Range itemRef={itemRef} label="Optimal range" format={range} />
+      <Attribute name="damageMultiplier">Damage Per Second {dps.text}</Attribute>
+      <Damage itemRef={itemRef} />
     </>
   );
 }
