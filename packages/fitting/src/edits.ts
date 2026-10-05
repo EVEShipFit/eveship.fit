@@ -91,7 +91,7 @@ export function fitType(sde: Sde, fit: Fit, stats: Stats, typeId: number, slot?:
   }
 }
 
-const movableRacks: readonly SlotType[] = ["high", "medium", "low", "rig", "service"];
+const movableRacks: readonly SlotType[] = ["high", "medium", "low", "rig", "service", "fighter_tube"];
 
 /** Move an item to another slot of its rack, swapping places with what is there. */
 export function move(fit: Fit, ref: ItemRef, slot: Slot): Fit {
