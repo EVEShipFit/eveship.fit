@@ -7,6 +7,8 @@ const types = {
   Helios: 11172,
   "Core Probe Launcher II": 4258,
   "Core Scanner Probe I": 30013,
+  "Survey Probe Launcher II": 33272,
+  "Discovery Survey Probe I": 18635,
 };
 
 const fitted = (typeId: number, slot: "high" | "medium" | "low", chargeTypeId?: number, shipTypeId = types.Helios) => ({
@@ -53,5 +55,14 @@ export const Empty: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Damage Per Second 0")).toBeVisible();
     await expect(canvas.queryByText(/Base Sensor Strength/)).toBeNull();
+  },
+};
+
+export const Survey: Story = {
+  ...fitted(types["Survey Probe Launcher II"], "high", types["Discovery Survey Probe I"]),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Damage Per Second 0.0")).toBeVisible();
+    await expect(canvas.getByText("Base Sensor Strength: 0 points")).toBeVisible();
+    await expect(canvas.queryByText(/Max flight range/)).toBeNull();
   },
 };

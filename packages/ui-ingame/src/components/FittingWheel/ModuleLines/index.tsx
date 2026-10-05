@@ -102,7 +102,10 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
 ]);
 
 /** Tooltip lines of a group, in place of those from its effects. */
-const groupLines = new Map<string, ComponentType<LineProps>[]>([["Scan Probe Launcher", [ProbeLauncher]]]);
+const groupLines = new Map<string, ComponentType<LineProps>[]>([
+  ["Scan Probe Launcher", [ProbeLauncher]],
+  ["Survey Probe Launcher", [ProbeLauncher]],
+]);
 
 /** Tooltip lines from the effects of a module. */
 export function ModuleLines({ typeId, ...props }: { typeId: number } & LineProps) {
