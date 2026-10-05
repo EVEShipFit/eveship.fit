@@ -1,7 +1,7 @@
 import { useImages, useSde } from "@eveshipfit/react-hooks";
 import type { ReactNode } from "react";
 
-import styles from "../ModuleTooltip.module.css";
+import styles from "../../ModuleTooltip.module.css";
 
 /** A tooltip line with an icon. */
 function Line({

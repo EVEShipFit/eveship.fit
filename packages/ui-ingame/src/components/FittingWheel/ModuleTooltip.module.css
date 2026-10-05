@@ -36,14 +36,19 @@
   padding-left: 32px;
 }
 
-.damages {
+.values {
   display: grid;
   grid-auto-columns: 1fr;
   grid-auto-flow: column;
   padding-left: 27px;
 }
 
-.damages .bonus {
+.line > .values {
+  flex: 1;
+  padding-left: 0;
+}
+
+.values .bonus {
   gap: 0;
 }
 

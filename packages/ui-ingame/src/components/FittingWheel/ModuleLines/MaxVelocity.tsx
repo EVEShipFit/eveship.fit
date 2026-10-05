@@ -1,7 +1,7 @@
 import { useAttribute } from "@eveshipfit/react-hooks";
 
 import { unit } from "../../ShipStatistics/units";
-import { Attribute } from "./Attribute";
+import { Attribute } from "./parts/Attribute";
 import type { LineProps } from "./index";
 
 export function MaxVelocity({ state }: LineProps) {
