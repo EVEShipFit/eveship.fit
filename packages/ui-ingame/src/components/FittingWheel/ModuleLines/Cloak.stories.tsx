@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { CargoScanner as CargoScannerLine, ShipScanner } from "./ShipScanner";
+import { Cloak } from "./Cloak";
 
 const types = {
+  Helios: 11172,
   Rifter: 587,
-  "Ship Scanner II": 1855,
-  "Cargo Scanner II": 2038,
+  "Covert Ops Cloaking Device II": 11578,
 };
 
-const fitted = (typeId: number, slot: "high" | "medium", chargeTypeId?: number, shipTypeId = types.Rifter) => ({
+const fitted = (typeId: number, slot: "high" | "medium" | "low", chargeTypeId?: number, shipTypeId = types.Helios) => ({
   args: { itemRef: 0, state: "active" as const },
   parameters: {
     fit: {
@@ -27,7 +27,7 @@ const fitted = (typeId: number, slot: "high" | "medium", chargeTypeId?: number, 
 });
 
 const meta = {
-  component: ShipScanner,
+  component: Cloak,
   decorators: [
     (Story) => (
       <div style={{ background: "var(--esf-bg)", display: "grid", gap: 8, padding: "8px 14px" }}>
@@ -35,23 +35,21 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof ShipScanner>;
+} satisfies Meta<typeof Cloak>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  ...fitted(types["Ship Scanner II"], "medium"),
+export const CovertOps: Story = {
+  ...fitted(types["Covert Ops Cloaking Device II"], "high"),
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Range within 60 km")).toBeVisible();
-    await expect(canvas.queryByText(/Optimal range/)).toBeNull();
+    await expect(canvas.getByText("25% Maximum Velocity Modifier")).toBeVisible();
   },
 };
 
-export const CargoScanner: Story = {
-  ...fitted(types["Cargo Scanner II"], "medium"),
-  render: (args) => <CargoScannerLine {...args} />,
+export const Unbonused: Story = {
+  ...fitted(types["Covert Ops Cloaking Device II"], "high", undefined, types.Rifter),
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Range within 70 km")).toBeVisible();
+    await expect(canvas.getByText("0% Maximum Velocity Modifier")).toBeVisible();
   },
 };

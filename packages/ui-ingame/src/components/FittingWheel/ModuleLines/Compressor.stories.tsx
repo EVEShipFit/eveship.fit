@@ -1,15 +1,19 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { CargoScanner as CargoScannerLine, ShipScanner } from "./ShipScanner";
+import { Compressor } from "./Compressor";
 
 const types = {
-  Rifter: 587,
-  "Ship Scanner II": 1855,
-  "Cargo Scanner II": 2038,
+  Porpoise: 42244,
+  "Medium Asteroid Ore Compressor I": 62622,
 };
 
-const fitted = (typeId: number, slot: "high" | "medium", chargeTypeId?: number, shipTypeId = types.Rifter) => ({
+const fitted = (
+  typeId: number,
+  slot: "high" | "medium" | "low",
+  chargeTypeId?: number,
+  shipTypeId = types.Porpoise,
+) => ({
   args: { itemRef: 0, state: "active" as const },
   parameters: {
     fit: {
@@ -27,7 +31,7 @@ const fitted = (typeId: number, slot: "high" | "medium", chargeTypeId?: number, 
 });
 
 const meta = {
-  component: ShipScanner,
+  component: Compressor,
   decorators: [
     (Story) => (
       <div style={{ background: "var(--esf-bg)", display: "grid", gap: 8, padding: "8px 14px" }}>
@@ -35,23 +39,14 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof ShipScanner>;
+} satisfies Meta<typeof Compressor>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  ...fitted(types["Ship Scanner II"], "medium"),
+  ...fitted(types["Medium Asteroid Ore Compressor I"], "high"),
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Range within 60 km")).toBeVisible();
-    await expect(canvas.queryByText(/Optimal range/)).toBeNull();
-  },
-};
-
-export const CargoScanner: Story = {
-  ...fitted(types["Cargo Scanner II"], "medium"),
-  render: (args) => <CargoScannerLine {...args} />,
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Range within 70 km")).toBeVisible();
+    await expect(canvas.getByText("Ships in your fleet have to be within 66 km to use compression.")).toBeVisible();
   },
 };

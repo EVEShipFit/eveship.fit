@@ -3,13 +3,18 @@ import { useSde, useType } from "@eveshipfit/react-hooks";
 import type { ComponentType } from "react";
 
 import type { SlotState } from "../../../primitives/Wheel/WheelSlot";
+import { ActivationRange } from "./ActivationRange";
 import { CapacitorBooster } from "./CapacitorBooster";
 import { RemoteCapacitorTransmitter } from "./CapacitorTransmitter";
+import { Cloak } from "./Cloak";
+import { Compressor } from "./Compressor";
 import { GuidanceDisruptor, TrackingDisruptor } from "./Disruptor";
 import { BurstJammer, Ecm } from "./Ecm";
 import { EnergyNeutralizer, EnergyNosferatu } from "./EnergyWarfare";
 import { MaxVelocity } from "./MaxVelocity";
+import { Mining } from "./Mining";
 import { Missile } from "./Missile";
+import { ProbeLauncher } from "./ProbeLauncher";
 import {
   AncillaryRemoteArmorRepairer,
   AncillaryRemoteShieldBooster,
@@ -23,7 +28,7 @@ import {
 import { Resistance } from "./Resistance";
 import { ResistanceBonus } from "./ResistanceBonus";
 import { RemoteSensorBooster, SensorBooster } from "./SensorBooster";
-import { ShipScanner } from "./ShipScanner";
+import { CargoScanner, ShipScanner } from "./ShipScanner";
 import { SignatureSuppressor, TargetPainter } from "./SignatureRadius";
 import { Smartbomb } from "./Smartbomb";
 import { StasisWebifier } from "./StasisWebifier";
@@ -40,7 +45,10 @@ export interface LineProps {
 const lines = new Map<string, ComponentType<LineProps>[]>([
   ["adaptiveArmorHardener", [Resistance]],
   ["armorRepair", [ArmorRepairer]],
+  ["cargoScan", [CargoScanner]],
+  ["cloakingWarpSafe", [Cloak]],
   ["damageControl", [Resistance]],
+  ["doHacking", [ActivationRange]],
   ["ECMBurstJammer", [BurstJammer]],
   ["empWave", [Smartbomb]],
   ["energyNeutralizerFalloff", [EnergyNeutralizer]],
@@ -48,12 +56,20 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["fueledArmorRepair", [ArmorRepairer]],
   ["fueledShieldBoosting", [ShieldBooster]],
   ["gunneryMaxRangeFalloffTrackingSpeedBonus", [TrackingComputer]],
+  ["industrialItemCompression", [Compressor]],
+  ["miningClouds", [Mining]],
+  ["miningLaser", [Mining]],
   ["modifyActiveArmorResonancePostPercent", [ResistanceBonus]],
   ["modifyActiveShieldResonancePostPercent", [ResistanceBonus]],
   ["modifyArmorResonancePostPercent", [ResistanceBonus]],
   ["modifyShieldResonancePostPercent", [ResistanceBonus]],
   ["moduleBonusAfterburner", [MaxVelocity]],
   ["moduleBonusMicrowarpdrive", [MaxVelocity]],
+  ["moduleBonusWarfareLinkArmor", [ActivationRange]],
+  ["moduleBonusWarfareLinkInfo", [ActivationRange]],
+  ["moduleBonusWarfareLinkMining", [ActivationRange]],
+  ["moduleBonusWarfareLinkShield", [ActivationRange]],
+  ["moduleBonusWarfareLinkSkirmish", [ActivationRange]],
   ["powerBooster", [CapacitorBooster]],
   ["projectileFired", [Turret]],
   ["remoteECMFalloff", [Ecm]],
@@ -85,10 +101,16 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["warpScrambleBlockMWDWithNPCEffect", [WarpScrambler]],
 ]);
 
+/** Tooltip lines of a group, in place of those from its effects. */
+const groupLines = new Map<string, ComponentType<LineProps>[]>([["Scan Probe Launcher", [ProbeLauncher]]]);
+
 /** Tooltip lines from the effects of a module. */
 export function ModuleLines({ typeId, ...props }: { typeId: number } & LineProps) {
   const sde = useSde();
   const type = useType(typeId);
-  const shown = new Set([...(type?.effectIds ?? [])].flatMap((id) => lines.get(sde.effect(id)?.name ?? "") ?? []));
+  const shown = new Set(
+    groupLines.get(sde.group(type?.groupId ?? 0)?.name ?? "") ??
+      [...(type?.effectIds ?? [])].flatMap((id) => lines.get(sde.effect(id)?.name ?? "") ?? []),
+  );
   return [...shown].map((Line, index) => <Line key={index} {...props} />);
 }

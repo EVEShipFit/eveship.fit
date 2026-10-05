@@ -7,7 +7,7 @@ catalog:
   "@changesets/changelog-github": 1.0.1
   "@changesets/cli": ^3.0.3
   "@eveshipfit/dogma-engine": ^13.5.0
-  "@eveshipfit/images": ^2.3561556.0
+  "@eveshipfit/images": ^3.3561556.0
   "@eveshipfit/sde": ^9.3561556.0
   "@fontsource-variable/noto-sans": ^5.3.0
   "@playwright/test": ^1.63.0

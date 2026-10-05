@@ -69,3 +69,12 @@
 .status[data-tone="overload"] {
   color: var(--esf-state-overload);
 }
+
+.info {
+  background: var(--esf-button-active-edge);
+  flex: none;
+  height: 16px;
+  margin: 4px;
+  mask: var(--texture) center / 100% 100%;
+  width: 16px;
+}
