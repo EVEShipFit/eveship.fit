@@ -385,6 +385,24 @@ describe("edits", () => {
     ]);
   });
 
+  test("moving a squadron swaps it with what is in the other tube", () => {
+    const fit = engine.createFit({ ship: id("Thanatos") });
+    const dromi = fit.fit(id("Dromi II"))!;
+    const templar = fit.fit(id("Templar II"))!;
+
+    fit.move(dromi, { type: "fighter_tube", index: 1 });
+    expect(fit.getSnapshot().fit.items.map((item) => item.slot)).toEqual([
+      { type: "fighter_tube", index: 1 },
+      { type: "fighter_tube", index: 0 },
+    ]);
+
+    fit.move(templar, { type: "fighter_tube", index: 2 });
+    expect(fit.getSnapshot().fit.items.map((item) => item.slot)).toEqual([
+      { type: "fighter_tube", index: 1 },
+      { type: "fighter_tube", index: 2 },
+    ]);
+  });
+
   test("a module moves only within its rack, and a subsystem not at all", () => {
     const fit = rifter();
     const gun = fit.fit(id("200mm AutoCannon II"))!;

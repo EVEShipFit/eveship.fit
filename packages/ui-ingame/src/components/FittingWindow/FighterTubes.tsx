@@ -72,7 +72,7 @@ function LaunchTube({ index, content, available }: { index: number; content?: Sl
   const sde = useSde();
   const { fit, stats } = useSnapshot();
   const canFit = useCanFit();
-  const { dragging, end } = useDrag();
+  const { dragging, start, end } = useDrag();
   const { show, clear } = usePreview();
   const item = content?.item;
   const type = useType(item?.type_id);
@@ -84,6 +84,11 @@ function LaunchTube({ index, content, available }: { index: number; content?: Sl
       ? dropped
       : undefined;
   const slot = { type: "fighter_tube", index } as const;
+  const moved = dragging?.type === "item" ? fit.items[dragging.ref] : undefined;
+  const movedRef =
+    available && dragging?.type === "item" && moved?.slot.type === "fighter_tube" && moved.slot.index !== index
+      ? dragging.ref
+      : undefined;
   const target = `fighter-tube-${index}`;
   const role = type && baseValue(sde, type, "fighterSquadronRole");
 
@@ -99,23 +104,33 @@ function LaunchTube({ index, content, available }: { index: number; content?: Sl
       role={role === undefined ? undefined : roles[role]}
       onRemove={ref === undefined ? undefined : () => store.remove(ref)}
       onResize={ref === undefined ? undefined : (quantity) => store.setSquadronSize(ref, quantity)}
+      draggable={ref !== undefined && !content?.preview}
+      onDragStart={(event) => {
+        if (ref === undefined) return;
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", type?.name ?? "");
+        start({ type: "item", ref });
+      }}
+      onDragEnd={end}
       onDragEnter={() => {
         if (taken) show((draft) => void draft.fit(taken.id, slot), target);
+        if (movedRef !== undefined) show((draft) => draft.move(movedRef, slot), target);
       }}
       onDragLeave={(event) => {
         if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
         clear(target);
       }}
       onDragOver={(event) => {
-        if (!taken) return;
+        if (!taken && movedRef === undefined) return;
         event.preventDefault();
-        event.dataTransfer.dropEffect = "copy";
+        event.dataTransfer.dropEffect = taken ? "copy" : "move";
       }}
       onDrop={(event) => {
-        if (!taken) return;
+        if (!taken && movedRef === undefined) return;
         event.preventDefault();
         clear(target);
-        store.fit(taken.id, slot);
+        if (taken) store.fit(taken.id, slot);
+        else store.move(movedRef!, slot);
         end();
       }}
     />
