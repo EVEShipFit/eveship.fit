@@ -1,10 +1,12 @@
 import { formatNumber, useAttribute } from "@eveshipfit/react-hooks";
 
 import { unit } from "../../ShipStatistics/units";
-import { Attribute } from "./Attribute";
-import { Damage } from "./Damage";
+import { Attribute } from "./parts/Attribute";
+import { Damage } from "./parts/Damage";
 import type { LineProps } from "./index";
-import { Range } from "./Range";
+import { Range } from "./parts/Range";
+
+const meters = unit(" m");
 
 export function Turret({ itemRef }: LineProps) {
   const spool = useAttribute("damageMultiplierBonusMax", { of: itemRef }).value;
@@ -22,7 +24,7 @@ export function Turret({ itemRef }: LineProps) {
 
   return (
     <>
-      <Range itemRef={itemRef} falloff="falloff" label="Falloff range" format={unit(" m")} />
+      <Range itemRef={itemRef} falloff="falloff" label="Falloff range" format={meters} />
       <Attribute name="damageMultiplier">Damage Per Second {dps.text}</Attribute>
       <Damage itemRef={itemRef} />
       <Attribute name="trackingSpeed">Turret Tracking: {tracking.text}</Attribute>

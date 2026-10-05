@@ -3,7 +3,7 @@ import { useAttribute, useSde } from "@eveshipfit/react-hooks";
 
 import { unit } from "../../ShipStatistics/units";
 import styles from "../ModuleTooltip.module.css";
-import { Attribute, Bonus } from "./Attribute";
+import { Attribute, Bonus } from "./parts/Attribute";
 import type { LineProps } from "./index";
 
 export function ResistanceBonus({ itemRef }: LineProps) {

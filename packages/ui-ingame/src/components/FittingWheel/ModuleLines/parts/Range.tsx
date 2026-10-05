@@ -1,7 +1,7 @@
 import type { ItemRef } from "@eveshipfit/fitting";
 import { useAttribute, type NumberFormat } from "@eveshipfit/react-hooks";
 
-import styles from "../ModuleTooltip.module.css";
+import styles from "../../ModuleTooltip.module.css";
 import { Attribute } from "./Attribute";
 
 /** Optimal range and optimal plus falloff. */

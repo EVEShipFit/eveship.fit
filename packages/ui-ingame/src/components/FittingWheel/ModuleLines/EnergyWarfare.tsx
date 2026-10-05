@@ -1,7 +1,7 @@
 import { unit } from "../../ShipStatistics/units";
 import type { LineProps } from "./index";
-import { PerCycle } from "./PerCycle";
-import { Range } from "./Range";
+import { PerCycle } from "./parts/PerCycle";
+import { Range } from "./parts/Range";
 
 const kilometers = unit(" km", 1000);
 

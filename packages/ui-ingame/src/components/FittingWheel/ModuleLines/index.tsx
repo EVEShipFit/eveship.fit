@@ -3,10 +3,11 @@ import { useSde, useType } from "@eveshipfit/react-hooks";
 import type { ComponentType } from "react";
 
 import type { SlotState } from "../../../primitives/Wheel/WheelSlot";
-import { EnergyNeutralizer, EnergyNosferatu } from "./EnergyNeutralizer";
+import { CapacitorBooster } from "./CapacitorBooster";
+import { EnergyNeutralizer, EnergyNosferatu } from "./EnergyWarfare";
 import { MaxVelocity } from "./MaxVelocity";
 import { Missile } from "./Missile";
-import { ArmorRepairer, CapacitorBooster, ShieldBooster } from "./Repairer";
+import { ArmorRepairer, ShieldBooster } from "./Repairer";
 import { Resistance } from "./Resistance";
 import { ResistanceBonus } from "./ResistanceBonus";
 import { Turret } from "./Turret";

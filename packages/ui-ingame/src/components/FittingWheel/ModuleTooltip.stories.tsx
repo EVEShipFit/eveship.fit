@@ -103,3 +103,13 @@ export const WithResistanceBonus: Story = {
     await expect(canvas.getByText("Resistance Bonus:")).toBeVisible();
   },
 };
+
+export const WithResistance: Story = {
+  args: { rack: "low", typeId: 2048, state: "online", maxState: "online" },
+  parameters: {
+    fit: { ship: { type_id: 587 }, items: [{ type_id: 2048, slot: { type: "low", index: 0 }, state: "online" }] },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Hull damage resistance")).toBeVisible();
+  },
+};

@@ -3,7 +3,7 @@ import { useAttribute } from "@eveshipfit/react-hooks";
 
 import { unit } from "../../ShipStatistics/units";
 import styles from "../ModuleTooltip.module.css";
-import { Attribute, Bonus } from "./Attribute";
+import { Attribute, Bonus } from "./parts/Attribute";
 import type { LineProps } from "./index";
 
 const percent = unit("%");
@@ -16,37 +16,43 @@ export function Resistance({ itemRef }: LineProps) {
     { label: "Hull", icon: "hp", resistances: useResistances("hull", itemRef) },
   ].filter(({ resistances }) => resistances.some(({ value }) => value !== undefined && value !== 1));
 
-  const [first] = layers;
-  if (first === undefined) return null;
-  if (layers.length === 1) return <Layer {...first} />;
-
-  return layers.map((layer) => (
-    <Attribute key={layer.label} name={layer.icon}>
-      <Layer {...layer} />
-    </Attribute>
-  ));
+  return layers.map((layer) => <Layer key={layer.label} {...layer} withIcon={layers.length > 1} />);
 }
 
-function Layer({ label, resistances }: { label: string; resistances: Resistance[] }) {
+function Layer({
+  label,
+  icon,
+  resistances,
+  withIcon,
+}: {
+  label: string;
+  icon: string;
+  resistances: Value[];
+  withIcon: boolean;
+}) {
+  const values = (
+    <span className={styles.values}>
+      {resistances.map(({ name, text }) => (
+        <Bonus key={name} name={name} text={text} />
+      ))}
+    </span>
+  );
+
   return (
     <span className={styles.block}>
       {label} damage resistance
-      <span className={styles.bonuses}>
-        {resistances.map(({ name, text }) => (
-          <Bonus key={name} name={name} text={text} />
-        ))}
-      </span>
+      {withIcon ? <Attribute name={icon}>{values}</Attribute> : values}
     </span>
   );
 }
 
-interface Resistance {
+interface Value {
   name: string;
   value: number | undefined;
   text: string;
 }
 
-function useResistances(layer: string, itemRef: ItemRef): Resistance[] {
+function useResistances(layer: string, itemRef: ItemRef): Value[] {
   return [
     useResistance(`${layer}EmDamageResonance`, itemRef),
     useResistance(`${layer}ExplosiveDamageResonance`, itemRef),
@@ -55,7 +61,7 @@ function useResistances(layer: string, itemRef: ItemRef): Resistance[] {
   ];
 }
 
-function useResistance(name: string, itemRef: ItemRef): Resistance {
+function useResistance(name: string, itemRef: ItemRef): Value {
   const { value, text } = useAttribute(name, {
     of: itemRef,
     decimals: 1,

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { ArmorRepairer, CapacitorBooster, ShieldBooster } from "./Repairer";
+import { ArmorRepairer, ShieldBooster } from "./Repairer";
 
 const types = {
   Rifter: 587,
@@ -9,8 +9,7 @@ const types = {
   "Medium Ancillary Shield Booster": 32772,
   "Medium Armor Repairer II": 3530,
   "Medium Ancillary Armor Repairer": 33101,
-  "Medium Capacitor Booster II": 2024,
-  "Navy Cap Booster 400": 32006,
+  "Nanite Repair Paste": 28668,
 };
 
 const fitted = (typeId: number, slot: "high" | "medium" | "low", chargeTypeId?: number, shipTypeId = types.Rifter) => ({
@@ -74,18 +73,10 @@ export const AncillaryArmor: Story = {
   },
 };
 
-export const Capacitor: Story = {
-  ...fitted(types["Medium Capacitor Booster II"], "medium", types["Navy Cap Booster 400"]),
-  render: (args) => <CapacitorBooster {...args} />,
+export const PastedAncillaryArmor: Story = {
+  ...fitted(types["Medium Ancillary Armor Repairer"], "low", types["Nanite Repair Paste"]),
+  render: (args) => <ArmorRepairer {...args} />,
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("400 GJ per 12s")).toBeVisible();
-  },
-};
-
-export const EmptyCapacitor: Story = {
-  ...fitted(types["Medium Capacitor Booster II"], "medium"),
-  render: (args) => <CapacitorBooster {...args} />,
-  play: async ({ canvas }) => {
-    await expect(canvas.queryByText(/GJ per/)).toBeNull();
+    await expect(canvas.getByText("621 HP repaired per 9s")).toBeVisible();
   },
 };

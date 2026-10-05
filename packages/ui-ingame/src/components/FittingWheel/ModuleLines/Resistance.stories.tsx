@@ -9,19 +9,12 @@ const types = {
   "Reactive Armor Hardener": 4403,
 };
 
-const fitted = (typeId: number, slot: "high" | "medium" | "low", chargeTypeId?: number, shipTypeId = types.Rifter) => ({
+const fitted = (typeId: number, slot: "high" | "medium" | "low") => ({
   args: { itemRef: 0, state: "active" as const },
   parameters: {
     fit: {
-      ship: { type_id: shipTypeId },
-      items: [
-        {
-          type_id: typeId,
-          slot: { type: slot, index: 0 },
-          state: "active",
-          ...(chargeTypeId === undefined ? {} : { charge: { type_id: chargeTypeId } }),
-        },
-      ],
+      ship: { type_id: types.Rifter },
+      items: [{ type_id: typeId, slot: { type: slot, index: 0 }, state: "active" }],
     },
   },
 });

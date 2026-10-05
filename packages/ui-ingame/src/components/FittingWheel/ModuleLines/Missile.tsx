@@ -2,8 +2,8 @@ import { formatNumber, useAttribute } from "@eveshipfit/react-hooks";
 
 import { unit } from "../../ShipStatistics/units";
 import styles from "../ModuleTooltip.module.css";
-import { Attribute } from "./Attribute";
-import { Damage } from "./Damage";
+import { Attribute } from "./parts/Attribute";
+import { Damage } from "./parts/Damage";
 import type { LineProps } from "./index";
 
 const kilometers = unit(" km", 1000);
@@ -29,7 +29,7 @@ export function Missile({ itemRef }: LineProps) {
           </span>
         </Attribute>
       )}
-      <Attribute name="launcherSlotsLeft">Damage Per Second {dps.text}</Attribute>
+      <Attribute name="launcherHardPointModifier">Damage Per Second {dps.text}</Attribute>
       <Damage itemRef={itemRef} />
     </>
   );

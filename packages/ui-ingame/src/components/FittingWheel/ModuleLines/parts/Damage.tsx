@@ -1,8 +1,8 @@
 import type { ItemRef } from "@eveshipfit/fitting";
 import { useAttribute, useSde } from "@eveshipfit/react-hooks";
 
-import { unit } from "../../ShipStatistics/units";
-import styles from "../ModuleTooltip.module.css";
+import { unit } from "../../../ShipStatistics/units";
+import styles from "../../ModuleTooltip.module.css";
 import { Attribute, Bonus } from "./Attribute";
 
 const hp = unit(" HP");
@@ -34,7 +34,7 @@ export function Damage({ itemRef }: { itemRef: ItemRef }) {
   return (
     <>
       <span className={styles.iconless}>Damage caused</span>
-      <span className={styles.damages}>
+      <span className={styles.values}>
         {damages.map(({ name, text }) => (
           <Bonus key={name} name={name} text={text} />
         ))}
