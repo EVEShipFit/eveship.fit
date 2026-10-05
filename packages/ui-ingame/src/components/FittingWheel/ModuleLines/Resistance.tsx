@@ -40,7 +40,7 @@ function Layer({
 
   return (
     <span className={styles.block}>
-      {label} damage resistance
+      <span className={styles.iconless}>{label} damage resistance</span>
       {withIcon ? <Attribute name={icon}>{values}</Attribute> : values}
     </span>
   );
