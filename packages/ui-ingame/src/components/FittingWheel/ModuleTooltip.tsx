@@ -1,5 +1,5 @@
 import type { ItemRef, Rack } from "@eveshipfit/fitting";
-import { useType } from "@eveshipfit/react-hooks";
+import { useAttribute, useType } from "@eveshipfit/react-hooks";
 
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
 import type { SlotState } from "../../primitives/Wheel/WheelSlot";
@@ -23,7 +23,7 @@ export function ModuleTooltip({ rack, itemRef, typeId, chargeTypeId, state, maxS
   return (
     <span className={styles.tooltip}>
       <TypeRow typeId={typeId} />
-      {chargeTypeId !== undefined && <TypeRow typeId={chargeTypeId} />}
+      {chargeTypeId !== undefined && <ChargeRow itemRef={itemRef} typeId={chargeTypeId} />}
       <ModuleLines typeId={typeId} itemRef={itemRef} state={state} />
       {status && (
         <span className={styles.status} data-tone={status.tone}>
@@ -34,14 +34,19 @@ export function ModuleTooltip({ rack, itemRef, typeId, chargeTypeId, state, maxS
   );
 }
 
-function TypeRow({ typeId }: { typeId: number }) {
+function TypeRow({ typeId, count }: { typeId: number; count?: string }) {
   const type = useType(typeId);
   return (
     <span className={styles.type}>
       <TypeIcon typeId={typeId} size={24} />
-      {type?.name}
+      {count === undefined ? type?.name : `${count} ${type?.name}`}
     </span>
   );
+}
+
+function ChargeRow({ itemRef, typeId }: { itemRef: ItemRef; typeId: number }) {
+  const count = useAttribute("chargeAmount", { of: itemRef, decimals: 0, rounding: "down" });
+  return <TypeRow typeId={typeId} count={count.value === undefined ? undefined : count.text} />;
 }
 
 /** The last line of the tooltip; none for subsystems. */

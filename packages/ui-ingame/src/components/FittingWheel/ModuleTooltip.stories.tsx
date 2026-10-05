@@ -27,8 +27,14 @@ export const Active: Story = {
 
 export const WithCharge: Story = {
   args: { chargeTypeId: 185 },
+  parameters: {
+    fit: {
+      ship: { type_id: 587 },
+      items: [{ type_id: 2889, slot: { type: "high", index: 0 }, state: "active", charge: { type_id: 185 } }],
+    },
+  },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("EMP S")).toBeVisible();
+    await expect(canvas.getByText("120 EMP S")).toBeVisible();
   },
 };
 

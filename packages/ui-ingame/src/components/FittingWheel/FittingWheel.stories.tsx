@@ -263,7 +263,7 @@ export const ModuleTooltip: Story = {
 
     await userEvent.hover(autocannon);
     await expect(status).toBeVisible();
-    await expect(slot.getByText("EMP S")).toBeVisible();
+    await expect(slot.getByText("120 EMP S")).toBeVisible();
     const tooltip = status.getBoundingClientRect();
     const { left, right } = autocannon.getBoundingClientRect();
     await expect(tooltip.right).toBeGreaterThan(left);
