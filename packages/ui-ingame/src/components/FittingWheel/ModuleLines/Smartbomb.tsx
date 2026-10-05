@@ -1,3 +1,4 @@
+import type { ItemRef } from "@eveshipfit/fitting";
 import { useAttribute } from "@eveshipfit/react-hooks";
 
 import { unit } from "../../ShipStatistics/units";
@@ -17,7 +18,7 @@ export function Smartbomb({ itemRef }: LineProps) {
   );
 }
 
-function DamageLine({ itemRef, name }: Pick<LineProps, "itemRef"> & { name: string }) {
+function DamageLine({ itemRef, name }: { itemRef: ItemRef; name: string }) {
   const damage = useAttribute(name, { of: itemRef, decimals: 0, format: unit(" HP") });
   const displayName = useDisplayName(name);
   if (!damage.value) return null;

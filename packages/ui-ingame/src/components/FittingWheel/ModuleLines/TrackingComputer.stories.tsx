@@ -10,7 +10,7 @@ const types = {
   "Optimal Range Script": 28999,
 };
 
-const fitted = (chargeTypeId?: number, typeId = types["Remote Tracking Computer II"]) => ({
+const fitted = (typeId: number, chargeTypeId?: number) => ({
   args: { itemRef: 0, state: "active" as const },
   parameters: {
     fit: {
@@ -42,7 +42,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Remote: Story = {
-  ...fitted(),
+  ...fitted(types["Remote Tracking Computer II"]),
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 108 km")).toBeVisible();
     await expect(canvas.getByText("Optimal range within 72 km")).toBeVisible();
@@ -53,7 +53,7 @@ export const Remote: Story = {
 };
 
 export const RemoteWithScript: Story = {
-  ...fitted(types["Optimal Range Script"]),
+  ...fitted(types["Remote Tracking Computer II"], types["Optimal Range Script"]),
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Falloff Bonus: 30%")).toBeVisible();
     await expect(canvas.getByText("Optimal Range Bonus: 15%")).toBeVisible();
@@ -62,7 +62,7 @@ export const RemoteWithScript: Story = {
 };
 
 export const Local: Story = {
-  ...fitted(undefined, types["Tracking Computer II"]),
+  ...fitted(types["Tracking Computer II"]),
   render: (args) => <TrackingComputer {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.queryByText(/Range within/)).toBeNull();
@@ -73,7 +73,7 @@ export const Local: Story = {
 };
 
 export const LocalWithScript: Story = {
-  ...fitted(types["Optimal Range Script"], types["Tracking Computer II"]),
+  ...fitted(types["Tracking Computer II"], types["Optimal Range Script"]),
   render: (args) => <TrackingComputer {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Falloff Bonus: 30%")).toBeVisible();
