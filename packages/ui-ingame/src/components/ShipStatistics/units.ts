@@ -12,3 +12,9 @@ export function hitpoints(value: number, format: NumberFormat): string {
   if (value > 100_000) return unit("M hp", 1_000_000)(value, short);
   return unit(" hp")(value, format);
 }
+
+/** Like EVE's ranges: in meters below 10 km, in kilometers above. */
+export function range(value: number, format: NumberFormat): string {
+  if (value < 10_000) return unit(" m")(value, format);
+  return unit(" km", 1000)(value, format);
+}

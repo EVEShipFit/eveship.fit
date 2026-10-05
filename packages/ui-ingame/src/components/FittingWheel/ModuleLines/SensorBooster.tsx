@@ -1,13 +1,12 @@
 import type { ItemRef } from "@eveshipfit/fitting";
 import { useAttribute } from "@eveshipfit/react-hooks";
 
-import { unit } from "../../ShipStatistics/units";
+import { range, unit } from "../../ShipStatistics/units";
 import styles from "../ModuleTooltip.module.css";
 import { Attribute, useDisplayName } from "./parts/Attribute";
 import { Range } from "./parts/Range";
 import type { LineProps } from "./index";
 
-const kilometers = unit(" km", 1000);
 const percent = unit("%");
 
 export function RemoteSensorBooster({ itemRef }: LineProps) {
@@ -20,7 +19,7 @@ export function RemoteSensorBooster({ itemRef }: LineProps) {
 
   return (
     <>
-      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={kilometers} />
+      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
       <BonusLine bonus={useBonus("scanResolutionBonus", itemRef)} />
       <BonusLine bonus={useBonus("maxTargetRangeBonus", itemRef)} />
       {strengths.length > 0 && (

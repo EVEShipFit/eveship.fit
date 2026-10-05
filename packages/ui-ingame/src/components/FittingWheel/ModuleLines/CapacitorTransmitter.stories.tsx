@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Remote: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Range within 7 km")).toBeVisible();
+    await expect(canvas.getByText("Range within 6,500 m")).toBeVisible();
     await expect(canvas.queryByText(/Optimal range/)).toBeNull();
     await expect(canvas.getByText("117.00 Points per 5s")).toBeVisible();
   },
