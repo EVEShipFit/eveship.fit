@@ -68,6 +68,7 @@ export const Guidance: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 108 km")).toBeVisible();
     await expect(canvas.getByText("-11% Missile Velocity Bonus")).toBeVisible();
+    await expect(canvas.getByText("-11% Missile Velocity Bonus").querySelector("img")).toBeNull();
     await expect(canvas.getByText("-11% Flight Time Bonus")).toBeVisible();
     await expect(canvas.getByText("-15% Explosion Velocity Bonus")).toBeVisible();
     await expect(canvas.getByText("15% Explosion Radius Bonus")).toBeVisible();
