@@ -17,15 +17,14 @@ export function RemoteSensorBooster({ itemRef }: LineProps) {
     useBonus("scanMagnetometricStrengthPercent", itemRef),
     useBonus("scanRadarStrengthPercent", itemRef),
   ].filter(({ value }) => value);
-  const [first] = strengths;
 
   return (
     <>
       <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={kilometers} />
       <BonusLine bonus={useBonus("scanResolutionBonus", itemRef)} />
       <BonusLine bonus={useBonus("maxTargetRangeBonus", itemRef)} />
-      {first && (
-        <Attribute name={first.name}>
+      {strengths.length > 0 && (
+        <Attribute name="ECMResistance">
           <span className={styles.block}>
             {strengths.map((strength) => (
               <span key={strength.name}>
