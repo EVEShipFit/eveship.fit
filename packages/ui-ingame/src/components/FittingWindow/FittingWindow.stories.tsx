@@ -540,6 +540,23 @@ export const CargoHold: Story = {
   },
 };
 
+export const DroneTooltip: Story = {
+  parameters: {
+    fit: {
+      ship: { type_id: types.Tristan },
+      items: [{ type_id: types["Hobgoblin II"], slot: { type: "drone_bay" }, quantity: 2, state: "active" }],
+    },
+  },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Drone Bay" }));
+    const range = canvas.getByText("Optimal range within 2,625 m");
+    await userEvent.hover(canvas.getByRole("group", { name: "Active Hobgoblin II" }));
+    await expect(range).not.toBeVisible();
+    await userEvent.hover(canvas.getByRole("listitem").querySelector<HTMLElement>("[draggable=true]")!);
+    await expect(range).toBeVisible();
+  },
+};
+
 /** Clicking the drone bay lists its drones, with boxes for how many are active; each change is one step. */
 export const DroneBay: Story = {
   parameters: {

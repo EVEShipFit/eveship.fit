@@ -16,6 +16,7 @@ import { FighterTube } from "../../primitives/FighterTube/FighterTube";
 import { Icon, type IconName } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import styles from "./BayContents.module.css";
+import { FighterTooltip } from "./FighterTooltip";
 
 /** EVE draws five, those the ship does not have faded. */
 const FIGHTER_TUBES = 5;
@@ -102,6 +103,11 @@ function LaunchTube({ index, content, available }: { index: number; content?: Sl
       quantity={item?.quantity ?? 1}
       size={type && squadronSize(sde, type)}
       role={role === undefined ? undefined : roles[role]}
+      tooltip={
+        ref === undefined || item === undefined || content?.preview ? undefined : (
+          <FighterTooltip itemRef={ref} typeId={item.type_id} quantity={item.quantity ?? 1} />
+        )
+      }
       onRemove={ref === undefined ? undefined : () => store.remove(ref)}
       onResize={ref === undefined ? undefined : (quantity) => store.setSquadronSize(ref, quantity)}
       draggable={ref !== undefined && !content?.preview}

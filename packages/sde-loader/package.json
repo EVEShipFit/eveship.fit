@@ -39,7 +39,7 @@
     "tsdown": "catalog:"
   },
   "peerDependencies": {
-    "@eveshipfit/sde": "^9.0.0"
+    "@eveshipfit/sde": "^10.0.0"
   },
   "peerDependenciesMeta": {
     "@eveshipfit/sde": {

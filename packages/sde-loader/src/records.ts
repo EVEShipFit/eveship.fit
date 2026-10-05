@@ -3,6 +3,7 @@ import type {
   DogmaAttribute,
   DogmaEffect,
   DogmaUnit,
+  FighterAbility,
   Group,
   MarketGroup,
   MetaGroup,
@@ -75,6 +76,12 @@ export interface SdeFighterAbility {
   readonly cooldownSeconds: number;
   readonly chargeCount: number;
   readonly rearmTimeSeconds: number;
+}
+
+export interface SdeFighterAbilityInfo {
+  readonly id: number;
+  readonly name: string;
+  readonly effectId: number;
 }
 
 /**
@@ -195,6 +202,10 @@ export function toMarketGroup(raw: MarketGroup): SdeMarketGroup {
 
 export function toMetaGroup(raw: MetaGroup): SdeMetaGroup {
   return Object.freeze({ id: raw.id(), name: raw.name() ?? "" });
+}
+
+export function toFighterAbility(raw: FighterAbility): SdeFighterAbilityInfo {
+  return Object.freeze({ id: raw.id(), name: raw.name() ?? "", effectId: raw.effectId() });
 }
 
 export function toAttribute(raw: DogmaAttribute): SdeAttribute {

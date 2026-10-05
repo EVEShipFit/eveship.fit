@@ -9,8 +9,10 @@ import {
 import { useRef, useState, type DragEvent, type KeyboardEvent } from "react";
 
 import { Icon } from "../../primitives/Icon/Icon";
+import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
 import styles from "./BayContents.module.css";
+import { DroneTooltip } from "./DroneTooltip";
 import { FighterTubes } from "./FighterTubes";
 
 export type Bay = "cargo" | "droneBay" | "fighterBay";
@@ -80,12 +82,15 @@ export function BayContents({ id, bay, label }: { id: string; bay: Bay; label: s
               },
               onDragEnd: end,
             };
+            const shown = refs.find((ref) => fit.items[ref]?.state === "active") ?? refs[0]!;
             return (
               <li key={type.id} className={styles.row}>
                 <Quantity name={type.name} value={quantity} onChange={(value) => setQuantity(type.id, value)} />
-                <span className={styles.icon} {...drag}>
-                  <TypeIcon typeId={type.id} />
-                </span>
+                <Tooltip label={drones ? <DroneTooltip itemRef={shown} typeId={type.id} /> : undefined}>
+                  <span className={styles.icon} {...drag}>
+                    <TypeIcon typeId={type.id} />
+                  </span>
+                </Tooltip>
                 <span className={styles.middle} {...drag}>
                   <span className={styles.name}>{type.name}</span>
                   {drones && <DroneSelection content={content} max={maxActive} />}

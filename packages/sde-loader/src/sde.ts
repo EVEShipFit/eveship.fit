@@ -6,6 +6,7 @@ import {
   type DogmaAttribute,
   type DogmaEffect,
   type DogmaUnit,
+  type FighterAbility,
   type Group,
   type MarketGroup,
   type MetaGroup,
@@ -13,6 +14,7 @@ import {
 } from "./generated/sde/eve.js";
 import {
   SdeType,
+  toFighterAbility,
   toAttribute,
   toCategory,
   toDate,
@@ -21,6 +23,7 @@ import {
   toMarketGroup,
   toMetaGroup,
   toUnit,
+  type SdeFighterAbilityInfo,
   type SdeAttribute,
   type SdeCategory,
   type SdeEffect,
@@ -60,6 +63,7 @@ export class Sde {
   readonly #marketGroups: Table<MarketGroup, SdeMarketGroup>;
   readonly #metaGroups: Table<MetaGroup, SdeMetaGroup>;
   readonly #units: Table<DogmaUnit, SdeUnit>;
+  readonly #fighterAbilities: Table<FighterAbility, SdeFighterAbilityInfo>;
 
   #attributeIds: Map<string, number> | undefined;
   #typesByName: Map<string, SdeType> | undefined;
@@ -93,6 +97,7 @@ export class Sde {
     this.#marketGroups = new Table(raw.marketGroupsLength(), (i) => raw.marketGroups(i), toMarketGroup);
     this.#metaGroups = new Table(raw.metaGroupsLength(), (i) => raw.metaGroups(i), toMetaGroup);
     this.#units = new Table(raw.dogmaUnitsLength(), (i) => raw.dogmaUnits(i), toUnit);
+    this.#fighterAbilities = new Table(raw.fighterAbilitiesLength(), (i) => raw.fighterAbilities(i), toFighterAbility);
   }
 
   type(id: number): SdeType | undefined {
@@ -125,6 +130,10 @@ export class Sde {
 
   unit(id: number): SdeUnit | undefined {
     return this.#units.get(id);
+  }
+
+  fighterAbility(id: number): SdeFighterAbilityInfo | undefined {
+    return this.#fighterAbilities.get(id);
   }
 
   types(): Iterable<SdeType> {

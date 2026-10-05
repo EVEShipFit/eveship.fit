@@ -10,6 +10,7 @@ import { DogmaAttribute } from '../eve/dogma-attribute.js';
 import { DogmaAttributeCategory } from '../eve/dogma-attribute-category.js';
 import { DogmaEffect } from '../eve/dogma-effect.js';
 import { DogmaUnit } from '../eve/dogma-unit.js';
+import { FighterAbility } from '../eve/fighter-ability.js';
 import { Group } from '../eve/group.js';
 import { MarketGroup } from '../eve/market-group.js';
 import { MetaGroup } from '../eve/meta-group.js';
@@ -161,8 +162,18 @@ releaseDate(optionalEncoding?:any):string|Uint8Array|null {
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
+fighterAbilities(index: number, obj?:FighterAbility):FighterAbility|null {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? (obj || new FighterAbility()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+fighterAbilitiesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startSde(builder:flatbuffers.Builder) {
-  builder.startObject(13);
+  builder.startObject(14);
 }
 
 static addBuildNumber(builder:flatbuffers.Builder, buildNumber:number) {
@@ -349,6 +360,22 @@ static addReleaseDate(builder:flatbuffers.Builder, releaseDateOffset:flatbuffers
   builder.addFieldOffset(12, releaseDateOffset, 0);
 }
 
+static addFighterAbilities(builder:flatbuffers.Builder, fighterAbilitiesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(13, fighterAbilitiesOffset, 0);
+}
+
+static createFighterAbilitiesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startFighterAbilitiesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static endSde(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
@@ -362,7 +389,7 @@ static finishSizePrefixedSdeBuffer(builder:flatbuffers.Builder, offset:flatbuffe
   builder.finish(offset, 'ESF1', true);
 }
 
-static createSde(builder:flatbuffers.Builder, buildNumber:number, typesOffset:flatbuffers.Offset, groupsOffset:flatbuffers.Offset, categoriesOffset:flatbuffers.Offset, dogmaAttributesOffset:flatbuffers.Offset, dogmaEffectsOffset:flatbuffers.Offset, mutaplasmidsOffset:flatbuffers.Offset, dbuffCollectionsOffset:flatbuffers.Offset, marketGroupsOffset:flatbuffers.Offset, metaGroupsOffset:flatbuffers.Offset, dogmaUnitsOffset:flatbuffers.Offset, dogmaAttributeCategoriesOffset:flatbuffers.Offset, releaseDateOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createSde(builder:flatbuffers.Builder, buildNumber:number, typesOffset:flatbuffers.Offset, groupsOffset:flatbuffers.Offset, categoriesOffset:flatbuffers.Offset, dogmaAttributesOffset:flatbuffers.Offset, dogmaEffectsOffset:flatbuffers.Offset, mutaplasmidsOffset:flatbuffers.Offset, dbuffCollectionsOffset:flatbuffers.Offset, marketGroupsOffset:flatbuffers.Offset, metaGroupsOffset:flatbuffers.Offset, dogmaUnitsOffset:flatbuffers.Offset, dogmaAttributeCategoriesOffset:flatbuffers.Offset, releaseDateOffset:flatbuffers.Offset, fighterAbilitiesOffset:flatbuffers.Offset):flatbuffers.Offset {
   Sde.startSde(builder);
   Sde.addBuildNumber(builder, buildNumber);
   Sde.addTypes(builder, typesOffset);
@@ -377,6 +404,7 @@ static createSde(builder:flatbuffers.Builder, buildNumber:number, typesOffset:fl
   Sde.addDogmaUnits(builder, dogmaUnitsOffset);
   Sde.addDogmaAttributeCategories(builder, dogmaAttributeCategoriesOffset);
   Sde.addReleaseDate(builder, releaseDateOffset);
+  Sde.addFighterAbilities(builder, fighterAbilitiesOffset);
   return Sde.endSde(builder);
 }
 }

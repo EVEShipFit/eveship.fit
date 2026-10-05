@@ -2,6 +2,7 @@ export { loadNames, Names } from "./names.js";
 export {
   SdeType,
   type EffectCategory,
+  type SdeFighterAbilityInfo,
   type SdeAttribute,
   type SdeCategory,
   type SdeEffect,

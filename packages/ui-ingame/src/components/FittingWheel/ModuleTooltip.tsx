@@ -34,7 +34,7 @@ export function ModuleTooltip({ rack, itemRef, typeId, chargeTypeId, state, maxS
   );
 }
 
-function TypeRow({ typeId, count }: { typeId: number; count?: string }) {
+export function TypeRow({ typeId, count }: { typeId: number; count?: string }) {
   const type = useType(typeId);
   return (
     <span className={styles.type}>
