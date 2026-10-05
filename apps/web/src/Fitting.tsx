@@ -34,7 +34,7 @@ export function Fitting({ data, layout, skills }: FittingProps) {
       fit={loaded.fit}
       localFits={loaded.localFits}
       characters={loaded.characters}
-      character={loaded.login.character}
+      character={loaded.character}
       zkillboard={zkillboard}
     >
       <ImagesProvider images={loaded.images}>

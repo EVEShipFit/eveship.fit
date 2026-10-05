@@ -18,7 +18,7 @@ test("the fitting window shows its statistics", async ({ page }) => {
   await expect(page.getByText(/^EVEShip\.fit \S+ · EVE data from \d{4}-\d{2}-\d{2}$/)).toBeVisible();
 });
 
-test("No skills flags the skills the fit misses", async ({ page }) => {
+test("No skills flags the skills the fit misses, also after a reload", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("img", { name: /^Missing Skills/ })).toHaveCount(0);
@@ -29,6 +29,9 @@ test("No skills flags the skills the fit misses", async ({ page }) => {
     .click();
   await expect(page.getByRole("button", { name: "Skills All L0" })).toBeVisible();
   await expect(page.getByRole("img", { name: /^Missing Skills/ })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Skills All L0" })).toBeVisible({ timeout: 30_000 });
 });
 
 test("a fit link opens its fit, and the url keeps it", async ({ page }) => {

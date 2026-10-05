@@ -1,6 +1,7 @@
 import { useCharacters, useFitStore, type CharacterChoice, type EsiCharacter } from "@eveshipfit/react-hooks";
 import { useEffect, useId, useRef, useState } from "react";
 
+import { keepCharacter } from "./character";
 import { CloseIcon, RefreshIcon } from "./icons";
 import { keepFit } from "./login";
 import styles from "./Skills.module.css";
@@ -34,6 +35,8 @@ export function Skills({ loginError }: { loginError?: string }) {
     const timer = setInterval(() => setNow(Date.now()), 10_000);
     return () => clearInterval(timer);
   }, [open]);
+
+  useEffect(() => keepCharacter(current), [current]);
 
   useEffect(() => {
     if (loginError !== undefined) card.current?.showPopover();
