@@ -113,7 +113,7 @@ export const AncillaryRemoteArmor: Story = {
   ...fitted(types["Medium Ancillary Remote Armor Repairer"], "high"),
   render: (args) => <AncillaryRemoteArmorRepairer {...args} />,
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Range within 9 km")).toBeVisible();
+    await expect(canvas.getByText("Range within 8,750 m")).toBeVisible();
     await expect(canvas.queryByText(/Optimal range/)).toBeNull();
     await expect(canvas.getByText("145 HP repaired per 6s")).toBeVisible();
   },
@@ -150,7 +150,7 @@ export const RemoteShield: Story = {
   render: (args) => <RemoteShieldBooster {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 15 km")).toBeVisible();
-    await expect(canvas.getByText("Optimal range within 6 km")).toBeVisible();
+    await expect(canvas.getByText("Optimal range within 6,000 m")).toBeVisible();
     await expect(canvas.getByText("340 HP transported per 8s")).toBeVisible();
   },
 };
@@ -160,7 +160,7 @@ export const AncillaryRemoteShield: Story = {
   render: (args) => <AncillaryRemoteShieldBooster {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 13 km")).toBeVisible();
-    await expect(canvas.getByText("Optimal range within 5 km")).toBeVisible();
+    await expect(canvas.getByText("Optimal range within 5,000 m")).toBeVisible();
     await expect(canvas.queryByText(/HP/)).toBeNull();
   },
 };

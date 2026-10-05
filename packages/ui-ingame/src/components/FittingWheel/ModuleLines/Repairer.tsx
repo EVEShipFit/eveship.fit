@@ -1,11 +1,9 @@
 import { useAttribute } from "@eveshipfit/react-hooks";
 
-import { unit } from "../../ShipStatistics/units";
+import { range } from "../../ShipStatistics/units";
 import type { LineProps } from "./index";
 import { PerCycle } from "./parts/PerCycle";
 import { Range } from "./parts/Range";
-
-const kilometers = unit(" km", 1000);
 
 export function ShieldBooster({ itemRef }: LineProps) {
   return <PerCycle itemRef={itemRef} name="shieldBonus" label="HP bonus" />;
@@ -14,14 +12,14 @@ export function ShieldBooster({ itemRef }: LineProps) {
 export function RemoteShieldBooster({ itemRef }: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={kilometers} />
+      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
       <PerCycle itemRef={itemRef} name="shieldBonus" label="HP transported" />
     </>
   );
 }
 
 export function AncillaryRemoteShieldBooster({ itemRef }: LineProps) {
-  return <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={kilometers} />;
+  return <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />;
 }
 
 export function ArmorRepairer({ itemRef }: LineProps) {
@@ -32,7 +30,7 @@ export function ArmorRepairer({ itemRef }: LineProps) {
 export function RemoteArmorRepairer({ itemRef, state }: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={kilometers} />
+      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
       <ArmorRepairer itemRef={itemRef} state={state} />
     </>
   );
@@ -41,7 +39,7 @@ export function RemoteArmorRepairer({ itemRef, state }: LineProps) {
 export function AncillaryRemoteArmorRepairer({ itemRef, state }: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} label="Range" format={kilometers} />
+      <Range itemRef={itemRef} label="Range" format={range} />
       <ArmorRepairer itemRef={itemRef} state={state} />
     </>
   );
@@ -54,7 +52,7 @@ export function HullRepairer({ itemRef }: LineProps) {
 export function RemoteHullRepairer({ itemRef, state }: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={kilometers} />
+      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
       <HullRepairer itemRef={itemRef} state={state} />
     </>
   );
