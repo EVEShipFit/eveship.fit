@@ -52,6 +52,10 @@ export const EmptyRifter: Story = {
       "aria-valuetext",
       "0 / 400 points",
     );
+    await expect(canvas.getByRole("link", { name: "Open on eveship.fit" })).toHaveAttribute(
+      "href",
+      expect.stringMatching(/^https:\/\/eveship\.fit\/\?fit=esf1:/),
+    );
   },
 };
 

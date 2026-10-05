@@ -1,0 +1,21 @@
+.link {
+  height: var(--wheel-texture-size);
+  left: calc(50% - var(--wheel-texture-size) / 2);
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
+  top: calc(50% - var(--wheel-texture-size) / 2);
+  width: var(--wheel-texture-size);
+}
+
+.text {
+  fill: #cdcdcd;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  pointer-events: auto;
+  text-transform: uppercase;
+}
+
+.text:hover {
+  fill: #ffffff;
+}
