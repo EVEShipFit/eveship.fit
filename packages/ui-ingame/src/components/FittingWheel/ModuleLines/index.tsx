@@ -4,21 +4,26 @@ import type { ComponentType } from "react";
 
 import type { SlotState } from "../../../primitives/Wheel/WheelSlot";
 import { CapacitorBooster } from "./CapacitorBooster";
+import { RemoteCapacitorTransmitter } from "./CapacitorTransmitter";
 import { EnergyNeutralizer, EnergyNosferatu } from "./EnergyWarfare";
 import { MaxVelocity } from "./MaxVelocity";
 import { Missile } from "./Missile";
 import {
   AncillaryRemoteArmorRepairer,
+  AncillaryRemoteShieldBooster,
   ArmorRepairer,
   HullRepairer,
   RemoteArmorRepairer,
   RemoteHullRepairer,
+  RemoteShieldBooster,
   ShieldBooster,
 } from "./Repairer";
 import { Resistance } from "./Resistance";
 import { ResistanceBonus } from "./ResistanceBonus";
 import { RemoteSensorBooster } from "./SensorBooster";
-import { RemoteTrackingComputer } from "./TrackingComputer";
+import { Smartbomb } from "./Smartbomb";
+import { RemoteTrackingComputer, TrackingComputer } from "./TrackingComputer";
+import { TractorBeam } from "./TractorBeam";
 import { Turret } from "./Turret";
 
 export interface LineProps {
@@ -45,10 +50,17 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["fueledArmorRepair", [ArmorRepairer]],
   ["shipModuleRemoteArmorRepairer", [RemoteArmorRepairer]],
   ["shipModuleAncillaryRemoteArmorRepairer", [AncillaryRemoteArmorRepairer]],
+  ["ShipModuleRemoteArmorMutadaptiveRepairer", [RemoteArmorRepairer]],
+  ["shipModuleRemoteShieldBooster", [RemoteShieldBooster]],
+  ["shipModuleAncillaryRemoteShieldBooster", [AncillaryRemoteShieldBooster]],
+  ["shipModuleRemoteCapacitorTransmitter", [RemoteCapacitorTransmitter]],
   ["structureRepair", [HullRepairer]],
   ["shipModuleRemoteHullRepairer", [RemoteHullRepairer]],
   ["remoteSensorBoostFalloff", [RemoteSensorBooster]],
   ["shipModuleRemoteTrackingComputer", [RemoteTrackingComputer]],
+  ["gunneryMaxRangeFalloffTrackingSpeedBonus", [TrackingComputer]],
+  ["tractorBeamCan", [TractorBeam]],
+  ["empWave", [Smartbomb]],
   ["powerBooster", [CapacitorBooster]],
   ["damageControl", [Resistance]],
   ["adaptiveArmorHardener", [Resistance]],
