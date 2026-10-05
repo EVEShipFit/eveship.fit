@@ -1,22 +1,23 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { RemoteTrackingComputer } from "./TrackingComputer";
+import { RemoteTrackingComputer, TrackingComputer } from "./TrackingComputer";
 
 const types = {
   Rifter: 587,
   "Remote Tracking Computer II": 2104,
+  "Tracking Computer II": 1978,
   "Optimal Range Script": 28999,
 };
 
-const fitted = (chargeTypeId?: number) => ({
+const fitted = (typeId: number, chargeTypeId?: number) => ({
   args: { itemRef: 0, state: "active" as const },
   parameters: {
     fit: {
       ship: { type_id: types.Rifter },
       items: [
         {
-          type_id: types["Remote Tracking Computer II"],
+          type_id: typeId,
           slot: { type: "medium", index: 0 },
           state: "active",
           ...(chargeTypeId === undefined ? {} : { charge: { type_id: chargeTypeId } }),
@@ -41,7 +42,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Remote: Story = {
-  ...fitted(),
+  ...fitted(types["Remote Tracking Computer II"]),
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 108 km")).toBeVisible();
     await expect(canvas.getByText("Optimal range within 72 km")).toBeVisible();
@@ -52,7 +53,28 @@ export const Remote: Story = {
 };
 
 export const RemoteWithScript: Story = {
-  ...fitted(types["Optimal Range Script"]),
+  ...fitted(types["Remote Tracking Computer II"], types["Optimal Range Script"]),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Falloff Bonus: 30%")).toBeVisible();
+    await expect(canvas.getByText("Optimal Range Bonus: 15%")).toBeVisible();
+    await expect(canvas.getByText("Tracking Speed Bonus: 0%")).toBeVisible();
+  },
+};
+
+export const Local: Story = {
+  ...fitted(types["Tracking Computer II"]),
+  render: (args) => <TrackingComputer {...args} />,
+  play: async ({ canvas }) => {
+    await expect(canvas.queryByText(/Range within/)).toBeNull();
+    await expect(canvas.getByText("Falloff Bonus: 15%")).toBeVisible();
+    await expect(canvas.getByText("Optimal Range Bonus: 8%")).toBeVisible();
+    await expect(canvas.getByText("Tracking Speed Bonus: 15%")).toBeVisible();
+  },
+};
+
+export const LocalWithScript: Story = {
+  ...fitted(types["Tracking Computer II"], types["Optimal Range Script"]),
+  render: (args) => <TrackingComputer {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Falloff Bonus: 30%")).toBeVisible();
     await expect(canvas.getByText("Optimal Range Bonus: 15%")).toBeVisible();

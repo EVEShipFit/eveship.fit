@@ -19,6 +19,16 @@ export function RemoteTrackingComputer({ itemRef }: LineProps) {
   );
 }
 
+export function TrackingComputer({ itemRef }: LineProps) {
+  return (
+    <>
+      <BonusLine itemRef={itemRef} name="falloffBonus" />
+      <BonusLine itemRef={itemRef} name="maxRangeBonus" />
+      <BonusLine itemRef={itemRef} name="trackingSpeedBonus" />
+    </>
+  );
+}
+
 function BonusLine({ itemRef, name }: { itemRef: ItemRef; name: string }) {
   const bonus = useAttribute(name, { of: itemRef, decimals: 0, fallback: 0, format: unit("%") });
   return (

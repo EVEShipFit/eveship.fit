@@ -11,6 +11,19 @@ export function ShieldBooster({ itemRef }: LineProps) {
   return <PerCycle itemRef={itemRef} name="shieldBonus" label="HP bonus" />;
 }
 
+export function RemoteShieldBooster({ itemRef }: LineProps) {
+  return (
+    <>
+      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={kilometers} />
+      <PerCycle itemRef={itemRef} name="shieldBonus" label="HP transported" />
+    </>
+  );
+}
+
+export function AncillaryRemoteShieldBooster({ itemRef }: LineProps) {
+  return <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={kilometers} />;
+}
+
 export function ArmorRepairer({ itemRef }: LineProps) {
   const multiplier = useAttribute("chargedRepairMultiplier", { of: itemRef }).value;
   return <PerCycle itemRef={itemRef} name="armorDamageAmount" label="HP repaired" multiplier={multiplier} />;

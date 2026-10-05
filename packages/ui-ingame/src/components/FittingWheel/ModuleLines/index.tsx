@@ -4,21 +4,26 @@ import type { ComponentType } from "react";
 
 import type { SlotState } from "../../../primitives/Wheel/WheelSlot";
 import { CapacitorBooster } from "./CapacitorBooster";
+import { RemoteCapacitorTransmitter } from "./CapacitorTransmitter";
 import { EnergyNeutralizer, EnergyNosferatu } from "./EnergyWarfare";
 import { MaxVelocity } from "./MaxVelocity";
 import { Missile } from "./Missile";
 import {
   AncillaryRemoteArmorRepairer,
+  AncillaryRemoteShieldBooster,
   ArmorRepairer,
   HullRepairer,
   RemoteArmorRepairer,
   RemoteHullRepairer,
+  RemoteShieldBooster,
   ShieldBooster,
 } from "./Repairer";
 import { Resistance } from "./Resistance";
 import { ResistanceBonus } from "./ResistanceBonus";
 import { RemoteSensorBooster } from "./SensorBooster";
-import { RemoteTrackingComputer } from "./TrackingComputer";
+import { Smartbomb } from "./Smartbomb";
+import { RemoteTrackingComputer, TrackingComputer } from "./TrackingComputer";
+import { TractorBeam } from "./TractorBeam";
 import { Turret } from "./Turret";
 
 export interface LineProps {
@@ -27,31 +32,38 @@ export interface LineProps {
 }
 
 const lines = new Map<string, ComponentType<LineProps>[]>([
-  ["moduleBonusMicrowarpdrive", [MaxVelocity]],
-  ["moduleBonusAfterburner", [MaxVelocity]],
-  ["modifyArmorResonancePostPercent", [ResistanceBonus]],
-  ["modifyShieldResonancePostPercent", [ResistanceBonus]],
-  ["modifyActiveShieldResonancePostPercent", [ResistanceBonus]],
-  ["modifyActiveArmorResonancePostPercent", [ResistanceBonus]],
-  ["targetAttack", [Turret]],
-  ["projectileFired", [Turret]],
-  ["targetDisintegratorAttack", [Turret]],
-  ["useMissiles", [Missile]],
+  ["adaptiveArmorHardener", [Resistance]],
+  ["armorRepair", [ArmorRepairer]],
+  ["damageControl", [Resistance]],
+  ["empWave", [Smartbomb]],
   ["energyNeutralizerFalloff", [EnergyNeutralizer]],
   ["energyNosferatuFalloff", [EnergyNosferatu]],
-  ["shieldBoosting", [ShieldBooster]],
-  ["fueledShieldBoosting", [ShieldBooster]],
-  ["armorRepair", [ArmorRepairer]],
   ["fueledArmorRepair", [ArmorRepairer]],
-  ["shipModuleRemoteArmorRepairer", [RemoteArmorRepairer]],
-  ["shipModuleAncillaryRemoteArmorRepairer", [AncillaryRemoteArmorRepairer]],
-  ["structureRepair", [HullRepairer]],
-  ["shipModuleRemoteHullRepairer", [RemoteHullRepairer]],
-  ["remoteSensorBoostFalloff", [RemoteSensorBooster]],
-  ["shipModuleRemoteTrackingComputer", [RemoteTrackingComputer]],
+  ["fueledShieldBoosting", [ShieldBooster]],
+  ["gunneryMaxRangeFalloffTrackingSpeedBonus", [TrackingComputer]],
+  ["modifyActiveArmorResonancePostPercent", [ResistanceBonus]],
+  ["modifyActiveShieldResonancePostPercent", [ResistanceBonus]],
+  ["modifyArmorResonancePostPercent", [ResistanceBonus]],
+  ["modifyShieldResonancePostPercent", [ResistanceBonus]],
+  ["moduleBonusAfterburner", [MaxVelocity]],
+  ["moduleBonusMicrowarpdrive", [MaxVelocity]],
   ["powerBooster", [CapacitorBooster]],
-  ["damageControl", [Resistance]],
-  ["adaptiveArmorHardener", [Resistance]],
+  ["projectileFired", [Turret]],
+  ["remoteSensorBoostFalloff", [RemoteSensorBooster]],
+  ["shieldBoosting", [ShieldBooster]],
+  ["shipModuleAncillaryRemoteArmorRepairer", [AncillaryRemoteArmorRepairer]],
+  ["shipModuleAncillaryRemoteShieldBooster", [AncillaryRemoteShieldBooster]],
+  ["ShipModuleRemoteArmorMutadaptiveRepairer", [RemoteArmorRepairer]],
+  ["shipModuleRemoteArmorRepairer", [RemoteArmorRepairer]],
+  ["shipModuleRemoteCapacitorTransmitter", [RemoteCapacitorTransmitter]],
+  ["shipModuleRemoteHullRepairer", [RemoteHullRepairer]],
+  ["shipModuleRemoteShieldBooster", [RemoteShieldBooster]],
+  ["shipModuleRemoteTrackingComputer", [RemoteTrackingComputer]],
+  ["structureRepair", [HullRepairer]],
+  ["targetAttack", [Turret]],
+  ["targetDisintegratorAttack", [Turret]],
+  ["tractorBeamCan", [TractorBeam]],
+  ["useMissiles", [Missile]],
 ]);
 
 /** Tooltip lines from the effects of a module. */

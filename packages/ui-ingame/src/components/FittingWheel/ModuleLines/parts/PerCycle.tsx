@@ -11,17 +11,20 @@ export function PerCycle({
   label,
   charge = false,
   multiplier = 1,
+  decimals = 0,
 }: {
   itemRef: ItemRef;
   name: string;
   label: string;
   charge?: boolean;
   multiplier?: number;
+  decimals?: number;
 }) {
   const amount = useAttribute(name, {
     of: itemRef,
     charge,
-    decimals: 0,
+    decimals,
+    fixed: true,
     format: (value, format) => formatNumber(value * multiplier, format),
   });
   const duration = useAttribute("duration", { of: itemRef, format: unit("s", 1000) });
