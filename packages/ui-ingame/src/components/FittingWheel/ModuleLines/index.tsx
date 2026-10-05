@@ -40,6 +40,7 @@ import { WarpDisruptionFieldGenerator, WarpScrambler } from "./WarpScrambler";
 
 export interface LineProps {
   itemRef: ItemRef;
+  typeId: number;
   state: SlotState;
 }
 
@@ -123,9 +124,9 @@ const groupLines = new Map<string, ComponentType<LineProps>[]>([
 ]);
 
 /** Tooltip lines from the effects of a module. */
-export function ModuleLines({ typeId, ...props }: { typeId: number } & LineProps) {
+export function ModuleLines(props: LineProps) {
   const sde = useSde();
-  const type = useType(typeId);
+  const type = useType(props.typeId);
   const shown = new Set(
     groupLines.get(sde.group(type?.groupId ?? 0)?.name ?? "") ??
       [...(type?.effectIds ?? [])].flatMap((id) => lines.get(sde.effect(id)?.name ?? "") ?? []),

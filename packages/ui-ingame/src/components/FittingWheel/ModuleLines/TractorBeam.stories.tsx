@@ -10,7 +10,7 @@ const types = {
 
 const meta = {
   component: TractorBeam,
-  args: { itemRef: 0, state: "active" },
+  args: { itemRef: 0, typeId: types["Small Tractor Beam II"], state: "active" },
   parameters: {
     fit: {
       ship: { type_id: types.Rifter },

@@ -16,7 +16,7 @@ const types = {
 };
 
 const fitted = (chargeTypeId?: number, shipTypeId = types.Rifter, typeId = types["200mm AutoCannon II"]) => ({
-  args: { itemRef: 0, state: "active" as const },
+  args: { itemRef: 0, typeId, state: "active" as const },
   parameters: {
     fit: {
       ship: { type_id: shipTypeId },

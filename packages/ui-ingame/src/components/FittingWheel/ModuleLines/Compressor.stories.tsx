@@ -14,7 +14,7 @@ const fitted = (
   chargeTypeId?: number,
   shipTypeId = types.Porpoise,
 ) => ({
-  args: { itemRef: 0, state: "active" as const },
+  args: { itemRef: 0, typeId, state: "active" as const },
   parameters: {
     fit: {
       ship: { type_id: shipTypeId },

@@ -12,7 +12,7 @@ const types = {
 
 const meta = {
   component: Smartbomb,
-  args: { itemRef: 0, state: "active" },
+  args: { itemRef: 0, typeId: types["Large EMP Smartbomb II"], state: "active" },
   parameters: {
     fit: {
       ship: { type_id: types.Rifter },
@@ -39,6 +39,7 @@ export const Default: Story = {
 };
 
 export const JudgmentDoomsday: Story = {
+  args: { typeId: types["'Judgment' Electromagnetic Doomsday"] },
   parameters: {
     fit: {
       ship: { type_id: types.Avatar },

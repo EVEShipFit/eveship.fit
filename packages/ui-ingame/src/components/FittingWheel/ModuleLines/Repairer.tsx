@@ -27,20 +27,20 @@ export function ArmorRepairer({ itemRef }: LineProps) {
   return <PerCycle itemRef={itemRef} name="armorDamageAmount" label="HP repaired" multiplier={multiplier} />;
 }
 
-export function RemoteArmorRepairer({ itemRef, state }: LineProps) {
+export function RemoteArmorRepairer(props: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
-      <ArmorRepairer itemRef={itemRef} state={state} />
+      <Range itemRef={props.itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
+      <ArmorRepairer {...props} />
     </>
   );
 }
 
-export function AncillaryRemoteArmorRepairer({ itemRef, state }: LineProps) {
+export function AncillaryRemoteArmorRepairer(props: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} label="Range" format={range} />
-      <ArmorRepairer itemRef={itemRef} state={state} />
+      <Range itemRef={props.itemRef} label="Range" format={range} />
+      <ArmorRepairer {...props} />
     </>
   );
 }
@@ -49,11 +49,11 @@ export function HullRepairer({ itemRef }: LineProps) {
   return <PerCycle itemRef={itemRef} name="structureDamageAmount" label="HP" />;
 }
 
-export function RemoteHullRepairer({ itemRef, state }: LineProps) {
+export function RemoteHullRepairer(props: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
-      <HullRepairer itemRef={itemRef} state={state} />
+      <Range itemRef={props.itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
+      <HullRepairer {...props} />
     </>
   );
 }

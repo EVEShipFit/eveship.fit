@@ -10,7 +10,7 @@ const types = {
 };
 
 const fitted = (typeId: number, state: "offline" | "active" | "overload") => ({
-  args: { itemRef: 0, state },
+  args: { itemRef: 0, typeId, state },
   parameters: {
     fit: { ship: { type_id: types.Rifter }, items: [{ type_id: typeId, slot: { type: "medium", index: 0 }, state }] },
   },

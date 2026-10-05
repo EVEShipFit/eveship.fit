@@ -3,11 +3,11 @@ import { BonusLine, SensorStrengths, useBonus } from "./parts/Bonus";
 import { Range } from "./parts/Range";
 import type { LineProps } from "./index";
 
-export function RemoteSensorBooster({ itemRef, state }: LineProps) {
+export function RemoteSensorBooster(props: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
-      <SensorBooster itemRef={itemRef} state={state} />
+      <Range itemRef={props.itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
+      <SensorBooster {...props} />
     </>
   );
 }

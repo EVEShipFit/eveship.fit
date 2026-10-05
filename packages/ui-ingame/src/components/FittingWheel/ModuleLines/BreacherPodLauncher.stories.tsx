@@ -10,7 +10,7 @@ const types = {
 };
 
 const fitted = (chargeTypeId?: number) => ({
-  args: { itemRef: 0, state: "active" as const },
+  args: { itemRef: 0, typeId: types["Medium Breacher Pod Launcher"], state: "active" as const },
   parameters: {
     fit: {
       ship: { type_id: types.Caracal },

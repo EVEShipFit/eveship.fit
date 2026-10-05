@@ -1,33 +1,24 @@
-import { formatNumber, useAttribute } from "@eveshipfit/react-hooks";
-
-import { range } from "../../ShipStatistics/units";
 import styles from "../ModuleTooltip.module.css";
 import { Attribute } from "./parts/Attribute";
 import { Damage } from "./parts/Damage";
+import { DamagePerSecond } from "./parts/DamagePerSecond";
+import { useFlightRange } from "./parts/flightRange";
 import type { LineProps } from "./index";
 
 export function Missile({ itemRef }: LineProps) {
-  const velocity = useAttribute("maxVelocity", { of: itemRef, charge: true }).value;
-  const flightTime = useAttribute("explosionDelay", { of: itemRef, charge: true }).value;
-  const dps = useAttribute("damagePerSecondWithoutReload", {
-    of: itemRef,
-    decimals: 1,
-    fixed: true,
-    fallback: 0,
-    format: formatNumber,
-  });
+  const flightRange = useFlightRange(itemRef);
 
   return (
     <>
-      {velocity !== undefined && flightTime !== undefined && (
+      {flightRange !== undefined && (
         <Attribute name="maxRange">
           <span className={styles.block}>
             <span>Max flight range</span>
-            <span>{range((velocity * flightTime) / 1000, { decimals: 0 })}</span>
+            <span>{flightRange}</span>
           </span>
         </Attribute>
       )}
-      <Attribute name="launcherHardPointModifier">Damage Per Second {dps.text}</Attribute>
+      <DamagePerSecond itemRef={itemRef} icon="launcherHardPointModifier" />
       <Damage itemRef={itemRef} />
     </>
   );
