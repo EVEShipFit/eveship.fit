@@ -1,4 +1,4 @@
-import { Suspense, use, useState } from "react";
+import { useState } from "react";
 
 import styles from "./App.module.css";
 import type { Data } from "./data";
@@ -7,7 +7,8 @@ import { DiscordIcon, GitHubIcon } from "./icons";
 import { useLayout } from "./layout";
 import { Support } from "./Support";
 
-export function App({ data }: { data: Promise<Data | null> }) {
+/** `data` is undefined while it loads, and null when it failed. */
+export function App({ data }: { data: Data | null | undefined }) {
   const [main, setMain] = useState<HTMLElement | null>(null);
   const [footer, setFooter] = useState<HTMLElement | null>(null);
   const [skills, setSkills] = useState<HTMLElement | null>(null);
@@ -38,16 +39,16 @@ export function App({ data }: { data: Promise<Data | null> }) {
       </header>
       <main ref={setMain} className={styles.main}>
         <div className={styles.stage}>
-          <Suspense fallback={<p className={styles.message}>Loading ships…</p>}>
+          {data === undefined ? (
+            <p className={styles.message}>Loading ships…</p>
+          ) : (
             <Fitting data={data} layout={layout} skills={skills} />
-          </Suspense>
+          )}
         </div>
         <footer ref={setFooter} className={styles.footer}>
           <p>
             EVEShip.fit {import.meta.env.EVESHIPFIT_VERSION}
-            <Suspense>
-              <DataVersion data={data} />
-            </Suspense>
+            <DataVersion data={data} />
           </p>
           <p>
             © 2014 CCP hf. All rights reserved. &quot;EVE&quot;, &quot;EVE Online&quot;, &quot;CCP&quot;, and all
@@ -62,8 +63,8 @@ export function App({ data }: { data: Promise<Data | null> }) {
   );
 }
 
-function DataVersion({ data }: { data: Promise<Data | null> }) {
-  const releaseDate = use(data)?.sde.releaseDate;
+function DataVersion({ data }: { data: Data | null | undefined }) {
+  const releaseDate = data?.sde.releaseDate;
   if (releaseDate === undefined) return null;
 
   return <> · EVE data from {releaseDate.toISOString().slice(0, 10)}</>;

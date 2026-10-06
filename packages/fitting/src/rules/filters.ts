@@ -25,14 +25,10 @@ export function acceptsCharge(sde: Sde, module: SdeType, charge: SdeType): boole
 
 /** Every published charge `module` can load, sorted by name. */
 export function chargesFor(sde: Sde, module: SdeType): SdeType[] {
-  const groups = new Set(baseValues(sde, module, chargeGroups));
-  if (groups.size === 0) return [];
-
-  const charges: SdeType[] = [];
-  for (const type of sde.types()) {
-    if (type.published && groups.has(type.groupId) && acceptsCharge(sde, module, type)) charges.push(type);
-  }
-  return charges.toSorted((a, b) => a.name.localeCompare(b.name));
+  return [...new Set(baseValues(sde, module, chargeGroups))]
+    .flatMap((group) => sde.typesInGroup(group))
+    .filter((type) => type.published && acceptsCharge(sde, module, type))
+    .toSorted((a, b) => a.name.localeCompare(b.name));
 }
 
 /** Whether `type` may go on `ship` at all, however the rest of the fit looks. */

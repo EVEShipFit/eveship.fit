@@ -6,12 +6,15 @@ import "@eveshipfit/ui-ingame/theme.css";
 import "./global.css";
 
 import { App } from "./App";
-import { loadData } from "./data";
+import { loadData, type Data } from "./data";
 
-const data = loadData();
+const root = createRoot(document.getElementById("root")!);
+const render = (data?: Data | null) =>
+  root.render(
+    <StrictMode>
+      <App data={data} />
+    </StrictMode>,
+  );
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App data={data} />
-  </StrictMode>,
-);
+render();
+void loadData().then(render);
