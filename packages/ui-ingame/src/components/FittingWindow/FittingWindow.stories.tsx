@@ -476,6 +476,24 @@ export const Preview: Story = {
     await expect(canvas.queryByRole("button", { name: "Statistics" })).toBeNull();
     const fitting = within(canvas.getByRole("region", { name: "Fitting" }));
     await expect(fitting.queryByRole("button")).toBeNull();
+    await expect(canvas.getByRole("group", { name: "Cargo Hold" })).toHaveTextContent(/\/140\.0m3$/);
+    await expect(canvas.queryByRole("button", { name: "Cargo Hold" })).toBeNull();
+    await expect(canvas.queryByRole("button", { name: "Drone Bay" })).toBeNull();
+  },
+};
+
+/** Nothing on a structure's preview can be changed either: not its services, nor its fighters. */
+export const PreviewStructure: Story = {
+  args: { statistics: <ShipStatistics />, preview: true },
+  parameters: { fit: keepstar },
+  play: async ({ canvas, canvasElement }) => {
+    const services = within(canvas.getByRole("group", { name: "Structure Services" }));
+    await expect(services.queryByRole("button")).toBeNull();
+    await expect(services.queryByRole("group")).toBeNull();
+    await expect(canvasElement.querySelector("[draggable=true]")).toBeNull();
+    await expect(canvas.getByRole("group", { name: "Fighter Bay" })).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: "Fighter Bay" })).toBeNull();
+    await expect(canvas.getByRole("button", { name: "Manage" })).toHaveAttribute("aria-disabled");
   },
 };
 
