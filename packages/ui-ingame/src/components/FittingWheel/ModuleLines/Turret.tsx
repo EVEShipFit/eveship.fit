@@ -1,21 +1,17 @@
-import { useAttribute } from "@eveshipfit/react-hooks";
-
 import { range } from "../../ShipStatistics/units";
-import { Attribute } from "./parts/Attribute";
 import { Damage } from "./parts/Damage";
 import { DamagePerSecond } from "./parts/DamagePerSecond";
-import type { LineProps } from "./index";
 import { Range } from "./parts/Range";
+import { Tracking } from "./parts/Tracking";
+import type { LineProps } from "./index";
 
 export function Turret({ itemRef }: LineProps) {
-  const tracking = useAttribute("trackingSpeed", { of: itemRef, decimals: 2, fixed: true });
-
   return (
     <>
-      <Range itemRef={itemRef} falloff="falloff" label="Falloff range" format={range} />
+      <Range itemRef={itemRef} falloff="falloff" label="Optimal range" falloffLabel="Falloff range" format={range} />
       <DamagePerSecond itemRef={itemRef} icon="damageMultiplier" />
       <Damage itemRef={itemRef} />
-      <Attribute name="trackingSpeed">Turret Tracking: {tracking.text}</Attribute>
+      <Tracking itemRef={itemRef} />
     </>
   );
 }

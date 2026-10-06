@@ -68,12 +68,25 @@ export const Empty: Story = {
   },
 };
 
+const disintegrator = fitted(types["Baryon Exotic Plasma S"], types.Kikimora, types["Light Entropic Disintegrator II"]);
+
 export const Disintegrator: Story = {
-  ...fitted(types["Baryon Exotic Plasma S"], types.Kikimora, types["Light Entropic Disintegrator II"]),
+  ...disintegrator,
   play: async ({ canvas }) => {
+    await expect(canvas.getByText("Falloff range within 28 km")).toBeVisible();
     await expect(canvas.getByText("Damage Per Second 134.2-419.3")).toBeVisible();
     await expect(canvas.getByText("608 HP")).toBeVisible();
     await expect(canvas.getByText("448 HP")).toBeVisible();
+  },
+};
+
+/** Without skills it has no falloff. */
+export const DisintegratorUnskilled: Story = {
+  ...disintegrator,
+  parameters: { ...disintegrator.parameters, character: { skills: {} } },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/^Optimal range within [\d,]+ (m|km)$/)).toBeVisible();
+    await expect(canvas.queryByText(/Falloff range/)).toBeNull();
   },
 };
 

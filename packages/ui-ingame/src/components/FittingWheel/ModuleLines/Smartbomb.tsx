@@ -8,7 +8,7 @@ import { Range } from "./parts/Range";
 import type { LineProps } from "./index";
 
 export function Smartbomb({ itemRef }: LineProps) {
-  const radius = useAttribute("empFieldRange", { of: itemRef, decimals: 0, format: unit(" m") });
+  const radius = useAttribute("empFieldRange", { of: itemRef, decimals: 0, format: range });
   return (
     <>
       <Attribute name="empFieldRange">Area of Effect Radius {radius.text}</Attribute>

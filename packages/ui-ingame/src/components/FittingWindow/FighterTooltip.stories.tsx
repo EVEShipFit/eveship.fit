@@ -7,13 +7,15 @@ const types = {
   Thanatos: 23911,
   "Einherji I": 23061,
   "Scarab I": 40345,
+  Nyx: 23913,
+  "Ametat I": 40362,
 };
 
-const squadron = (typeId: number, quantity: number) => ({
+const squadron = (typeId: number, quantity: number, shipTypeId = types.Thanatos) => ({
   args: { itemRef: 0, typeId, quantity },
   parameters: {
     fit: {
-      ship: { type_id: types.Thanatos },
+      ship: { type_id: shipTypeId },
       items: [{ type_id: typeId, slot: { type: "fighter_tube", index: 0 }, quantity, state: "active" }],
     },
   },
@@ -63,5 +65,23 @@ export const Support: Story = {
     await expect(canvas.getByText("Falloff range within 11 km")).toBeVisible();
     await expect(canvas.getByText("Optimal range within 5,000 m")).toBeVisible();
     await expect(canvas.queryByText(/Damage Per Second/)).toBeNull();
+  },
+};
+
+/** The range of its micro jump drive is not shown. */
+export const MicroJumpDrive: Story = {
+  ...squadron(types["Ametat I"], 3, types.Nyx),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("3x Ametat I")).toBeVisible();
+    await expect(canvas.getAllByText(/^Optimal range within /)).toHaveLength(1);
+    await expect(canvas.queryByText("Optimal range within 100 km")).toBeNull();
+  },
+};
+
+export const SingleFighter: Story = {
+  ...squadron(types["Einherji I"], 1),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Einherji I")).toBeVisible();
+    await expect(canvas.queryByText(/1x/)).toBeNull();
   },
 };

@@ -7,6 +7,7 @@ import { Doomsday, PointDefense, Smartbomb } from "./Smartbomb";
 const types = {
   Rifter: 587,
   "Large EMP Smartbomb II": 3995,
+  "Cormack's Modified Large Plasma Smartbomb": 15158,
   Avatar: 11567,
   "'Judgment' Electromagnetic Doomsday": 24550,
   "'Holy Destiny' Electromagnetic Lance": 40631,
@@ -55,6 +56,25 @@ export const Default: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Area of Effect Radius 6,000 m")).toBeVisible();
     await expect(canvas.getByText("300 HP - EM damage")).toBeVisible();
+  },
+};
+
+export const AboveTenKilometers: Story = {
+  args: { typeId: types["Cormack's Modified Large Plasma Smartbomb"] },
+  parameters: {
+    fit: {
+      ship: { type_id: types.Rifter },
+      items: [
+        {
+          type_id: types["Cormack's Modified Large Plasma Smartbomb"],
+          slot: { type: "high", index: 0 },
+          state: "active",
+        },
+      ],
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Area of Effect Radius 13 km")).toBeVisible();
   },
 };
 

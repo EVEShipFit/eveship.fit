@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { Launcher, Missile } from "./Missile";
+import { Missile } from "./Missile";
 
 const types = {
   Drake: 24698,
@@ -20,6 +20,8 @@ const types = {
   "Warp Disrupt Probe": 22778,
   "Festival Launcher": 19660,
   "Barium Firework": 33572,
+  "Civilian Light Missile Launcher": 32461,
+  "Scourge Light Missile": 210,
 };
 
 const fitted = (typeId: number, slot: "high" | "medium" | "low", chargeTypeId?: number, shipTypeId = types.Drake) => ({
@@ -80,7 +82,6 @@ export const AutoTargeting: Story = {
 
 export const Bomb: Story = {
   ...fitted(types["Bomb Launcher I"], "high", types["Scorch Bomb"], types.Purifier),
-  render: (args) => <Launcher {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 30 km")).toBeVisible();
     await expect(canvas.queryByText("Max flight range")).toBeNull();
@@ -90,7 +91,6 @@ export const Bomb: Story = {
 
 export const Defender: Story = {
   ...fitted(types["Defender Launcher I"], "high", types["Defender Missile I"]),
-  render: (args) => <Launcher {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText(/^Range within \d+ km$/)).toBeVisible();
     await expect(canvas.getByText("Damage caused")).toBeVisible();
@@ -99,7 +99,6 @@ export const Defender: Story = {
 
 export const InterdictionSphere: Story = {
   ...fitted(types["Interdiction Sphere Launcher I"], "high", types["Warp Disrupt Probe"], types.Sabre),
-  render: (args) => <Launcher {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.queryByText(/Range within/)).toBeNull();
     await expect(canvas.getByText("Damage Per Second 0.0")).toBeVisible();
@@ -108,9 +107,16 @@ export const InterdictionSphere: Story = {
 
 export const Festival: Story = {
   ...fitted(types["Festival Launcher"], "high", types["Barium Firework"]),
-  render: (args) => <Launcher {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 100 km")).toBeVisible();
     await expect(canvas.getByText("Damage Per Second 0.0")).toBeVisible();
+  },
+};
+
+export const Civilian: Story = {
+  ...fitted(types["Civilian Light Missile Launcher"], "high", types["Scourge Light Missile"]),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/^Range within \d+ km$/)).toBeVisible();
+    await expect(canvas.queryByText("Max flight range")).toBeNull();
   },
 };

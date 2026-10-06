@@ -1,5 +1,5 @@
 import type { ItemRef, Rack } from "@eveshipfit/fitting";
-import { useAttribute, useType } from "@eveshipfit/react-hooks";
+import { useAttribute, useSde, useType } from "@eveshipfit/react-hooks";
 
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
 import type { SlotState } from "../../primitives/Wheel/WheelSlot";
@@ -25,11 +25,9 @@ export function ModuleTooltip({ rack, itemRef, typeId, chargeTypeId, state, maxS
       <TypeRow typeId={typeId} />
       {chargeTypeId !== undefined && <ChargeRow itemRef={itemRef} typeId={chargeTypeId} />}
       <ModuleLines typeId={typeId} itemRef={itemRef} state={state} />
-      {status && (
-        <span className={styles.status} data-tone={status.tone}>
-          {status.text}
-        </span>
-      )}
+      <span className={styles.status} data-tone={status.tone}>
+        {status.text}
+      </span>
     </span>
   );
 }
@@ -44,14 +42,18 @@ export function TypeRow({ typeId, count }: { typeId: number; count?: string }) {
   );
 }
 
+/** The loaded charge, with how many; crystals and scripts without. */
 function ChargeRow({ itemRef, typeId }: { itemRef: ItemRef; typeId: number }) {
+  const sde = useSde();
+  const group = sde.group(useType(typeId)?.groupId ?? 0)?.name ?? "";
   const count = useAttribute("chargeAmount", { of: itemRef, decimals: 0, rounding: "down" });
-  return <TypeRow typeId={typeId} count={count.value === undefined || count.value === 1 ? undefined : count.text} />;
+  const single = /(Crystal|Script)$/.test(group);
+  return <TypeRow typeId={typeId} count={single || count.value === undefined ? undefined : count.text} />;
 }
 
-/** The last line of the tooltip; none for subsystems. */
-function moduleStatus(rack: Rack, state: SlotState, maxState: SlotState): { text: string; tone: Tone } | undefined {
-  if (rack === "subsystem") return undefined;
+/** The last line of the tooltip. */
+function moduleStatus(rack: Rack, state: SlotState, maxState: SlotState): { text: string; tone: Tone } {
+  if (rack === "subsystem") return { text: "Active Subsystem", tone: "normal" };
   if (rack === "rig")
     return state === "offline" ? { text: "Inactive Rig", tone: "muted" } : { text: "Active Rig", tone: "normal" };
   const module = maxState === "online" ? "Passive Module" : "Module";

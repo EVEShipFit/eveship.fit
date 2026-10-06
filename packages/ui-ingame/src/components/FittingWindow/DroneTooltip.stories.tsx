@@ -7,6 +7,7 @@ const types = {
   Tristan: 593,
   "Hornet EC-300": 23707,
   "Hobgoblin II": 2456,
+  "Mining Drone II": 10250,
 };
 
 const inBay = (typeId: number, state: "active" | "offline", quantity = 1) => ({
@@ -47,9 +48,11 @@ export const ElectronicWarfare: Story = {
 export const Combat: Story = {
   ...inBay(types["Hobgoblin II"], "active", 3),
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Falloff range within 4,625 m")).toBeVisible();
+    await expect(canvas.getByText("Range within 4,625 m")).toBeVisible();
     await expect(canvas.getByText("Optimal range within 2,625 m")).toBeVisible();
     await expect(canvas.getByText("Damage Per Second 19.8")).toBeVisible();
+    await expect(canvas.getByText("20 HP Thermal damage")).toBeVisible();
+    await expect(canvas.getByText(/^Turret Tracking: \d+\.\d\d$/)).toBeVisible();
   },
 };
 
@@ -57,5 +60,14 @@ export const NotLaunched: Story = {
   ...inBay(types["Hobgoblin II"], "offline"),
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Damage Per Second 0")).toBeVisible();
+  },
+};
+
+export const Mining: Story = {
+  ...inBay(types["Mining Drone II"], "active"),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/^\d+ m³ per 60s \(\d+\.\d m³\/s\)$/)).toBeVisible();
+    await expect(canvas.queryByText(/Turret Tracking/)).toBeNull();
+    await expect(canvas.queryByText(/HP/)).toBeNull();
   },
 };
