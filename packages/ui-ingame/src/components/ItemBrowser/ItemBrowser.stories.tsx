@@ -5,12 +5,12 @@ import { expect, spyOn, waitFor, within } from "storybook/test";
 import { ItemBrowser } from "./ItemBrowser";
 
 const localFits = [
+  { name: "Kiter", ship: { type_id: 587 }, items: [] },
   {
     name: "Brawler",
     ship: { type_id: 587 },
     items: [{ type_id: 2048, slot: { type: "low", index: 0 }, state: "active" }],
   },
-  { name: "Kiter", ship: { type_id: 587 }, items: [] },
   { name: "Tackle", ship: { type_id: 585 }, items: [] },
 ];
 
@@ -170,7 +170,7 @@ export const Skills: Story = {
   },
 };
 
-/** A hull with fits saved in the browser opens to them, and counts them. */
+/** A hull with fits saved in the browser opens to them by name, and counts them. */
 export const SavedFits: Story = {
   parameters: { localFits },
   play: async ({ canvas, userEvent }) => {
@@ -185,8 +185,9 @@ export const SavedFits: Story = {
     await expect(hulls().getByRole("button", { name: "Simulate Rifter" })).toBeVisible();
 
     await userEvent.click(rifter);
-    await expect(hulls().getByRole("button", { name: "Brawler" })).toBeVisible();
-    await expect(hulls().getByRole("button", { name: "Kiter" })).toBeVisible();
+    const [first, second] = hulls().getAllByRole("button", { name: /^(Brawler|Kiter)$/ });
+    await expect(first).toHaveAccessibleName("Brawler");
+    await expect(second).toHaveAccessibleName("Kiter");
     await expect(hulls().getAllByRole("img", { name: "Can fly" })).toHaveLength(2);
     await expect(hulls().getByRole("button", { name: "Breacher" })).not.toHaveAccessibleDescription();
   },
@@ -218,6 +219,20 @@ export const BrowserFittings: Story = {
     await expect(hulls().getByRole("button", { name: /^Rifter/ })).toBeVisible();
     await expect(hulls().getByRole("button", { name: /^Slasher/ })).toBeVisible();
     await expect(hulls().queryByRole("button", { name: /^Breacher/ })).toBeNull();
+  },
+};
+
+/** Current Hull keeps the hull of the fit under Browser Fittings, even without fits. */
+export const CurrentHullWithoutFits: Story = {
+  play: async ({ canvas, userEvent }) => {
+    const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Browser Fittings" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Current Hull" }));
+
+    await userEvent.click(hulls().getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls().getByRole("button", { name: /^Minmatar/ }));
+    await userEvent.click(hulls().getByRole("button", { name: "Rifter" }));
+    await expect(hulls().getByRole("button", { name: "No Item" })).toBeVisible();
   },
 };
 

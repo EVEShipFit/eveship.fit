@@ -49,7 +49,7 @@ export function HullsAndFits() {
   const listed: Listed[] = [
     ...(!anySource || browserFits ? fits.map((fit) => ({ fit, kind: "fits-browser" as const })) : []),
     ...(!anySource || personalFits ? personal.fits.map((fit) => ({ fit, kind: "fits-personal" as const })) : []),
-  ];
+  ].toSorted((a, b) => (a.fit.name ?? "").localeCompare(b.fit.name ?? ""));
   const fitsByHull = Map.groupBy(listed, ({ fit }) => fit.ship.type_id);
   const browserByHull = Map.groupBy(fits, (fit) => fit.ship.type_id);
   const personalByHull = Map.groupBy(personal.fits, (fit) => fit.ship.type_id);
@@ -65,7 +65,7 @@ export function HullsAndFits() {
           if (currentHull && ship.id !== currentShipId) return false;
           if (flyable && missingSkills([ship.id]).length > 0) return false;
           const shown = shownFits(ship);
-          if (anySource && shown.length === 0) return false;
+          if (anySource && shown.length === 0 && !currentHull) return false;
           return matches(ship.name) || shown.length > 0;
         }
       : undefined,
