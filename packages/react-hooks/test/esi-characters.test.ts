@@ -226,14 +226,16 @@ test("loading all skips who already loaded; a refresh loads again", async () => 
   expect(esi.characterSkills).toHaveBeenCalledTimes(2);
 });
 
-test("a refresh token another tab used first is swapped for the one it stored", async () => {
+test("a refresh token another tab used meanwhile is swapped for the one it stored", async () => {
   await loggedIn();
   const store = characters();
-  const otherTab = characters();
-  sso.refresh.mockResolvedValueOnce(login("other"));
-  otherTab.load(PILOT);
-  await vi.runAllTimersAsync();
-  sso.refresh.mockRejectedValueOnce(new SsoError(400, "invalid_grant", undefined));
+  sso.refresh.mockImplementationOnce(async () => {
+    storage.setItem(
+      "eveshipfit.characters",
+      JSON.stringify([{ id: PILOT, name: "Pilot", refreshToken: "other", scopes: SCOPES }]),
+    );
+    throw new SsoError(400, "invalid_grant", undefined);
+  });
 
   store.load(PILOT);
   await vi.runAllTimersAsync();
@@ -318,4 +320,35 @@ test("a character removed while it loads stays removed", async () => {
   expect(store.list()).toEqual([]);
   expect(characters().list()).toEqual([]);
   expect(localFits.setCharacterFits).toHaveBeenLastCalledWith(PILOT, new Map());
+});
+
+test("two tabs loading at once refresh the token one after the other", async () => {
+  await loggedIn();
+  sso.refresh.mockResolvedValueOnce(login("first")).mockResolvedValueOnce(login("second"));
+  const store = characters();
+  const otherTab = characters();
+
+  store.load(PILOT);
+  otherTab.load(PILOT);
+  await vi.runAllTimersAsync();
+
+  expect(sso.refresh.mock.calls).toEqual([["refresh"], ["first"]]);
+  expect(otherTab.list()[0]!.status).toBe("ready");
+});
+
+test("added characters are kept, without replacing ones already logged in", async () => {
+  const store = await loggedIn();
+
+  store.add([
+    { id: PILOT, name: "Old Pilot", refreshToken: "old" },
+    { id: PILOT + 1, name: "Other", refreshToken: "other" },
+  ]);
+
+  expect(characters().list()).toMatchObject([
+    { id: PILOT + 1, name: "Other", status: "ready" },
+    { id: PILOT, name: "Pilot" },
+  ]);
+  store.load(PILOT + 1);
+  await vi.runAllTimersAsync();
+  expect(sso.refresh).toHaveBeenCalledWith("other");
 });

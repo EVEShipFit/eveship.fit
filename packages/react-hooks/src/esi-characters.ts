@@ -56,6 +56,7 @@ const FITTINGS_SCOPE = "esi-fittings.read_fittings.v1";
 const SCOPES = ["esi-skills.read_skills.v1", "esi-skills.read_skillqueue.v1", FITTINGS_SCOPE];
 const KEY = "eveshipfit.characters";
 const LOGIN_KEY = "eveshipfit.login";
+const LOCK_PREFIX = "eveshipfit.esi.";
 
 /** Characters logged in through EVE's login, kept in the browser. */
 export class EsiCharacters {
@@ -142,7 +143,23 @@ export class EsiCharacters {
     const refreshToken = this.#stored.find((character) => character.id === id)?.refreshToken;
     if (refreshToken === undefined || this.#status.get(id) === "loading") return;
     this.#loaded.add(id);
-    void this.#refresh(id, refreshToken);
+    this.#setStatus(id, "loading");
+    void withLock(`${LOCK_PREFIX}${id}`, async () => {
+      const latest = this.#read().find((character) => character.id === id)?.refreshToken;
+      if (latest === undefined) {
+        this.#status.delete(id);
+        this.#publish();
+        return;
+      }
+      await this.#refresh(id, latest);
+    });
+  }
+
+  /** Adds characters logged in elsewhere; characters already here are left as they are. */
+  add(characters: readonly { id: number; name: string; refreshToken: string }[]) {
+    for (const { id, name, refreshToken } of characters) {
+      this.#change(id, (known) => known ?? { id, name, refreshToken });
+    }
   }
 
   /** Forgets the character and its fittings, and revokes its login at EVE. */
@@ -155,7 +172,6 @@ export class EsiCharacters {
   }
 
   async #refresh(id: number, refreshToken: string): Promise<void> {
-    this.#setStatus(id, "loading");
     let login: SsoLogin;
     try {
       login = await this.#sso.refresh(refreshToken);
@@ -265,6 +281,12 @@ export class EsiCharacters {
       .toSorted((a, b) => a.name.localeCompare(b.name));
     for (const listener of this.#listeners) listener();
   }
+}
+
+/** Runs the task while no other tab runs one under the same name. */
+function withLock(name: string, task: () => Promise<void>): Promise<void> {
+  if (!("locks" in navigator)) return task();
+  return navigator.locks.request(name, task);
 }
 
 /** The fitting as a fit with its fitting ID; none when the engine cannot read it. */
