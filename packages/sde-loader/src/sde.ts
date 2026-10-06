@@ -41,6 +41,7 @@ import {
   buildModuleSearch,
   buildModuleTree,
   buildShipTree,
+  HULL_CATEGORY_IDS,
   sortByMeta,
   type MarketGroupNode,
   type MetaLevel,
@@ -48,6 +49,8 @@ import {
   type ModuleGroupNode,
   type ShipGroupNode,
 } from "./trees.js";
+
+const MIN_MAJOR_VERSION = 12;
 
 export class Sde {
   readonly bytes: Uint8Array;
@@ -81,6 +84,9 @@ export class Sde {
     }
 
     const raw = RawSde.getRootAsSde(buffer);
+    if (raw.majorVersion() < MIN_MAJOR_VERSION) {
+      throw new Error(`Not a supported SDE file: needs @eveshipfit/sde ${MIN_MAJOR_VERSION} or newer`);
+    }
     this.bytes = bytes;
     this.buildNumber = raw.buildNumber();
     this.releaseDate = toDate(raw.releaseDate());
@@ -148,6 +154,27 @@ export class Sde {
     return this.#marketGroups.all();
   }
 
+  /** Lowest ID first. */
+  typesInGroup(id: number): SdeType[] {
+    return this.#typesOf(this.#groups.raw(id)?.typeIdsArray());
+  }
+
+  /** By group, lowest ID first. */
+  typesInCategory(id: number): SdeType[] {
+    return [...this.#groups.all()]
+      .filter((group) => group.categoryId === id)
+      .flatMap((group) => this.typesInGroup(group.id));
+  }
+
+  /** Lowest ID first. */
+  typesInMarketGroup(id: number): SdeType[] {
+    return this.#typesOf(this.#marketGroups.raw(id)?.typeIdsArray());
+  }
+
+  #typesOf(ids: Int32Array | null | undefined): SdeType[] {
+    return Array.from(ids ?? [], (id) => this.#types.get(id)!);
+  }
+
   attributeId(name: string): number | undefined {
     if (this.#attributeIds === undefined) {
       this.#attributeIds = new Map();
@@ -174,7 +201,13 @@ export class Sde {
 
   /** The published market, root groups first; children and types sorted by name. */
   marketTree(): readonly MarketGroupNode[] {
-    this.#marketTree ??= buildMarketTree(this.#marketGroups.all(), this.#types.all());
+    if (this.#marketTree === undefined) {
+      const marketGroups = [...this.#marketGroups.all()];
+      this.#marketTree = buildMarketTree(
+        marketGroups,
+        marketGroups.flatMap((group) => this.typesInMarketGroup(group.id)),
+      );
+    }
     return this.#marketTree;
   }
 
@@ -214,7 +247,11 @@ export class Sde {
 
   /** Published ships and structures, by group and then race; hulls sorted by meta group, meta level and name. */
   shipTree(): readonly ShipGroupNode[] {
-    this.#shipTree ??= buildShipTree(this.#types.all(), (id) => this.group(id), this.#metaLevel());
+    this.#shipTree ??= buildShipTree(
+      [...HULL_CATEGORY_IDS].flatMap((id) => this.typesInCategory(id)),
+      (id) => this.group(id),
+      this.#metaLevel(),
+    );
     return this.#shipTree;
   }
 }

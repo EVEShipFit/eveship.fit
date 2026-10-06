@@ -140,6 +140,7 @@ function keepInUrl(engine: Engine, store: FitStore, keepLink: boolean) {
     }
     history.replaceState(history.state, "", url);
   };
-  update();
+  if ("requestIdleCallback" in window) requestIdleCallback(update);
+  else setTimeout(update);
   store.subscribe(update);
 }

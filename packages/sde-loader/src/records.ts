@@ -85,13 +85,11 @@ export interface SdeFighterAbilityInfo {
 }
 
 /**
- * A type from the SDE. The scalar fields are read up front; attributes,
- * effects and fighter abilities only when first asked for, as most lookups
- * never need them.
+ * A type from the SDE. The scalar fields are read up front; the name,
+ * attributes, effects, fighter abilities and modes only when first asked for.
  */
 export class SdeType {
   readonly id: number;
-  readonly name: string;
   readonly groupId: number;
   readonly categoryId: number;
   readonly published: boolean;
@@ -105,6 +103,8 @@ export class SdeType {
   readonly volume: number | undefined;
 
   readonly #raw: Type;
+  #name: string | undefined;
+  #modeTypeIds: readonly number[] | undefined;
   #attributes: ReadonlyMap<number, number> | undefined;
   #effectIds: ReadonlySet<number> | undefined;
   #defaultEffectId: number | undefined | null = null;
@@ -113,7 +113,6 @@ export class SdeType {
   constructor(raw: Type) {
     this.#raw = raw;
     this.id = raw.id();
-    this.name = raw.name() ?? "";
     this.groupId = raw.groupId();
     this.categoryId = raw.categoryId();
     this.published = raw.published();
@@ -125,6 +124,17 @@ export class SdeType {
     this.mass = raw.mass() ?? undefined;
     this.radius = raw.radius() ?? undefined;
     this.volume = raw.volume() ?? undefined;
+  }
+
+  get name(): string {
+    this.#name ??= this.#raw.name() ?? "";
+    return this.#name;
+  }
+
+  /** The modes of a ship, lowest ID first. */
+  get modeTypeIds(): readonly number[] {
+    this.#modeTypeIds ??= Array.from(this.#raw.modeTypeIdsArray() ?? []);
+    return this.#modeTypeIds;
   }
 
   /** Base values by attribute ID, before any effect applies. */

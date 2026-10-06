@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from "react";
+import { Activity, useId, useState, type ReactNode } from "react";
 
 import { Charges } from "./Charges";
 import { FitActions } from "./FitActions";
@@ -50,7 +50,7 @@ export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
           aria-labelledby={`${id}-${each.tab}-tab`}
           hidden={tab !== each.tab}
         >
-          {each.panel}
+          <Activity mode={tab === each.tab ? "visible" : "hidden"}>{each.panel}</Activity>
         </div>
       ))}
       <FitActions />

@@ -40,7 +40,7 @@ test("a fit link opens its fit, and the url keeps it", async ({ page }) => {
     "/?fit=v3:H4sIAAAAAAAAAyvOyCzQMbUw1/HJzMtWCMpMK0kt0uHKzU8pzUnV8chMz9Ax1DGyMDfWcUwuySxL1TG0MEWRNcKQTSnKz0vVMTKxMNMx1DHgSk4sSs8HSegYGhhwAQBLJK6dbwAAAA==&x=1#h",
   );
   await expect(page.getByText("Link Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
-  expect(new URL(page.url()).search + new URL(page.url()).hash).toMatch(/^\?x=1&fit=esf1:[\w-]+#h$/);
+  await expect.poll(() => new URL(page.url()).search + new URL(page.url()).hash).toMatch(/^\?x=1&fit=esf1:[\w-]+#h$/);
 
   await page.reload();
   await expect(page.getByText("Link Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
@@ -50,8 +50,8 @@ test("an edit to the fit updates the url", async ({ page }) => {
   const link = () => new URL(page.url()).searchParams.get("fit");
   await page.goto("/");
   await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
+  await expect.poll(link).toMatch(/^esf1:/);
   const empty = link();
-  expect(empty).toMatch(/^esf1:/);
 
   await page.getByRole("tab", { name: "Modules" }).click();
   await page.getByRole("searchbox", { name: "Search" }).fill("damage control ii");

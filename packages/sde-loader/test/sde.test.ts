@@ -44,6 +44,29 @@ describe("lookups", () => {
     expect(sde.metaGroup(rifter.metaGroupId!)?.name).toBe("Tech I");
   });
 
+  test("types by group, category and market group", () => {
+    const rifter = sde.type(RIFTER)!;
+    const frigates = sde.typesInGroup(rifter.groupId);
+    expect(frigates).toContain(rifter);
+    expect(frigates.every((type) => type.groupId === rifter.groupId)).toBe(true);
+    expect(frigates.map((type) => type.id)).toEqual(frigates.map((type) => type.id).toSorted((a, b) => a - b));
+
+    const ships = sde.typesInCategory(rifter.categoryId);
+    expect(ships).toContain(rifter);
+    expect(ships.every((type) => type.categoryId === rifter.categoryId)).toBe(true);
+
+    expect(sde.typesInMarketGroup(rifter.marketGroupId!)).toContain(rifter);
+    expect(sde.typesInGroup(-1)).toEqual([]);
+  });
+
+  test("the modes of a ship", () => {
+    const svipul = sde.typeByName("Svipul")!;
+    expect(new Set(svipul.modeTypeIds.map((id) => sde.type(id)?.name))).toEqual(
+      new Set(["Svipul Defense Mode", "Svipul Propulsion Mode", "Svipul Sharpshooter Mode"]),
+    );
+    expect(sde.type(RIFTER)!.modeTypeIds).toEqual([]);
+  });
+
   test("attribute, effect and unit", () => {
     const cpuOutput = sde.attribute(48)!;
     expect(cpuOutput.name).toBe("cpuOutput");
