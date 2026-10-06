@@ -41,6 +41,7 @@ export interface ShipGroupNode {
 /** Ship and structure. */
 export const HULL_CATEGORY_IDS: ReadonlySet<number> = new Set([6, 65]);
 const CHARGE_CATEGORY_ID = 8;
+const IMPLANT_CATEGORY_ID = 20;
 /** Module, drone, subsystem, structure module and fighter. */
 const FITTABLE_CATEGORY_IDS: ReadonlySet<number> = new Set([7, 18, 32, 66, 87]);
 
@@ -58,6 +59,7 @@ const SUBSYSTEMS_MARKET_GROUP_ID = 1112;
 const STRUCTURE_EQUIPMENT_MARKET_GROUP_ID = 2202;
 const STRUCTURE_MODIFICATIONS_MARKET_GROUP_ID = 2203;
 const CHARGES_MARKET_GROUP_ID = 11;
+const IMPLANTS_AND_BOOSTERS_MARKET_GROUP_ID = 24;
 const FESTIVAL_MARKET_GROUP_ID = 1663;
 
 /** Structure meta groups sort and go in folders as their ship counterparts do. */
@@ -162,18 +164,33 @@ function buildSearch(market: readonly MarketGroupNode[], categoryIds: ReadonlySe
 
 export function buildChargeTree(market: readonly MarketGroupNode[], metaLevel: MetaLevel): readonly MarketGroupNode[] {
   const byId = indexMarket(market);
-  const byMeta = byMetaOf(metaLevel);
-
-  const build = (node: MarketGroupNode): MarketGroupNode[] => {
-    const children = node.children.flatMap(build).toSorted(groupsFirst);
-    const types = node.types.filter((type) => type.categoryId === CHARGE_CATEGORY_ID).toSorted(byMeta);
-    if (children.length === 0 && types.length === 0) return [];
-    return [{ group: node.group, children, types }];
-  };
+  const build = categoryTree(CHARGE_CATEGORY_ID, metaLevel);
 
   const charges = byId.get(CHARGES_MARKET_GROUP_ID)?.children.flatMap(build).toSorted(groupsFirst) ?? [];
   const festival = byId.get(FESTIVAL_MARKET_GROUP_ID);
   return [...charges, ...(festival === undefined ? [] : build(festival))];
+}
+
+export function buildImplantSearch(market: readonly MarketGroupNode[]): readonly ModuleGroupNode[] {
+  return buildSearch(market, new Set([IMPLANT_CATEGORY_ID]));
+}
+
+export function buildImplantTree(market: readonly MarketGroupNode[], metaLevel: MetaLevel): readonly MarketGroupNode[] {
+  const byId = indexMarket(market);
+  const build = categoryTree(IMPLANT_CATEGORY_ID, metaLevel);
+  return byId.get(IMPLANTS_AND_BOOSTERS_MARKET_GROUP_ID)?.children.flatMap(build).toSorted(groupsFirst) ?? [];
+}
+
+/** A market group cut down to the types of one category; empty for a group left without any. */
+function categoryTree(categoryId: number, metaLevel: MetaLevel): (node: MarketGroupNode) => MarketGroupNode[] {
+  const byMeta = byMetaOf(metaLevel);
+  const build = (node: MarketGroupNode): MarketGroupNode[] => {
+    const children = node.children.flatMap(build).toSorted(groupsFirst);
+    const types = node.types.filter((type) => type.categoryId === categoryId).toSorted(byMeta);
+    if (children.length === 0 && types.length === 0) return [];
+    return [{ group: node.group, children, types }];
+  };
+  return build;
 }
 
 function groupsFirst(a: MarketGroupNode, b: MarketGroupNode): number {

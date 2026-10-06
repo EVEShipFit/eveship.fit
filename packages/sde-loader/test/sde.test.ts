@@ -225,6 +225,23 @@ describe("trees", () => {
     expect(festival.types.every((type) => type.categoryId === 8)).toBe(true);
   });
 
+  test("implants and boosters, groups with groups in them first", () => {
+    const roots = sde.implantTree();
+    expect(roots.map((node) => node.group.name)).toEqual(["Booster", "Implants", "Cerebral Accelerators"]);
+
+    const attributes = roots[1]!.children.find((node) => node.group.name === "Attribute Enhancers")!;
+    expect(attributes.children[0]!.group.name).toBe("Implant Slot 01");
+    expect(
+      roots.flatMap((node) => node.children).every((node) => node.types.every((type) => type.categoryId === 20)),
+    ).toBe(true);
+  });
+
+  test("implant search, by root market group", () => {
+    const roots = sde.implantSearch();
+    expect(roots[0]!.group.name).toBe("Implants & Boosters");
+    expect(roots[0]!.types.map((type) => type.name)).toContain("Standard Blue Pill Booster");
+  });
+
   test("types sorted by meta, with faction ones in a folder", () => {
     const names = ["Republic Fleet EMP S", "Barrage S", "EMP S", "Carbonized Lead S"];
     const sorted = sde.sortByMeta(names.map((name) => sde.typeByName(name)!));

@@ -1,0 +1,132 @@
+.track {
+  fill: none;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
+  stroke: rgb(255 255 255 / 7%);
+  stroke-linecap: round;
+  stroke-width: 39;
+}
+
+/* Centred with margins: Firefox anchors tooltips as if there were no transform. */
+.marker {
+  height: calc(30 * var(--wheel-unit));
+  margin: calc(-15 * var(--wheel-unit));
+  position: absolute;
+  width: calc(30 * var(--wheel-unit));
+}
+
+.marker img {
+  display: block;
+  height: 100%;
+  opacity: 0.8;
+  width: 100%;
+}
+
+.marker img[data-marker="booster"] {
+  filter: grayscale(1) brightness(1.3);
+  margin: calc(4 * var(--wheel-unit));
+  opacity: 0.7;
+  width: calc(22 * var(--wheel-unit));
+  height: calc(22 * var(--wheel-unit));
+}
+
+/* Centred with margins: Firefox anchors tooltips as if there were no transform. */
+.slot {
+  height: calc(32 * var(--wheel-unit));
+  margin: calc(-16 * var(--wheel-unit));
+  position: absolute;
+  width: calc(32 * var(--wheel-unit));
+}
+
+.body {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  position: relative;
+  user-select: none;
+  width: 100%;
+}
+
+.frame {
+  fill: #0d1213;
+  inset: 0;
+  overflow: visible;
+  position: absolute;
+  stroke: #2b3337;
+  stroke-linejoin: round;
+  stroke-width: 1;
+}
+
+.slot[data-filled] .frame {
+  stroke: #3d5960;
+}
+
+.slot[data-preview] .frame {
+  filter: drop-shadow(0 0 calc(4 * var(--wheel-unit)) var(--esf-button-active-edge));
+  stroke: var(--esf-button-active-edge);
+}
+
+.icon {
+  border-radius: calc(3 * var(--wheel-unit));
+  height: calc(28 * var(--wheel-unit));
+  overflow: hidden;
+  position: relative;
+  width: calc(28 * var(--wheel-unit));
+}
+
+.icon > span {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.number {
+  color: var(--esf-text-muted);
+  font-family: var(--esf-font);
+  font-size: calc(12.52 * var(--wheel-unit));
+  opacity: 0.6;
+  position: relative;
+}
+
+/* Not `display: none`, so the keyboard still reaches them. */
+.actions {
+  border: none;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  padding: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.slot:hover > .actions,
+.slot:has(:focus-visible) > .actions {
+  opacity: 1;
+}
+
+.slot:hover :is(.action, .bridge),
+.slot:has(:focus-visible) :is(.action, .bridge) {
+  pointer-events: auto;
+}
+
+.action {
+  height: calc(12.97 * var(--wheel-unit));
+  left: calc(50% + var(--x) * var(--wheel-unit));
+  margin: calc(-6.49 * var(--wheel-unit));
+  position: absolute;
+  top: calc(50% + var(--y) * var(--wheel-unit));
+  width: calc(12.97 * var(--wheel-unit));
+}
+
+/* Keeps the slot hovered while the pointer crosses the gap to its action. */
+.bridge {
+  height: calc(8 * var(--wheel-unit));
+  left: calc(50% + var(--x) * var(--wheel-unit));
+  margin: calc(-4 * var(--wheel-unit));
+  position: absolute;
+  top: calc(50% + var(--y) * var(--wheel-unit));
+  width: calc(8 * var(--wheel-unit));
+}

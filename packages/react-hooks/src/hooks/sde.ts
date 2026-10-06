@@ -106,6 +106,24 @@ export function useChargeSearch(filter?: (type: SdeType) => boolean): readonly M
   }, [sde, filter]);
 }
 
+/** The implants and boosters by market group, cut down to the types a stable `filter` keeps. */
+export function useImplantTree(filter?: (type: SdeType) => boolean): readonly MarketGroupNode[] {
+  const sde = useSde();
+  return useMemo(() => {
+    const tree = sde.implantTree();
+    return filter === undefined ? tree : pruneMarket(tree, filter);
+  }, [sde, filter]);
+}
+
+/** The implants and boosters by root market group, cut down to the types a stable `filter` keeps. */
+export function useImplantSearch(filter?: (type: SdeType) => boolean): readonly ModuleGroupNode[] {
+  const sde = useSde();
+  return useMemo(() => {
+    const roots = sde.implantSearch();
+    return filter === undefined ? roots : pruneModules(roots, filter);
+  }, [sde, filter]);
+}
+
 /**
  * The hulls by group and race, cut down to those `filter` keeps; groups left
  * empty are dropped. Keep `filter` stable between renders, as the tree is

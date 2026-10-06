@@ -11,6 +11,7 @@ import {
   usePreview,
   useRackUsage,
   useSlots,
+  useStats,
   type DragItem,
   type SlotContent,
 } from "@eveshipfit/react-hooks";
@@ -25,6 +26,7 @@ import { WheelLink } from "../../primitives/Wheel/WheelLink";
 import { WheelModes } from "../../primitives/Wheel/WheelModes";
 import { WheelRackMarker, type MarkedRack } from "../../primitives/Wheel/WheelRackMarker";
 import { WheelSlot } from "../../primitives/Wheel/WheelSlot";
+import { FittingAugmentations } from "./FittingAugmentations";
 import { allowDrop, useFittingSlot } from "./fittingSlot";
 import styles from "./FittingWheel.module.css";
 
@@ -50,6 +52,7 @@ export function FittingWheel({
 }: FittingWheelProps) {
   const ship = useFit().ship.type_id;
   const { turret, launcher } = useHardpoints();
+  const { structure } = useStats();
 
   return (
     <Wheel label={label} hideScales={hideStats}>
@@ -62,6 +65,7 @@ export function FittingWheel({
         <FittingRack key={rack} rack={rack} readOnly={readOnly} />
       ))}
       <FittingModes readOnly={readOnly} />
+      {!structure && <FittingAugmentations readOnly={readOnly} />}
       {!hideStats && (
         <>
           <WheelHardpoints turrets={turret} launchers={launcher} />

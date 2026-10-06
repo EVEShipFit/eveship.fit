@@ -3,6 +3,7 @@ import { Activity, useDeferredValue, useId, useState, type ReactNode } from "rea
 import { Charges } from "./Charges";
 import { FitActions } from "./FitActions";
 import { HullsAndFits } from "./HullsAndFits";
+import { Implants } from "./Implants";
 import styles from "./ItemBrowser.module.css";
 import { Modules } from "./Modules";
 
@@ -10,9 +11,9 @@ export interface ItemBrowserProps {
   label?: string;
 }
 
-type Tab = "hulls" | "modules" | "charges";
+type Tab = "hulls" | "modules" | "charges" | "implants";
 
-/** EVE's browser of hulls and fits, modules and charges, left of the fitting wheel. */
+/** EVE's browser of hulls and fits, modules, charges, and implants, left of the fitting wheel. */
 export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
   const [tab, setTab] = useState<Tab>("hulls");
   const id = useId();
@@ -22,6 +23,7 @@ export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
     { tab: "hulls", label: "Hulls & Fits", panel: <HullsAndFits /> },
     { tab: "modules", label: "Modules", panel: <Modules /> },
     { tab: "charges", label: "Charges", panel: <Charges /> },
+    { tab: "implants", label: "Implants", panel: <Implants /> },
   ];
 
   return (
