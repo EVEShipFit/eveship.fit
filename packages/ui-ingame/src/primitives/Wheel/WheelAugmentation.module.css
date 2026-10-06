@@ -9,20 +9,27 @@
   stroke-width: 30;
 }
 
+/* Centred with margins: Firefox anchors tooltips as if there were no transform. */
 .marker {
   height: calc(24 * var(--wheel-unit));
-  opacity: 0.8;
-  pointer-events: none;
+  margin: calc(-12 * var(--wheel-unit));
   position: absolute;
-  transform: translate(-50%, -50%);
   width: calc(24 * var(--wheel-unit));
 }
 
-.marker[data-marker="booster"] {
+.marker img {
+  display: block;
+  height: 100%;
+  opacity: 0.8;
+  width: 100%;
+}
+
+.marker img[data-marker="booster"] {
   filter: grayscale(1) brightness(1.3);
-  height: calc(17 * var(--wheel-unit));
+  margin: calc(3.5 * var(--wheel-unit));
   opacity: 0.7;
   width: calc(17 * var(--wheel-unit));
+  height: calc(17 * var(--wheel-unit));
 }
 
 /* Centred with margins: Firefox anchors tooltips as if there were no transform. */
@@ -103,16 +110,26 @@
   opacity: 1;
 }
 
-.slot:hover .action,
-.slot:has(:focus-visible) .action {
+.slot:hover :is(.action, .bridge),
+.slot:has(:focus-visible) :is(.action, .bridge) {
   pointer-events: auto;
 }
 
 .action {
-  height: calc(16.5 * var(--wheel-unit));
+  height: calc(11 * var(--wheel-unit));
   left: calc(50% + var(--x) * var(--wheel-unit));
-  margin: calc(-8.25 * var(--wheel-unit));
+  margin: calc(-5.5 * var(--wheel-unit));
   position: absolute;
   top: calc(50% + var(--y) * var(--wheel-unit));
-  width: calc(16.5 * var(--wheel-unit));
+  width: calc(11 * var(--wheel-unit));
+}
+
+/* Keeps the slot hovered while the pointer crosses the gap to its action. */
+.bridge {
+  height: calc(8 * var(--wheel-unit));
+  left: calc(50% + var(--x) * var(--wheel-unit));
+  margin: calc(-4 * var(--wheel-unit));
+  position: absolute;
+  top: calc(50% + var(--y) * var(--wheel-unit));
+  width: calc(8 * var(--wheel-unit));
 }

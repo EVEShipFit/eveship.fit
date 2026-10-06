@@ -8,7 +8,9 @@ import { augmentationAngle, type Augmentation } from "./layout";
 import { augmentationRadius } from "./WheelAugmentationTrack";
 import styles from "./WheelAugmentation.module.css";
 
-const unfitDistance = 20;
+/** From the slot's centre, outward: past the track, and halfway there. */
+const unfitOffset = 24;
+const bridgeOffset = 14.5;
 
 export interface WheelAugmentationSlotProps extends HTMLAttributes<HTMLDivElement> {
   kind: Augmentation;
@@ -46,7 +48,8 @@ export function WheelAugmentationSlot({
   ...props
 }: WheelAugmentationSlotProps) {
   const angle = augmentationAngle(kind, position);
-  const inward = polar(angle, -unfitDistance);
+  const unfit = polar(angle, unfitOffset);
+  const bridge = polar(angle, bridgeOffset);
 
   return (
     <div
@@ -83,7 +86,8 @@ export function WheelAugmentationSlot({
       </Tooltip>
       {typeId !== undefined && onUnfit && (
         <fieldset className={styles.actions} aria-label={typeName}>
-          <span className={styles.action} style={{ "--x": inward.x, "--y": inward.y } as CSSProperties}>
+          <span className={styles.bridge} style={{ "--x": bridge.x, "--y": bridge.y } as CSSProperties} />
+          <span className={styles.action} style={{ "--x": unfit.x, "--y": unfit.y } as CSSProperties}>
             <SlotAction
               icon="module-unfit"
               label={kind === "implant" ? "Unfit Implant" : "Unfit Booster"}
