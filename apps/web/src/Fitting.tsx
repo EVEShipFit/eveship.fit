@@ -1,7 +1,7 @@
 import { EveShipFitProvider, ImagesProvider, TextsProvider } from "@eveshipfit/react-hooks";
-import { FittingWindow, ItemBrowser, ShipStatistics } from "@eveshipfit/ui-ingame";
+import { Dialog, FittingWindow, ItemBrowser, ShipStatistics } from "@eveshipfit/ui-ingame";
 import { ZKillboard } from "@eveshipfit/zkillboard";
-import { use, type CSSProperties } from "react";
+import { use, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 
 import styles from "./App.module.css";
@@ -40,6 +40,7 @@ export function Fitting({ data, layout, skills }: FittingProps) {
       <ImagesProvider images={loaded.images}>
         <TextsProvider texts={loaded.texts}>
           {skills !== null && createPortal(<Skills loginError={loaded.login.error} />, skills)}
+          {loaded.linkError !== undefined && <LinkError error={loaded.linkError} />}
           {layout.stacked ? (
             <>
               <div className={`${styles.panel} ${styles.window}`} style={scale}>
@@ -62,5 +63,18 @@ export function Fitting({ data, layout, skills }: FittingProps) {
         </TextsProvider>
       </ImagesProvider>
     </EveShipFitProvider>
+  );
+}
+
+function LinkError({ error }: { error: string }) {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <Dialog open={open} title="Broken Fit Link" onClose={() => setOpen(false)}>
+      <div className={styles.linkError}>
+        <p>This link has a fit that EVEShip.fit could not load.</p>
+        <p className={styles.reason}>{error}</p>
+      </div>
+    </Dialog>
   );
 }

@@ -25,6 +25,8 @@ export interface Data {
   /** Who flies the fit at first, as `useCharacters` lists it. */
   character?: string;
   login: Login;
+  /** Why the fit in the link could not load. */
+  linkError?: string;
 }
 
 /** Everything the fitting window needs; null when any of it failed to load. */
@@ -50,10 +52,21 @@ export async function loadData(): Promise<Data | null> {
       loadTexts({ url: textsUrl }),
     ]);
     const [linked, loggedIn] = await Promise.all([loadLinkedFit(engine), login]);
-    const fit = linked ?? keptFit(engine, loggedIn.fit) ?? engine.createFit({ ship: RIFTER });
-    keepInUrl(engine, fit);
+    const fit = linked.fit ?? keptFit(engine, loggedIn.fit) ?? engine.createFit({ ship: RIFTER });
+    keepInUrl(engine, fit, linked.error !== undefined);
     const character = loggedIn.character ?? keptCharacter(characters);
-    return { engine, sde, images, texts, fit, localFits, characters, character, login: loggedIn };
+    return {
+      engine,
+      sde,
+      images,
+      texts,
+      fit,
+      localFits,
+      characters,
+      character,
+      login: loggedIn,
+      linkError: linked.error,
+    };
   } catch (error) {
     console.error(error);
     return null;
@@ -87,21 +100,22 @@ function keptFit(engine: Engine, fit: Fit | undefined): FitStore | undefined {
   }
 }
 
-async function loadLinkedFit(engine: Engine): Promise<FitStore | undefined> {
+async function loadLinkedFit(engine: Engine): Promise<{ fit?: FitStore; error?: string }> {
   const url = new URL(location.href);
   const link = url.searchParams.get("fit");
-  if (link === null) return undefined;
+  if (link === null) return {};
 
   try {
-    return engine.createFit(await engine.loadLink(link));
+    return { fit: engine.createFit(await engine.loadLink(link)) };
   } catch (error) {
     console.error(error);
-    return undefined;
+    return { error: error instanceof Error ? error.message : String(error) };
   }
 }
 
-function keepInUrl(engine: Engine, store: FitStore) {
-  let fit: Fit | undefined;
+/** Writes the fit into the URL whenever it changes; `keepLink` leaves the link as is until then. */
+function keepInUrl(engine: Engine, store: FitStore, keepLink: boolean) {
+  let fit = keepLink ? store.getSnapshot().fit : undefined;
   const update = () => {
     const snapshot = store.getSnapshot();
     if (snapshot.fit === fit) return;
