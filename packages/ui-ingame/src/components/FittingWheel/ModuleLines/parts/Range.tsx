@@ -4,7 +4,7 @@ import { useAttribute, type NumberFormat } from "@eveshipfit/react-hooks";
 import styles from "../../ModuleTooltip.module.css";
 import { Attribute } from "./Attribute";
 
-/** Optimal range and optimal plus falloff; only the optimal range without falloff. */
+/** Optimal range and optimal plus falloff; only the optimal range with a falloff of 1 m or less. */
 export function Range({
   itemRef,
   optimal: optimalName = "maxRange",
@@ -27,7 +27,7 @@ export function Range({
     format: (value, numberFormat) => format(value + (optimal.value ?? 0), numberFormat),
   });
 
-  if (falloff === undefined || !total.value) {
+  if (falloff === undefined || (total.value ?? 0) <= 1) {
     return (
       <Attribute name="maxRange">
         {label} within {optimal.text}

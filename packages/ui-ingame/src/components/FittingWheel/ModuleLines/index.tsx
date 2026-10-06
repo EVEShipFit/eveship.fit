@@ -14,8 +14,8 @@ import { GuidanceDisruptor, TrackingDisruptor, WeaponDisruptor } from "./Disrupt
 import { BurstJammer, Ecm, StructureEcm } from "./Ecm";
 import { EnergyNeutralizer, EnergyNosferatu, StructureEnergyNeutralizer } from "./EnergyWarfare";
 import { MaxVelocity } from "./MaxVelocity";
-import { Mining } from "./Mining";
-import { Launcher, Missile } from "./Missile";
+import { Mining, MiningRange } from "./Mining";
+import { Missile } from "./Missile";
 import { ProbeLauncher } from "./ProbeLauncher";
 import {
   AncillaryRemoteArmorRepairer,
@@ -110,10 +110,7 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["signatureRadiusBonusOnline", [SignatureSuppressor]],
   ["structureEnergyNeutralizerFalloff", [StructureEnergyNeutralizer]],
   ["structureModuleEffectECM", [StructureEcm]],
-  ["structureModuleEffectRemoteSensorDampener", [StructureSensorDampener]],
   ["structureModuleEffectStasisWebifier", [StasisWebifier]],
-  ["structureModuleEffectTargetPainter", [StructureTargetPainter]],
-  ["structureModuleEffectWeaponDisruption", [WeaponDisruptor]],
   ["structureRepair", [HullRepairer]],
   ["structureWarpScrambleBlockMWDWithNPCEffect", [WarpScrambler]],
   ["superWeaponAmarr", [Doomsday]],
@@ -132,16 +129,21 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
 /** Tooltip lines of a group, in place of those from its effects. */
 const groupLines = new Map<string, ComponentType<LineProps>[]>([
   ["Breacher Pod Launchers", [BreacherPodLauncher]],
-  ["Festival Launcher", [Launcher]],
+  ["Citizen Mining Laser", [MiningRange]],
   ["Flex Armor Hardener", []],
   ["Flex Shield Hardener", []],
   ["Gang Coordinator", [CommandBonus]],
-  ["Interdiction Sphere Launcher", [Launcher]],
-  ["Missile Launcher Bomb", [Launcher]],
-  ["Missile Launcher Defender", [Launcher]],
   ["Scan Probe Launcher", [ProbeLauncher]],
   ["Stasis Grappler", [StasisGrappler]],
+  ["Structure Disruption Battery", [ActivationRange]],
   ["Survey Probe Launcher", [ProbeLauncher]],
+]);
+
+/** Tooltip lines of a type, in place of those from its group. */
+const typeLines = new Map<string, ComponentType<LineProps>[]>([
+  ["Standup Remote Sensor Dampener I", [StructureSensorDampener]],
+  ["Standup Target Painter I", [StructureTargetPainter]],
+  ["Standup Weapon Disruptor I", [WeaponDisruptor]],
 ]);
 
 /** Tooltip lines from the effects of a module. */
@@ -149,7 +151,8 @@ export function ModuleLines(props: LineProps) {
   const sde = useSde();
   const type = useType(props.typeId);
   const shown = new Set(
-    groupLines.get(sde.group(type?.groupId ?? 0)?.name ?? "") ??
+    typeLines.get(type?.name ?? "") ??
+      groupLines.get(sde.group(type?.groupId ?? 0)?.name ?? "") ??
       [...(type?.effectIds ?? [])].flatMap((id) => lines.get(sde.effect(id)?.name ?? "") ?? []),
   );
   return [...shown].map((Line, index) => <Line key={index} {...props} />);

@@ -38,6 +38,32 @@ export const WithCharge: Story = {
   },
 };
 
+export const WithOneCharge: Story = {
+  args: { rack: "medium", typeId: 2024, chargeTypeId: 32014 },
+  parameters: {
+    fit: {
+      ship: { type_id: 24698 },
+      items: [{ type_id: 2024, slot: { type: "medium", index: 0 }, state: "active", charge: { type_id: 32014 } }],
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("1 Navy Cap Booster 800")).toBeVisible();
+  },
+};
+
+export const WithCrystal: Story = {
+  args: { typeId: 3001, chargeTypeId: 246 },
+  parameters: {
+    fit: {
+      ship: { type_id: 597 },
+      items: [{ type_id: 3001, slot: { type: "high", index: 0 }, state: "active", charge: { type_id: 246 } }],
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Multifrequency S")).toBeVisible();
+  },
+};
+
 export const Overheated: Story = {
   args: { state: "overload" },
   play: async ({ canvas }) => {
@@ -84,6 +110,13 @@ export const InactiveRig: Story = {
   args: { rack: "rig", typeId: 31668, state: "offline", maxState: "online" },
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Inactive Rig")).toHaveStyle({ color: "rgb(138, 144, 150)" });
+  },
+};
+
+export const Subsystem: Story = {
+  args: { rack: "subsystem", typeId: 45586, state: "online", maxState: "online" },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Active Subsystem")).toBeVisible();
   },
 };
 
@@ -137,5 +170,27 @@ export const StructureModule: Story = {
     await expect(canvas.getByText("Range within 150 km")).toBeVisible();
     await expect(canvas.queryByText(/Optimal range within/)).toBeNull();
     await expect(canvas.getByText("50% Explosion Radius Bonus")).toBeVisible();
+  },
+};
+
+export const StructureModuleTechTwo: Story = {
+  args: { rack: "medium", typeId: 47364, state: "active", maxState: "active" },
+  parameters: {
+    fit: { ship: { type_id: 35834 }, items: [{ type_id: 47364, slot: { type: "medium", index: 0 }, state: "active" }] },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/^Range within \d+ km$/)).toBeVisible();
+    await expect(canvas.queryByText(/Bonus/)).toBeNull();
+  },
+};
+
+export const CitizenMiner: Story = {
+  args: { typeId: 48780, state: "active", maxState: "active" },
+  parameters: {
+    fit: { ship: { type_id: 32880 }, items: [{ type_id: 48780, slot: { type: "high", index: 0 }, state: "active" }] },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Optimal range within 10 km")).toBeVisible();
+    await expect(canvas.queryByText(/m³/)).toBeNull();
   },
 };

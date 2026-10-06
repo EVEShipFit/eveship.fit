@@ -5,7 +5,17 @@ import { range } from "../../../ShipStatistics/units";
 import { Range } from "./Range";
 
 /** The range of an effect, by the attributes the effect names for it. */
-export function EffectRange({ itemRef, effectId, label }: { itemRef: ItemRef; effectId: number; label: string }) {
+export function EffectRange({
+  itemRef,
+  effectId,
+  label,
+  falloffLabel,
+}: {
+  itemRef: ItemRef;
+  effectId: number;
+  label: string;
+  falloffLabel?: string;
+}) {
   const sde = useSde();
   const effect = sde.effect(effectId);
   const optimal = sde.attribute(effect?.rangeAttributeId ?? 0)?.name;
@@ -18,7 +28,7 @@ export function EffectRange({ itemRef, effectId, label }: { itemRef: ItemRef; ef
       optimal={optimal}
       falloff={falloff}
       label={label}
-      falloffLabel="Falloff range"
+      falloffLabel={falloffLabel}
       format={range}
     />
   );

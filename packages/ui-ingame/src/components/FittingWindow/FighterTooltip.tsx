@@ -14,7 +14,7 @@ const abilityDamage = new Map([
   ["fighterAbilityMissiles", "fighterAbilityMissilesDamagePerSecond"],
 ]);
 
-/** What EVE shows when hovering a squadron. */
+/** What EVE shows when hovering a squadron; the abilities of the first and third slot. */
 export function FighterTooltip({ itemRef, typeId, quantity }: { itemRef: ItemRef; typeId: number; quantity: number }) {
   const type = useType(typeId);
   const targetRange = useAttribute("maxTargetRange", { of: itemRef, decimals: 0, format: range });
@@ -28,10 +28,12 @@ export function FighterTooltip({ itemRef, typeId, quantity }: { itemRef: ItemRef
 
   return (
     <span className={styles.tooltip}>
-      <TypeRow typeId={typeId} count={`${quantity}x`} />
-      {type?.fighterAbilities.map((ability) => (
-        <AbilityLines key={ability.slot} itemRef={itemRef} ability={ability} quantity={quantity} />
-      ))}
+      <TypeRow typeId={typeId} count={quantity > 1 ? `${quantity}x` : undefined} />
+      {type?.fighterAbilities
+        .filter(({ slot }) => slot !== 1)
+        .map((ability) => (
+          <AbilityLines key={ability.slot} itemRef={itemRef} ability={ability} quantity={quantity} />
+        ))}
       <Attribute name="maxTargetRange">Maximum Targeting Range: {targetRange.text}</Attribute>
       <Attribute name="scanResolution">Scan Resolution: {scanResolution.text}</Attribute>
       <Attribute name="signatureRadius">Signature Radius: {signatureRadius.text}</Attribute>
@@ -56,7 +58,7 @@ function AbilityLines({
   return (
     <>
       {damage !== undefined && <AbilityDamage itemRef={itemRef} name={name} damage={damage} quantity={quantity} />}
-      <EffectRange itemRef={itemRef} effectId={effectId} label="Optimal range" />
+      <EffectRange itemRef={itemRef} effectId={effectId} label="Optimal range" falloffLabel="Falloff range" />
     </>
   );
 }

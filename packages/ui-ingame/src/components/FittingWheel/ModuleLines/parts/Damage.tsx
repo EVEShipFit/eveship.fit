@@ -9,14 +9,27 @@ const hp = unit(" HP");
 
 /** The damage of the loaded charge, per damage type; fully spooled up. */
 export function Damage({ itemRef }: { itemRef: ItemRef }) {
-  const sde = useSde();
   const spool = useAttribute("damageMultiplierBonusMax", { of: itemRef }).value ?? 0;
   const multiplier = (useAttribute("damageMultiplier", { of: itemRef }).value ?? 1) * (1 + spool);
+  return <DamageTypes itemRef={itemRef} charge multiplier={multiplier} />;
+}
+
+/** The damage of an item or its charge, per damage type. */
+export function DamageTypes({
+  itemRef,
+  charge = false,
+  multiplier = 1,
+}: {
+  itemRef: ItemRef;
+  charge?: boolean;
+  multiplier?: number;
+}) {
+  const sde = useSde();
   const damages = [
-    useDamage("emDamage", itemRef),
-    useDamage("thermalDamage", itemRef),
-    useDamage("kineticDamage", itemRef),
-    useDamage("explosiveDamage", itemRef),
+    useDamage("emDamage", itemRef, charge),
+    useDamage("thermalDamage", itemRef, charge),
+    useDamage("kineticDamage", itemRef, charge),
+    useDamage("explosiveDamage", itemRef, charge),
   ]
     .filter((damage) => damage.value)
     .map(({ name, value = 0 }) => ({ name, text: hp(value * multiplier, { decimals: 0 }) }));
@@ -44,6 +57,6 @@ export function Damage({ itemRef }: { itemRef: ItemRef }) {
   );
 }
 
-function useDamage(name: string, itemRef: ItemRef) {
-  return { name, value: useAttribute(name, { of: itemRef, charge: true }).value };
+function useDamage(name: string, itemRef: ItemRef, charge: boolean) {
+  return { name, value: useAttribute(name, { of: itemRef, charge }).value };
 }
