@@ -464,6 +464,21 @@ export const WithStatistics: Story = {
   },
 };
 
+export const Preview: Story = {
+  args: { statistics: <ShipStatistics />, preview: true },
+  parameters: { fit: rifter },
+  play: async ({ canvas }) => {
+    const window = canvas.getByRole("region", { name: "Fitting Window" });
+    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(972));
+    await expect(canvas.getByRole("region", { name: "Statistics" })).toBeVisible();
+    await expect(canvas.queryByText("Storybook Rifter")).toBeNull();
+    await expect(canvas.queryByRole("group", { name: "Simulation History" })).toBeNull();
+    await expect(canvas.queryByRole("button", { name: "Statistics" })).toBeNull();
+    const fitting = within(canvas.getByRole("region", { name: "Fitting" }));
+    await expect(fitting.queryByRole("button")).toBeNull();
+  },
+};
+
 export const FittedRifter: Story = {
   parameters: { fit: rifter },
   play: async ({ canvas }) => {

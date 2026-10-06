@@ -59,10 +59,12 @@ export interface FittingWindowProps {
   browser?: ReactNode;
   /** Like `ShipStatistics`; slid out by the Statistics button, which is only there with it. */
   statistics?: ReactNode;
+  /** Shows the fit without its name, warnings, history or anything to change it. */
+  preview?: boolean;
 }
 
 /** EVE's fitting window around the `FittingWheel`. */
-export function FittingWindow({ label = "Fitting Window", browser, statistics }: FittingWindowProps) {
+export function FittingWindow({ label = "Fitting Window", browser, statistics, preview = false }: FittingWindowProps) {
   const [browserOpen, setBrowserOpen] = useState(true);
   const [statisticsOpen, setStatisticsOpen] = useState(true);
   const browserId = useId();
@@ -89,11 +91,15 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
         )}
         <div className={styles.frame}>
           <div className={styles.wheel}>
-            <FittingWheel />
+            <FittingWheel readOnly={preview} />
           </div>
-          <FitName />
-          <Violations />
-          {browser !== undefined && (
+          {!preview && (
+            <>
+              <FitName />
+              <Violations />
+            </>
+          )}
+          {!preview && browser !== undefined && (
             <div className={styles.tools}>
               <Tooltip label="Item Browser">
                 <button
@@ -109,7 +115,7 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
               </Tooltip>
             </div>
           )}
-          {statistics !== undefined && (
+          {!preview && statistics !== undefined && (
             <div className={styles.panels}>
               <Tooltip label="Statistics">
                 <button
@@ -138,9 +144,11 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
             )}
           </div>
           {structure && <ServiceRack />}
-          <div className={styles.history}>
-            <SimulationHistory tooltipTitle={structure} />
-          </div>
+          {!preview && (
+            <div className={styles.history}>
+              <SimulationHistory tooltipTitle={structure} />
+            </div>
+          )}
           <div className={styles.resources}>
             <Resource title="CPU" free="cpuFree" output="cpuOutput" />
             <Resource title="Power Grid" free="powerFree" output="powerOutput" />
