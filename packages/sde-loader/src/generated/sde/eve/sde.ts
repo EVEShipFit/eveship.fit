@@ -172,8 +172,13 @@ fighterAbilitiesLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+majorVersion():number {
+  const offset = this.bb!.__offset(this.bb_pos, 32);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
 static startSde(builder:flatbuffers.Builder) {
-  builder.startObject(14);
+  builder.startObject(15);
 }
 
 static addBuildNumber(builder:flatbuffers.Builder, buildNumber:number) {
@@ -376,6 +381,10 @@ static startFighterAbilitiesVector(builder:flatbuffers.Builder, numElems:number)
   builder.startVector(4, numElems, 4);
 }
 
+static addMajorVersion(builder:flatbuffers.Builder, majorVersion:number) {
+  builder.addFieldInt32(14, majorVersion, 0);
+}
+
 static endSde(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
@@ -389,7 +398,7 @@ static finishSizePrefixedSdeBuffer(builder:flatbuffers.Builder, offset:flatbuffe
   builder.finish(offset, 'ESF1', true);
 }
 
-static createSde(builder:flatbuffers.Builder, buildNumber:number, typesOffset:flatbuffers.Offset, groupsOffset:flatbuffers.Offset, categoriesOffset:flatbuffers.Offset, dogmaAttributesOffset:flatbuffers.Offset, dogmaEffectsOffset:flatbuffers.Offset, mutaplasmidsOffset:flatbuffers.Offset, dbuffCollectionsOffset:flatbuffers.Offset, marketGroupsOffset:flatbuffers.Offset, metaGroupsOffset:flatbuffers.Offset, dogmaUnitsOffset:flatbuffers.Offset, dogmaAttributeCategoriesOffset:flatbuffers.Offset, releaseDateOffset:flatbuffers.Offset, fighterAbilitiesOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createSde(builder:flatbuffers.Builder, buildNumber:number, typesOffset:flatbuffers.Offset, groupsOffset:flatbuffers.Offset, categoriesOffset:flatbuffers.Offset, dogmaAttributesOffset:flatbuffers.Offset, dogmaEffectsOffset:flatbuffers.Offset, mutaplasmidsOffset:flatbuffers.Offset, dbuffCollectionsOffset:flatbuffers.Offset, marketGroupsOffset:flatbuffers.Offset, metaGroupsOffset:flatbuffers.Offset, dogmaUnitsOffset:flatbuffers.Offset, dogmaAttributeCategoriesOffset:flatbuffers.Offset, releaseDateOffset:flatbuffers.Offset, fighterAbilitiesOffset:flatbuffers.Offset, majorVersion:number):flatbuffers.Offset {
   Sde.startSde(builder);
   Sde.addBuildNumber(builder, buildNumber);
   Sde.addTypes(builder, typesOffset);
@@ -405,6 +414,7 @@ static createSde(builder:flatbuffers.Builder, buildNumber:number, typesOffset:fl
   Sde.addDogmaAttributeCategories(builder, dogmaAttributeCategoriesOffset);
   Sde.addReleaseDate(builder, releaseDateOffset);
   Sde.addFighterAbilities(builder, fighterAbilitiesOffset);
+  Sde.addMajorVersion(builder, majorVersion);
   return Sde.endSde(builder);
 }
 }

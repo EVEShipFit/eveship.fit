@@ -21,10 +21,16 @@ export class Table<Raw extends Keyed, Record> {
   get(id: number): Record | undefined {
     if (this.#cache.has(id)) return this.#cache.get(id);
 
-    const index = this.#indexOf(id);
-    const record = index === -1 ? undefined : this.#decode(this.#at(index));
+    const raw = this.raw(id);
+    const record = raw === undefined ? undefined : this.#decode(raw);
     this.#cache.set(id, record);
     return record;
+  }
+
+  /** The flatbuffer table itself, undecoded. */
+  raw(id: number): Raw | undefined {
+    const index = this.#indexOf(id);
+    return index === -1 ? undefined : this.#at(index);
   }
 
   /** Every record, in key order. */

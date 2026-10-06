@@ -44,8 +44,23 @@ published():boolean {
   return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
 }
 
+typeIds(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+}
+
+typeIdsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+typeIdsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
 static startGroup(builder:flatbuffers.Builder) {
-  builder.startObject(4);
+  builder.startObject(5);
 }
 
 static addId(builder:flatbuffers.Builder, id:number) {
@@ -64,18 +79,40 @@ static addPublished(builder:flatbuffers.Builder, published:boolean) {
   builder.addFieldInt8(3, +published, +false);
 }
 
+static addTypeIds(builder:flatbuffers.Builder, typeIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, typeIdsOffset, 0);
+}
+
+static createTypeIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+/**
+ * @deprecated This Uint8Array overload will be removed in the future.
+ */
+static createTypeIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createTypeIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startTypeIdsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static endGroup(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 6) // name
   return offset;
 }
 
-static createGroup(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers.Offset, categoryId:number, published:boolean):flatbuffers.Offset {
+static createGroup(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers.Offset, categoryId:number, published:boolean, typeIdsOffset:flatbuffers.Offset):flatbuffers.Offset {
   Group.startGroup(builder);
   Group.addId(builder, id);
   Group.addName(builder, nameOffset);
   Group.addCategoryId(builder, categoryId);
   Group.addPublished(builder, published);
+  Group.addTypeIds(builder, typeIdsOffset);
   return Group.endGroup(builder);
 }
 }

@@ -7,8 +7,8 @@ import type { Character, Fit } from "./types.js";
 /** A character with every published skill at `level`. */
 export function allSkills(sde: Sde, level: number): Character {
   const skills: Record<number, number> = {};
-  for (const type of sde.types()) {
-    if (type.categoryId === Category.Skill && type.published) skills[type.id] = level;
+  for (const type of sde.typesInCategory(Category.Skill)) {
+    if (type.published) skills[type.id] = level;
   }
   return { skills };
 }

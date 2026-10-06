@@ -127,8 +127,23 @@ fighterAbilitiesLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+modeTypeIds(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+}
+
+modeTypeIdsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+modeTypeIdsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
 static startType(builder:flatbuffers.Builder) {
-  builder.startObject(16);
+  builder.startObject(17);
 }
 
 static addId(builder:flatbuffers.Builder, id:number) {
@@ -207,13 +222,34 @@ static startFighterAbilitiesVector(builder:flatbuffers.Builder, numElems:number)
   builder.startVector(20, numElems, 4);
 }
 
+static addModeTypeIds(builder:flatbuffers.Builder, modeTypeIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(16, modeTypeIdsOffset, 0);
+}
+
+static createModeTypeIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+/**
+ * @deprecated This Uint8Array overload will be removed in the future.
+ */
+static createModeTypeIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createModeTypeIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startModeTypeIdsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static endType(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 6) // name
   return offset;
 }
 
-static createType(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers.Offset, groupId:number, categoryId:number, published:boolean, factionId:number, marketGroupId:number, metaGroupId:number, raceId:number, capacity:number|null, mass:number|null, radius:number|null, volume:number|null, dogmaAttributesOffset:flatbuffers.Offset, dogmaEffectsOffset:flatbuffers.Offset, fighterAbilitiesOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createType(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers.Offset, groupId:number, categoryId:number, published:boolean, factionId:number, marketGroupId:number, metaGroupId:number, raceId:number, capacity:number|null, mass:number|null, radius:number|null, volume:number|null, dogmaAttributesOffset:flatbuffers.Offset, dogmaEffectsOffset:flatbuffers.Offset, fighterAbilitiesOffset:flatbuffers.Offset, modeTypeIdsOffset:flatbuffers.Offset):flatbuffers.Offset {
   Type.startType(builder);
   Type.addId(builder, id);
   Type.addName(builder, nameOffset);
@@ -235,6 +271,7 @@ static createType(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers
   Type.addDogmaAttributes(builder, dogmaAttributesOffset);
   Type.addDogmaEffects(builder, dogmaEffectsOffset);
   Type.addFighterAbilities(builder, fighterAbilitiesOffset);
+  Type.addModeTypeIds(builder, modeTypeIdsOffset);
   return Type.endType(builder);
 }
 }

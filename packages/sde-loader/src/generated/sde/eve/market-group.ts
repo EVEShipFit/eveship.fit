@@ -39,8 +39,23 @@ parentGroupId():number {
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
+typeIds(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+}
+
+typeIdsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+typeIdsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
 static startMarketGroup(builder:flatbuffers.Builder) {
-  builder.startObject(3);
+  builder.startObject(4);
 }
 
 static addId(builder:flatbuffers.Builder, id:number) {
@@ -55,17 +70,39 @@ static addParentGroupId(builder:flatbuffers.Builder, parentGroupId:number) {
   builder.addFieldInt32(2, parentGroupId, 0);
 }
 
+static addTypeIds(builder:flatbuffers.Builder, typeIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, typeIdsOffset, 0);
+}
+
+static createTypeIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+/**
+ * @deprecated This Uint8Array overload will be removed in the future.
+ */
+static createTypeIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createTypeIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startTypeIdsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static endMarketGroup(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 6) // name
   return offset;
 }
 
-static createMarketGroup(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers.Offset, parentGroupId:number):flatbuffers.Offset {
+static createMarketGroup(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers.Offset, parentGroupId:number, typeIdsOffset:flatbuffers.Offset):flatbuffers.Offset {
   MarketGroup.startMarketGroup(builder);
   MarketGroup.addId(builder, id);
   MarketGroup.addName(builder, nameOffset);
   MarketGroup.addParentGroupId(builder, parentGroupId);
+  MarketGroup.addTypeIds(builder, typeIdsOffset);
   return MarketGroup.endMarketGroup(builder);
 }
 }

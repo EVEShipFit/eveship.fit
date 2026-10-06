@@ -39,7 +39,7 @@ export interface ShipGroupNode {
 }
 
 /** Ship and structure. */
-const HULL_CATEGORY_IDS: ReadonlySet<number> = new Set([6, 65]);
+export const HULL_CATEGORY_IDS: ReadonlySet<number> = new Set([6, 65]);
 const CHARGE_CATEGORY_ID = 8;
 /** Module, drone, subsystem, structure module and fighter. */
 const FITTABLE_CATEGORY_IDS: ReadonlySet<number> = new Set([7, 18, 32, 66, 87]);
