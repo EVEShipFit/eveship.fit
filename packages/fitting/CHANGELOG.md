@@ -1,5 +1,12 @@
 # @eveshipfit/fitting
 
+## 2.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`25d67af`](https://github.com/EVEShipFit/eveship.fit/commit/25d67af9a312533dd5cfd93bbeac1b117a87c061)]:
+  - @eveshipfit/sde-loader@2.1.0
+
 ## 2.2.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @eveshipfit/sde-loader
 
+## 2.1.0
+
+### Minor Changes
+
+- Add implants and boosters to the fitting wheel, and an Implants tab to the item browser ([#242](https://github.com/EVEShipFit/eveship.fit/pull/242))
+
 ## 2.0.0
 
 ### Major Changes
