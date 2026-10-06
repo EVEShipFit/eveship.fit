@@ -1,13 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { StasisWebifier } from "./StasisWebifier";
+import { StasisGrappler, StasisWebifier } from "./StasisWebifier";
 
 const types = {
   Rifter: 587,
   "Stasis Webifier II": 527,
   Keepstar: 35834,
   "Standup Stasis Webifier I": 35943,
+  "Heavy Stasis Grappler II": 41057,
 };
 
 const fitted = (typeId: number, slot: "high" | "medium", chargeTypeId?: number, shipTypeId = types.Rifter) => ({
@@ -56,5 +57,15 @@ export const Structure: Story = {
     await expect(canvas.getByText("Range within 200 km")).toBeVisible();
     await expect(canvas.queryByText(/Optimal range within/)).toBeNull();
     await expect(canvas.getByText("Reduces target ship's velocity by 70%")).toBeVisible();
+  },
+};
+
+export const Grappler: Story = {
+  ...fitted(types["Heavy Stasis Grappler II"], "medium"),
+  render: (args) => <StasisGrappler {...args} />,
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 11 km")).toBeVisible();
+    await expect(canvas.getByText("Optimal range within 1,000 m")).toBeVisible();
+    await expect(canvas.queryByText(/Reduces target ship's velocity/)).toBeNull();
   },
 };

@@ -16,6 +16,7 @@ const types = {
   Keepstar: 35834,
   "Standup Arcing Vorton Projector I": 35928,
   "Standup Point Defense Battery I": 35926,
+  "Standup Flak Round I": 63195,
 };
 
 const doomsday = (typeId: number, shipTypeId = types.Avatar) => ({
@@ -119,11 +120,20 @@ export const PointDefenseBattery: Story = {
   parameters: {
     fit: {
       ship: { type_id: types.Keepstar },
-      items: [{ type_id: types["Standup Point Defense Battery I"], slot: { type: "high", index: 0 }, state: "active" }],
+      items: [
+        {
+          type_id: types["Standup Point Defense Battery I"],
+          slot: { type: "high", index: 0 },
+          state: "active",
+          charge: { type_id: types["Standup Flak Round I"] },
+        },
+      ],
     },
   },
   render: (args) => <PointDefense {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 2,500 m")).toBeVisible();
+    await expect(canvas.getByText("Damage caused")).toBeVisible();
+    await expect(canvas.getAllByText("250 HP")).toHaveLength(4);
   },
 };

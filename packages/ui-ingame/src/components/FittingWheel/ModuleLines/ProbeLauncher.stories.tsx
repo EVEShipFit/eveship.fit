@@ -62,7 +62,7 @@ export const Survey: Story = {
   ...fitted(types["Survey Probe Launcher II"], "high", types["Discovery Survey Probe I"]),
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Damage Per Second 0.0")).toBeVisible();
-    await expect(canvas.getByText("Base Sensor Strength: 0 points")).toBeVisible();
+    await expect(canvas.queryByText(/Base Sensor Strength/)).toBeNull();
     await expect(canvas.queryByText(/Max flight range/)).toBeNull();
   },
 };

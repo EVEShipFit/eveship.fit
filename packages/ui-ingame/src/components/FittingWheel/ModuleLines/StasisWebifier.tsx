@@ -18,3 +18,7 @@ export function StasisWebifier({ itemRef }: LineProps) {
     </>
   );
 }
+
+export function StasisGrappler({ itemRef }: LineProps) {
+  return <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />;
+}
