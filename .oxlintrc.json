@@ -21,7 +21,7 @@
     "import/no-unassigned-import": [
       "warn",
       {
-        "allow": ["**/*.css"]
+        "allow": ["**/*.css", "@fontsource-variable/*"]
       }
     ],
     "no-unused-vars": [

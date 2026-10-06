@@ -32,25 +32,16 @@ export interface Data {
 /** Everything the fitting window needs; null when any of it failed to load. */
 export async function loadData(): Promise<Data | null> {
   try {
-    const esi = new Esi({
-      userAgent: `EVEShip.fit/${import.meta.env.EVESHIPFIT_VERSION} (info@eveship.fit; +https://eveship.fit)`,
-    });
-    const sdeLoad = loadSde({ url: sdeUrl });
-    const engineLoad = sdeLoad.then((loaded) => createEngine(loaded, { wasm: wasmUrl, esi }));
+    const esi = createEsi();
+    const game = loadGame(esi);
     const localFits = new LocalFits();
     moveV1Fits(localFits).catch(console.error);
-    const characters = loadCharacters(esi, engineLoad, localFits);
+    const characters = loadCharacters(esi, game.engine, localFits);
     const login = finishLogin(characters).then((result) => {
       characters?.loadAll();
       return result;
     });
-    const [sde, engine, images, texts] = await Promise.all([
-      sdeLoad,
-      engineLoad,
-      // vite.config.ts serves the images at /images/.
-      loadImages({ url: imagesUrl }, { baseUrl: "/images/" }),
-      loadTexts({ url: textsUrl }),
-    ]);
+    const [sde, engine, images, texts] = await Promise.all([game.sde, game.engine, game.images, game.texts]);
     const [linked, loggedIn] = await Promise.all([loadLinkedFit(engine), login]);
     const fit = linked.fit ?? keptFit(engine, loggedIn.fit) ?? engine.createFit({ ship: RIFTER });
     keepInUrl(engine, fit, linked.error !== undefined);
@@ -71,6 +62,24 @@ export async function loadData(): Promise<Data | null> {
     console.error(error);
     return null;
   }
+}
+
+export function createEsi(): Esi {
+  return new Esi({
+    userAgent: `EVEShip.fit/${import.meta.env.EVESHIPFIT_VERSION} (info@eveship.fit; +https://eveship.fit)`,
+  });
+}
+
+/** The SDE, the engine, the images and the texts, each loading. */
+export function loadGame(esi: Esi) {
+  const sde = loadSde({ url: sdeUrl });
+  return {
+    sde,
+    engine: sde.then((loaded) => createEngine(loaded, { wasm: wasmUrl, esi })),
+    // vite.config.ts serves the images at /images/.
+    images: loadImages({ url: imagesUrl }, { baseUrl: "/images/" }),
+    texts: loadTexts({ url: textsUrl }),
+  };
 }
 
 /** Undefined without a client ID, or where the browser blocks storage. */

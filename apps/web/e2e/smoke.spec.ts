@@ -130,3 +130,25 @@ test("fits saved by v1 move into the browser fittings", async ({ page }) => {
     .poll(() => page.evaluate(() => [localStorage.getItem("fits"), localStorage.getItem("fits-v1")]))
     .toEqual([null, JSON.stringify(v1)]);
 });
+
+test("the OG image shows the linked fit in preview", async ({ page }) => {
+  await page.setViewportSize({ width: 1200, height: 630 });
+  // v3 link of "Link Rifter" with a 200mm AutoCannon I.
+  await page.goto(
+    "/og?fit=v3:H4sIAAAAAAAAAyvOyCzQMbUw1/HJzMtWCMpMK0kt0uHKzU8pzUnV8chMz9Ax1DGyMDfWcUwuySxL1TG0MEWRNcKQTSnKz0vVMTKxMNMx1DHgSk4sSs8HSegYGhhwAQBLJK6dbwAAAA==",
+  );
+  await expect(page.locator("body")).toHaveAttribute("data-ready", "true", { timeout: 30_000 });
+  await expect(page.getByRole("region", { name: "Statistics" })).toBeVisible();
+  await expect(page.getByRole("group", { name: "Simulation History" })).toHaveCount(0);
+  await expect(page.getByText("Link Rifter")).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Fitting", exact: true }).getByRole("button")).toHaveCount(0);
+  await expect(page.locator('[data-state="active"]')).not.toHaveCount(0);
+  const window = await page.getByRole("region", { name: "Fitting Window" }).boundingBox();
+  expect(window!.height).toBeLessThanOrEqual(630);
+});
+
+test("the OG image of a broken link says so", async ({ page }) => {
+  await page.goto("/og?fit=v3:broken");
+  await expect(page.locator("body")).toHaveAttribute("data-ready", "error", { timeout: 30_000 });
+  await expect(page.getByText("This fit could not load.")).toBeVisible();
+});

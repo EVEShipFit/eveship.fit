@@ -36,6 +36,12 @@ export default defineConfig({
   },
   build: {
     target: "es2024",
+    rolldownOptions: {
+      input: {
+        main: fileURLToPath(new URL("index.html", import.meta.url)),
+        og: fileURLToPath(new URL("og.html", import.meta.url)),
+      },
+    },
   },
   server: {
     port: 5173,

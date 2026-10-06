@@ -59,10 +59,12 @@ export interface FittingWindowProps {
   browser?: ReactNode;
   /** Like `ShipStatistics`; slid out by the Statistics button, which is only there with it. */
   statistics?: ReactNode;
+  /** Shows the fit without its name, warnings, history or anything to change it. */
+  preview?: boolean;
 }
 
 /** EVE's fitting window around the `FittingWheel`. */
-export function FittingWindow({ label = "Fitting Window", browser, statistics }: FittingWindowProps) {
+export function FittingWindow({ label = "Fitting Window", browser, statistics, preview = false }: FittingWindowProps) {
   const [browserOpen, setBrowserOpen] = useState(true);
   const [statisticsOpen, setStatisticsOpen] = useState(true);
   const browserId = useId();
@@ -75,7 +77,7 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
   const fighterBay = useId();
 
   return (
-    <ManageFightersContext value={fighters ? () => popover(fighterBay)?.showPopover() : undefined}>
+    <ManageFightersContext value={fighters && !preview ? () => popover(fighterBay)?.showPopover() : undefined}>
       <section
         className={styles.window}
         aria-label={label}
@@ -89,11 +91,15 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
         )}
         <div className={styles.frame}>
           <div className={styles.wheel}>
-            <FittingWheel />
+            <FittingWheel readOnly={preview} credit={preview} />
           </div>
-          <FitName />
-          <Violations />
-          {browser !== undefined && (
+          {!preview && (
+            <>
+              <FitName />
+              <Violations />
+            </>
+          )}
+          {!preview && browser !== undefined && (
             <div className={styles.tools}>
               <Tooltip label="Item Browser">
                 <button
@@ -109,7 +115,7 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
               </Tooltip>
             </div>
           )}
-          {statistics !== undefined && (
+          {!preview && statistics !== undefined && (
             <div className={styles.panels}>
               <Tooltip label="Statistics">
                 <button
@@ -127,20 +133,22 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics }:
           )}
           <div className={styles.bays}>
             {structure ? (
-              <Bay bay="cargo" icon="ammo-hold" label="Ammo Hold" unlimited />
+              <Bay bay="cargo" icon="ammo-hold" label="Ammo Hold" unlimited readOnly={preview} />
             ) : (
-              <Bay bay="cargo" icon="cargo" label="Cargo Hold" />
+              <Bay bay="cargo" icon="cargo" label="Cargo Hold" readOnly={preview} />
             )}
             {fighters ? (
-              <Bay id={fighterBay} bay="fighterBay" icon="fighter-bay" label="Fighter Bay" />
+              <Bay id={fighterBay} bay="fighterBay" icon="fighter-bay" label="Fighter Bay" readOnly={preview} />
             ) : (
-              <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" />
+              <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" readOnly={preview} />
             )}
           </div>
-          {structure && <ServiceRack />}
-          <div className={styles.history}>
-            <SimulationHistory tooltipTitle={structure} />
-          </div>
+          {structure && <ServiceRack readOnly={preview} />}
+          {!preview && (
+            <div className={styles.history}>
+              <SimulationHistory tooltipTitle={structure} />
+            </div>
+          )}
           <div className={styles.resources}>
             <Resource title="CPU" free="cpuFree" output="cpuOutput" />
             <Resource title="Power Grid" free="powerFree" output="powerOutput" />
@@ -302,13 +310,24 @@ interface BayProps {
   label: string;
   unlimited?: boolean;
   id?: string;
+  readOnly?: boolean;
 }
 
-function Bay({ bay, icon, label, unlimited = false, id: givenId }: BayProps) {
+function Bay({ bay, icon, label, unlimited = false, id: givenId, readOnly = false }: BayProps) {
   const { used, total } = useBayUsage(bay);
   const ownId = useId();
   const id = givenId ?? ownId;
   const drop = useBayDrop(bay, () => popover(id)?.showPopover());
+  const over = (!unlimited && used > total) || undefined;
+
+  if (readOnly) {
+    return (
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- A <fieldset> is for form controls.
+      <div className={styles.bay} role="group" aria-label={label} data-over={over}>
+        <BayUsage icon={icon} used={used} total={total} />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.bayAnchor} style={{ "--bay-anchor": `--bay-${id.replace(/[^\w-]/g, "")}` } as CSSProperties}>
@@ -319,7 +338,7 @@ function Bay({ bay, icon, label, unlimited = false, id: givenId }: BayProps) {
           total={total}
           aria-label={label}
           popoverTarget={id}
-          data-over={(!unlimited && used > total) || undefined}
+          data-over={over}
           {...drop}
         />
       </Tooltip>
@@ -337,12 +356,20 @@ interface BayButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 function BayButton({ icon, used, total, ...props }: BayButtonProps) {
   return (
     <button type="button" className={styles.bay} {...props}>
+      <BayUsage icon={icon} used={used} total={total} />
+    </button>
+  );
+}
+
+function BayUsage({ icon, used, total }: { icon: IconName; used: number; total: number }) {
+  return (
+    <>
       <Icon name={icon} />
       <span className={styles.used}>{oneDecimal.format(used)}</span>
       <span className={styles.slash}>/</span>
       <span className={styles.total}>{oneDecimal.format(total)}</span>
       <span className={styles.unit}>m3</span>
-    </button>
+    </>
   );
 }
 
@@ -411,7 +438,7 @@ function Resource({ title, free, output }: { title: string; free: string; output
   );
 }
 
-function ServiceRack() {
+function ServiceRack({ readOnly }: { readOnly: boolean }) {
   const slots = useSlots("service");
   const { total } = useRackUsage("service");
 
@@ -423,7 +450,13 @@ function ServiceRack() {
       aria-label="Structure Services"
     >
       {Array.from({ length: SERVICE_SLOTS }, (_, index) => (
-        <FittingServiceSlot key={index} index={index} available={index < total} content={slots[index]} />
+        <FittingServiceSlot
+          key={index}
+          index={index}
+          available={index < total}
+          content={slots[index]}
+          readOnly={readOnly}
+        />
       ))}
     </div>
   );
@@ -433,16 +466,19 @@ function FittingServiceSlot({
   index,
   available,
   content,
+  readOnly,
 }: {
   index: number;
   available: boolean;
   content: SlotContent | undefined;
+  readOnly: boolean;
 }) {
   const { chargeTypeId, chargeable, activatable, onRemoveCharge, tooltip, ...slot } = useFittingSlot(
     "service",
     index,
     content,
     available,
+    readOnly,
   );
   return <ServiceSlot {...slot} />;
 }

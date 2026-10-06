@@ -23,6 +23,8 @@ export interface ServiceSlotProps extends HTMLAttributes<HTMLDivElement> {
   label?: string;
   onUnfit?: () => void;
   onTogglePower?: () => void;
+  /** False leaves out the actions shown on hover. */
+  actions?: boolean;
 }
 
 /** EVE's square slot of a structure service module, below the wheel. */
@@ -38,6 +40,7 @@ export function ServiceSlot({
   label,
   onUnfit,
   onTogglePower,
+  actions: showActions = true,
   className,
   ...props
 }: ServiceSlotProps) {
@@ -45,7 +48,7 @@ export function ServiceSlot({
   const fitted = typeId !== undefined;
   const frame =
     fitted && !preview ? "classes/fitting/slotpassive_structure" : "classes/fitting/stationserviceslotframe";
-  const actions = fitted && !preview;
+  const actions = showActions && fitted && !preview;
 
   return (
     <div

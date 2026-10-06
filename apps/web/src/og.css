@@ -1,0 +1,22 @@
+html,
+body {
+  margin: 0;
+}
+
+body {
+  background: radial-gradient(ellipse 80% 60% at 50% 45%, rgb(40 70 90 / 22%), transparent 70%), var(--esf-bg);
+  color: var(--esf-text);
+  font-family: var(--esf-font);
+  font-size: var(--esf-font-size);
+  height: 630px;
+  overflow: hidden;
+  width: 1200px;
+}
+
+#root {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  position: relative;
+}

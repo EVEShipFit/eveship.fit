@@ -1,0 +1,12 @@
+/* The window and its statistics are 972 by 694 at 100%. */
+.window {
+  --esf-scale: 0.88;
+
+  background: rgb(22 25 28 / 70%);
+  border: 1px solid rgb(255 255 255 / 7%);
+  border-radius: 8px;
+}
+
+.broken {
+  font-size: 24px;
+}
