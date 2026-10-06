@@ -1,5 +1,57 @@
 # @eveshipfit/ui-ingame
 
+## 1.6.0
+
+### Minor Changes
+
+- Show the stats of warp disruption, electronic warfare and sensor modules in their tooltip ([#219](https://github.com/EVEShipFit/eveship.fit/pull/219))
+
+- Show the stats of drones and fighters in their tooltip ([#229](https://github.com/EVEShipFit/eveship.fit/pull/229))
+
+- Show the stats of tracking computers, tractor beams, smartbombs and more remote modules in their tooltip ([#217](https://github.com/EVEShipFit/eveship.fit/pull/217))
+
+- Add `preview` to `FittingWindow`, which shows the fit without its name, warnings, history or anything to change it, and `actions` to `ServiceSlot` ([#237](https://github.com/EVEShipFit/eveship.fit/pull/237))
+
+- Show the stats of mining, command burst, scanning, cloaking and compression modules in their tooltip ([#220](https://github.com/EVEShipFit/eveship.fit/pull/220))
+
+- Show the stats of more modules in their tooltip ([#215](https://github.com/EVEShipFit/eveship.fit/pull/215))
+
+- Show the stats of remote repairers, hull repairers, remote sensor boosters and remote tracking computers in their tooltip ([#216](https://github.com/EVEShipFit/eveship.fit/pull/216))
+
+### Patch Changes
+
+- Show how many charges are loaded in the tooltip of a module ([#213](https://github.com/EVEShipFit/eveship.fit/pull/213))
+
+- Show the stats of normal cloaks and Emergency Hull Energizers in their tooltip ([#227](https://github.com/EVEShipFit/eveship.fit/pull/227))
+
+- Drag items out of the cargo, drone bay and fighter bay onto the ship ([#223](https://github.com/EVEShipFit/eveship.fit/pull/223))
+
+- Match the tooltips of drones, fighters, subsystems, charges and a few more modules to the game ([#236](https://github.com/EVEShipFit/eveship.fit/pull/236))
+
+- Start up faster: find skills and modes without reading every type, and render hidden item browser tabs after the rest ([#240](https://github.com/EVEShipFit/eveship.fit/pull/240))
+
+- Show the fit sooner: find charges by their groups, and fill the item browser after the rest ([#241](https://github.com/EVEShipFit/eveship.fit/pull/241))
+
+- Sort fits by name in Hulls & Fits, and keep the current hull under the fit filters ([#234](https://github.com/EVEShipFit/eveship.fit/pull/234))
+
+- Show the stats of doomsdays, breacher pod launchers, vorton projectors and more in their tooltip ([#228](https://github.com/EVEShipFit/eveship.fit/pull/228))
+
+- Match the tooltips of special launchers, grapplers, point defense and modulated miners to the game ([#235](https://github.com/EVEShipFit/eveship.fit/pull/235))
+
+- Drag a squadron to another fighter tube, swapping it with what is there ([#225](https://github.com/EVEShipFit/eveship.fit/pull/225))
+
+- Show ranges below 10 km in meters in the tooltip of a module ([#218](https://github.com/EVEShipFit/eveship.fit/pull/218))
+
+- Read the range of a module from its effect in its tooltip ([#238](https://github.com/EVEShipFit/eveship.fit/pull/238))
+
+- Show the stats of structure modules in their tooltip ([#231](https://github.com/EVEShipFit/eveship.fit/pull/231))
+
+- Show module tooltips more like the game does ([#230](https://github.com/EVEShipFit/eveship.fit/pull/230))
+
+- Show an "Open on eveship.fit" link on the fitting wheel when not on eveship.fit ([#224](https://github.com/EVEShipFit/eveship.fit/pull/224))
+- Updated dependencies [[`a9b0d40`](https://github.com/EVEShipFit/eveship.fit/commit/a9b0d40b7c1d7eaa730f3be8c316799b9e7ee872)]:
+  - @eveshipfit/react-hooks@2.1.1
+
 ## 1.5.0
 
 ### Minor Changes
