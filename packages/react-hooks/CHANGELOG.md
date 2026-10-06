@@ -1,5 +1,14 @@
 # @eveshipfit/react-hooks
 
+## 2.1.1
+
+### Patch Changes
+
+- Refresh a character's login in one tab at a time ([#233](https://github.com/EVEShipFit/eveship.fit/pull/233))
+- Updated dependencies [[`bb4a838`](https://github.com/EVEShipFit/eveship.fit/commit/bb4a838cfac6ae9273a2f7f83258b64fcd0805ae), [`e0a09af`](https://github.com/EVEShipFit/eveship.fit/commit/e0a09af187df7daf47885e2594b185d304d1bbf8), [`cda647e`](https://github.com/EVEShipFit/eveship.fit/commit/cda647e16b9566cf7e2e838facca03b798197cb0), [`0da3a91`](https://github.com/EVEShipFit/eveship.fit/commit/0da3a9124f75c7fefafbb6beaf5c16c1d823b19b), [`e0a09af`](https://github.com/EVEShipFit/eveship.fit/commit/e0a09af187df7daf47885e2594b185d304d1bbf8), [`f2d20f6`](https://github.com/EVEShipFit/eveship.fit/commit/f2d20f6fb6c995f69f01494395535627d30d3b28)]:
+  - @eveshipfit/sde-loader@2.0.0
+  - @eveshipfit/fitting@2.2.0
+
 ## 2.1.0
 
 ### Minor Changes

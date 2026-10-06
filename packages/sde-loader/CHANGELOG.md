@@ -1,5 +1,15 @@
 # @eveshipfit/sde-loader
 
+## 2.0.0
+
+### Major Changes
+
+- Require `@eveshipfit/sde` 12 or newer, and add `typesInGroup`, `typesInCategory`, `typesInMarketGroup` and `SdeType.modeTypeIds` ([#240](https://github.com/EVEShipFit/eveship.fit/pull/240))
+
+### Minor Changes
+
+- Show the stats of drones and fighters in their tooltip ([#229](https://github.com/EVEShipFit/eveship.fit/pull/229))
+
 ## 1.4.0
 
 ### Minor Changes

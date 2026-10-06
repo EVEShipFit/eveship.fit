@@ -1,5 +1,21 @@
 # @eveshipfit/fitting
 
+## 2.2.0
+
+### Minor Changes
+
+- Start up faster: find skills and modes without reading every type, and render hidden item browser tabs after the rest ([#240](https://github.com/EVEShipFit/eveship.fit/pull/240))
+
+- Accept a promise for the `wasm` option of `createEngine` ([#239](https://github.com/EVEShipFit/eveship.fit/pull/239))
+
+### Patch Changes
+
+- Show the fit sooner: find charges by their groups, and fill the item browser after the rest ([#241](https://github.com/EVEShipFit/eveship.fit/pull/241))
+
+- Drag a squadron to another fighter tube, swapping it with what is there ([#225](https://github.com/EVEShipFit/eveship.fit/pull/225))
+- Updated dependencies [[`bb4a838`](https://github.com/EVEShipFit/eveship.fit/commit/bb4a838cfac6ae9273a2f7f83258b64fcd0805ae), [`e0a09af`](https://github.com/EVEShipFit/eveship.fit/commit/e0a09af187df7daf47885e2594b185d304d1bbf8)]:
+  - @eveshipfit/sde-loader@2.0.0
+
 ## 2.1.0
 
 ### Minor Changes
