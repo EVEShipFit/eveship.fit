@@ -91,7 +91,7 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics, p
         )}
         <div className={styles.frame}>
           <div className={styles.wheel}>
-            <FittingWheel readOnly={preview} />
+            <FittingWheel readOnly={preview} credit={preview} />
           </div>
           {!preview && (
             <>

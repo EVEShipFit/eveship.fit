@@ -103,7 +103,6 @@ const data = loadOg();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <span className={styles.brand}>EVEShip.fit</span>
     <Suspense>
       <Og data={data} />
     </Suspense>
