@@ -17,7 +17,7 @@ export function ProbeLauncher({ itemRef }: LineProps) {
   return (
     <>
       <Attribute name="launcherHardPointModifier">Damage Per Second {dps.text}</Attribute>
-      {loaded && (
+      {!!strength.value && (
         <Attribute name="baseSensorStrength">
           {displayName}: {strength.text}
         </Attribute>

@@ -15,7 +15,7 @@ import { BurstJammer, Ecm, StructureEcm } from "./Ecm";
 import { EnergyNeutralizer, EnergyNosferatu, StructureEnergyNeutralizer } from "./EnergyWarfare";
 import { MaxVelocity } from "./MaxVelocity";
 import { Mining } from "./Mining";
-import { Missile } from "./Missile";
+import { Launcher, Missile } from "./Missile";
 import { ProbeLauncher } from "./ProbeLauncher";
 import {
   AncillaryRemoteArmorRepairer,
@@ -33,7 +33,7 @@ import { RemoteSensorBooster, SensorBooster, StructureSensorDampener } from "./S
 import { CargoScanner, ShipScanner } from "./ShipScanner";
 import { SignatureSuppressor, StructureTargetPainter, TargetPainter } from "./SignatureRadius";
 import { Doomsday, PointDefense, Smartbomb } from "./Smartbomb";
-import { StasisWebifier } from "./StasisWebifier";
+import { StasisGrappler, StasisWebifier } from "./StasisWebifier";
 import { RemoteTrackingComputer, TrackingComputer } from "./TrackingComputer";
 import { TractorBeam } from "./TractorBeam";
 import { Turret, VortonProjector } from "./Turret";
@@ -132,10 +132,15 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
 /** Tooltip lines of a group, in place of those from its effects. */
 const groupLines = new Map<string, ComponentType<LineProps>[]>([
   ["Breacher Pod Launchers", [BreacherPodLauncher]],
+  ["Festival Launcher", [Launcher]],
   ["Flex Armor Hardener", []],
   ["Flex Shield Hardener", []],
   ["Gang Coordinator", [CommandBonus]],
+  ["Interdiction Sphere Launcher", [Launcher]],
+  ["Missile Launcher Bomb", [Launcher]],
+  ["Missile Launcher Defender", [Launcher]],
   ["Scan Probe Launcher", [ProbeLauncher]],
+  ["Stasis Grappler", [StasisGrappler]],
   ["Survey Probe Launcher", [ProbeLauncher]],
 ]);
 

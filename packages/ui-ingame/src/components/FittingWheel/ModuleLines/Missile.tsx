@@ -23,3 +23,15 @@ export function Missile({ itemRef }: LineProps) {
     </>
   );
 }
+
+export function Launcher({ itemRef }: LineProps) {
+  const flightRange = useFlightRange(itemRef);
+
+  return (
+    <>
+      {flightRange !== undefined && <Attribute name="maxRange">Range within {flightRange}</Attribute>}
+      <DamagePerSecond itemRef={itemRef} icon="launcherHardPointModifier" />
+      <Damage itemRef={itemRef} />
+    </>
+  );
+}
