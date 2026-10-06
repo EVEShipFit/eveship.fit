@@ -14,6 +14,11 @@ import type { LocalFits } from "./local-fits.js";
 /** The part of the Web Storage API this needs. */
 export type CharacterStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
+/** The part of the Web Locks API this needs. */
+export interface CharacterLocks {
+  request(name: string, task: () => Promise<void>): Promise<void>;
+}
+
 export interface EsiCharactersOptions {
   esi: Esi;
   sso: Sso;
@@ -25,6 +30,8 @@ export interface EsiCharactersOptions {
   storage?: CharacterStorage;
   /** Where a login in progress lives; `sessionStorage` when left out. */
   session?: CharacterStorage;
+  /** Keeps tabs from refreshing a login at once; `navigator.locks` when left out. */
+  locks?: CharacterLocks;
 }
 
 export type EsiCharacterStatus = "loading" | "ready" | "expired" | "failed";
@@ -56,6 +63,7 @@ const FITTINGS_SCOPE = "esi-fittings.read_fittings.v1";
 const SCOPES = ["esi-skills.read_skills.v1", "esi-skills.read_skillqueue.v1", FITTINGS_SCOPE];
 const KEY = "eveshipfit.characters";
 const LOGIN_KEY = "eveshipfit.login";
+const LOCK_PREFIX = "eveshipfit.esi.";
 
 /** Characters logged in through EVE's login, kept in the browser. */
 export class EsiCharacters {
@@ -65,19 +73,29 @@ export class EsiCharacters {
   readonly #localFits: LocalFits;
   readonly #storage: CharacterStorage;
   readonly #session: CharacterStorage;
+  readonly #locks: CharacterLocks | undefined;
   readonly #listeners = new Set<() => void>();
   readonly #status = new Map<number, EsiCharacterStatus>();
   readonly #loaded = new Set<number>();
   #stored: readonly Stored[];
   #list: readonly EsiCharacter[] = [];
 
-  constructor({ esi, sso, engine, localFits, storage = localStorage, session = sessionStorage }: EsiCharactersOptions) {
+  constructor({
+    esi,
+    sso,
+    engine,
+    localFits,
+    storage = localStorage,
+    session = sessionStorage,
+    locks = "locks" in navigator ? navigator.locks : undefined,
+  }: EsiCharactersOptions) {
     this.#esi = esi;
     this.#sso = sso;
     this.#engine = engine;
     this.#localFits = localFits;
     this.#storage = storage;
     this.#session = session;
+    this.#locks = locks;
     this.#stored = this.#read();
     this.#publish();
     if (typeof window !== "undefined") {
@@ -142,7 +160,17 @@ export class EsiCharacters {
     const refreshToken = this.#stored.find((character) => character.id === id)?.refreshToken;
     if (refreshToken === undefined || this.#status.get(id) === "loading") return;
     this.#loaded.add(id);
-    void this.#refresh(id, refreshToken);
+    this.#setStatus(id, "loading");
+    const task = async () => {
+      const latest = this.#read().find((character) => character.id === id)?.refreshToken;
+      if (latest === undefined) {
+        this.#status.delete(id);
+        this.#publish();
+        return;
+      }
+      await this.#refresh(id, latest);
+    };
+    void (this.#locks === undefined ? task() : this.#locks.request(`${LOCK_PREFIX}${id}`, task));
   }
 
   /** Forgets the character and its fittings, and revokes its login at EVE. */
@@ -155,7 +183,6 @@ export class EsiCharacters {
   }
 
   async #refresh(id: number, refreshToken: string): Promise<void> {
-    this.#setStatus(id, "loading");
     let login: SsoLogin;
     try {
       login = await this.#sso.refresh(refreshToken);

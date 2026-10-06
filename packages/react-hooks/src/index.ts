@@ -55,6 +55,7 @@ export { ImagesProvider, type ImagesProviderProps } from "./images.js";
 export { TextsProvider, type TextsProviderProps } from "./texts.js";
 export {
   EsiCharacters,
+  type CharacterLocks,
   type CharacterStorage,
   type EsiCharacter,
   type EsiCharactersOptions,

@@ -2,7 +2,7 @@ import { SsoError, type CharacterFitting, type Esi, type Sso, type SsoLogin } fr
 import type { Engine, Fit } from "@eveshipfit/fitting";
 import { afterEach, beforeEach, expect, test, vi, type Mock } from "vitest";
 
-import { EsiCharacters, type CharacterStorage, type LocalFits } from "../src/index.js";
+import { EsiCharacters, type CharacterLocks, type CharacterStorage, type LocalFits } from "../src/index.js";
 
 const PILOT = 90000001;
 const RIFTER = 587;
@@ -16,6 +16,20 @@ function memoryStorage(): CharacterStorage {
     getItem: (key) => items.get(key) ?? null,
     setItem: (key, value) => void items.set(key, value),
     removeItem: (key) => void items.delete(key),
+  };
+}
+
+function memoryLocks(): CharacterLocks {
+  const held = new Map<string, Promise<void>>();
+  return {
+    request: (name, task) => {
+      const run = (held.get(name) ?? Promise.resolve()).then(task);
+      held.set(
+        name,
+        run.catch(() => {}),
+      );
+      return run;
+    },
   };
 }
 
@@ -42,6 +56,7 @@ let engine: { loadEsiFitting: Mock<Engine["loadEsiFitting"]> };
 let localFits: { setCharacterFits: Mock<LocalFits["setCharacterFits"]> };
 let storage: CharacterStorage;
 let session: CharacterStorage;
+let locks: CharacterLocks;
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date("2026-10-03T12:00:00Z") });
@@ -73,6 +88,7 @@ beforeEach(() => {
   localFits = { setCharacterFits: vi.fn<LocalFits["setCharacterFits"]>(async () => {}) };
   storage = memoryStorage();
   session = memoryStorage();
+  locks = memoryLocks();
 });
 
 afterEach(() => {
@@ -87,6 +103,7 @@ const characters = () =>
     localFits: localFits as unknown as LocalFits,
     storage,
     session,
+    locks,
   });
 
 function fitting(id: number, name: string): CharacterFitting {
@@ -226,14 +243,16 @@ test("loading all skips who already loaded; a refresh loads again", async () => 
   expect(esi.characterSkills).toHaveBeenCalledTimes(2);
 });
 
-test("a refresh token another tab used first is swapped for the one it stored", async () => {
+test("a refresh token another tab used meanwhile is swapped for the one it stored", async () => {
   await loggedIn();
   const store = characters();
-  const otherTab = characters();
-  sso.refresh.mockResolvedValueOnce(login("other"));
-  otherTab.load(PILOT);
-  await vi.runAllTimersAsync();
-  sso.refresh.mockRejectedValueOnce(new SsoError(400, "invalid_grant", undefined));
+  sso.refresh.mockImplementationOnce(async () => {
+    storage.setItem(
+      "eveshipfit.characters",
+      JSON.stringify([{ id: PILOT, name: "Pilot", refreshToken: "other", scopes: SCOPES }]),
+    );
+    throw new SsoError(400, "invalid_grant", undefined);
+  });
 
   store.load(PILOT);
   await vi.runAllTimersAsync();
@@ -318,4 +337,18 @@ test("a character removed while it loads stays removed", async () => {
   expect(store.list()).toEqual([]);
   expect(characters().list()).toEqual([]);
   expect(localFits.setCharacterFits).toHaveBeenLastCalledWith(PILOT, new Map());
+});
+
+test("two tabs loading at once refresh the token one after the other", async () => {
+  await loggedIn();
+  sso.refresh.mockResolvedValueOnce(login("first")).mockResolvedValueOnce(login("second"));
+  const store = characters();
+  const otherTab = characters();
+
+  store.load(PILOT);
+  otherTab.load(PILOT);
+  await vi.runAllTimersAsync();
+
+  expect(sso.refresh.mock.calls).toEqual([["refresh"], ["first"]]);
+  expect(otherTab.list()[0]!.status).toBe("ready");
 });
