@@ -19,6 +19,7 @@ import {
   useAttributeTooltip,
   useBayContents,
   useBayUsage,
+  useBoosters,
   useCanFit,
   useCharacters,
   useChargedModules,
@@ -37,6 +38,9 @@ import {
   useHardpoints,
   useHullTree,
   useImages,
+  useImplants,
+  useImplantSearch,
+  useImplantTree,
   useLocalFits,
   useMarketTree,
   useMissingSkills,
@@ -522,6 +526,61 @@ test("the hulls keep only the groups and races of what the filter keeps", () => 
 });
 
 const onlyRepublicFleet = (type: SdeType) => type.name.startsWith("Republic Fleet Large Shield Extender");
+
+test("the implant slots are numbered 1 to 10 and follow the preview", () => {
+  const byName = (name: string) => engine.sde.typeByName(name)!.id;
+  const fit = engine.createFit({
+    ship: { type_id: RIFTER },
+    items: [{ type_id: byName("High-grade Snake Alpha"), slot: { type: "implant", index: 1 }, state: "active" }],
+  });
+  const { result } = render(() => ({ preview: usePreview(), implants: useImplants() }), { fit });
+
+  expect(result.current.implants.map((slot) => slot.index)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  expect(result.current.implants[0]).toMatchObject({ ref: 0, preview: false });
+
+  act(() => result.current.preview.show((draft) => void draft.fit(byName("High-grade Snake Beta"))));
+  expect(result.current.implants[1]).toMatchObject({ ref: undefined, preview: true });
+});
+
+test("the boosters are listed by slot number", () => {
+  const byName = (name: string) => engine.sde.typeByName(name)!.id;
+  const fit = engine.createFit({
+    ship: { type_id: RIFTER },
+    items: [
+      { type_id: byName("Synth Exile Booster"), slot: { type: "booster", index: 3 }, state: "active" },
+      { type_id: byName("Standard Blue Pill Booster"), slot: { type: "booster", index: 1 }, state: "active" },
+    ],
+  });
+  const { result } = render(() => ({ preview: usePreview(), boosters: useBoosters() }), { fit });
+
+  expect(result.current.boosters.map((slot) => [slot.index, slot.ref])).toEqual([
+    [1, 1],
+    [3, 0],
+  ]);
+
+  act(() => result.current.preview.show((draft) => void draft.fit(byName("Synth Drop Booster"))));
+  expect(result.current.boosters.map((slot) => [slot.index, slot.preview])).toEqual([
+    [1, false],
+    [2, true],
+    [3, false],
+  ]);
+});
+
+test("the implants keep only the groups of what the filter keeps", () => {
+  const { result } = render(() => useImplantTree(onlyBluePill));
+
+  expect(result.current.map((node) => node.group.name)).toEqual(["Booster"]);
+  expect(allMarketTypes(result.current).map((type) => type.name)).toEqual(["Standard Blue Pill Booster"]);
+});
+
+test("the implant search keeps only the roots of what the filter keeps", () => {
+  const { result } = render(() => useImplantSearch(onlyBluePill));
+
+  expect(result.current.map((node) => node.group.name)).toEqual(["Implants & Boosters"]);
+  expect(result.current[0]?.types.map((type) => type.name)).toEqual(["Standard Blue Pill Booster"]);
+});
+
+const onlyBluePill = (type: SdeType) => type.name === "Standard Blue Pill Booster";
 
 test("the modules keep only the groups and folders of what the filter keeps", () => {
   const { result } = render(() => useModuleTree(onlyRepublicFleet));

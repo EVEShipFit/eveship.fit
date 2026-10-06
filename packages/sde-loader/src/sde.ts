@@ -37,6 +37,8 @@ import { Table } from "./table.js";
 import {
   buildChargeSearch,
   buildChargeTree,
+  buildImplantSearch,
+  buildImplantTree,
   buildMarketTree,
   buildModuleSearch,
   buildModuleTree,
@@ -75,6 +77,8 @@ export class Sde {
   #moduleSearch: readonly ModuleGroupNode[] | undefined;
   #chargeTree: readonly MarketGroupNode[] | undefined;
   #chargeSearch: readonly ModuleGroupNode[] | undefined;
+  #implantTree: readonly MarketGroupNode[] | undefined;
+  #implantSearch: readonly ModuleGroupNode[] | undefined;
   #shipTree: readonly ShipGroupNode[] | undefined;
 
   constructor(bytes: Uint8Array) {
@@ -233,6 +237,18 @@ export class Sde {
   chargeSearch(): readonly ModuleGroupNode[] {
     this.#chargeSearch ??= buildChargeSearch(this.marketTree());
     return this.#chargeSearch;
+  }
+
+  /** Implants and boosters by market group, groups with groups in them first; types sorted by meta group, meta level and name. */
+  implantTree(): readonly MarketGroupNode[] {
+    this.#implantTree ??= buildImplantTree(this.marketTree(), this.#metaLevel());
+    return this.#implantTree;
+  }
+
+  /** Implants and boosters by root market group; types sorted by name, faction, officer and deadspace ones in folders. */
+  implantSearch(): readonly ModuleGroupNode[] {
+    this.#implantSearch ??= buildImplantSearch(this.marketTree());
+    return this.#implantSearch;
   }
 
   /** Sorted by meta group, meta level and name; faction, officer and deadspace types in folders, as in `moduleTree`. */

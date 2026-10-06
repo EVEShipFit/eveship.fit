@@ -14,6 +14,11 @@ const types = {
   "Damage Control II": 2048,
   "Gyrostabilizer II": 519,
   "Small Projectile Burst Aerator I": 31668,
+  "High-grade Snake Alpha": 19540,
+  "High-grade Snake Beta": 19551,
+  "Synth Exile Booster": 28676,
+  "Synth Drop Booster": 28674,
+  Astrahus: 35832,
 };
 
 const rifter = {
@@ -163,6 +168,97 @@ export const PutOfflineAndOnline: Story = {
     focusAction(canvas, "Small Projectile Burst Aerator I", "Put Offline");
     await userEvent.keyboard("{Enter}");
     await expect(rig()).toHaveAccessibleName("Small Projectile Burst Aerator I, offline");
+  },
+};
+
+const augmented = {
+  ship: { type_id: types.Rifter },
+  items: [
+    { type_id: types["High-grade Snake Alpha"], slot: { type: "implant", index: 1 }, state: "active" },
+    { type_id: types["Synth Drop Booster"], slot: { type: "booster", index: 2 }, state: "active" },
+    { type_id: types["Synth Exile Booster"], slot: { type: "booster", index: 1 }, state: "active" },
+  ],
+};
+
+const filled = (canvasElement: HTMLElement, kind: "implant" | "booster") =>
+  canvasElement.querySelectorAll(`[data-kind=${kind}][data-filled]`);
+
+/** Ten numbered implant slots; the boosters by slot number, then an empty slot for the next. */
+export const ImplantsAndBoosters: Story = {
+  parameters: { fit: augmented },
+  play: async ({ canvas, canvasElement }) => {
+    const implants = Array.from(canvasElement.querySelectorAll("[data-kind=implant]"));
+    await expect(implants.map((slot) => (slot.hasAttribute("data-filled") ? "filled" : slot.textContent))).toEqual([
+      "filled",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+    ]);
+    await expect(filled(canvasElement, "implant")).toHaveLength(1);
+
+    await expect(canvasElement.querySelectorAll("[data-kind=booster]")).toHaveLength(3);
+    await expect(canvas.getAllByRole("group").map((slot) => slot.getAttribute("aria-label"))).toEqual([
+      "High-grade Snake Alpha",
+      "Synth Exile Booster",
+      "Synth Drop Booster",
+    ]);
+  },
+};
+
+/** Its action, a right click, or dropping it in the middle of the wheel unfits an implant or booster. */
+export const UnfitAugmentation: Story = {
+  parameters: { fit: augmented },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    focusAction(canvas, "Synth Drop Booster", "Unfit Booster");
+    await userEvent.keyboard("{Enter}");
+    await expect(canvas.queryByRole("group", { name: "Synth Drop Booster" })).toBeNull();
+
+    await fireEvent.contextMenu(filled(canvasElement, "implant")[0]!);
+    await expect(filled(canvasElement, "implant")).toHaveLength(0);
+
+    const booster = canvas.getByRole("group", { name: "Synth Exile Booster" }).closest("[data-kind]")!;
+    await dragAndDrop(booster.querySelector("[draggable=true]")!, canvasElement.querySelector("[data-centre]")!);
+    await expect(canvas.queryByRole("group", { name: "Synth Exile Booster" })).toBeNull();
+  },
+};
+
+export const AugmentationTooltip: Story = {
+  parameters: { fit: augmented },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const implant = filled(canvasElement, "implant")[0]!;
+    const status = within(implant as HTMLElement).getByText("Implant Slot 1");
+    await expect(status).not.toBeVisible();
+    await userEvent.hover(implant.querySelector("[draggable]")!);
+    await expect(status).toBeVisible();
+
+    const booster = canvas.getByRole("group", { name: "Synth Drop Booster" }).closest("[data-kind]")!;
+    await userEvent.hover(booster.querySelector("[draggable=true]")!);
+    await expect(canvas.getByText("Booster Slot 2")).toBeVisible();
+  },
+};
+
+/** A read-only wheel leaves out the empty booster slot, and the implants when there are none. */
+export const AugmentationsReadOnly: Story = {
+  args: { readOnly: true },
+  parameters: { fit: { ship: { type_id: types.Rifter }, items: [augmented.items[2]!] } },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelectorAll("[data-kind=implant]")).toHaveLength(0);
+    await expect(canvasElement.querySelectorAll("[data-kind=booster]")).toHaveLength(1);
+    await expect(canvasElement.querySelector("[data-marker=implant]")).toBeNull();
+  },
+};
+
+/** A structure shows no implants or boosters. */
+export const StructureWithoutAugmentations: Story = {
+  parameters: { fit: { ship: types.Astrahus } },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("[data-kind]")).toBeNull();
   },
 };
 

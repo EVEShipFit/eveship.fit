@@ -707,3 +707,31 @@ export const SearchCharges: Story = {
     await expect(canvas.getByText("No charges found")).toBeVisible();
   },
 };
+
+const implants = (canvas: ReturnType<typeof within>) => within(canvas.getByRole("list", { name: "Implants" }));
+
+/** Implants and boosters by market group. */
+export const Implants: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("tab", { name: "Implants" }));
+    const groups = implants(canvas)
+      .getAllByRole("button", { expanded: false })
+      .map((row) => row.textContent);
+    await expect(groups).toEqual(["Booster", "Implants", "Cerebral Accelerators"]);
+
+    await userEvent.click(implants(canvas).getByRole("button", { name: "Booster" }));
+    await expect(implants(canvas).getByRole("button", { name: "Booster Slot 01" })).toBeVisible();
+  },
+};
+
+export const SearchImplants: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("tab", { name: "Implants" }));
+    const search = within(canvas.getByRole("tabpanel")).getByRole("searchbox");
+    await userEvent.type(search, "blue pill");
+    await expect(implants(canvas).getByRole("button", { name: "Standard Blue Pill Booster" })).toBeVisible();
+
+    await userEvent.type(search, "dasda");
+    await expect(canvas.getByText("No implants found")).toBeVisible();
+  },
+};

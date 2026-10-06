@@ -287,6 +287,32 @@ export const DragModule: Story = {
   },
 };
 
+/** An implant goes only in its own numbered slot; a booster in the empty booster slot, whatever its number. */
+export const DragImplantAndBooster: Story = {
+  args: { browser: <ItemBrowser /> },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const slot = (name: string) => canvasElement.querySelector(`[data-slot=${name}]`)!;
+    await userEvent.click(canvas.getByRole("tab", { name: "Implants" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "synth drop booster");
+    await dragAndDrop(
+      canvas.getByRole("button", { name: "Synth Drop Booster" }),
+      canvasElement.querySelector("[data-kind=booster]")!,
+    );
+    await expect(canvas.getByRole("group", { name: "Synth Drop Booster" })).toBeInTheDocument();
+
+    await userEvent.clear(canvas.getByRole("searchbox", { name: "Search" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "genolution core augmentation ca-1");
+    const implant = canvas.getByRole("button", { name: "Genolution Core Augmentation CA-1" });
+    const dataTransfer = new DataTransfer();
+    await fireEvent.dragStart(implant, { dataTransfer });
+    await waitFor(async () => expect(await fireEvent.dragOver(slot("implant-2"), { dataTransfer })).toBe(true));
+    await fireEvent.dragEnd(implant, { dataTransfer });
+
+    await dragAndDrop(implant, slot("implant-1"));
+    await expect(slot("implant-1")).toHaveAttribute("data-filled");
+  },
+};
+
 /** A module drags its own icon, and previews where it goes over the middle of the wheel. */
 export const DragModulePreview: Story = {
   args: { browser: <ItemBrowser /> },

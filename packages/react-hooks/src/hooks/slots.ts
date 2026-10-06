@@ -5,6 +5,10 @@ import { useMemo } from "react";
 import { useFit, useShownSnapshot, useSnapshot, useStats } from "./fit.js";
 import { useSde } from "./sde.js";
 
+const IMPLANT_SLOTS = 10;
+
+type NumberedSlot = Rack | "fighter_tube" | "implant" | "booster";
+
 export interface SlotContent {
   readonly index: number;
   /** Absent for an empty slot, and for one only the preview fills. */
@@ -29,15 +33,38 @@ export function useFighterTubes(): readonly SlotContent[] {
   return useIndexedSlots("fighter_tube", (stats) => stats.fighterTubes.all.total);
 }
 
+/** The ten implant slots, numbered 1 to 10 as in EVE, then any taken above; like `useSlots`. */
+export function useImplants(): readonly SlotContent[] {
+  return useNumberedSlots("implant", (taken) => {
+    const numbers = Array.from({ length: IMPLANT_SLOTS }, (_, index) => index + 1);
+    return [...numbers, ...[...taken].filter((number) => !numbers.includes(number)).toSorted((a, b) => a - b)];
+  });
+}
+
+/** The boosters by slot number, like `useSlots`. */
+export function useBoosters(): readonly SlotContent[] {
+  return useNumberedSlots("booster", (taken) => [...taken].toSorted((a, b) => a - b));
+}
+
 function useIndexedSlots(slot: Rack | "fighter_tube", total: (stats: Stats) => number): readonly SlotContent[] {
+  return useNumberedSlots(slot, (taken, stats) => {
+    const count = Math.max(total(stats), ...Array.from(taken, (index) => index + 1));
+    return Array.from({ length: count }, (_, index) => index);
+  });
+}
+
+/** The slots `indexes` picks, given the indexes taken in the shown fit. */
+function useNumberedSlots(
+  slot: NumberedSlot,
+  indexes: (taken: ReadonlySet<number>, stats: Stats) => readonly number[],
+): readonly SlotContent[] {
   const current = useSnapshot();
   const shown = useShownSnapshot();
 
   const refs = refsByIndex(current.fit, slot);
   const shownRefs = refsByIndex(shown.fit, slot);
 
-  const count = Math.max(total(shown.stats), ...Array.from(shownRefs.keys(), (index) => index + 1));
-  return Array.from({ length: count }, (_, index) => {
+  return indexes(new Set(shownRefs.keys()), shown.stats).map((index) => {
     const ref = refs.get(index);
     const shownRef = shownRefs.get(index);
     const item = shownRef === undefined ? undefined : shown.fit.items[shownRef];
@@ -106,7 +133,7 @@ export function useBayContents(bay: "cargo" | "droneBay" | "fighterBay"): readon
   }, [sde, fit, bay]);
 }
 
-function refsByIndex(fit: Fit, slot: Rack | "fighter_tube"): Map<number, ItemRef> {
+function refsByIndex(fit: Fit, slot: NumberedSlot): Map<number, ItemRef> {
   const refs = new Map<number, ItemRef>();
   fit.items.forEach((item, ref) => {
     if (item.slot.type === slot) refs.set(item.slot.index, ref);

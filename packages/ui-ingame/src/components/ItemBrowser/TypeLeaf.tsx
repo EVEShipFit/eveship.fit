@@ -1,5 +1,5 @@
 import { useDrag, useFitStore, useImages, usePreview } from "@eveshipfit/react-hooks";
-import type { MetaFolder, MetaSortedTypes, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
+import type { MarketGroupNode, MetaFolder, MetaSortedTypes, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
 import { useRef, useState, type DragEvent, type ReactNode } from "react";
 
 import { Icon, useIconUrl } from "../../primitives/Icon/Icon";
@@ -124,7 +124,7 @@ export function countLeaves(sorted: MetaSortedTypes): number {
 }
 
 /** A market group's icon, or a folder for one without. */
-export function useMarketGroupIcon(): (marketGroupId: number) => string | undefined {
+function useMarketGroupIcon(): (marketGroupId: number) => string | undefined {
   const images = useImages();
   const folder = useIconUrl("folder");
   return (marketGroupId) => images.marketGroupIcon(marketGroupId) ?? folder;
@@ -147,6 +147,31 @@ export function TypeGroup({ node, actions }: TypeGroupProps) {
             <TypeGroup key={child.group.id} node={child} actions={actions} />
           ))}
           <TypeLeaves sorted={node} actions={actions} />
+        </>
+      )}
+    </TreeGroup>
+  );
+}
+
+export interface MarketGroupProps {
+  node: MarketGroupNode;
+  actions: TypeActions;
+}
+
+/** A market group of an already sorted tree: its groups, then its types. */
+export function MarketGroup({ node, actions }: MarketGroupProps) {
+  const marketGroupIcon = useMarketGroupIcon();
+
+  return (
+    <TreeGroup label={node.group.name} icon={marketGroupIcon(node.group.id)}>
+      {() => (
+        <>
+          {node.children.map((child) => (
+            <MarketGroup key={child.group.id} node={child} actions={actions} />
+          ))}
+          {node.types.map((type) => (
+            <TypeLeaf key={type.id} type={type} actions={actions} />
+          ))}
         </>
       )}
     </TreeGroup>
