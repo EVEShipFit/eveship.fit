@@ -29,8 +29,28 @@ function images(): Plugin {
   };
 }
 
+/** Preloads the data files and the WASM. */
+function preload(): Plugin {
+  return {
+    name: "eveshipfit-preload",
+    transformIndexHtml: {
+      order: "post",
+      handler(_html, { bundle }) {
+        if (bundle === undefined) return;
+        return Object.values(bundle)
+          .filter((file) => file.type === "asset" && /\.(dat|wasm)$/.test(file.fileName))
+          .map((file) => ({
+            tag: "link",
+            attrs: { rel: "preload", href: `/${file.fileName}`, as: "fetch", crossorigin: "" },
+            injectTo: "head",
+          }));
+      },
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), babel({ presets: [reactCompilerPreset()] }), images()],
+  plugins: [react(), babel({ presets: [reactCompilerPreset()] }), images(), preload()],
   define: {
     "import.meta.env.EVESHIPFIT_VERSION": JSON.stringify(version),
   },

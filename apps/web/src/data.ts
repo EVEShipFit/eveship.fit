@@ -73,9 +73,10 @@ export function createEsi(): Esi {
 /** The SDE, the engine, the images and the texts, each loading. */
 export function loadGame(esi: Esi) {
   const sde = loadSde({ url: sdeUrl });
+  const wasm = WebAssembly.compileStreaming(fetch(wasmUrl));
   return {
     sde,
-    engine: sde.then((loaded) => createEngine(loaded, { wasm: wasmUrl, esi })),
+    engine: sde.then((loaded) => createEngine(loaded, { wasm, esi })),
     // vite.config.ts serves the images at /images/.
     images: loadImages({ url: imagesUrl }, { baseUrl: "/images/" }),
     texts: loadTexts({ url: textsUrl }),
