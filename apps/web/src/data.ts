@@ -10,7 +10,6 @@ import { loadSde, loadTexts, type Sde, type Texts } from "@eveshipfit/sde-loader
 
 import { keptCharacter } from "./character";
 import { finishLogin, type Login } from "./login";
-import { moveV1Characters } from "./v1-characters";
 import { moveV1Fits } from "./v1-fits";
 
 const RIFTER = 587;
@@ -41,11 +40,6 @@ export async function loadData(): Promise<Data | null> {
     const localFits = new LocalFits();
     moveV1Fits(localFits).catch(console.error);
     const characters = loadCharacters(esi, engineLoad, localFits);
-    try {
-      if (characters !== undefined) moveV1Characters(characters);
-    } catch (error) {
-      console.error(error);
-    }
     const login = finishLogin(characters).then((result) => {
       characters?.loadAll();
       return result;

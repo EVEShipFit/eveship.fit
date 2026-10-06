@@ -2,7 +2,7 @@ import { SsoError, type CharacterFitting, type Esi, type Sso, type SsoLogin } fr
 import type { Engine, Fit } from "@eveshipfit/fitting";
 import { afterEach, beforeEach, expect, test, vi, type Mock } from "vitest";
 
-import { EsiCharacters, type CharacterStorage, type LocalFits } from "../src/index.js";
+import { EsiCharacters, type CharacterLocks, type CharacterStorage, type LocalFits } from "../src/index.js";
 
 const PILOT = 90000001;
 const RIFTER = 587;
@@ -16,6 +16,20 @@ function memoryStorage(): CharacterStorage {
     getItem: (key) => items.get(key) ?? null,
     setItem: (key, value) => void items.set(key, value),
     removeItem: (key) => void items.delete(key),
+  };
+}
+
+function memoryLocks(): CharacterLocks {
+  const held = new Map<string, Promise<void>>();
+  return {
+    request: (name, task) => {
+      const run = (held.get(name) ?? Promise.resolve()).then(task);
+      held.set(
+        name,
+        run.catch(() => {}),
+      );
+      return run;
+    },
   };
 }
 
@@ -42,6 +56,7 @@ let engine: { loadEsiFitting: Mock<Engine["loadEsiFitting"]> };
 let localFits: { setCharacterFits: Mock<LocalFits["setCharacterFits"]> };
 let storage: CharacterStorage;
 let session: CharacterStorage;
+let locks: CharacterLocks;
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date("2026-10-03T12:00:00Z") });
@@ -73,6 +88,7 @@ beforeEach(() => {
   localFits = { setCharacterFits: vi.fn<LocalFits["setCharacterFits"]>(async () => {}) };
   storage = memoryStorage();
   session = memoryStorage();
+  locks = memoryLocks();
 });
 
 afterEach(() => {
@@ -87,6 +103,7 @@ const characters = () =>
     localFits: localFits as unknown as LocalFits,
     storage,
     session,
+    locks,
   });
 
 function fitting(id: number, name: string): CharacterFitting {
@@ -334,21 +351,4 @@ test("two tabs loading at once refresh the token one after the other", async () 
 
   expect(sso.refresh.mock.calls).toEqual([["refresh"], ["first"]]);
   expect(otherTab.list()[0]!.status).toBe("ready");
-});
-
-test("added characters are kept, without replacing ones already logged in", async () => {
-  const store = await loggedIn();
-
-  store.add([
-    { id: PILOT, name: "Old Pilot", refreshToken: "old" },
-    { id: PILOT + 1, name: "Other", refreshToken: "other" },
-  ]);
-
-  expect(characters().list()).toMatchObject([
-    { id: PILOT + 1, name: "Other", status: "ready" },
-    { id: PILOT, name: "Pilot" },
-  ]);
-  store.load(PILOT + 1);
-  await vi.runAllTimersAsync();
-  expect(sso.refresh).toHaveBeenCalledWith("other");
 });

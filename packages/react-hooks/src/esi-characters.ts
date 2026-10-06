@@ -14,6 +14,11 @@ import type { LocalFits } from "./local-fits.js";
 /** The part of the Web Storage API this needs. */
 export type CharacterStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
+/** The part of the Web Locks API this needs. */
+export interface CharacterLocks {
+  request(name: string, task: () => Promise<void>): Promise<void>;
+}
+
 export interface EsiCharactersOptions {
   esi: Esi;
   sso: Sso;
@@ -25,6 +30,8 @@ export interface EsiCharactersOptions {
   storage?: CharacterStorage;
   /** Where a login in progress lives; `sessionStorage` when left out. */
   session?: CharacterStorage;
+  /** Keeps tabs from refreshing a login at once; `navigator.locks` when left out. */
+  locks?: CharacterLocks;
 }
 
 export type EsiCharacterStatus = "loading" | "ready" | "expired" | "failed";
@@ -66,19 +73,29 @@ export class EsiCharacters {
   readonly #localFits: LocalFits;
   readonly #storage: CharacterStorage;
   readonly #session: CharacterStorage;
+  readonly #locks: CharacterLocks | undefined;
   readonly #listeners = new Set<() => void>();
   readonly #status = new Map<number, EsiCharacterStatus>();
   readonly #loaded = new Set<number>();
   #stored: readonly Stored[];
   #list: readonly EsiCharacter[] = [];
 
-  constructor({ esi, sso, engine, localFits, storage = localStorage, session = sessionStorage }: EsiCharactersOptions) {
+  constructor({
+    esi,
+    sso,
+    engine,
+    localFits,
+    storage = localStorage,
+    session = sessionStorage,
+    locks = "locks" in navigator ? navigator.locks : undefined,
+  }: EsiCharactersOptions) {
     this.#esi = esi;
     this.#sso = sso;
     this.#engine = engine;
     this.#localFits = localFits;
     this.#storage = storage;
     this.#session = session;
+    this.#locks = locks;
     this.#stored = this.#read();
     this.#publish();
     if (typeof window !== "undefined") {
@@ -144,7 +161,7 @@ export class EsiCharacters {
     if (refreshToken === undefined || this.#status.get(id) === "loading") return;
     this.#loaded.add(id);
     this.#setStatus(id, "loading");
-    void withLock(`${LOCK_PREFIX}${id}`, async () => {
+    const task = async () => {
       const latest = this.#read().find((character) => character.id === id)?.refreshToken;
       if (latest === undefined) {
         this.#status.delete(id);
@@ -152,14 +169,8 @@ export class EsiCharacters {
         return;
       }
       await this.#refresh(id, latest);
-    });
-  }
-
-  /** Adds characters logged in elsewhere; characters already here are left as they are. */
-  add(characters: readonly { id: number; name: string; refreshToken: string }[]) {
-    for (const { id, name, refreshToken } of characters) {
-      this.#change(id, (known) => known ?? { id, name, refreshToken });
-    }
+    };
+    void (this.#locks === undefined ? task() : this.#locks.request(`${LOCK_PREFIX}${id}`, task));
   }
 
   /** Forgets the character and its fittings, and revokes its login at EVE. */
@@ -281,12 +292,6 @@ export class EsiCharacters {
       .toSorted((a, b) => a.name.localeCompare(b.name));
     for (const listener of this.#listeners) listener();
   }
-}
-
-/** Runs the task while no other tab runs one under the same name. */
-function withLock(name: string, task: () => Promise<void>): Promise<void> {
-  if (!("locks" in navigator)) return task();
-  return navigator.locks.request(name, task);
 }
 
 /** The fitting as a fit with its fitting ID; none when the engine cannot read it. */
