@@ -12,6 +12,15 @@ export function Ecm({ itemRef }: LineProps) {
   );
 }
 
+export function StructureEcm({ itemRef }: LineProps) {
+  return (
+    <>
+      <Range itemRef={itemRef} label="Range" format={range} />
+      <JammerStrengths itemRef={itemRef} />
+    </>
+  );
+}
+
 export function BurstJammer({ itemRef }: LineProps) {
   return (
     <>

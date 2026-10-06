@@ -1,14 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { GuidanceDisruptor, TrackingDisruptor } from "./Disruptor";
+import { GuidanceDisruptor, TrackingDisruptor, WeaponDisruptor } from "./Disruptor";
 
 const types = {
   Rifter: 587,
+  Keepstar: 35834,
   "Tracking Disruptor II": 2109,
   "Guidance Disruptor II": 37546,
   "Optimal Range Disruption Script": 29005,
   "Missile Precision Disruption Script": 40335,
+  "Standup Weapon Disruptor I": 35945,
 };
 
 const fitted = (typeId: number, slot: "high" | "medium", chargeTypeId?: number, shipTypeId = types.Rifter) => ({
@@ -83,5 +85,21 @@ export const GuidanceWithScript: Story = {
     await expect(canvas.queryByText(/Flight Time/)).toBeNull();
     await expect(canvas.getByText("-30% Explosion Velocity Bonus")).toBeVisible();
     await expect(canvas.getByText("30% Explosion Radius Bonus")).toBeVisible();
+  },
+};
+
+export const StructureWeaponDisruptor: Story = {
+  ...fitted(types["Standup Weapon Disruptor I"], "medium", undefined, types.Keepstar),
+  render: (args) => <WeaponDisruptor {...args} />,
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 150 km")).toBeVisible();
+    await expect(canvas.queryByText(/Optimal range within/)).toBeNull();
+    await expect(canvas.getByText("-60% Falloff Bonus")).toBeVisible();
+    await expect(canvas.getByText("-60% Optimal Range Bonus")).toBeVisible();
+    await expect(canvas.getByText("-60% Tracking Speed Bonus")).toBeVisible();
+    await expect(canvas.getByText("-37% Missile Velocity Bonus")).toBeVisible();
+    await expect(canvas.getByText("-30% Flight Time Bonus")).toBeVisible();
+    await expect(canvas.getByText("-50% Explosion Velocity Bonus")).toBeVisible();
+    await expect(canvas.getByText("50% Explosion Radius Bonus")).toBeVisible();
   },
 };

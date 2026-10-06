@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { RemoteSensorBooster, SensorBooster } from "./SensorBooster";
+import { RemoteSensorBooster, SensorBooster, StructureSensorDampener } from "./SensorBooster";
 
 const types = {
   Rifter: 587,
@@ -10,13 +10,15 @@ const types = {
   "Remote Sensor Dampener II": 1969,
   "Scan Resolution Dampening Script": 29013,
   "ECCM Script": 41155,
+  Keepstar: 35834,
+  "Standup Remote Sensor Dampener I": 35941,
 };
 
-const fitted = (chargeTypeId?: number, typeId = types["Remote Sensor Booster II"]) => ({
+const fitted = (chargeTypeId?: number, typeId = types["Remote Sensor Booster II"], shipTypeId = types.Rifter) => ({
   args: { itemRef: 0, typeId, state: "active" as const },
   parameters: {
     fit: {
-      ship: { type_id: types.Rifter },
+      ship: { type_id: shipTypeId },
       items: [
         {
           type_id: typeId,
@@ -99,5 +101,16 @@ export const DampenerWithScript: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByText("-38% Scan Resolution Bonus")).toBeVisible();
     await expect(canvas.queryByText(/Maximum Targeting Range Bonus/)).toBeNull();
+  },
+};
+
+export const StructureDampener: Story = {
+  ...fitted(undefined, types["Standup Remote Sensor Dampener I"], types.Keepstar),
+  render: (args) => <StructureSensorDampener {...args} />,
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 75 km")).toBeVisible();
+    await expect(canvas.queryByText(/Optimal range within/)).toBeNull();
+    await expect(canvas.getByText("-55% Scan Resolution Bonus")).toBeVisible();
+    await expect(canvas.getByText("-55% Maximum Targeting Range Bonus")).toBeVisible();
   },
 };

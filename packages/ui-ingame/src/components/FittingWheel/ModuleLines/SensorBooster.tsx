@@ -12,6 +12,15 @@ export function RemoteSensorBooster(props: LineProps) {
   );
 }
 
+export function StructureSensorDampener(props: LineProps) {
+  return (
+    <>
+      <Range itemRef={props.itemRef} label="Range" format={range} />
+      <SensorBooster {...props} />
+    </>
+  );
+}
+
 export function SensorBooster({ itemRef }: LineProps) {
   return (
     <>

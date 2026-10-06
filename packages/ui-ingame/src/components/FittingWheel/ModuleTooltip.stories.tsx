@@ -127,3 +127,15 @@ export const FlexHardener: Story = {
     await expect(canvas.queryByText(/Resistance Bonus/)).toBeNull();
   },
 };
+
+export const StructureModule: Story = {
+  args: { rack: "medium", typeId: 35945, state: "active", maxState: "active" },
+  parameters: {
+    fit: { ship: { type_id: 35834 }, items: [{ type_id: 35945, slot: { type: "medium", index: 0 }, state: "active" }] },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 150 km")).toBeVisible();
+    await expect(canvas.queryByText(/Optimal range within/)).toBeNull();
+    await expect(canvas.getByText("50% Explosion Radius Bonus")).toBeVisible();
+  },
+};

@@ -1,8 +1,9 @@
 import type { ItemRef } from "@eveshipfit/fitting";
 import { useAttribute } from "@eveshipfit/react-hooks";
 
-import { unit } from "../../ShipStatistics/units";
+import { range, unit } from "../../ShipStatistics/units";
 import { Attribute, useDisplayName } from "./parts/Attribute";
+import { Range } from "./parts/Range";
 import type { LineProps } from "./index";
 
 export function Smartbomb({ itemRef }: LineProps) {
@@ -13,6 +14,10 @@ export function Smartbomb({ itemRef }: LineProps) {
       <DamageLines itemRef={itemRef} />
     </>
   );
+}
+
+export function PointDefense({ itemRef }: LineProps) {
+  return <Range itemRef={itemRef} optimal="empFieldRange" label="Range" format={range} />;
 }
 
 export function Doomsday({ itemRef }: LineProps) {
