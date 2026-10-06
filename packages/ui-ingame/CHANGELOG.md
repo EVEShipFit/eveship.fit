@@ -1,5 +1,17 @@
 # @eveshipfit/ui-ingame
 
+## 1.7.0
+
+### Minor Changes
+
+- Add implants and boosters to the fitting wheel, and an Implants tab to the item browser ([#242](https://github.com/EVEShipFit/eveship.fit/pull/242))
+
+### Patch Changes
+
+- Space the statistics as far from the fitting wheel as the item browser ([#242](https://github.com/EVEShipFit/eveship.fit/pull/242))
+- Updated dependencies [[`25d67af`](https://github.com/EVEShipFit/eveship.fit/commit/25d67af9a312533dd5cfd93bbeac1b117a87c061)]:
+  - @eveshipfit/react-hooks@2.2.0
+
 ## 1.6.0
 
 ### Minor Changes
