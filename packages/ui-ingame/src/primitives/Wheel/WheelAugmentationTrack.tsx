@@ -22,8 +22,8 @@ export function WheelAugmentationTrack({ kind, length }: WheelAugmentationTrackP
     kind === "implant"
       ? images.uiTexture("windowicons/augmentations")
       : images.marketGroupIcon(BOOSTER_MARKET_GROUP_ID);
-  const start = polar(augmentationAngle(kind, -0.05), augmentationRadius);
-  const end = polar(augmentationAngle(kind, length - 0.95), augmentationRadius);
+  const start = polar(augmentationAngle(kind, -0.35), augmentationRadius);
+  const end = polar(augmentationAngle(kind, length - 0.65), augmentationRadius);
   const sweep = kind === "implant" ? 0 : 1;
 
   return (
@@ -37,7 +37,7 @@ export function WheelAugmentationTrack({ kind, length }: WheelAugmentationTrackP
           d={`M ${start.x} ${start.y} A ${augmentationRadius} ${augmentationRadius} 0 0 ${sweep} ${end.x} ${end.y}`}
         />
       </svg>
-      <span className={styles.marker} style={placeAt(augmentationAngle(kind, -1.4), augmentationRadius)}>
+      <span className={styles.marker} style={placeAt(augmentationAngle(kind, -1.65), augmentationRadius)}>
         <Tooltip label={kind === "implant" ? "Implants" : "Boosters"}>
           <img src={icon} alt="" data-marker={kind} draggable={false} />
         </Tooltip>
