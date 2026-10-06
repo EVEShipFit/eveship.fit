@@ -15,6 +15,8 @@ const types = {
   "Amarr Phenomena Generator": 43658,
   "Salvager I": 25861,
   "Entosis Link I": 34593,
+  Rorqual: 28352,
+  "Pulse Activated Nexus Invulnerability Core": 42522,
 };
 
 const fitted = (
@@ -99,5 +101,12 @@ export const PhenomenaGenerator: Story = {
   ...fitted(types["Amarr Phenomena Generator"], "high", undefined, types.Avatar),
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 20,000 km")).toBeVisible();
+  },
+};
+
+export const InvulnerabilityCore: Story = {
+  ...fitted(types["Pulse Activated Nexus Invulnerability Core"], "high", undefined, types.Rorqual),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 200 km")).toBeVisible();
   },
 };

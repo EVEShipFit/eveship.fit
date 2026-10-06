@@ -8,6 +8,7 @@ import { BreacherPodLauncher } from "./BreacherPodLauncher";
 import { CapacitorBooster } from "./CapacitorBooster";
 import { RemoteCapacitorTransmitter } from "./CapacitorTransmitter";
 import { Cloak } from "./Cloak";
+import { CommandBonus } from "./CommandBonus";
 import { Compressor } from "./Compressor";
 import { GuidanceDisruptor, TrackingDisruptor } from "./Disruptor";
 import { BurstJammer, Ecm } from "./Ecm";
@@ -53,7 +54,11 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["cloakingPrototype", [Cloak]],
   ["cloakingWarpSafe", [Cloak]],
   ["damageControl", [DamageControl]],
+  ["debuffLance", [Doomsday]],
   ["doHacking", [ActivationRange]],
+  ["doomsdayBeamDOT", [Doomsday]],
+  ["doomsdayConeDOT", [Doomsday]],
+  ["doomsdaySlash", [Doomsday]],
   ["ECMBurstJammer", [BurstJammer]],
   ["emergencyHullEnergizer", [DamageControl]],
   ["empWave", [Smartbomb]],
@@ -71,6 +76,7 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["modifyArmorResonancePostPercent", [ResistanceBonus]],
   ["modifyShieldResonancePostPercent", [ResistanceBonus]],
   ["moduleBonusAfterburner", [MaxVelocity]],
+  ["moduleBonusIndustrialInvulnerability", [ActivationRange]],
   ["moduleBonusMicrowarpdrive", [MaxVelocity]],
   ["moduleBonusWarfareLinkArmor", [ActivationRange]],
   ["moduleBonusWarfareLinkInfo", [ActivationRange]],
@@ -119,6 +125,7 @@ const groupLines = new Map<string, ComponentType<LineProps>[]>([
   ["Breacher Pod Launchers", [BreacherPodLauncher]],
   ["Flex Armor Hardener", []],
   ["Flex Shield Hardener", []],
+  ["Gang Coordinator", [CommandBonus]],
   ["Scan Probe Launcher", [ProbeLauncher]],
   ["Survey Probe Launcher", [ProbeLauncher]],
 ]);

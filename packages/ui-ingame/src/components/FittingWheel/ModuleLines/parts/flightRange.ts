@@ -7,6 +7,7 @@ import { range } from "../../../ShipStatistics/units";
 export function useFlightRange(itemRef: ItemRef): string | undefined {
   const velocity = useAttribute("maxVelocity", { of: itemRef, charge: true }).value;
   const flightTime = useAttribute("explosionDelay", { of: itemRef, charge: true }).value;
+  const targetRange = useAttribute("maxFOFTargetRange", { of: itemRef, charge: true }).value ?? Infinity;
   if (velocity === undefined || flightTime === undefined) return undefined;
-  return range((velocity * flightTime) / 1000, { decimals: 0 });
+  return range(Math.min((velocity * flightTime) / 1000, targetRange), { decimals: 0 });
 }

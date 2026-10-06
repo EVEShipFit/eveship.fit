@@ -61,7 +61,7 @@ export const Loaded: Story = {
 export const Empty: Story = {
   ...fitted(),
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Falloff range within 11,175 m")).toBeVisible();
+    await expect(canvas.getByText("Falloff range within 11 km")).toBeVisible();
     await expect(canvas.getByText("Damage Per Second 0.0")).toBeVisible();
     await expect(canvas.queryByText("Damage caused")).toBeNull();
     await expect(canvas.getByText("Turret Tracking: 393.75")).toBeVisible();
@@ -72,6 +72,15 @@ export const Disintegrator: Story = {
   ...fitted(types["Baryon Exotic Plasma S"], types.Kikimora, types["Light Entropic Disintegrator II"]),
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Damage Per Second 134.2-419.3")).toBeVisible();
+    await expect(canvas.getByText("608 HP")).toBeVisible();
+    await expect(canvas.getByText("448 HP")).toBeVisible();
+  },
+};
+
+export const DisintegratorEmpty: Story = {
+  ...fitted(undefined, types.Kikimora, types["Light Entropic Disintegrator II"]),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Damage Per Second 0.0")).toBeVisible();
   },
 };
 

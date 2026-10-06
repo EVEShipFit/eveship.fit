@@ -6,6 +6,8 @@ import styles from "../ModuleTooltip.module.css";
 import { Attribute, Bonus } from "./parts/Attribute";
 import type { LineProps } from "./index";
 
+const percent = unit("%");
+
 export function ResistanceBonus({ itemRef }: LineProps) {
   const sde = useSde();
   const bonuses = [
@@ -18,11 +20,11 @@ export function ResistanceBonus({ itemRef }: LineProps) {
   const [first] = bonuses;
   if (first === undefined) return null;
   if (bonuses.length === 1) {
-    const { name, text } = first;
+    const { name, value } = first;
     const displayName = sde.attribute(sde.attributeId(name) ?? 0)?.displayName;
     return (
       <Attribute name={name}>
-        {text} {displayName}
+        {percent(value ?? 0, { decimals: 0 })} {displayName}
       </Attribute>
     );
   }
@@ -40,6 +42,6 @@ export function ResistanceBonus({ itemRef }: LineProps) {
 }
 
 function useBonus(name: string, itemRef: ItemRef) {
-  const { value, text } = useAttribute(name, { of: itemRef, decimals: 1, format: unit("%") });
+  const { value, text } = useAttribute(name, { of: itemRef, decimals: 1, format: percent });
   return { name, value, text };
 }
