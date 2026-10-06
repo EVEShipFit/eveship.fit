@@ -1,0 +1,8 @@
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.dat
+  Content-Type: application/octet-stream
+
+/images/*
+  Cache-Control: public, max-age=31536000, immutable

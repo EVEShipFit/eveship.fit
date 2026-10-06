@@ -13,7 +13,7 @@ import type { Character, Fit } from "./types.js";
 
 export interface EngineOptions {
   /** Where to load the WASM from; by default, next to the engine's JavaScript. */
-  wasm?: InitInput;
+  wasm?: InitInput | Promise<InitInput>;
   /** ESI, for killmail links and market prices. */
   esi?: Esi;
 }
