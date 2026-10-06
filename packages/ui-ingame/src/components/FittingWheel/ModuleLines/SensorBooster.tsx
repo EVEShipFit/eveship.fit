@@ -1,31 +1,14 @@
-import { range } from "../../ShipStatistics/units";
+import { ActivationRange } from "./ActivationRange";
 import { BonusLine, SensorStrengths, useBonus } from "./parts/Bonus";
-import { Range } from "./parts/Range";
 import type { LineProps } from "./index";
 
-export function RemoteSensorBooster(props: LineProps) {
+export function SensorBooster(props: LineProps) {
+  const { itemRef } = props;
   return (
     <>
-      <Range itemRef={props.itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
-      <SensorBooster {...props} />
-    </>
-  );
-}
-
-export function StructureSensorDampener(props: LineProps) {
-  return (
-    <>
-      <Range itemRef={props.itemRef} label="Range" format={range} />
-      <SensorBooster {...props} />
-    </>
-  );
-}
-
-export function SensorBooster({ itemRef }: LineProps) {
-  return (
-    <>
-      <BonusLine bonus={useBonus("scanResolutionBonus", itemRef)} />
-      <BonusLine bonus={useBonus("maxTargetRangeBonus", itemRef)} />
+      <ActivationRange {...props} />
+      <BonusLine itemRef={itemRef} name="scanResolutionBonus" />
+      <BonusLine itemRef={itemRef} name="maxTargetRangeBonus" />
       <SensorStrengths
         strengths={[
           useBonus("scanGravimetricStrengthPercent", itemRef),

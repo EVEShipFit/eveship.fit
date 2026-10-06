@@ -1,9 +1,9 @@
 import type { ItemRef } from "@eveshipfit/fitting";
-import { useAttribute, useSde } from "@eveshipfit/react-hooks";
+import { useAttribute } from "@eveshipfit/react-hooks";
 
 import { unit } from "../../../ShipStatistics/units";
 import styles from "../../ModuleTooltip.module.css";
-import { Attribute, Bonus } from "./Attribute";
+import { Attribute, Bonus, useDisplayName } from "./Attribute";
 
 const hp = unit(" HP");
 
@@ -24,7 +24,6 @@ export function DamageTypes({
   charge?: boolean;
   multiplier?: number;
 }) {
-  const sde = useSde();
   const damages = [
     useDamage("emDamage", itemRef, charge),
     useDamage("thermalDamage", itemRef, charge),
@@ -32,15 +31,14 @@ export function DamageTypes({
     useDamage("explosiveDamage", itemRef, charge),
   ]
     .filter((damage) => damage.value)
-    .map(({ name, value = 0 }) => ({ name, text: hp(value * multiplier, { decimals: 0 }) }));
+    .map(({ name, value = 0, displayName }) => ({ name, displayName, text: hp(value * multiplier, { decimals: 0 }) }));
 
   const [first] = damages;
   if (first === undefined) return null;
   if (damages.length === 1) {
-    const displayName = sde.attribute(sde.attributeId(first.name) ?? 0)?.displayName;
     return (
       <Attribute name={first.name}>
-        {first.text} {displayName}
+        {first.text} {first.displayName}
       </Attribute>
     );
   }
@@ -58,5 +56,5 @@ export function DamageTypes({
 }
 
 function useDamage(name: string, itemRef: ItemRef, charge: boolean) {
-  return { name, value: useAttribute(name, { of: itemRef, charge }).value };
+  return { name, value: useAttribute(name, { of: itemRef, charge }).value, displayName: useDisplayName(name) };
 }

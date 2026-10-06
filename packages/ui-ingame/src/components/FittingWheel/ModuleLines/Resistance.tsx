@@ -1,12 +1,10 @@
 import type { ItemRef } from "@eveshipfit/fitting";
 import { useAttribute } from "@eveshipfit/react-hooks";
 
-import { unit } from "../../ShipStatistics/units";
 import styles from "../ModuleTooltip.module.css";
 import { Attribute, Bonus } from "./parts/Attribute";
+import { percent } from "./parts/Bonus";
 import type { LineProps } from "./index";
-
-const percent = unit("%");
 
 /** The resistances a module gives, per layer it changes. */
 export function Resistance({ itemRef }: LineProps) {
@@ -36,7 +34,7 @@ function Layer({
 }: {
   label: string;
   icon: string;
-  resistances: Value[];
+  resistances: ReturnType<typeof useResistances>;
   withIcon: boolean;
 }) {
   const values = (
@@ -55,13 +53,7 @@ function Layer({
   );
 }
 
-interface Value {
-  name: string;
-  value: number | undefined;
-  text: string;
-}
-
-function useResistances(layer: string, itemRef: ItemRef): Value[] {
+function useResistances(layer: string, itemRef: ItemRef) {
   return [
     useResistance(`${layer}EmDamageResonance`, itemRef),
     useResistance(`${layer}ExplosiveDamageResonance`, itemRef),
@@ -70,7 +62,7 @@ function useResistances(layer: string, itemRef: ItemRef): Value[] {
   ];
 }
 
-function useResistance(name: string, itemRef: ItemRef): Value {
+function useResistance(name: string, itemRef: ItemRef) {
   const { value, text } = useAttribute(name, {
     of: itemRef,
     decimals: 1,

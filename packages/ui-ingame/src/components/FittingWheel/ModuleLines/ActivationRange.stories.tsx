@@ -17,6 +17,8 @@ const types = {
   "Entosis Link I": 34593,
   Rorqual: 28352,
   "Pulse Activated Nexus Invulnerability Core": 42522,
+  "Ship Scanner II": 1855,
+  "Cargo Scanner II": 2038,
 };
 
 const fitted = (
@@ -108,5 +110,20 @@ export const InvulnerabilityCore: Story = {
   ...fitted(types["Pulse Activated Nexus Invulnerability Core"], "high", undefined, types.Rorqual),
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 200 km")).toBeVisible();
+  },
+};
+
+export const ShipScanner: Story = {
+  ...fitted(types["Ship Scanner II"], "medium"),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 60 km")).toBeVisible();
+    await expect(canvas.queryByText(/Optimal range/)).toBeNull();
+  },
+};
+
+export const CargoScanner: Story = {
+  ...fitted(types["Cargo Scanner II"], "medium"),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 70 km")).toBeVisible();
   },
 };

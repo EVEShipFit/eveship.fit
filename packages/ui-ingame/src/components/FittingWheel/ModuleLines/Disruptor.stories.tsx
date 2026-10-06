@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { GuidanceDisruptor, TrackingDisruptor, WeaponDisruptor } from "./Disruptor";
+import { WeaponDisruptor } from "./Disruptor";
 
 const types = {
   Rifter: 587,
@@ -31,7 +31,7 @@ const fitted = (typeId: number, slot: "high" | "medium", chargeTypeId?: number, 
 });
 
 const meta = {
-  component: TrackingDisruptor,
+  component: WeaponDisruptor,
   decorators: [
     (Story) => (
       <div style={{ background: "var(--esf-bg)", display: "grid", gap: 8, padding: "8px 14px" }}>
@@ -39,7 +39,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof TrackingDisruptor>;
+} satisfies Meta<typeof WeaponDisruptor>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -66,7 +66,6 @@ export const TrackingWithScript: Story = {
 
 export const Guidance: Story = {
   ...fitted(types["Guidance Disruptor II"], "medium"),
-  render: (args) => <GuidanceDisruptor {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 108 km")).toBeVisible();
     await expect(canvas.getByText("-11% Missile Velocity Bonus")).toBeVisible();
@@ -79,7 +78,6 @@ export const Guidance: Story = {
 
 export const GuidanceWithScript: Story = {
   ...fitted(types["Guidance Disruptor II"], "medium", types["Missile Precision Disruption Script"]),
-  render: (args) => <GuidanceDisruptor {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.queryByText(/Missile Velocity/)).toBeNull();
     await expect(canvas.queryByText(/Flight Time/)).toBeNull();
@@ -90,7 +88,6 @@ export const GuidanceWithScript: Story = {
 
 export const StructureWeaponDisruptor: Story = {
   ...fitted(types["Standup Weapon Disruptor I"], "medium", undefined, types.Keepstar),
-  render: (args) => <WeaponDisruptor {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 150 km")).toBeVisible();
     await expect(canvas.queryByText(/Optimal range within/)).toBeNull();

@@ -1,40 +1,24 @@
-import { useAttribute } from "@eveshipfit/react-hooks";
-
-import { range, unit } from "../../ShipStatistics/units";
-import { Attribute, useDisplayName } from "./parts/Attribute";
-import { BonusLine, useBonus } from "./parts/Bonus";
-import { Range } from "./parts/Range";
+import { ActivationRange } from "./ActivationRange";
+import { AttributeLine } from "./parts/Attribute";
+import { BonusLine, percent } from "./parts/Bonus";
 import type { LineProps } from "./index";
 
-const passive = "signatureSuppressorSignatureRadiusBonusPassive";
-
-export function TargetPainter({ itemRef }: LineProps) {
+export function TargetPainter(props: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
-      <BonusLine bonus={useBonus("signatureRadiusBonus", itemRef)} />
-    </>
-  );
-}
-
-export function StructureTargetPainter({ itemRef }: LineProps) {
-  return (
-    <>
-      <Range itemRef={itemRef} label="Range" format={range} />
-      <BonusLine bonus={useBonus("signatureRadiusBonus", itemRef)} />
+      <ActivationRange {...props} />
+      <BonusLine itemRef={props.itemRef} name="signatureRadiusBonus" />
     </>
   );
 }
 
 export function SignatureSuppressor({ itemRef }: LineProps) {
-  const bonus = useAttribute(passive, {
-    of: itemRef,
-    decimals: 0,
-    format: (value, format) => unit("%")((1 - value) * 100, format),
-  });
   return (
-    <Attribute name={passive}>
-      {bonus.text} {useDisplayName(passive)}
-    </Attribute>
+    <AttributeLine
+      itemRef={itemRef}
+      name="signatureSuppressorSignatureRadiusBonusPassive"
+      decimals={0}
+      format={(value, format) => percent((1 - value) * 100, format)}
+    />
   );
 }

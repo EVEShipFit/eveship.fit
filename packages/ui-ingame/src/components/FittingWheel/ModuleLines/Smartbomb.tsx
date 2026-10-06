@@ -2,10 +2,13 @@ import type { ItemRef } from "@eveshipfit/fitting";
 import { useAttribute } from "@eveshipfit/react-hooks";
 
 import { range, unit } from "../../ShipStatistics/units";
-import { Attribute, useDisplayName } from "./parts/Attribute";
+import { ActivationRange } from "./ActivationRange";
+import { Attribute, AttributeLine, type Layout } from "./parts/Attribute";
 import { Damage } from "./parts/Damage";
-import { Range } from "./parts/Range";
 import type { LineProps } from "./index";
+
+const hp = unit(" HP");
+const dashed: Layout = (text, displayName) => `${text} - ${displayName}`;
 
 export function Smartbomb({ itemRef }: LineProps) {
   const radius = useAttribute("empFieldRange", { of: itemRef, decimals: 0, format: range });
@@ -17,11 +20,11 @@ export function Smartbomb({ itemRef }: LineProps) {
   );
 }
 
-export function PointDefense({ itemRef }: LineProps) {
+export function PointDefense(props: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} optimal="empFieldRange" label="Range" format={range} />
-      <Damage itemRef={itemRef} />
+      <ActivationRange {...props} />
+      <Damage itemRef={props.itemRef} />
     </>
   );
 }
@@ -31,23 +34,7 @@ export function Doomsday({ itemRef }: LineProps) {
 }
 
 function DamageLines({ itemRef }: { itemRef: ItemRef }) {
-  return (
-    <>
-      <DamageLine itemRef={itemRef} name="emDamage" />
-      <DamageLine itemRef={itemRef} name="thermalDamage" />
-      <DamageLine itemRef={itemRef} name="kineticDamage" />
-      <DamageLine itemRef={itemRef} name="explosiveDamage" />
-    </>
-  );
-}
-
-function DamageLine({ itemRef, name }: { itemRef: ItemRef; name: string }) {
-  const damage = useAttribute(name, { of: itemRef, decimals: 0, format: unit(" HP") });
-  const displayName = useDisplayName(name);
-  if (!damage.value) return null;
-  return (
-    <Attribute name={name}>
-      {damage.text} - {displayName}
-    </Attribute>
-  );
+  return ["emDamage", "thermalDamage", "kineticDamage", "explosiveDamage"].map((name) => (
+    <AttributeLine key={name} itemRef={itemRef} name={name} decimals={0} format={hp} layout={dashed} hideZero />
+  ));
 }

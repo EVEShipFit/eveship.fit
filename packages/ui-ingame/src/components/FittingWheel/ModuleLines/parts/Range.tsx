@@ -1,30 +1,29 @@
 import type { ItemRef } from "@eveshipfit/fitting";
-import { useAttribute, type NumberFormat } from "@eveshipfit/react-hooks";
+import { useAttribute } from "@eveshipfit/react-hooks";
 
+import { range } from "../../../ShipStatistics/units";
 import styles from "../../ModuleTooltip.module.css";
 import { Attribute } from "./Attribute";
 
 /** Optimal range and optimal plus falloff; only the optimal range with a falloff of 1 m or less. */
 export function Range({
   itemRef,
-  optimal: optimalName = "maxRange",
+  optimal: optimalName,
   falloff,
   label,
   falloffLabel = label,
-  format,
 }: {
   itemRef: ItemRef;
-  optimal?: string;
+  optimal: string;
   falloff?: string;
   label: string;
   falloffLabel?: string;
-  format: (value: number, format: NumberFormat) => string;
 }) {
-  const optimal = useAttribute(optimalName, { of: itemRef, decimals: 0, format });
+  const optimal = useAttribute(optimalName, { of: itemRef, decimals: 0, format: range });
   const total = useAttribute(falloff ?? optimalName, {
     of: itemRef,
     decimals: 0,
-    format: (value, numberFormat) => format(value + (optimal.value ?? 0), numberFormat),
+    format: (value, format) => range(value + (optimal.value ?? 0), format),
   });
 
   if (falloff === undefined || (total.value ?? 0) <= 1) {

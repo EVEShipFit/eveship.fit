@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { EnergyNeutralizer, EnergyNosferatu, StructureEnergyNeutralizer } from "./EnergyWarfare";
+import { EnergyNeutralizer, EnergyNosferatu } from "./EnergyWarfare";
 
 const types = {
   Rifter: 587,
@@ -56,7 +56,6 @@ export const Nosferatu: Story = {
 
 export const StructureXl: Story = {
   ...fitted(types["Standup XL Energy Neutralizer I"], "high", types.Keepstar),
-  render: (args) => <StructureEnergyNeutralizer {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 150 km")).toBeVisible();
     await expect(canvas.queryByText(/Optimal range within/)).toBeNull();
@@ -66,7 +65,6 @@ export const StructureXl: Story = {
 
 export const StructureHeavy: Story = {
   ...fitted(types["Standup Heavy Energy Neutralizer I"], "high", types.Keepstar),
-  render: (args) => <StructureEnergyNeutralizer {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 100 km")).toBeVisible();
     await expect(canvas.getByText("1,500 GJ neutralized per 15s")).toBeVisible();

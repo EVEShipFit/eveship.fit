@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { RemoteTrackingComputer, TrackingComputer } from "./TrackingComputer";
+import { TrackingComputer } from "./TrackingComputer";
 
 const types = {
   Rifter: 587,
@@ -28,7 +28,7 @@ const fitted = (typeId: number, chargeTypeId?: number) => ({
 });
 
 const meta = {
-  component: RemoteTrackingComputer,
+  component: TrackingComputer,
   decorators: [
     (Story) => (
       <div style={{ background: "var(--esf-bg)", display: "grid", gap: 8, padding: "8px 14px" }}>
@@ -36,7 +36,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof RemoteTrackingComputer>;
+} satisfies Meta<typeof TrackingComputer>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -63,7 +63,6 @@ export const RemoteWithScript: Story = {
 
 export const Local: Story = {
   ...fitted(types["Tracking Computer II"]),
-  render: (args) => <TrackingComputer {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.queryByText(/Range within/)).toBeNull();
     await expect(canvas.getByText("Falloff Bonus: 15%")).toBeVisible();
@@ -74,7 +73,6 @@ export const Local: Story = {
 
 export const LocalWithScript: Story = {
   ...fitted(types["Tracking Computer II"], types["Optimal Range Script"]),
-  render: (args) => <TrackingComputer {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Falloff Bonus: 30%")).toBeVisible();
     await expect(canvas.getByText("Optimal Range Bonus: 15%")).toBeVisible();

@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { WarpDisruptionFieldGenerator, WarpScrambler } from "./WarpScrambler";
+import { ActivationRange } from "./ActivationRange";
+import { WarpScrambler } from "./WarpScrambler";
 
 const types = {
   Rifter: 587,
@@ -63,7 +64,7 @@ export const Disruptor: Story = {
 
 export const FieldGenerator: Story = {
   ...fitted(types["Warp Disruption Field Generator II"], "high", undefined, types.Broadsword),
-  render: (args) => <WarpDisruptionFieldGenerator {...args} />,
+  render: (args) => <ActivationRange {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 25 km")).toBeVisible();
     await expect(canvas.queryByText(/Strength/)).toBeNull();
@@ -77,7 +78,7 @@ export const FocusedFieldGenerator: Story = {
     types["Focused Warp Disruption Script"],
     types.Broadsword,
   ),
-  render: (args) => <WarpDisruptionFieldGenerator {...args} />,
+  render: (args) => <ActivationRange {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 38 km")).toBeVisible();
   },

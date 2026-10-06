@@ -1,59 +1,34 @@
-import { useAttribute } from "@eveshipfit/react-hooks";
-
-import { range } from "../../ShipStatistics/units";
+import { ActivationRange } from "./ActivationRange";
 import type { LineProps } from "./index";
 import { PerCycle } from "./parts/PerCycle";
-import { Range } from "./parts/Range";
 
 export function ShieldBooster({ itemRef }: LineProps) {
   return <PerCycle itemRef={itemRef} name="shieldBonus" label="HP bonus" />;
 }
 
-export function RemoteShieldBooster({ itemRef }: LineProps) {
+export function RemoteShieldBooster(props: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
-      <PerCycle itemRef={itemRef} name="shieldBonus" label="HP transported" />
+      <ActivationRange {...props} />
+      <PerCycle itemRef={props.itemRef} name="shieldBonus" label="HP transported" />
     </>
   );
 }
 
-export function AncillaryRemoteShieldBooster({ itemRef }: LineProps) {
-  return <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />;
-}
-
-export function ArmorRepairer({ itemRef }: LineProps) {
-  const multiplier = useAttribute("chargedRepairMultiplier", { of: itemRef }).value;
-  return <PerCycle itemRef={itemRef} name="armorDamageAmount" label="HP repaired" multiplier={multiplier} />;
-}
-
-export function RemoteArmorRepairer(props: LineProps) {
+export function ArmorRepairer(props: LineProps) {
   return (
     <>
-      <Range itemRef={props.itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
-      <ArmorRepairer {...props} />
+      <ActivationRange {...props} />
+      <PerCycle itemRef={props.itemRef} name="armorDamageAmount" label="HP repaired" />
     </>
   );
 }
 
-export function AncillaryRemoteArmorRepairer(props: LineProps) {
+export function HullRepairer(props: LineProps) {
   return (
     <>
-      <Range itemRef={props.itemRef} label="Range" format={range} />
-      <ArmorRepairer {...props} />
-    </>
-  );
-}
-
-export function HullRepairer({ itemRef }: LineProps) {
-  return <PerCycle itemRef={itemRef} name="structureDamageAmount" label="HP" />;
-}
-
-export function RemoteHullRepairer(props: LineProps) {
-  return (
-    <>
-      <Range itemRef={props.itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
-      <HullRepairer {...props} />
+      <ActivationRange {...props} />
+      <PerCycle itemRef={props.itemRef} name="structureDamageAmount" label="HP" />
     </>
   );
 }

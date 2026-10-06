@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { BurstJammer, Ecm, StructureEcm } from "./Ecm";
+import { Ecm } from "./Ecm";
 
 const types = {
   Rifter: 587,
@@ -54,7 +54,6 @@ export const Multispectral: Story = {
 
 export const Burst: Story = {
   ...fitted(types["Burst Jammer II"], "medium"),
-  render: (args) => <BurstJammer {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 18 km")).toBeVisible();
     await expect(canvas.queryByText(/Optimal range/)).toBeNull();
@@ -64,7 +63,6 @@ export const Burst: Story = {
 
 export const Structure: Story = {
   ...fitted(types["Standup Variable Spectrum ECM I"], "medium", undefined, types.Keepstar),
-  render: (args) => <StructureEcm {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 75 km")).toBeVisible();
     await expect(canvas.queryByText(/Optimal range within/)).toBeNull();
