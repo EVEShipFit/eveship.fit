@@ -10,9 +10,9 @@ import { RemoteCapacitorTransmitter } from "./CapacitorTransmitter";
 import { Cloak } from "./Cloak";
 import { CommandBonus } from "./CommandBonus";
 import { Compressor } from "./Compressor";
-import { GuidanceDisruptor, TrackingDisruptor } from "./Disruptor";
-import { BurstJammer, Ecm } from "./Ecm";
-import { EnergyNeutralizer, EnergyNosferatu } from "./EnergyWarfare";
+import { GuidanceDisruptor, TrackingDisruptor, WeaponDisruptor } from "./Disruptor";
+import { BurstJammer, Ecm, StructureEcm } from "./Ecm";
+import { EnergyNeutralizer, EnergyNosferatu, StructureEnergyNeutralizer } from "./EnergyWarfare";
 import { MaxVelocity } from "./MaxVelocity";
 import { Mining } from "./Mining";
 import { Missile } from "./Missile";
@@ -29,10 +29,10 @@ import {
 } from "./Repairer";
 import { DamageControl, Resistance } from "./Resistance";
 import { ResistanceBonus } from "./ResistanceBonus";
-import { RemoteSensorBooster, SensorBooster } from "./SensorBooster";
+import { RemoteSensorBooster, SensorBooster, StructureSensorDampener } from "./SensorBooster";
 import { CargoScanner, ShipScanner } from "./ShipScanner";
-import { SignatureSuppressor, TargetPainter } from "./SignatureRadius";
-import { Doomsday, Smartbomb } from "./Smartbomb";
+import { SignatureSuppressor, StructureTargetPainter, TargetPainter } from "./SignatureRadius";
+import { Doomsday, PointDefense, Smartbomb } from "./Smartbomb";
 import { StasisWebifier } from "./StasisWebifier";
 import { RemoteTrackingComputer, TrackingComputer } from "./TrackingComputer";
 import { TractorBeam } from "./TractorBeam";
@@ -69,6 +69,7 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["fueledShieldBoosting", [ShieldBooster]],
   ["gunneryMaxRangeFalloffTrackingSpeedBonus", [TrackingComputer]],
   ["industrialItemCompression", [Compressor]],
+  ["lightningWeapon", [Doomsday]],
   ["miningClouds", [Mining]],
   ["miningLaser", [Mining]],
   ["modifyActiveArmorResonancePostPercent", [ResistanceBonus]],
@@ -84,6 +85,7 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["moduleBonusWarfareLinkShield", [ActivationRange]],
   ["moduleBonusWarfareLinkSkirmish", [ActivationRange]],
   ["moduleTitanEffectGenerator", [ActivationRange]],
+  ["pointDefense", [PointDefense]],
   ["powerBooster", [CapacitorBooster]],
   ["projectileFired", [Turret]],
   ["remoteECMFalloff", [Ecm]],
@@ -106,7 +108,14 @@ const lines = new Map<string, ComponentType<LineProps>[]>([
   ["shipModuleTrackingDisruptor", [TrackingDisruptor]],
   ["shipScan", [ShipScanner]],
   ["signatureRadiusBonusOnline", [SignatureSuppressor]],
+  ["structureEnergyNeutralizerFalloff", [StructureEnergyNeutralizer]],
+  ["structureModuleEffectECM", [StructureEcm]],
+  ["structureModuleEffectRemoteSensorDampener", [StructureSensorDampener]],
+  ["structureModuleEffectStasisWebifier", [StasisWebifier]],
+  ["structureModuleEffectTargetPainter", [StructureTargetPainter]],
+  ["structureModuleEffectWeaponDisruption", [WeaponDisruptor]],
   ["structureRepair", [HullRepairer]],
+  ["structureWarpScrambleBlockMWDWithNPCEffect", [WarpScrambler]],
   ["superWeaponAmarr", [Doomsday]],
   ["superWeaponCaldari", [Doomsday]],
   ["superWeaponGallente", [Doomsday]],

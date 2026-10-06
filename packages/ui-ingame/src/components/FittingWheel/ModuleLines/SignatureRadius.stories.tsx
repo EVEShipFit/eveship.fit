@@ -1,12 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { SignatureSuppressor, TargetPainter } from "./SignatureRadius";
+import { SignatureSuppressor, StructureTargetPainter, TargetPainter } from "./SignatureRadius";
 
 const types = {
   Rifter: 587,
   "Target Painter II": 19806,
   "Signature Radius Suppressor I": 4409,
+  Keepstar: 35834,
+  "Standup Target Painter I": 35947,
 };
 
 const fitted = (typeId: number, slot: "high" | "medium", chargeTypeId?: number, shipTypeId = types.Rifter) => ({
@@ -54,5 +56,15 @@ export const Suppressor: Story = {
   render: (args) => <SignatureSuppressor {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("10% Signature Radius Bonus")).toBeVisible();
+  },
+};
+
+export const StructurePainter: Story = {
+  ...fitted(types["Standup Target Painter I"], "medium", undefined, types.Keepstar),
+  render: (args) => <StructureTargetPainter {...args} />,
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 75 km")).toBeVisible();
+    await expect(canvas.queryByText(/Optimal range within/)).toBeNull();
+    await expect(canvas.getByText("65% Signature Radius Modifier")).toBeVisible();
   },
 };

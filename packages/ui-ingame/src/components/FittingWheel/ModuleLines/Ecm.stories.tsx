@@ -1,12 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { BurstJammer, Ecm } from "./Ecm";
+import { BurstJammer, Ecm, StructureEcm } from "./Ecm";
 
 const types = {
   Rifter: 587,
   "Multispectral ECM II": 2567,
   "Burst Jammer II": 2117,
+  Keepstar: 35834,
+  "Standup Variable Spectrum ECM I": 35940,
 };
 
 const fitted = (typeId: number, slot: "high" | "medium", chargeTypeId?: number, shipTypeId = types.Rifter) => ({
@@ -57,5 +59,16 @@ export const Burst: Story = {
     await expect(canvas.getByText("Range within 18 km")).toBeVisible();
     await expect(canvas.queryByText(/Optimal range/)).toBeNull();
     await expect(canvas.getByText("9.0 Ladar ECM Jammer Strength")).toBeVisible();
+  },
+};
+
+export const Structure: Story = {
+  ...fitted(types["Standup Variable Spectrum ECM I"], "medium", undefined, types.Keepstar),
+  render: (args) => <StructureEcm {...args} />,
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 75 km")).toBeVisible();
+    await expect(canvas.queryByText(/Optimal range within/)).toBeNull();
+    await expect(canvas.getByText("30.0 Gravimetric ECM Jammer Strength")).toBeVisible();
+    await expect(canvas.getByText("30.0 RADAR ECM Jammer Strength")).toBeVisible();
   },
 };

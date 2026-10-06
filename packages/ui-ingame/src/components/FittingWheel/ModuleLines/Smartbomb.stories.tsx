@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
 import type { LineProps } from "./index";
-import { Doomsday, Smartbomb } from "./Smartbomb";
+import { Doomsday, PointDefense, Smartbomb } from "./Smartbomb";
 
 const types = {
   Rifter: 587,
@@ -13,13 +13,16 @@ const types = {
   "'Divine Harvest' Electromagnetic Reaper": 40632,
   "Bosonic Field Generator": 40633,
   "'Azmaru' Electromagnetic Disruptive Lance": 77399,
+  Keepstar: 35834,
+  "Standup Arcing Vorton Projector I": 35928,
+  "Standup Point Defense Battery I": 35926,
 };
 
-const doomsday = (typeId: number) => ({
+const doomsday = (typeId: number, shipTypeId = types.Avatar) => ({
   args: { typeId },
   parameters: {
     fit: {
-      ship: { type_id: types.Avatar },
+      ship: { type_id: shipTypeId },
       items: [{ type_id: typeId, slot: { type: "high", index: 0 }, state: "active" }],
     },
   },
@@ -98,5 +101,29 @@ export const DisruptiveLance: Story = {
   ...doomsday(types["'Azmaru' Electromagnetic Disruptive Lance"]),
   play: async ({ canvas }) => {
     await expect(canvas.getByText("17,000 HP - EM damage")).toBeVisible();
+  },
+};
+
+export const ArcingVortonProjector: Story = {
+  ...doomsday(types["Standup Arcing Vorton Projector I"], types.Keepstar),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("1,000,000 HP - EM damage")).toBeVisible();
+    await expect(canvas.getByText("1,000,000 HP - Thermal damage")).toBeVisible();
+    await expect(canvas.getByText("1,000,000 HP - Kinetic damage")).toBeVisible();
+    await expect(canvas.getByText("1,000,000 HP - Explosive damage")).toBeVisible();
+  },
+};
+
+export const PointDefenseBattery: Story = {
+  args: { typeId: types["Standup Point Defense Battery I"] },
+  parameters: {
+    fit: {
+      ship: { type_id: types.Keepstar },
+      items: [{ type_id: types["Standup Point Defense Battery I"], slot: { type: "high", index: 0 }, state: "active" }],
+    },
+  },
+  render: (args) => <PointDefense {...args} />,
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 2,500 m")).toBeVisible();
   },
 };

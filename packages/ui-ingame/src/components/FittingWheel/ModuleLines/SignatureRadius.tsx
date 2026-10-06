@@ -17,6 +17,15 @@ export function TargetPainter({ itemRef }: LineProps) {
   );
 }
 
+export function StructureTargetPainter({ itemRef }: LineProps) {
+  return (
+    <>
+      <Range itemRef={itemRef} label="Range" format={range} />
+      <BonusLine bonus={useBonus("signatureRadiusBonus", itemRef)} />
+    </>
+  );
+}
+
 export function SignatureSuppressor({ itemRef }: LineProps) {
   const bonus = useAttribute(passive, {
     of: itemRef,

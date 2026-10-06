@@ -12,6 +12,15 @@ export function EnergyNeutralizer({ itemRef }: LineProps) {
   );
 }
 
+export function StructureEnergyNeutralizer({ itemRef }: LineProps) {
+  return (
+    <>
+      <Range itemRef={itemRef} label="Range" format={range} />
+      <PerCycle itemRef={itemRef} name="energyNeutralizerAmount" label="GJ neutralized" />
+    </>
+  );
+}
+
 export function EnergyNosferatu({ itemRef }: LineProps) {
   return (
     <>

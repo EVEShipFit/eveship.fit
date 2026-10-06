@@ -6,6 +6,8 @@ import { StasisWebifier } from "./StasisWebifier";
 const types = {
   Rifter: 587,
   "Stasis Webifier II": 527,
+  Keepstar: 35834,
+  "Standup Stasis Webifier I": 35943,
 };
 
 const fitted = (typeId: number, slot: "high" | "medium", chargeTypeId?: number, shipTypeId = types.Rifter) => ({
@@ -45,5 +47,14 @@ export const Default: Story = {
     await expect(canvas.getByText("Range within 10 km")).toBeVisible();
     await expect(canvas.queryByText(/Optimal range/)).toBeNull();
     await expect(canvas.getByText("Reduces target ship's velocity by 60%")).toBeVisible();
+  },
+};
+
+export const Structure: Story = {
+  ...fitted(types["Standup Stasis Webifier I"], "medium", undefined, types.Keepstar),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 200 km")).toBeVisible();
+    await expect(canvas.queryByText(/Optimal range within/)).toBeNull();
+    await expect(canvas.getByText("Reduces target ship's velocity by 70%")).toBeVisible();
   },
 };

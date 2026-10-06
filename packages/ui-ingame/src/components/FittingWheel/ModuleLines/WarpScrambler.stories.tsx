@@ -10,6 +10,8 @@ const types = {
   "Warp Disruptor II": 3244,
   "Warp Disruption Field Generator II": 4248,
   "Focused Warp Disruption Script": 29003,
+  Keepstar: 35834,
+  "Standup Focused Warp Disruptor I": 35949,
 };
 
 const fitted = (typeId: number, slot: "high" | "medium", chargeTypeId?: number, shipTypeId = types.Rifter) => ({
@@ -78,5 +80,13 @@ export const FocusedFieldGenerator: Story = {
   render: (args) => <WarpDisruptionFieldGenerator {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 38 km")).toBeVisible();
+  },
+};
+
+export const Structure: Story = {
+  ...fitted(types["Standup Focused Warp Disruptor I"], "medium", undefined, types.Keepstar),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Range within 210 km")).toBeVisible();
+    await expect(canvas.getByText("Warp Scramble Strength: 100")).toBeVisible();
   },
 };
