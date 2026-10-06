@@ -7,6 +7,9 @@ const types = {
   Drake: 24698,
   "Heavy Missile Launcher II": 2410,
   "Scourge Heavy Missile": 209,
+  Raven: 638,
+  "Cruise Missile Launcher II": 19739,
+  "Inferno Auto-Targeting Cruise Missile I": 1832,
 };
 
 const fitted = (typeId: number, slot: "high" | "medium" | "low", chargeTypeId?: number, shipTypeId = types.Drake) => ({
@@ -55,5 +58,12 @@ export const Empty: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.queryByText("Max flight range")).toBeNull();
     await expect(canvas.getByText("Damage Per Second 0.0")).toBeVisible();
+  },
+};
+
+export const AutoTargeting: Story = {
+  ...fitted(types["Cruise Missile Launcher II"], "high", types["Inferno Auto-Targeting Cruise Missile I"], types.Raven),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("200 km")).toBeVisible();
   },
 };

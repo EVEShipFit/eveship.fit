@@ -12,7 +12,7 @@ export function DamagePerSecond({ itemRef, icon }: { itemRef: ItemRef; icon: str
     fixed: true,
     fallback: 0,
     format: (value, format) =>
-      spool
+      spool && value
         ? `${formatNumber(value / (1 + spool), format)}-${formatNumber(value, format)}`
         : formatNumber(value, format),
   });

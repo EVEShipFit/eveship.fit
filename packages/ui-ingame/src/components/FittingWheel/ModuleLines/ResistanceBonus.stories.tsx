@@ -8,6 +8,7 @@ const types = {
   "Multispectrum Shield Hardener II": 2281,
   "Thermal Armor Hardener II": 11648,
   "Multispectrum Coating II": 1306,
+  "EM Coating II": 1198,
 };
 
 const fitted = (typeId: number, slot: "medium" | "low") => ({
@@ -54,5 +55,12 @@ export const Coating: Story = {
   ...fitted(types["Multispectrum Coating II"], "low"),
   play: async ({ canvas }) => {
     await expect(canvas.getAllByText("-19.2%")).toHaveLength(4);
+  },
+};
+
+export const SingleCoating: Story = {
+  ...fitted(types["EM Coating II"], "low"),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("-35% EM Damage Resistance Bonus")).toBeVisible();
   },
 };

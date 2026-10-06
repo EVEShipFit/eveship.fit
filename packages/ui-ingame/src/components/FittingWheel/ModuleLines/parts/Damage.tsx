@@ -7,10 +7,11 @@ import { Attribute, Bonus } from "./Attribute";
 
 const hp = unit(" HP");
 
-/** The damage of the loaded charge, per damage type. */
+/** The damage of the loaded charge, per damage type; fully spooled up. */
 export function Damage({ itemRef }: { itemRef: ItemRef }) {
   const sde = useSde();
-  const multiplier = useAttribute("damageMultiplier", { of: itemRef }).value ?? 1;
+  const spool = useAttribute("damageMultiplierBonusMax", { of: itemRef }).value ?? 0;
+  const multiplier = (useAttribute("damageMultiplier", { of: itemRef }).value ?? 1) * (1 + spool);
   const damages = [
     useDamage("emDamage", itemRef),
     useDamage("thermalDamage", itemRef),
