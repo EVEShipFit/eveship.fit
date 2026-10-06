@@ -464,7 +464,7 @@ export const WithBoth: Story = {
   args: { browser: <ItemBrowser />, statistics: <ShipStatistics /> },
   play: async ({ canvas }) => {
     const window = canvas.getByRole("region", { name: "Fitting Window" });
-    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(1372));
+    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(1380));
     await expect(canvas.getByRole("region", { name: "Item Browser" })).toBeVisible();
     await expect(canvas.getByRole("region", { name: "Statistics" })).toBeVisible();
   },
@@ -478,7 +478,7 @@ export const WithStatistics: Story = {
     const button = canvas.getByRole("button", { name: "Statistics" });
     await expect(button).toHaveAttribute("aria-expanded", "true");
     await expect(canvas.getByRole("region", { name: "Statistics" })).toBeVisible();
-    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(972));
+    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(980));
 
     await userEvent.click(button);
     await expect(button).toHaveAttribute("aria-expanded", "false");
@@ -495,7 +495,7 @@ export const Preview: Story = {
   parameters: { fit: rifter },
   play: async ({ canvas }) => {
     const window = canvas.getByRole("region", { name: "Fitting Window" });
-    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(972));
+    await waitFor(() => expect(window.getBoundingClientRect().width).toBe(980));
     await expect(canvas.getByRole("region", { name: "Statistics" })).toBeVisible();
     await expect(canvas.queryByText("Storybook Rifter")).toBeNull();
     await expect(canvas.queryByRole("group", { name: "Simulation History" })).toBeNull();

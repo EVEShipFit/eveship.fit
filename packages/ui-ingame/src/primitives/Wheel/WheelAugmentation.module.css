@@ -6,7 +6,7 @@
   position: absolute;
   stroke: rgb(255 255 255 / 7%);
   stroke-linecap: round;
-  stroke-width: 30;
+  stroke-width: 39;
 }
 
 /* Centred with margins: Firefox anchors tooltips as if there were no transform. */
@@ -34,10 +34,10 @@
 
 /* Centred with margins: Firefox anchors tooltips as if there were no transform. */
 .slot {
-  height: calc(23 * var(--wheel-unit));
-  margin: calc(-11.5 * var(--wheel-unit));
+  height: calc(32 * var(--wheel-unit));
+  margin: calc(-16 * var(--wheel-unit));
   position: absolute;
-  width: calc(23 * var(--wheel-unit));
+  width: calc(32 * var(--wheel-unit));
 }
 
 .body {
@@ -74,10 +74,10 @@
 
 .icon {
   border-radius: calc(3 * var(--wheel-unit));
-  height: calc(19 * var(--wheel-unit));
+  height: calc(28 * var(--wheel-unit));
   overflow: hidden;
   position: relative;
-  width: calc(19 * var(--wheel-unit));
+  width: calc(28 * var(--wheel-unit));
 }
 
 .icon > span {
@@ -89,7 +89,7 @@
 .number {
   color: var(--esf-text-muted);
   font-family: var(--esf-font);
-  font-size: calc(9 * var(--wheel-unit));
+  font-size: calc(12.52 * var(--wheel-unit));
   opacity: 0.6;
   position: relative;
 }
@@ -116,12 +116,12 @@
 }
 
 .action {
-  height: calc(11 * var(--wheel-unit));
+  height: calc(12.97 * var(--wheel-unit));
   left: calc(50% + var(--x) * var(--wheel-unit));
-  margin: calc(-5.5 * var(--wheel-unit));
+  margin: calc(-6.49 * var(--wheel-unit));
   position: absolute;
   top: calc(50% + var(--y) * var(--wheel-unit));
-  width: calc(11 * var(--wheel-unit));
+  width: calc(12.97 * var(--wheel-unit));
 }
 
 /* Keeps the slot hovered while the pointer crosses the gap to its action. */

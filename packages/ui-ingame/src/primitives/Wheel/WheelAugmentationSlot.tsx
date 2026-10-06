@@ -9,8 +9,8 @@ import { augmentationRadius } from "./WheelAugmentationTrack";
 import styles from "./WheelAugmentation.module.css";
 
 /** From the slot's centre, outward: past the track, and halfway there. */
-const unfitOffset = 24;
-const bridgeOffset = 14.5;
+const unfitOffset = 28.99;
+const bridgeOffset = 19.25;
 
 export interface WheelAugmentationSlotProps extends HTMLAttributes<HTMLDivElement> {
   kind: Augmentation;

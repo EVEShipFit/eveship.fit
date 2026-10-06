@@ -7,7 +7,7 @@ import styles from "./WheelAugmentation.module.css";
 
 const BOOSTER_MARKET_GROUP_ID = 977;
 
-export const augmentationRadius = 320;
+export const augmentationRadius = 319;
 
 export interface WheelAugmentationTrackProps {
   kind: Augmentation;

@@ -19,7 +19,7 @@
 }
 
 .window[data-statistics] {
-  --statistics-width: calc(264 * var(--window-unit));
+  --statistics-width: calc(272 * var(--window-unit));
 }
 
 /* Keeps what is aligned to the right in place when the window widens. */
@@ -350,7 +350,7 @@
 
 /* Just right of the Statistics button. */
 .statistics {
-  left: calc(692 * var(--window-unit) + var(--browser-width));
+  left: calc(700 * var(--window-unit) + var(--browser-width));
   transition: left 200ms ease;
   width: calc(280 * var(--window-unit));
 }

@@ -20,7 +20,7 @@ export function slotAngle(rack: WheelRack, index: number): number {
 export type Augmentation = "implant" | "booster";
 
 /** Implants run down the left of the wheel, boosters mirror them on the right; in degrees. */
-const augmentations = { first: 108, step: 4.3 };
+const augmentations = { first: 96, step: 6 };
 
 /** The angle of the `position`th slot of a track, counted from its top; fractions place what goes between. */
 export function augmentationAngle(kind: Augmentation, position: number): number {
