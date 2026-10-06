@@ -72,10 +72,21 @@ test("an edit to the fit updates the url", async ({ page }) => {
   await expect(fitting.getByRole("button", { name: /^Damage Control II,/ })).toBeVisible({ timeout: 30_000 });
 });
 
-test("a broken fit link opens a Rifter", async ({ page }) => {
+test("a broken fit link says so, and keeps the link until the fit changes", async ({ page }) => {
+  const link = () => new URL(page.url()).searchParams.get("fit");
   await page.goto("/?fit=v3:broken");
-  await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
-  expect(new URL(page.url()).searchParams.get("fit")).toMatch(/^esf1:/);
+  const dialog = page.getByRole("dialog", { name: "Broken Fit Link" });
+  await expect(dialog).toBeVisible({ timeout: 30_000 });
+  await expect(dialog).toContainText("This link has a fit that EVEShip.fit could not load.");
+  await dialog.getByRole("button", { name: "Close" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByText("Rifter", { exact: true })).toBeVisible();
+  expect(link()).toBe("v3:broken");
+
+  await page.getByRole("tab", { name: "Modules" }).click();
+  await page.getByRole("searchbox", { name: "Search" }).fill("damage control ii");
+  await page.getByRole("button", { name: "Damage Control II", exact: true }).dblclick();
+  await expect.poll(link).toMatch(/^esf1:/);
 });
 
 test("the item browser and statistics go below the window on a phone", async ({ page }) => {

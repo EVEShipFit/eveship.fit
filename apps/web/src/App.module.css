@@ -116,6 +116,19 @@
   color: var(--esf-text-muted);
 }
 
+.linkError {
+  max-width: min(360px, 80vw);
+}
+
+.linkError > p {
+  margin: 0 0 8px;
+}
+
+.linkError > .reason {
+  color: var(--esf-text-muted);
+  margin: 0;
+}
+
 .footer {
   color: var(--esf-text-muted);
   font-size: 11px;
