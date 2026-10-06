@@ -9,6 +9,8 @@ const BOOSTER_MARKET_GROUP_ID = 977;
 
 export const augmentationRadius = 319;
 
+const markerRadius = { implant: augmentationRadius + 4, booster: augmentationRadius };
+
 export interface WheelAugmentationTrackProps {
   kind: Augmentation;
   /** How many slots the track holds. */
@@ -37,7 +39,7 @@ export function WheelAugmentationTrack({ kind, length }: WheelAugmentationTrackP
           d={`M ${start.x} ${start.y} A ${augmentationRadius} ${augmentationRadius} 0 0 ${sweep} ${end.x} ${end.y}`}
         />
       </svg>
-      <span className={styles.marker} style={placeAt(augmentationAngle(kind, -1.65), augmentationRadius)}>
+      <span className={styles.marker} style={placeAt(augmentationAngle(kind, -1.3), markerRadius[kind])}>
         <Tooltip label={kind === "implant" ? "Implants" : "Boosters"}>
           <img src={icon} alt="" data-marker={kind} draggable={false} />
         </Tooltip>

@@ -11,10 +11,10 @@
 
 /* Centred with margins: Firefox anchors tooltips as if there were no transform. */
 .marker {
-  height: calc(24 * var(--wheel-unit));
-  margin: calc(-12 * var(--wheel-unit));
+  height: calc(30 * var(--wheel-unit));
+  margin: calc(-15 * var(--wheel-unit));
   position: absolute;
-  width: calc(24 * var(--wheel-unit));
+  width: calc(30 * var(--wheel-unit));
 }
 
 .marker img {
@@ -26,10 +26,10 @@
 
 .marker img[data-marker="booster"] {
   filter: grayscale(1) brightness(1.3);
-  margin: calc(3.5 * var(--wheel-unit));
+  margin: calc(4 * var(--wheel-unit));
   opacity: 0.7;
-  width: calc(17 * var(--wheel-unit));
-  height: calc(17 * var(--wheel-unit));
+  width: calc(22 * var(--wheel-unit));
+  height: calc(22 * var(--wheel-unit));
 }
 
 /* Centred with margins: Firefox anchors tooltips as if there were no transform. */
@@ -51,25 +51,22 @@
 }
 
 .frame {
-  background: #0d1213;
-  border: var(--wheel-unit) solid #2b3337;
-  border-radius: calc(3 * var(--wheel-unit)) calc(3 * var(--wheel-unit)) calc(6 * var(--wheel-unit))
-    calc(6 * var(--wheel-unit));
-  box-sizing: border-box;
+  fill: #0d1213;
   inset: 0;
+  overflow: visible;
   position: absolute;
-  transform: rotate(var(--angle));
+  stroke: #2b3337;
+  stroke-linejoin: round;
+  stroke-width: 1;
 }
 
 .slot[data-filled] .frame {
-  border-color: #3d5960;
+  stroke: #3d5960;
 }
 
 .slot[data-preview] .frame {
-  border-color: var(--esf-button-active-edge);
-  box-shadow:
-    0 0 calc(7 * var(--wheel-unit)) var(--esf-button-active-edge),
-    inset 0 0 calc(5 * var(--wheel-unit)) rgb(87 166 190 / 50%);
+  filter: drop-shadow(0 0 calc(4 * var(--wheel-unit)) var(--esf-button-active-edge));
+  stroke: var(--esf-button-active-edge);
 }
 
 .icon {
