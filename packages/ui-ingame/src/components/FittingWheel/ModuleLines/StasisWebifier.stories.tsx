@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { StasisGrappler, StasisWebifier } from "./StasisWebifier";
+import { ActivationRange } from "./ActivationRange";
+import { StasisWebifier } from "./StasisWebifier";
 
 const types = {
   Rifter: 587,
@@ -62,7 +63,7 @@ export const Structure: Story = {
 
 export const Grappler: Story = {
   ...fitted(types["Heavy Stasis Grappler II"], "medium"),
-  render: (args) => <StasisGrappler {...args} />,
+  render: (args) => <ActivationRange {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 11 km")).toBeVisible();
     await expect(canvas.getByText("Optimal range within 1,000 m")).toBeVisible();

@@ -1,4 +1,5 @@
-import { useImages, useSde } from "@eveshipfit/react-hooks";
+import type { ItemRef } from "@eveshipfit/fitting";
+import { useAttribute, useImages, useSde, type AttributeOptions } from "@eveshipfit/react-hooks";
 import type { ReactNode } from "react";
 
 import styles from "../../ModuleTooltip.module.css";
@@ -37,6 +38,28 @@ export function Bonus({ name, text }: { name: string; text: string }) {
       {text}
     </Line>
   );
+}
+
+/** How a line puts an attribute's value and name together. */
+export type Layout = (text: string, displayName: string | undefined) => string;
+
+const valueFirst: Layout = (text, displayName) => `${text} ${displayName}`;
+
+/** Like "Turret Tracking: 0.36". */
+export const nameFirst: Layout = (text, displayName) => `${displayName}: ${text}`;
+
+/** An attribute of an item with its name, like "-17% Falloff Bonus"; nothing without a value. */
+export function AttributeLine({
+  itemRef,
+  name,
+  hideZero = false,
+  layout = valueFirst,
+  ...options
+}: Omit<AttributeOptions, "of"> & { itemRef: ItemRef; name: string; hideZero?: boolean; layout?: Layout }) {
+  const { value, text } = useAttribute(name, { of: itemRef, ...options });
+  const displayName = useDisplayName(name);
+  if (value === undefined || (hideZero && !value)) return null;
+  return <Attribute name={name}>{layout(text, displayName)}</Attribute>;
 }
 
 function useAttributeIcon(name: string) {

@@ -1,30 +1,23 @@
-import type { ItemRef } from "@eveshipfit/fitting";
-import { useAttribute, useSde } from "@eveshipfit/react-hooks";
-
-import { unit } from "../../ShipStatistics/units";
 import styles from "../ModuleTooltip.module.css";
 import { Attribute, Bonus } from "./parts/Attribute";
+import { percent, useBonus } from "./parts/Bonus";
 import type { LineProps } from "./index";
 
-const percent = unit("%");
-
 export function ResistanceBonus({ itemRef }: LineProps) {
-  const sde = useSde();
+  const options = { decimals: 1 };
   const bonuses = [
-    useBonus("emDamageResistanceBonus", itemRef),
-    useBonus("explosiveDamageResistanceBonus", itemRef),
-    useBonus("kineticDamageResistanceBonus", itemRef),
-    useBonus("thermalDamageResistanceBonus", itemRef),
+    useBonus("emDamageResistanceBonus", itemRef, options),
+    useBonus("explosiveDamageResistanceBonus", itemRef, options),
+    useBonus("kineticDamageResistanceBonus", itemRef, options),
+    useBonus("thermalDamageResistanceBonus", itemRef, options),
   ].filter((bonus) => bonus.value);
 
   const [first] = bonuses;
   if (first === undefined) return null;
   if (bonuses.length === 1) {
-    const { name, value } = first;
-    const displayName = sde.attribute(sde.attributeId(name) ?? 0)?.displayName;
     return (
-      <Attribute name={name}>
-        {percent(value ?? 0, { decimals: 0 })} {displayName}
+      <Attribute name={first.name}>
+        {percent(first.value ?? 0, { decimals: 0 })} {first.displayName}
       </Attribute>
     );
   }
@@ -39,9 +32,4 @@ export function ResistanceBonus({ itemRef }: LineProps) {
       </span>
     </span>
   );
-}
-
-function useBonus(name: string, itemRef: ItemRef) {
-  const { value, text } = useAttribute(name, { of: itemRef, decimals: 1, format: percent });
-  return { name, value, text };
 }

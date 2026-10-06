@@ -3,9 +3,9 @@ import { formatNumber, useAttribute, type AttributeOptions } from "@eveshipfit/r
 
 import { unit } from "../../../ShipStatistics/units";
 import styles from "../../ModuleTooltip.module.css";
-import { Attribute, useDisplayName } from "./Attribute";
+import { Attribute, AttributeLine, useDisplayName } from "./Attribute";
 
-const percent = unit("%");
+export const percent = unit("%");
 
 export interface BonusValue {
   name: string;
@@ -24,13 +24,8 @@ export function useBonus(
 }
 
 /** "-17% Falloff Bonus"; nothing when the bonus is 0. */
-export function BonusLine({ bonus }: { bonus: BonusValue }) {
-  if (!bonus.value) return null;
-  return (
-    <Attribute name={bonus.name}>
-      {bonus.text} {bonus.displayName}
-    </Attribute>
-  );
+export function BonusLine({ itemRef, name }: { itemRef: ItemRef; name: string }) {
+  return <AttributeLine itemRef={itemRef} name={name} decimals={0} format={percent} hideZero />;
 }
 
 /** The four sensor strengths, one line each. */

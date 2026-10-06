@@ -1,31 +1,21 @@
-import { range } from "../../ShipStatistics/units";
+import { ActivationRange } from "./ActivationRange";
 import type { LineProps } from "./index";
 import { PerCycle } from "./parts/PerCycle";
-import { Range } from "./parts/Range";
 
-export function EnergyNeutralizer({ itemRef }: LineProps) {
+export function EnergyNeutralizer(props: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
-      <PerCycle itemRef={itemRef} name="energyNeutralizerAmount" label="GJ neutralized" />
+      <ActivationRange {...props} />
+      <PerCycle itemRef={props.itemRef} name="energyNeutralizerAmount" label="GJ neutralized" />
     </>
   );
 }
 
-export function StructureEnergyNeutralizer({ itemRef }: LineProps) {
+export function EnergyNosferatu(props: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} label="Range" format={range} />
-      <PerCycle itemRef={itemRef} name="energyNeutralizerAmount" label="GJ neutralized" />
-    </>
-  );
-}
-
-export function EnergyNosferatu({ itemRef }: LineProps) {
-  return (
-    <>
-      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
-      <PerCycle itemRef={itemRef} name="powerTransferAmount" label="Points leeched" />
+      <ActivationRange {...props} />
+      <PerCycle itemRef={props.itemRef} name="powerTransferAmount" label="Points leeched" />
     </>
   );
 }

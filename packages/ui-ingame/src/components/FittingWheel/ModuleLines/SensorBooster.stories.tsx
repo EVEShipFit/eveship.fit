@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { RemoteSensorBooster, SensorBooster, StructureSensorDampener } from "./SensorBooster";
+import { SensorBooster } from "./SensorBooster";
 
 const types = {
   Rifter: 587,
@@ -32,7 +32,7 @@ const fitted = (chargeTypeId?: number, typeId = types["Remote Sensor Booster II"
 });
 
 const meta = {
-  component: RemoteSensorBooster,
+  component: SensorBooster,
   decorators: [
     (Story) => (
       <div style={{ background: "var(--esf-bg)", display: "grid", gap: 8, padding: "8px 14px" }}>
@@ -40,7 +40,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof RemoteSensorBooster>;
+} satisfies Meta<typeof SensorBooster>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -67,7 +67,6 @@ export const RemoteWithScript: Story = {
 
 export const Local: Story = {
   ...fitted(undefined, types["Sensor Booster II"]),
-  render: (args) => <SensorBooster {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.queryByText(/Range within/)).toBeNull();
     await expect(canvas.getByText("30% Scan Resolution Bonus")).toBeVisible();
@@ -77,7 +76,6 @@ export const Local: Story = {
 
 export const LocalWithScript: Story = {
   ...fitted(types["ECCM Script"], types["Sensor Booster II"]),
-  render: (args) => <SensorBooster {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.queryByText(/Scan Resolution Bonus/)).toBeNull();
     await expect(canvas.getByText("96% Gravimetric Strength")).toBeVisible();
@@ -106,7 +104,6 @@ export const DampenerWithScript: Story = {
 
 export const StructureDampener: Story = {
   ...fitted(undefined, types["Standup Remote Sensor Dampener I"], types.Keepstar),
-  render: (args) => <StructureSensorDampener {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 75 km")).toBeVisible();
     await expect(canvas.queryByText(/Optimal range within/)).toBeNull();

@@ -1,31 +1,12 @@
-import { range } from "../../ShipStatistics/units";
+import { ActivationRange } from "./ActivationRange";
 import { JammerStrengths } from "./parts/Bonus";
-import { Range } from "./parts/Range";
 import type { LineProps } from "./index";
 
-export function Ecm({ itemRef }: LineProps) {
+export function Ecm(props: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} falloff="falloffEffectiveness" label="Range" format={range} />
-      <JammerStrengths itemRef={itemRef} />
-    </>
-  );
-}
-
-export function StructureEcm({ itemRef }: LineProps) {
-  return (
-    <>
-      <Range itemRef={itemRef} label="Range" format={range} />
-      <JammerStrengths itemRef={itemRef} />
-    </>
-  );
-}
-
-export function BurstJammer({ itemRef }: LineProps) {
-  return (
-    <>
-      <Range itemRef={itemRef} optimal="ecmBurstRange" label="Range" format={range} />
-      <JammerStrengths itemRef={itemRef} />
+      <ActivationRange {...props} />
+      <JammerStrengths itemRef={props.itemRef} />
     </>
   );
 }

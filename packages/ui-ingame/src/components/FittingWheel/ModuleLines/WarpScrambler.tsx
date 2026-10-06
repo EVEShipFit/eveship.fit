@@ -1,22 +1,12 @@
-import { useAttribute } from "@eveshipfit/react-hooks";
-
-import { range } from "../../ShipStatistics/units";
-import { Attribute, useDisplayName } from "./parts/Attribute";
-import { Range } from "./parts/Range";
+import { ActivationRange } from "./ActivationRange";
+import { AttributeLine, nameFirst } from "./parts/Attribute";
 import type { LineProps } from "./index";
 
-export function WarpScrambler({ itemRef }: LineProps) {
-  const strength = useAttribute("warpScrambleStrength", { of: itemRef, decimals: 0 });
+export function WarpScrambler(props: LineProps) {
   return (
     <>
-      <Range itemRef={itemRef} label="Range" format={range} />
-      <Attribute name="warpScrambleStrength">
-        {useDisplayName("warpScrambleStrength")}: {strength.text}
-      </Attribute>
+      <ActivationRange {...props} />
+      <AttributeLine itemRef={props.itemRef} name="warpScrambleStrength" decimals={0} layout={nameFirst} />
     </>
   );
-}
-
-export function WarpDisruptionFieldGenerator({ itemRef }: LineProps) {
-  return <Range itemRef={itemRef} optimal="warpScrambleRange" label="Range" format={range} />;
 }

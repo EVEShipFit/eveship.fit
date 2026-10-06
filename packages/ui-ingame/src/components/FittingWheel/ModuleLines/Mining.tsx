@@ -1,11 +1,11 @@
 import type { ItemRef } from "@eveshipfit/fitting";
 import { useAttribute } from "@eveshipfit/react-hooks";
 
-import { range, unit } from "../../ShipStatistics/units";
+import { unit } from "../../ShipStatistics/units";
+import { ActivationRange } from "./ActivationRange";
 import { Attribute } from "./parts/Attribute";
 import { DamagePerSecond } from "./parts/DamagePerSecond";
 import { useHasEffect } from "./parts/effect";
-import { Range } from "./parts/Range";
 import type { LineProps } from "./index";
 
 export function Mining(props: LineProps) {
@@ -20,9 +20,9 @@ export function Mining(props: LineProps) {
   );
 }
 
-export function MiningRange({ itemRef, typeId }: LineProps) {
-  const turret = useHasEffect(typeId, "turretFitted");
-  return <Range itemRef={itemRef} label={turret ? "Optimal range" : "Range"} format={range} />;
+export function MiningRange(props: LineProps) {
+  const turret = useHasEffect(props.typeId, "turretFitted");
+  return <ActivationRange {...props} label={turret ? "Optimal range" : "Range"} />;
 }
 
 /** Like "200 m³ per 60s (3.3 m³/s)". */

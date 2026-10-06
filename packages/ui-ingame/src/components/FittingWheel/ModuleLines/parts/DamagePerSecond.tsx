@@ -4,11 +4,19 @@ import { formatNumber, useAttribute } from "@eveshipfit/react-hooks";
 import { Attribute } from "./Attribute";
 
 /** "Damage Per Second 57.5"; a range like "134.2-419.3" for weapons that spool up. */
-export function DamagePerSecond({ itemRef, icon }: { itemRef: ItemRef; icon: string }) {
+export function DamagePerSecond({
+  itemRef,
+  icon,
+  decimals = 1,
+}: {
+  itemRef: ItemRef;
+  icon: string;
+  decimals?: number;
+}) {
   const spool = useAttribute("damageMultiplierBonusMax", { of: itemRef }).value;
   const dps = useAttribute("damagePerSecondWithoutReload", {
     of: itemRef,
-    decimals: 1,
+    decimals,
     fixed: true,
     fallback: 0,
     format: (value, format) =>

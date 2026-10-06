@@ -1,27 +1,15 @@
-import { formatNumber, useAttribute } from "@eveshipfit/react-hooks";
+import { useAttribute } from "@eveshipfit/react-hooks";
 
-import { Attribute, useDisplayName } from "./parts/Attribute";
+import { AttributeLine, nameFirst } from "./parts/Attribute";
+import { DamagePerSecond } from "./parts/DamagePerSecond";
 import type { LineProps } from "./index";
 
 export function ProbeLauncher({ itemRef }: LineProps) {
-  const strength = useAttribute("baseSensorStrength", { of: itemRef, charge: true, decimals: 0 });
-  const loaded = strength.value !== undefined;
-  const dps = useAttribute("damagePerSecondWithoutReload", {
-    of: itemRef,
-    decimals: loaded ? 1 : 0,
-    fixed: true,
-    fallback: 0,
-    format: formatNumber,
-  });
-  const displayName = useDisplayName("baseSensorStrength");
+  const loaded = useAttribute("baseSensorStrength", { of: itemRef, charge: true }).value !== undefined;
   return (
     <>
-      <Attribute name="launcherHardPointModifier">Damage Per Second {dps.text}</Attribute>
-      {!!strength.value && (
-        <Attribute name="baseSensorStrength">
-          {displayName}: {strength.text}
-        </Attribute>
-      )}
+      <DamagePerSecond itemRef={itemRef} icon="launcherHardPointModifier" decimals={loaded ? 1 : 0} />
+      <AttributeLine itemRef={itemRef} name="baseSensorStrength" charge decimals={0} layout={nameFirst} hideZero />
     </>
   );
 }

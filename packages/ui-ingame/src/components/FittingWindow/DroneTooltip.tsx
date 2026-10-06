@@ -28,7 +28,7 @@ export function DroneTooltip({ itemRef, typeId }: { itemRef: ItemRef; typeId: nu
   return (
     <span className={styles.tooltip}>
       <TypeRow typeId={typeId} />
-      {effectId !== undefined && <EffectRange itemRef={itemRef} effectId={effectId} label="Range" />}
+      {effectId !== undefined && <EffectRange itemRef={itemRef} effectId={effectId} />}
       <Attribute name="damageMultiplier">Damage Per Second {dps.text}</Attribute>
       <DamageTypes itemRef={itemRef} />
       {mining && <MiningAmount itemRef={itemRef} />}

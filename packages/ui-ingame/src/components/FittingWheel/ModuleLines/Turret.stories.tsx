@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { Turret, VortonProjector } from "./Turret";
+import { Turret } from "./Turret";
 
 const types = {
   Rifter: 587,
@@ -99,7 +99,6 @@ export const DisintegratorEmpty: Story = {
 
 export const Vorton: Story = {
   ...fitted(types["GalvaSurge Condenser Pack S"], types.Skybreaker, types["Small Vorton Projector I"]),
-  render: (args) => <VortonProjector {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Optimal range within 21 km")).toBeVisible();
     await expect(canvas.getByText("Damage Per Second 44.3")).toBeVisible();

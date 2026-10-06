@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import { SignatureSuppressor, StructureTargetPainter, TargetPainter } from "./SignatureRadius";
+import { SignatureSuppressor, TargetPainter } from "./SignatureRadius";
 
 const types = {
   Rifter: 587,
@@ -61,7 +61,6 @@ export const Suppressor: Story = {
 
 export const StructurePainter: Story = {
   ...fitted(types["Standup Target Painter I"], "medium", undefined, types.Keepstar),
-  render: (args) => <StructureTargetPainter {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 75 km")).toBeVisible();
     await expect(canvas.queryByText(/Optimal range within/)).toBeNull();

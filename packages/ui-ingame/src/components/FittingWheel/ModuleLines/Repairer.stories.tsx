@@ -1,16 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import {
-  AncillaryRemoteArmorRepairer,
-  AncillaryRemoteShieldBooster,
-  ArmorRepairer,
-  HullRepairer,
-  RemoteArmorRepairer,
-  RemoteHullRepairer,
-  RemoteShieldBooster,
-  ShieldBooster,
-} from "./Repairer";
+import { ActivationRange } from "./ActivationRange";
+import { ArmorRepairer, HullRepairer, RemoteShieldBooster, ShieldBooster } from "./Repairer";
 
 const types = {
   Rifter: 587,
@@ -101,7 +93,7 @@ export const PastedAncillaryArmor: Story = {
 
 export const RemoteArmor: Story = {
   ...fitted(types["Medium Remote Armor Repairer II"], "high"),
-  render: (args) => <RemoteArmorRepairer {...args} />,
+  render: (args) => <ArmorRepairer {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 14 km")).toBeVisible();
     await expect(canvas.getByText("Optimal range within 11 km")).toBeVisible();
@@ -111,7 +103,7 @@ export const RemoteArmor: Story = {
 
 export const AncillaryRemoteArmor: Story = {
   ...fitted(types["Medium Ancillary Remote Armor Repairer"], "high"),
-  render: (args) => <AncillaryRemoteArmorRepairer {...args} />,
+  render: (args) => <ArmorRepairer {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 8,750 m")).toBeVisible();
     await expect(canvas.queryByText(/Optimal range/)).toBeNull();
@@ -121,7 +113,7 @@ export const AncillaryRemoteArmor: Story = {
 
 export const PastedAncillaryRemoteArmor: Story = {
   ...fitted(types["Medium Ancillary Remote Armor Repairer"], "high", types["Nanite Repair Paste"]),
-  render: (args) => <AncillaryRemoteArmorRepairer {...args} />,
+  render: (args) => <ArmorRepairer {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("435 HP repaired per 6s")).toBeVisible();
   },
@@ -137,7 +129,7 @@ export const Hull: Story = {
 
 export const RemoteHull: Story = {
   ...fitted(types["Medium Remote Hull Repairer II"], "high"),
-  render: (args) => <RemoteHullRepairer {...args} />,
+  render: (args) => <HullRepairer {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 17 km")).toBeVisible();
     await expect(canvas.getByText("Optimal range within 11 km")).toBeVisible();
@@ -157,7 +149,7 @@ export const RemoteShield: Story = {
 
 export const AncillaryRemoteShield: Story = {
   ...fitted(types["Medium Ancillary Remote Shield Booster"], "high", types["Cap Booster 100"]),
-  render: (args) => <AncillaryRemoteShieldBooster {...args} />,
+  render: (args) => <ActivationRange {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 13 km")).toBeVisible();
     await expect(canvas.getByText("Optimal range within 5,000 m")).toBeVisible();
@@ -167,7 +159,7 @@ export const AncillaryRemoteShield: Story = {
 
 export const MutadaptiveRemoteArmor: Story = {
   ...fitted(types["Heavy Mutadaptive Remote Armor Repairer II"], "high", undefined, types.Rodiva),
-  render: (args) => <RemoteArmorRepairer {...args} />,
+  render: (args) => <ArmorRepairer {...args} />,
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Range within 75 km")).toBeVisible();
     await expect(canvas.queryByText(/Optimal range/)).toBeNull();
