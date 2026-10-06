@@ -1,4 +1,4 @@
-import { Activity, useId, useState, type ReactNode } from "react";
+import { Activity, useDeferredValue, useId, useState, type ReactNode } from "react";
 
 import { Charges } from "./Charges";
 import { FitActions } from "./FitActions";
@@ -16,6 +16,7 @@ type Tab = "hulls" | "modules" | "charges";
 export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
   const [tab, setTab] = useState<Tab>("hulls");
   const id = useId();
+  const ready = useDeferredValue(true, false);
 
   const tabs: { tab: Tab; label: string; panel: ReactNode }[] = [
     { tab: "hulls", label: "Hulls & Fits", panel: <HullsAndFits /> },
@@ -50,7 +51,11 @@ export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
           aria-labelledby={`${id}-${each.tab}-tab`}
           hidden={tab !== each.tab}
         >
-          <Activity mode={tab === each.tab ? "visible" : "hidden"}>{each.panel}</Activity>
+          {ready ? (
+            <Activity mode={tab === each.tab ? "visible" : "hidden"}>{each.panel}</Activity>
+          ) : (
+            <p className={styles.empty}>Loading…</p>
+          )}
         </div>
       ))}
       <FitActions />
