@@ -18,7 +18,9 @@ export function App({ data }: { data: Data | null | undefined }) {
     <>
       <header className={styles.header}>
         <h1 className={styles.title}>
-          <span className={styles.brand}>EVEShip.fit</span>
+          <a className={styles.brand} href="/">
+            EVEShip.fit
+          </a>
           <span className={styles.dash}> - </span>
           <span className={styles.tagline}>View, Create, and Share your EVE Online ship fits online</span>
         </h1>

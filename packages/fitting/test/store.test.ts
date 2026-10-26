@@ -568,6 +568,26 @@ describe("history", () => {
     expect(listener).toHaveBeenCalledTimes(1);
   });
 
+  test("clearing it keeps only the current fit", () => {
+    const fit = rifter();
+    fit.fit(id("Damage Control II"));
+    fit.fit(id("Gyrostabilizer II"));
+    fit.undo();
+    const current = fit.getSnapshot().fit;
+    const listener = vi.fn<() => void>();
+    fit.subscribe(listener);
+
+    fit.clearHistory();
+    expect(fit.getSnapshot().fit).toBe(current);
+    expect(fit.historyLength).toBe(1);
+    expect(fit.canUndo).toBe(false);
+    expect(fit.canRedo).toBe(false);
+    expect(listener).toHaveBeenCalledTimes(1);
+
+    fit.clearHistory();
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
   test("an edit after going back in a full history drops the oldest fit", () => {
     const fit = rifter();
     for (let i = 0; i < 30; i++) fit.setName(`Fit ${i}`);

@@ -1,7 +1,7 @@
 import { EveShipFitProvider, ImagesProvider, TextsProvider } from "@eveshipfit/react-hooks";
 import { Dialog, FittingWindow, ItemBrowser, ShipStatistics } from "@eveshipfit/ui-ingame";
 import { ZKillboard } from "@eveshipfit/zkillboard";
-import { useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 
 import styles from "./App.module.css";
@@ -18,14 +18,16 @@ export interface FittingProps {
   skills: HTMLElement | null;
 }
 
-/** The fitting window of the linked fit or an empty Rifter, with its item browser and statistics. */
+/** The fitting window, with its item browser and statistics. */
 export function Fitting({ data, layout, skills }: FittingProps) {
+  const empty = useEmpty(data);
   if (data === null) {
     return <p className={styles.message}>EVEShip.fit could not load. Please reload the page.</p>;
   }
 
   const scale = { "--esf-scale": layout.scale } as CSSProperties;
   const panelScale = { "--esf-scale": layout.panelScale } as CSSProperties;
+  const placeholder = empty ? `To start, select a hull ${layout.stacked ? "below" : "on the left"}.` : undefined;
 
   return (
     <EveShipFitProvider
@@ -43,26 +45,45 @@ export function Fitting({ data, layout, skills }: FittingProps) {
           {layout.stacked ? (
             <>
               <div className={`${styles.panel} ${styles.window}`} style={scale}>
-                <FittingWindow />
+                <FittingWindow placeholder={placeholder} />
               </div>
               <div className={styles.panels}>
                 <div className={`${styles.panel} ${styles.browser}`} style={panelScale}>
                   <ItemBrowser />
                 </div>
-                <div className={styles.panel} style={panelScale}>
-                  <ShipStatistics />
-                </div>
+                {!empty && (
+                  <div className={styles.panel} style={panelScale}>
+                    <ShipStatistics />
+                  </div>
+                )}
               </div>
             </>
           ) : (
             <div className={`${styles.panel} ${styles.window}`} style={scale}>
-              <FittingWindow browser={<ItemBrowser />} statistics={<ShipStatistics />} />
+              <FittingWindow browser={<ItemBrowser />} statistics={<ShipStatistics />} placeholder={placeholder} />
             </div>
           )}
         </TextsProvider>
       </ImagesProvider>
     </EveShipFitProvider>
   );
+}
+
+/** Whether the fit is still the stand-in; the first change to it picks a hull. */
+function useEmpty(data: Data | null): boolean {
+  const [empty, setEmpty] = useState(data?.empty ?? false);
+
+  useEffect(() => {
+    if (!empty || data === null) return;
+    const standIn = data.fit.getSnapshot().fit;
+    return data.fit.subscribe(() => {
+      if (data.fit.getSnapshot().fit === standIn) return;
+      setEmpty(false);
+      data.fit.clearHistory();
+    });
+  }, [data, empty]);
+
+  return empty;
 }
 
 function LinkError({ error }: { error: string }) {

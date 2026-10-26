@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+const RIFTER = "/?fit=esf1:CgUIARDLBA";
+
 test("the site loads", async ({ page }) => {
   await page.goto("/");
   await expect(
@@ -10,7 +12,7 @@ test("the site loads", async ({ page }) => {
 });
 
 test("the fitting window shows its statistics", async ({ page }) => {
-  await page.goto("/");
+  await page.goto(RIFTER);
   await expect(page.getByRole("region", { name: "Fitting Window" })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("region", { name: "Statistics" })).toBeVisible();
   await expect(page.getByRole("region", { name: "Item Browser" })).toBeVisible();
@@ -19,7 +21,7 @@ test("the fitting window shows its statistics", async ({ page }) => {
 });
 
 test("No skills flags the skills the fit misses, also after a reload", async ({ page }) => {
-  await page.goto("/");
+  await page.goto(RIFTER);
   await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("img", { name: /^Missing Skills/ })).toHaveCount(0);
   await page.getByRole("button", { name: "Skills All L5" }).click();
@@ -32,6 +34,26 @@ test("No skills flags the skills the fit misses, also after a reload", async ({ 
 
   await page.reload();
   await expect(page.getByRole("button", { name: "Skills All L0" })).toBeVisible({ timeout: 30_000 });
+});
+
+test("without a fit, the wheel asks for a hull until one is picked, and the logo goes back", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByText("To start, select a hull on the left.")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("region", { name: "Statistics" })).toHaveCount(0);
+
+  const hulls = page.getByRole("list", { name: "Hulls" });
+  await hulls.getByRole("button", { name: "Frigate", exact: true }).click();
+  await hulls.getByRole("button", { name: /^Minmatar/ }).click();
+  await hulls.getByRole("button", { name: "Simulate Slasher" }).click();
+  await expect(page.getByText("To start, select a hull on the left.")).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Statistics" })).toBeVisible();
+  const history = page.getByRole("group", { name: "Simulation History" });
+  await expect(history.getByRole("button", { name: / of \d+$/ })).toHaveAccessibleName("1 of 1");
+  await expect.poll(() => new URL(page.url()).searchParams.get("fit")).toMatch(/^esf1:/);
+
+  await page.getByRole("link", { name: "EVEShip.fit", exact: true }).click();
+  await expect(page.getByText("To start, select a hull on the left.")).toBeVisible({ timeout: 30_000 });
+  expect(new URL(page.url()).search).toBe("");
 });
 
 test("a fit link opens its fit, and the url keeps it", async ({ page }) => {
@@ -48,7 +70,7 @@ test("a fit link opens its fit, and the url keeps it", async ({ page }) => {
 
 test("an edit to the fit updates the url", async ({ page }) => {
   const link = () => new URL(page.url()).searchParams.get("fit");
-  await page.goto("/");
+  await page.goto(RIFTER);
   await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
   await expect.poll(link).toMatch(/^esf1:/);
   const empty = link();
@@ -80,7 +102,7 @@ test("a broken fit link says so, and keeps the link until the fit changes", asyn
   await expect(dialog).toContainText("This link has a fit that EVEShip.fit could not load.");
   await dialog.getByRole("button", { name: "Close" }).click();
   await expect(dialog).toBeHidden();
-  await expect(page.getByText("Rifter", { exact: true })).toBeVisible();
+  await expect(page.getByText("To start, select a hull on the left.")).toBeVisible();
   expect(link()).toBe("v3:broken");
 
   await page.getByRole("tab", { name: "Modules" }).click();
@@ -91,7 +113,7 @@ test("a broken fit link says so, and keeps the link until the fit changes", asyn
 
 test("the item browser and statistics go below the window on a phone", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto(RIFTER);
   await expect(page.getByRole("region", { name: "Statistics" })).toBeAttached({ timeout: 30_000 });
   await expect(page.getByRole("region", { name: "Item Browser" })).toBeAttached();
   await expect(page.getByRole("button", { name: "Statistics" })).toHaveCount(0);
