@@ -298,8 +298,10 @@ export const DragToCopy: Story = {
   play: async ({ canvas, canvasElement }) => {
     const dataTransfer = new DataTransfer();
     const damageControl = canvas.getByRole("button", { name: /^Damage Control II/ });
+    await expect(canvas.getByRole("group", { name: "Damage Control II" })).toBeInTheDocument();
     await fireEvent.dragStart(damageControl, { dataTransfer });
     await expect(await canvas.findByText("hold Ctrl to copy")).toBeInTheDocument();
+    await expect(canvas.queryByRole("group", { name: "Damage Control II" })).toBeNull();
     const [, gyrostabilizer] = lowSlots(canvasElement);
     await waitFor(async () =>
       expect(await fireEvent.dragOver(gyrostabilizer!, { dataTransfer, ctrlKey: true })).toBe(false),

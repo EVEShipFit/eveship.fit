@@ -96,6 +96,7 @@ export function useFittingSlot(
 
   return {
     ...shown,
+    actions: dragging === undefined,
     onPress: switchable
       ? (event) => store.setState(ref, nextState(stats.state, stats.maxState, event.shiftKey))
       : undefined,
