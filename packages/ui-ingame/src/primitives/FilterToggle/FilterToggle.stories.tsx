@@ -45,6 +45,16 @@ export const WithType: Story = {
   },
 };
 
+/** An image, like a market group's icon. */
+export const WithImage: Story = {
+  args: { icon: undefined, src: "data:image/gif;base64,R0lGODlhAQABAAAAACw=", label: "Boosters" },
+  play: async ({ canvas }) => {
+    const filter = canvas.getByRole("button", { name: "Boosters" });
+    await expect(filter.getBoundingClientRect().width).toBe(32);
+    await expect(filter.querySelector("img")).toHaveAttribute("src", "data:image/gif;base64,R0lGODlhAQABAAAAACw=");
+  },
+};
+
 export const NotImplemented: Story = {
   args: { icon: "fits-personal", label: "Personal Fittings" },
   play: async ({ canvas, userEvent }) => {

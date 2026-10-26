@@ -735,3 +735,66 @@ export const SearchImplants: Story = {
     await expect(canvas.getByText("No implants found")).toBeVisible();
   },
 };
+
+/** Implants and Boosters keep their kind; Skills keeps what the character can use. */
+export const ImplantFilters: Story = {
+  parameters: { character: { skills: {} } },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("tab", { name: "Implants" }));
+    const panel = within(canvas.getByRole("tabpanel"));
+    const filters = within(panel.getByRole("group", { name: "Filters" }));
+    await userEvent.type(panel.getByRole("searchbox"), "standard");
+
+    await userEvent.click(filters.getByRole("button", { name: "Boosters" }));
+    await expect(implants(canvas).getByRole("button", { name: "Standard Blue Pill Booster" })).toBeVisible();
+    await expect(implants(canvas).queryByRole("button", { name: "Neural Boost - Standard" })).toBeNull();
+
+    await userEvent.click(filters.getByRole("button", { name: "Boosters" }));
+    await userEvent.click(filters.getByRole("button", { name: "Implants" }));
+    await expect(implants(canvas).queryByRole("button", { name: "Standard Blue Pill Booster" })).toBeNull();
+
+    await userEvent.clear(panel.getByRole("searchbox"));
+    await userEvent.type(panel.getByRole("searchbox"), "neural boost - basic");
+    await expect(implants(canvas).getByRole("button", { name: "Neural Boost - Basic" })).toBeVisible();
+    await userEvent.click(filters.getByRole("button", { name: "Skills" }));
+    await expect(canvas.getByText("No implants found")).toBeVisible();
+  },
+};
+
+/** By Slot lists implants, then boosters, by slot number. */
+export const ImplantsBySlot: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("tab", { name: "Implants" }));
+    const panel = within(canvas.getByRole("tabpanel"));
+    const view = within(panel.getByRole("group", { name: "View" }));
+    await expect(view.getByRole("button", { name: "By Market Group" })).toHaveAttribute("aria-pressed", "true");
+
+    await userEvent.click(view.getByRole("button", { name: "By Slot" }));
+    await expect(view.getByRole("button", { name: "By Slot" })).toHaveAttribute("aria-pressed", "true");
+    const groups = implants(canvas)
+      .getAllByRole("button", { expanded: false })
+      .map((row) => row.textContent);
+    await expect(groups.slice(0, 11)).toEqual([
+      "Implant Slot 1",
+      "Implant Slot 2",
+      "Implant Slot 3",
+      "Implant Slot 4",
+      "Implant Slot 5",
+      "Implant Slot 6",
+      "Implant Slot 7",
+      "Implant Slot 8",
+      "Implant Slot 9",
+      "Implant Slot 10",
+      "Booster Slot 1",
+    ]);
+
+    await userEvent.type(panel.getByRole("searchbox"), "neural boost - basic");
+    await expect(
+      implants(canvas)
+        .getAllByRole("button", { expanded: false })
+        .map((row) => row.textContent),
+    ).toEqual(["Implant Slot 3"]);
+    await userEvent.click(implants(canvas).getByRole("button", { name: "Implant Slot 3" }));
+    await expect(implants(canvas).getByRole("button", { name: "Neural Boost - Basic" })).toBeVisible();
+  },
+};

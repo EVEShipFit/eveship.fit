@@ -290,6 +290,29 @@ export const BrowseEmptySlot: Story = {
   },
 };
 
+/** Clicking an implant or booster slot opens the item browser on that slot. */
+export const BrowseAugmentationSlot: Story = {
+  args: { browser: <ItemBrowser /> },
+  play: async ({ canvas, userEvent }) => {
+    const pressed = () =>
+      within(canvas.getByRole("group", { name: "Filters" }))
+        .getAllByRole("button", { pressed: true })
+        .map((button) => button.getAttribute("aria-label"));
+    const implants = () => within(canvas.getByRole("list", { name: "Implants" }));
+
+    await userEvent.click(canvas.getByRole("button", { name: "Empty Implant Slot 3" }));
+    await expect(canvas.getByRole("tab", { name: "Implants" })).toHaveAttribute("aria-selected", "true");
+    await expect(pressed()).toEqual(["Implants"]);
+    await expect(canvas.getByRole("button", { name: "By Slot" })).toHaveAttribute("aria-pressed", "true");
+    await expect(implants().getByRole("button", { name: "Implant Slot 3" })).toHaveAttribute("aria-expanded", "true");
+    await expect(implants().getByRole("button", { name: "Implant Slot 1" })).toHaveAttribute("aria-expanded", "false");
+
+    await userEvent.click(canvas.getByRole("button", { name: "Empty Booster Slot" }));
+    await expect(pressed()).toEqual(["Boosters"]);
+    await expect(implants().queryByRole("button", { expanded: true })).toBeNull();
+  },
+};
+
 /** Dragging a module to a slot fits it there; to the middle of the wheel, in the first free slot. */
 export const DragModule: Story = {
   args: { browser: <ItemBrowser /> },

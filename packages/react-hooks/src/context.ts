@@ -24,8 +24,11 @@ export interface DragState {
   setDragging: (item: DragItem | undefined) => void;
 }
 
+/** A rack, or an implant or booster slot; a booster slot without `index` is the next free one. */
+export type BrowseTarget = Rack | { readonly type: "implant" | "booster"; readonly index?: number };
+
 export interface BrowseRequest {
-  readonly rack: Rack;
+  readonly target: BrowseTarget;
 }
 
 export interface BrowseState {

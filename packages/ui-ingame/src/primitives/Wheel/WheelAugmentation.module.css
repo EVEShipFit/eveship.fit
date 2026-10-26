@@ -83,6 +83,21 @@
   width: 100%;
 }
 
+.press {
+  cursor: pointer;
+  inset: 0;
+  position: absolute;
+}
+
+.press:focus-visible {
+  outline: none;
+}
+
+.slot:has(.press:hover) .frame,
+.slot:has(.press:focus-visible) .frame {
+  stroke: var(--esf-text-muted);
+}
+
 .number {
   color: var(--esf-text-muted);
   font-family: var(--esf-font);
