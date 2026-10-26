@@ -162,13 +162,16 @@
 
 /* Keeps the slot hovered while the pointer goes from it to the actions. */
 .bridge {
+  /* As wide as the inner edge of the slot's clip-path. */
+  --width: calc(var(--slot-size) * (0.797 - 0.203) * var(--wheel-unit));
+
   height: calc((var(--slot-centre) - var(--innermost)) * var(--wheel-unit));
-  left: calc(50% - var(--action-size) / 2 * var(--wheel-unit));
+  left: calc(50% - var(--width) / 2);
   position: absolute;
   top: calc(50% - var(--slot-centre) * var(--wheel-unit));
   transform: rotate(var(--angle));
   transform-origin: 50% calc(var(--slot-centre) * var(--wheel-unit));
-  width: calc(var(--action-size) * var(--wheel-unit));
+  width: var(--width);
   z-index: -1;
 }
 
