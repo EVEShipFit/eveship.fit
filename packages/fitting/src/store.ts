@@ -161,6 +161,15 @@ export class FitStore {
     this.#publish(this.#calculate(fit));
   }
 
+  /** Keeps only the current fit in the history. */
+  clearHistory() {
+    if (this.#history.length === 1) return;
+    this.#history.splice(0, this.#history.length, this.#snapshot.fit);
+    this.#position = 0;
+    // The history follows the snapshot.
+    this.#publish(Object.freeze({ ...this.#snapshot }));
+  }
+
   /** What `edit` would do, without doing it. */
   preview(edit: (fit: FitStore) => void): Preview {
     const draft = new FitStore(this.#calculator, this.#snapshot.fit, this.#character);

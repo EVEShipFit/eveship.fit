@@ -175,6 +175,23 @@ export const SimulateShip: Story = {
   },
 };
 
+export const Placeholder: Story = {
+  args: {
+    browser: <ItemBrowser />,
+    statistics: <ShipStatistics />,
+    placeholder: "To start, select a hull on the left.",
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("region", { name: "Fitting" })).toHaveTextContent(
+      "To start, select a hull on the left.",
+    );
+    await expect(canvas.queryByText("Rifter")).toBeNull();
+    await expect(canvas.queryByRole("group", { name: "Simulation History" })).toBeNull();
+    await expect(canvas.queryByRole("button", { name: "Statistics" })).toBeNull();
+    await expect(canvas.getByRole("button", { name: "Item Browser" })).toBeVisible();
+  },
+};
+
 /** Dragging a hull to the middle of the wheel simulates it; a slot refuses it. */
 export const DragHull: Story = {
   args: { browser: <ItemBrowser /> },

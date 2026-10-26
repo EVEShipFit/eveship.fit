@@ -27,6 +27,8 @@ export interface Data {
   login: Login;
   /** Why the fit in the link could not load. */
   linkError?: string;
+  /** No hull is picked yet; `fit` is a stand-in. */
+  empty: boolean;
 }
 
 /** Everything the fitting window needs; null when any of it failed to load. */
@@ -43,8 +45,9 @@ export async function loadData(): Promise<Data | null> {
     });
     const [sde, engine, images, texts] = await Promise.all([game.sde, game.engine, game.images, game.texts]);
     const [linked, loggedIn] = await Promise.all([loadLinkedFit(engine), login]);
-    const fit = linked.fit ?? keptFit(engine, loggedIn.fit) ?? engine.createFit({ ship: RIFTER });
-    keepInUrl(engine, fit, linked.error !== undefined);
+    const shown = linked.fit ?? keptFit(engine, loggedIn.fit);
+    const fit = shown ?? engine.createFit({ ship: RIFTER });
+    keepInUrl(engine, fit, linked.error !== undefined || shown === undefined);
     const character = loggedIn.character ?? keptCharacter(characters);
     return {
       engine,
@@ -57,6 +60,7 @@ export async function loadData(): Promise<Data | null> {
       character,
       login: loggedIn,
       linkError: linked.error,
+      empty: shown === undefined,
     };
   } catch (error) {
     console.error(error);

@@ -34,6 +34,7 @@ import { HistoryBar } from "../../primitives/HistoryBar/HistoryBar";
 import { Icon, type IconName } from "../../primitives/Icon/Icon";
 import { ServiceSlot } from "../../primitives/ServiceSlot/ServiceSlot";
 import { Tooltip, TooltipText } from "../../primitives/Tooltip/Tooltip";
+import { Wheel } from "../../primitives/Wheel/Wheel";
 import { useFittingSlot } from "../FittingWheel/fittingSlot";
 import { FittingWheel } from "../FittingWheel/FittingWheel";
 import { AttributeTooltip } from "../ShipStatistics/AttributeTooltip";
@@ -62,10 +63,19 @@ export interface FittingWindowProps {
   statistics?: ReactNode;
   /** Shows the fit without its name, warnings, history or anything to change it. */
   preview?: boolean;
+  /** Shows an empty wheel with this text, and nothing of the fit. */
+  placeholder?: string;
 }
 
 /** EVE's fitting window around the `FittingWheel`. */
-export function FittingWindow({ label = "Fitting Window", browser, statistics, preview = false }: FittingWindowProps) {
+export function FittingWindow({
+  label = "Fitting Window",
+  browser,
+  statistics: givenStatistics,
+  preview = false,
+  placeholder,
+}: FittingWindowProps) {
+  const statistics = placeholder === undefined ? givenStatistics : undefined;
   const [browserOpen, setBrowserOpen] = useState(true);
   const { request } = useBrowse();
   const [browsed, setBrowsed] = useState(request);
@@ -98,9 +108,15 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics, p
         )}
         <div className={styles.frame}>
           <div className={styles.wheel}>
-            <FittingWheel readOnly={preview} credit={preview} />
+            {placeholder === undefined ? (
+              <FittingWheel readOnly={preview} credit={preview} />
+            ) : (
+              <Wheel label="Fitting">
+                <p className={styles.placeholder}>{placeholder}</p>
+              </Wheel>
+            )}
           </div>
-          {!preview && (
+          {!preview && placeholder === undefined && (
             <>
               <FitName />
               <Violations />
@@ -138,28 +154,32 @@ export function FittingWindow({ label = "Fitting Window", browser, statistics, p
               </Tooltip>
             </div>
           )}
-          <div className={styles.bays}>
-            {structure ? (
-              <Bay bay="cargo" icon="ammo-hold" label="Ammo Hold" unlimited readOnly={preview} />
-            ) : (
-              <Bay bay="cargo" icon="cargo" label="Cargo Hold" readOnly={preview} />
-            )}
-            {fighters ? (
-              <Bay id={fighterBay} bay="fighterBay" icon="fighter-bay" label="Fighter Bay" readOnly={preview} />
-            ) : (
-              <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" readOnly={preview} />
-            )}
-          </div>
-          {structure && <ServiceRack readOnly={preview} />}
-          {!preview && (
-            <div className={styles.history}>
-              <SimulationHistory tooltipTitle={structure} />
-            </div>
+          {placeholder === undefined && (
+            <>
+              <div className={styles.bays}>
+                {structure ? (
+                  <Bay bay="cargo" icon="ammo-hold" label="Ammo Hold" unlimited readOnly={preview} />
+                ) : (
+                  <Bay bay="cargo" icon="cargo" label="Cargo Hold" readOnly={preview} />
+                )}
+                {fighters ? (
+                  <Bay id={fighterBay} bay="fighterBay" icon="fighter-bay" label="Fighter Bay" readOnly={preview} />
+                ) : (
+                  <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" readOnly={preview} />
+                )}
+              </div>
+              {structure && <ServiceRack readOnly={preview} />}
+              {!preview && (
+                <div className={styles.history}>
+                  <SimulationHistory tooltipTitle={structure} />
+                </div>
+              )}
+              <div className={styles.resources}>
+                <Resource title="CPU" free="cpuFree" output="cpuOutput" />
+                <Resource title="Power Grid" free="powerFree" output="powerOutput" />
+              </div>
+            </>
           )}
-          <div className={styles.resources}>
-            <Resource title="CPU" free="cpuFree" output="cpuOutput" />
-            <Resource title="Power Grid" free="powerFree" output="powerOutput" />
-          </div>
         </div>
         {statistics !== undefined && (
           <div id={statisticsId} className={styles.statistics} inert={!statisticsShown}>
