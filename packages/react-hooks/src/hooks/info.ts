@@ -21,6 +21,8 @@ export interface Info {
   readonly fitted: { readonly slot: Slot; readonly charge: boolean } | undefined;
   /** The published ones; on the fit when fitted, else as the SDE has them. */
   readonly attributes: readonly InfoAttribute[];
+  /** Itself included, as `Sde.variations` has them. */
+  readonly variations: readonly SdeType[];
 }
 
 export interface ShowInfo {
@@ -63,5 +65,7 @@ export function useInfo(target: InfoTarget): Info {
     return rows;
   }, [sde, type, onFit]);
 
-  return { type, fitted, attributes };
+  const variations = useMemo(() => sde.variations(typeId), [sde, typeId]);
+
+  return { type, fitted, attributes, variations };
 }

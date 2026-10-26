@@ -197,7 +197,7 @@ function groupsFirst(a: MarketGroupNode, b: MarketGroupNode): number {
   return Number(a.children.length === 0) - Number(b.children.length === 0) || byName(a.group, b.group);
 }
 
-function byMetaOf(metaLevel: MetaLevel): (a: SdeType, b: SdeType) => number {
+export function byMetaOf(metaLevel: MetaLevel): (a: SdeType, b: SdeType) => number {
   return (a, b) => metaGroup(a) - metaGroup(b) || metaLevel(a) - metaLevel(b) || byName(a, b);
 }
 

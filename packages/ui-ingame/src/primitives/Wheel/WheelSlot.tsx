@@ -89,7 +89,7 @@ export function WheelSlot({
 
   // Each action has its place in the row, even when it is missing, as in EVE.
   const row: ({ key: string; node: ReactNode } | undefined)[] = [];
-  if (fitted && !preview && showActions) {
+  if (fitted && showActions) {
     if (chargeTypeId !== undefined) {
       row.push(
         onRemoveCharge && {
@@ -176,6 +176,7 @@ export function WheelSlot({
           className={styles.actions}
           style={{ "--action-size": actions.size } as CSSProperties}
           aria-label={typeName}
+          inert={preview}
         >
           <span className={styles.bridge} style={{ "--innermost": innermost } as CSSProperties} />
           {row.map(

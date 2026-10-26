@@ -407,6 +407,34 @@ describe("edits", () => {
     expect(fit.getSnapshot()).toBe(before);
   });
 
+  test("setting the type of a module keeps its slot and state, and its charge when it still fits", () => {
+    const fit = rifter();
+    fit.fit(id("Damage Control II"));
+    const gun = fit.fit(id("200mm AutoCannon I"))!;
+    fit.setCharge(gun, id("EMP S"));
+    fit.setState(gun, "offline");
+
+    fit.setType(gun, id("200mm AutoCannon II"));
+    expect(fit.getSnapshot().fit.items[gun]).toEqual({
+      type_id: id("200mm AutoCannon II"),
+      slot: { type: "high", index: 0 },
+      state: "offline",
+      charge: { type_id: id("EMP S") },
+    });
+
+    fit.setType(gun, id("Rocket Launcher II"));
+    expect(fit.getSnapshot().fit.items[gun]).toEqual({
+      type_id: id("Rocket Launcher II"),
+      slot: { type: "high", index: 0 },
+      state: "offline",
+    });
+
+    const before = fit.getSnapshot();
+    fit.setType(gun, id("Damage Control II"));
+    fit.setType(gun, id("Rocket Launcher II"));
+    expect(fit.getSnapshot()).toBe(before);
+  });
+
   test("moving a squadron swaps it with what is in the other tube", () => {
     const fit = engine.createFit({ ship: id("Thanatos") });
     const dromi = fit.fit(id("Dromi II"))!;

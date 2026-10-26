@@ -218,6 +218,27 @@ export const ShowInfo: Story = {
   },
 };
 
+/** Variations lists the fitted one among the others; double clicking another fits it in its place. */
+export const ShowInfoVariations: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    within(canvas.getByRole("group", { name: "Small Shield Extender II" }))
+      .getByRole("button", { name: "Show Info" })
+      .focus();
+    await userEvent.keyboard("{Enter}");
+    const info = canvas.getByRole("region", { name: "Info on Small Shield Extender II" });
+    await userEvent.click(within(info).getByRole("tab", { name: "Variations" }));
+    await expect(
+      within(info).getByText("Small Shield Extender II", { selector: "li span" }).closest("li"),
+    ).toHaveAttribute("aria-current", "true");
+
+    await userEvent.dblClick(within(info).getByRole("button", { name: "Caldari Navy Small Shield Extender" }));
+    const swapped = canvas.getByRole("region", { name: "Info on Caldari Navy Small Shield Extender" });
+    await expect(within(swapped).getByText("Fitted · Mid Slot 2")).toBeVisible();
+    await expect(within(swapped).getByRole("tab", { name: "Variations" })).toHaveAttribute("aria-selected", "true");
+  },
+};
+
 /** Show Info works from the item browser before a hull is picked. */
 export const ShowInfoWithoutHull: Story = {
   args: { browser: <ItemBrowser />, placeholder: "To start, select a hull on the left." },

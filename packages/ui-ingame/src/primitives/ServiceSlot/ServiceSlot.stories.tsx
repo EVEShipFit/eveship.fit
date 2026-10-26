@@ -40,7 +40,7 @@ export const Offline: Story = {
 export const Preview: Story = {
   args: { typeId: types["Standup Market Hub I"], preview: true },
   play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelector("fieldset")).toBeNull();
+    await expect(canvasElement.querySelector("fieldset")).toHaveAttribute("inert");
   },
 };
 

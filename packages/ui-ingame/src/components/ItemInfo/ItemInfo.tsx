@@ -1,6 +1,21 @@
-import type { Slot } from "@eveshipfit/fitting";
-import { formatNumber, useImages, useInfo, useShowInfo, useTypePrice, type ShownInfo } from "@eveshipfit/react-hooks";
-import { useEffect, useId, useLayoutEffect, useRef, type CSSProperties } from "react";
+import type { FitStore, Slot } from "@eveshipfit/fitting";
+import {
+  formatNumber,
+  useCharges,
+  useFit,
+  useFitStore,
+  useImages,
+  useInfo,
+  usePreview,
+  useSde,
+  useShowInfo,
+  useTypePrice,
+  type Info,
+  type InfoAttribute,
+  type ShownInfo,
+} from "@eveshipfit/react-hooks";
+import type { SdeType } from "@eveshipfit/sde-loader";
+import { useEffect, useEffectEvent, useId, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 
 import { Icon } from "../../primitives/Icon/Icon";
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
@@ -25,16 +40,22 @@ const slotNames: Partial<Record<Slot["type"], string>> = {
 export function ItemInfo() {
   const { shown, close } = useShowInfo();
   if (shown === undefined) return null;
-  return <InfoCard key={shown.target.typeId} shown={shown} onClose={close} />;
+  const { typeId, ref } = shown.target;
+  return <InfoCard key={ref === undefined ? `type ${typeId}` : `item ${ref}`} shown={shown} onClose={close} />;
 }
 
+type Tab = "attributes" | "variations";
+
 function InfoCard({ shown: { target, anchor }, onClose }: { shown: ShownInfo; onClose: () => void }) {
-  const images = useImages();
-  const { type, fitted, attributes } = useInfo(target);
+  const info = useInfo(target);
+  const { type, fitted, variations } = info;
   const price = useTypePrice(target.typeId);
   const card = useRef<HTMLElement>(null);
   const anchorName = `--item-info-${useId().replace(/[^\w-]/g, "")}`;
   const tabId = useId();
+  const [picked, setPicked] = useState<Tab>("attributes");
+  const tabs: Tab[] = variations.length > 1 ? ["attributes", "variations"] : ["attributes"];
+  const tab = tabs.includes(picked) ? picked : "attributes";
 
   useLayoutEffect(() => {
     const element = anchor?.element;
@@ -99,31 +120,162 @@ function InfoCard({ shown: { target, anchor }, onClose }: { shown: ShownInfo; on
         </div>
       </header>
       <div className={styles.tabs} role="tablist">
-        <button type="button" id={tabId} className={styles.tab} role="tab" aria-selected>
-          Attributes
-        </button>
+        {tabs.map((name) => (
+          <button
+            key={name}
+            type="button"
+            id={`${tabId}-${name}`}
+            className={styles.tab}
+            role="tab"
+            aria-selected={name === tab}
+            onClick={() => setPicked(name)}
+          >
+            {tabLabels[name]}
+          </button>
+        ))}
       </div>
-      <div className={styles.panel} role="tabpanel" aria-labelledby={tabId}>
-        <dl className={styles.attributes}>
-          {attributes.map((attribute) => {
-            const icon = images.attributeIcon(attribute.id);
-            return (
-              <div key={attribute.id} className={styles.row}>
-                <dt>
-                  {icon === undefined ? (
-                    <span className={styles.icon} />
-                  ) : (
-                    <img className={styles.icon} src={icon} alt="" />
-                  )}
-                  <span>{attribute.name}</span>
-                </dt>
-                <dd data-change={attribute.change}>{attribute.text}</dd>
-              </div>
-            );
-          })}
-        </dl>
+      <div className={styles.panel} role="tabpanel" aria-labelledby={`${tabId}-${tab}`}>
+        {tab === "attributes" ? (
+          <Attributes attributes={info.attributes} />
+        ) : (
+          <Variations shown={{ target, anchor }} info={info} />
+        )}
       </div>
     </section>
+  );
+}
+
+const tabLabels: Record<Tab, string> = { attributes: "Attributes", variations: "Variations" };
+
+function Attributes({ attributes }: { attributes: readonly InfoAttribute[] }) {
+  const images = useImages();
+  return (
+    <dl className={styles.list}>
+      {attributes.map((attribute) => {
+        const icon = images.attributeIcon(attribute.id);
+        return (
+          <div key={attribute.id} className={styles.row}>
+            <dt>
+              {icon === undefined ? (
+                <span className={styles.icon} />
+              ) : (
+                <img className={styles.icon} src={icon} alt="" />
+              )}
+              <span>{attribute.name}</span>
+            </dt>
+            <dd data-change={attribute.change}>{attribute.text}</dd>
+          </div>
+        );
+      })}
+    </dl>
+  );
+}
+
+const PREVIEW_TARGET = "item-info";
+
+/** By meta group; when fitted, hovering one previews it in place of the fitted one, and double clicking fits it there. */
+function Variations({ shown: { target, anchor }, info: { fitted, variations } }: { shown: ShownInfo; info: Info }) {
+  const sde = useSde();
+  const store = useFitStore();
+  const preview = usePreview();
+  const { show } = useShowInfo();
+  const { ref } = target;
+
+  const clearPreview = useEffectEvent(() => preview.clear(PREVIEW_TARGET));
+  useEffect(() => () => clearPreview(), []);
+
+  const fit = useFit();
+  const module = ref === undefined ? undefined : fit.items[ref];
+  const charges = useCharges(fitted?.charge ? module?.type_id : undefined);
+  const swapper = (type: SdeType) => {
+    if (fitted === undefined || ref === undefined) return undefined;
+    if (fitted.charge && !charges.includes(type)) return undefined;
+    const swap = (draft: FitStore) => (fitted.charge ? draft.setCharge(ref, type.id) : draft.setType(ref, type.id));
+    return {
+      hover: (hovering: boolean) => {
+        if (hovering) preview.show(swap, PREVIEW_TARGET);
+        else preview.clear(PREVIEW_TARGET);
+      },
+      activate: () => {
+        swap(store);
+        const item = store.getSnapshot().fit.items[ref];
+        if ((fitted.charge ? item?.charge?.type_id : item?.type_id) === type.id) show({ typeId: type.id, ref }, anchor);
+      },
+    };
+  };
+
+  const groups = Map.groupBy(variations, (type) => type.metaGroupId);
+
+  return (
+    <ul className={styles.list}>
+      {[...groups].map(([metaGroupId, types]) => (
+        <li key={metaGroupId ?? 0}>
+          <h3 className={styles.metaGroup}>{sde.metaGroup(metaGroupId ?? 0)?.name ?? "Other"}</h3>
+          <ul className={styles.variations}>
+            {types.map((type) => {
+              const swap = swapper(type);
+              return (
+                <Variation
+                  key={type.id}
+                  type={type}
+                  current={type.id === target.typeId}
+                  onHover={swap?.hover}
+                  onActivate={swap?.activate}
+                  onInfo={() => show({ typeId: type.id }, anchor)}
+                />
+              );
+            })}
+          </ul>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+interface VariationProps {
+  type: SdeType;
+  current: boolean;
+  onHover: ((hovering: boolean) => void) | undefined;
+  onActivate: (() => void) | undefined;
+  onInfo: () => void;
+}
+
+function Variation({ type, current, onHover, onActivate, onInfo }: VariationProps) {
+  const label = (
+    <>
+      <span className={styles.variationIcon}>
+        <TypeIcon typeId={type.id} />
+      </span>
+      <span>{type.name}</span>
+    </>
+  );
+  return (
+    <li className={styles.row} aria-current={current || undefined}>
+      {current || onActivate === undefined ? (
+        <div className={styles.variation}>{label}</div>
+      ) : (
+        <button
+          type="button"
+          className={styles.variation}
+          title="Double click to fit this instead"
+          onDoubleClick={onActivate}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter") return;
+            event.preventDefault();
+            onActivate();
+          }}
+          onMouseEnter={() => onHover?.(true)}
+          onMouseLeave={() => onHover?.(false)}
+          onFocus={() => onHover?.(true)}
+          onBlur={() => onHover?.(false)}
+        >
+          {label}
+        </button>
+      )}
+      <button type="button" className={styles.info} aria-label={`Show Info on ${type.name}`} onClick={onInfo}>
+        <Icon name="module-info" />
+      </button>
+    </li>
   );
 }
 

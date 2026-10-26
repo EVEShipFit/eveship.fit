@@ -96,6 +96,12 @@ export class FitStore {
     this.#commit(edits.copy(this.#snapshot.fit, ref, slot));
   }
 
+  /** Another type in the same slot, keeping the state, and the charge when it still fits. */
+  setType(ref: ItemRef, typeId: number) {
+    const { sde } = this.#calculator;
+    this.#commit(edits.setType(sde, this.#snapshot.fit, this.#snapshot.stats, ref, typeId));
+  }
+
   remove(...refs: ItemRef[]) {
     this.#commit(edits.remove(this.#snapshot.fit, ...refs));
   }
