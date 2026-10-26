@@ -267,7 +267,7 @@ export const FitModule: Story = {
   },
 };
 
-/** Clicking an empty slot opens the item browser on the modules for that slot. */
+/** Clicking an empty slot opens the item browser on the modules for that slot and hull. */
 export const BrowseEmptySlot: Story = {
   args: { browser: <ItemBrowser /> },
   play: async ({ canvas, userEvent }) => {
@@ -278,14 +278,15 @@ export const BrowseEmptySlot: Story = {
 
     await userEvent.click(canvas.getAllByRole("button", { name: "Empty Low Slot" })[0]!);
     await expect(canvas.getByRole("tab", { name: "Modules" })).toHaveAttribute("aria-selected", "true");
-    await expect(pressed()).toEqual(["Low Slot"]);
+    await expect(pressed()).toEqual(["Low Slot", "Hull Restrictions"]);
 
+    await userEvent.click(canvas.getByRole("button", { name: "Hull Restrictions" }));
     await userEvent.click(canvas.getByRole("tab", { name: "Charges" }));
     await userEvent.click(canvas.getByRole("button", { name: "Item Browser" }));
     await userEvent.click(canvas.getAllByRole("button", { name: "Empty Rig Slot" })[0]!);
     await expect(canvas.getByRole("button", { name: "Item Browser" })).toHaveAttribute("aria-expanded", "true");
     await expect(canvas.getByRole("tab", { name: "Modules" })).toHaveAttribute("aria-selected", "true");
-    await expect(pressed()).toEqual(["Rig & Subsystem Slots"]);
+    await expect(pressed()).toEqual(["Rig & Subsystem Slots", "Hull Restrictions"]);
   },
 };
 

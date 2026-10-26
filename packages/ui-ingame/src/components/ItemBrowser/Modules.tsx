@@ -44,7 +44,10 @@ export function Modules() {
   if (request !== browsed) {
     setBrowsed(request);
     const filter = request && slotFilters.find(({ places }) => places.includes(request.rack))?.filter;
-    if (filter !== undefined) setSlots(new Set([filter]));
+    if (filter !== undefined) {
+      setSlots(new Set([filter]));
+      setHullRestrictions(true);
+    }
   }
 
   const query = search.trim().toLowerCase();
