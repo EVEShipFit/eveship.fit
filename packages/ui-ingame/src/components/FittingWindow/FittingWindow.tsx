@@ -37,6 +37,7 @@ import { Tooltip, TooltipText } from "../../primitives/Tooltip/Tooltip";
 import { Wheel } from "../../primitives/Wheel/Wheel";
 import { useFittingSlot } from "../FittingWheel/fittingSlot";
 import { FittingWheel } from "../FittingWheel/FittingWheel";
+import { ItemInfo } from "../ItemInfo/ItemInfo";
 import { AttributeTooltip } from "../ShipStatistics/AttributeTooltip";
 import { BayContents, type Bay as BayName } from "./BayContents";
 import styles from "./FittingWindow.module.css";
@@ -101,6 +102,7 @@ export function FittingWindow({
         data-browser={browserShown || undefined}
         data-statistics={statisticsShown || undefined}
       >
+        {!preview && <ItemInfo />}
         {browser !== undefined && (
           <div id={browserId} className={styles.browser} inert={!browserShown}>
             <div className={styles.slide}>{browser}</div>
@@ -500,7 +502,7 @@ function FittingServiceSlot({
   content: SlotContent | undefined;
   readOnly: boolean;
 }) {
-  const { chargeTypeId, chargeable, activatable, onRemoveCharge, tooltip, ...slot } = useFittingSlot(
+  const { chargeTypeId, chargeable, activatable, onRemoveCharge, onShowChargeInfo, tooltip, ...slot } = useFittingSlot(
     "service",
     index,
     content,

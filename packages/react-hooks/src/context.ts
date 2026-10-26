@@ -1,4 +1,4 @@
-import type { Engine, FitStore, Preview, Rack } from "@eveshipfit/fitting";
+import type { Engine, FitStore, ItemRef, Preview, Rack } from "@eveshipfit/fitting";
 import type { Images } from "@eveshipfit/images";
 import type { Texts } from "@eveshipfit/sde-loader";
 import type { ZKillboard } from "@eveshipfit/zkillboard";
@@ -36,6 +36,28 @@ export interface BrowseState {
   setRequest: (request: BrowseRequest) => void;
 }
 
+/** A type to show the info of; with `ref`, as fitted there, as module or as its charge. */
+export interface InfoTarget {
+  readonly typeId: number;
+  readonly ref?: ItemRef;
+}
+
+/** What the info points at, and on which side of it. */
+export interface InfoAnchor {
+  readonly element: Element;
+  readonly side: "left" | "right";
+}
+
+export interface ShownInfo {
+  readonly target: InfoTarget;
+  readonly anchor?: InfoAnchor;
+}
+
+export interface InfoState {
+  shown: ShownInfo | undefined;
+  setShown: (shown: ShownInfo | undefined) => void;
+}
+
 export interface CharacterState {
   /** The ID of the character flying the fit, as `useCharacters` lists it. */
   current: string;
@@ -47,6 +69,7 @@ export const FitContext = createContext<FitStore | undefined>(undefined);
 export const PreviewContext = createContext<PreviewState | undefined>(undefined);
 export const DragContext = createContext<DragState | undefined>(undefined);
 export const BrowseContext = createContext<BrowseState | undefined>(undefined);
+export const InfoContext = createContext<InfoState | undefined>(undefined);
 export const CharacterContext = createContext<CharacterState | undefined>(undefined);
 export const EsiCharactersContext = createContext<EsiCharacters | undefined>(undefined);
 export const LocalFitsContext = createContext<LocalFits | undefined>(undefined);

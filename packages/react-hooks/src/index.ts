@@ -1,4 +1,4 @@
-export type { BrowseRequest, BrowseTarget, DragItem } from "./context.js";
+export type { BrowseRequest, BrowseTarget, DragItem, InfoAnchor, InfoTarget, ShownInfo } from "./context.js";
 export {
   formatAttribute,
   formatClock,
@@ -24,6 +24,7 @@ export {
   type PreviewControls,
 } from "./hooks/fit.js";
 export { useImages } from "./hooks/images.js";
+export { useInfo, useShowInfo, type Info, type InfoAttribute, type ShowInfo } from "./hooks/info.js";
 export { useLocalFits, usePersonalFits, type LocalFitsControls, type PersonalFitsValue } from "./hooks/local-fits.js";
 export { useFitPrice, useTypePrice, type FitPriceValue } from "./hooks/price.js";
 export { useCanFit, useDroneRoom, useModes, usePlacement } from "./hooks/rules.js";

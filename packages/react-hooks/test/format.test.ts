@@ -57,6 +57,7 @@ test.each([
   ["signatureRadius", 36.001, "36 m"],
   ["damageMultiplier", 1.1, "1.1 x"],
   ["chargeSize", 1, "Small"],
+  ["techLevel", 2, "Level 2"],
 ])("%s %d shows as %s", (name, value, text) => {
   expect(format(name, value)).toBe(text);
 });

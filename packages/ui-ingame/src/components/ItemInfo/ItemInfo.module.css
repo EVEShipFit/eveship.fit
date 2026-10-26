@@ -1,0 +1,178 @@
+.card {
+  --info-unit: calc(1px * var(--esf-scale, 1));
+
+  background: var(--esf-bg);
+  border: 1px solid var(--esf-border);
+  box-shadow: 0 calc(8 * var(--info-unit)) calc(30 * var(--info-unit)) rgb(0 0 0 / 60%);
+  box-sizing: border-box;
+  color: var(--esf-text);
+  flex-direction: column;
+  font-family: var(--esf-font);
+  font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
+  inset: 0;
+  margin: auto;
+  max-height: min(calc(460 * var(--info-unit)), calc(100vh - 16px));
+  padding: calc(10 * var(--info-unit)) calc(12 * var(--info-unit)) calc(6 * var(--info-unit));
+  user-select: text;
+  width: calc(330 * var(--info-unit));
+}
+
+.card:popover-open {
+  display: flex;
+}
+
+.card[data-side] {
+  inset: auto;
+  margin: 0 calc(8 * var(--info-unit));
+  position-anchor: var(--item-info-anchor);
+  position-try-fallbacks:
+    flip-block,
+    flip-inline,
+    flip-block flip-inline;
+}
+
+.card[data-side="left"] {
+  position-area: left span-bottom;
+}
+
+.card[data-side="right"] {
+  position-area: right span-bottom;
+}
+
+.close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  opacity: 0.6;
+  padding: 0;
+  position: absolute;
+  right: calc(8 * var(--info-unit));
+  top: calc(8 * var(--info-unit));
+}
+
+.close:hover,
+.close:focus-visible {
+  opacity: 1;
+}
+
+.close > img {
+  height: calc(14 * var(--info-unit));
+  width: calc(14 * var(--info-unit));
+}
+
+.header {
+  align-items: center;
+  display: flex;
+  gap: calc(10 * var(--info-unit));
+  padding-right: calc(16 * var(--info-unit));
+}
+
+.typeIcon {
+  flex: none;
+  height: calc(64 * var(--info-unit));
+  width: calc(64 * var(--info-unit));
+}
+
+.typeIcon > span {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  gap: calc(2 * var(--info-unit));
+  min-width: 0;
+}
+
+.name {
+  font-size: inherit;
+  font-weight: normal;
+  margin: 0;
+}
+
+.muted {
+  color: var(--esf-text-muted);
+}
+
+.tabs {
+  border-bottom: 1px solid var(--esf-input-border);
+  display: flex;
+  gap: calc(16 * var(--info-unit));
+  margin-top: calc(8 * var(--info-unit));
+}
+
+.tab {
+  background: none;
+  border: none;
+  color: var(--esf-text-muted);
+  font: inherit;
+  padding: calc(4 * var(--info-unit)) 0 calc(6 * var(--info-unit));
+}
+
+.tab[aria-selected="true"] {
+  box-shadow: inset 0 calc(-2 * var(--info-unit)) var(--esf-button-active-edge);
+  color: var(--esf-text);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.attributes {
+  font-size: calc(11 * var(--info-unit));
+  margin: calc(4 * var(--info-unit)) calc(-12 * var(--info-unit)) 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.row {
+  align-items: center;
+  display: flex;
+  gap: calc(8 * var(--info-unit));
+  justify-content: space-between;
+  min-height: calc(26 * var(--info-unit));
+  padding: 0 calc(12 * var(--info-unit));
+}
+
+.row:hover {
+  background: var(--esf-tree-hover);
+}
+
+.row > dt {
+  align-items: center;
+  display: flex;
+  gap: calc(6 * var(--info-unit));
+  min-width: 0;
+}
+
+.row > dt > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row > dd {
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.icon {
+  flex: none;
+  height: calc(16 * var(--info-unit));
+  width: calc(16 * var(--info-unit));
+}
+
+.row > dd[data-change="better"] {
+  color: var(--esf-good);
+}
+
+.row > dd[data-change="worse"] {
+  color: var(--esf-bad);
+}
