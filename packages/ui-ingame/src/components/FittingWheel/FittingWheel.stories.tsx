@@ -159,7 +159,7 @@ export const ShowInfo: Story = {
     const charge = canvas.getByRole("region", { name: "Info on EMP S" });
     await expect(within(charge).getByText("Loaded · High Slot 1")).toBeVisible();
 
-    await userEvent.keyboard("{Escape}");
+    await userEvent.click(within(charge).getByRole("button", { name: "Close" }));
     await expect(canvas.queryByRole("region", { name: /^Info on/ })).toBeNull();
   },
 };

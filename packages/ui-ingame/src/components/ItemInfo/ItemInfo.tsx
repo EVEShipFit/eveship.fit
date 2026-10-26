@@ -47,18 +47,36 @@ function InfoCard({ shown: { target, anchor }, onClose }: { shown: ShownInfo; on
 
   useEffect(() => {
     card.current?.showPopover();
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+    const element = anchor?.element;
+    if (element === undefined) return;
+
+    const gone = new MutationObserver(() => {
+      if (!element.isConnected) onClose();
+    });
+    gone.observe(document.body, { childList: true, subtree: true });
+    const hidden = new ResizeObserver(([entry]) => {
+      if (entry?.contentRect.width === 0 && entry.contentRect.height === 0) onClose();
+    });
+    hidden.observe(element);
+    const onScroll = (event: Event) => {
+      if (!(event.target instanceof Node && card.current?.contains(event.target))) onClose();
     };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    return () => {
+      gone.disconnect();
+      hidden.disconnect();
+      document.removeEventListener("scroll", onScroll, { capture: true });
+    };
+  }, [anchor, onClose]);
 
   return (
     <section
       ref={card}
       className={styles.card}
-      popover="manual"
+      popover="auto"
+      onToggle={(event) => {
+        if (event.newState === "closed") onClose();
+      }}
       aria-label={`Info on ${type?.name ?? ""}`}
       data-side={anchor?.side}
       style={{ "--item-info-anchor": anchorName } as CSSProperties}
@@ -75,7 +93,7 @@ function InfoCard({ shown: { target, anchor }, onClose }: { shown: ShownInfo; on
           {price !== undefined && (
             <span className={styles.muted}>{formatNumber(price, { decimals: 0 })} ISK Est. price</span>
           )}
-          <span className={styles.muted}>
+          <span>
             {fitted === undefined ? "Not fitted" : `${fitted.charge ? "Loaded" : "Fitted"} · ${slotName(fitted.slot)}`}
           </span>
         </div>

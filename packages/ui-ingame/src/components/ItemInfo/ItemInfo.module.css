@@ -13,6 +13,7 @@
   margin: auto;
   max-height: min(calc(460 * var(--info-unit)), calc(100vh - 16px));
   padding: calc(10 * var(--info-unit)) calc(12 * var(--info-unit)) calc(6 * var(--info-unit));
+  user-select: text;
   width: calc(330 * var(--info-unit));
 }
 
@@ -123,7 +124,7 @@
 }
 
 .attributes {
-  font-size: calc(12 * var(--info-unit));
+  font-size: calc(11 * var(--info-unit));
   margin: calc(4 * var(--info-unit)) 0 0;
   min-height: 0;
   overflow-y: auto;
