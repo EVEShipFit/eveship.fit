@@ -67,6 +67,22 @@ describe("lookups", () => {
     expect(sde.type(RIFTER)!.modeTypeIds).toEqual([]);
   });
 
+  test("the variations of a type", () => {
+    const names = (name: string) => sde.variations(sde.typeByName(name)!.id).map((type) => type.name);
+    const extenders = [
+      "Medium Shield Extender I",
+      "Medium Azeotropic Restrained Shield Extender",
+      "Medium F-S9 Regolith Compact Shield Extender",
+      "Medium Shield Extender II",
+      "Medium 'Canyon' Shield Extender",
+    ];
+    expect(names("Medium Shield Extender I").slice(0, 5)).toEqual(extenders);
+    expect(names("Medium Shield Extender II")).toEqual(names("Medium Shield Extender I"));
+    expect(names("Medium Shield Extender I")).toContain("Caldari Navy Medium Shield Extender");
+    expect(names("Gunnery")).toEqual(["Gunnery"]);
+    expect(sde.variations(-1)).toEqual([]);
+  });
+
   test("attribute, effect and unit", () => {
     const cpuOutput = sde.attribute(48)!;
     expect(cpuOutput.name).toBe("cpuOutput");

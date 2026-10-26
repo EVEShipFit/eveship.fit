@@ -97,6 +97,9 @@ export const WithCharge: Story = {
 
 export const Preview: Story = {
   args: { typeId: types["Damage Control II"], activatable: true, preview: true },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("fieldset")).toHaveAttribute("inert");
+  },
 };
 
 export const Pressable: Story = {

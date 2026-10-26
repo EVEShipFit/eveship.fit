@@ -97,6 +97,8 @@ export class SdeType {
   readonly marketGroupId: number | undefined;
   readonly metaGroupId: number | undefined;
   readonly raceId: number | undefined;
+  /** The type this is a variation of, like the Tech I of a Tech II module. */
+  readonly variationParentTypeId: number | undefined;
   readonly capacity: number | undefined;
   readonly mass: number | undefined;
   readonly radius: number | undefined;
@@ -120,6 +122,7 @@ export class SdeType {
     this.marketGroupId = orUndefined(raw.marketGroupId());
     this.metaGroupId = orUndefined(raw.metaGroupId());
     this.raceId = orUndefined(raw.raceId());
+    this.variationParentTypeId = orUndefined(raw.variationParentTypeId());
     this.capacity = raw.capacity() ?? undefined;
     this.mass = raw.mass() ?? undefined;
     this.radius = raw.radius() ?? undefined;

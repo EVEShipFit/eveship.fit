@@ -33,6 +33,11 @@ export class Table<Raw extends Keyed, Record> {
     return index === -1 ? undefined : this.#at(index);
   }
 
+  /** Every flatbuffer table, undecoded, in key order. */
+  *raws(): Generator<Raw> {
+    for (let index = 0; index < this.#length; index++) yield this.#at(index);
+  }
+
   /** Every record, in key order. */
   *all(): Generator<Record> {
     for (let index = 0; index < this.#length; index++) {

@@ -50,7 +50,7 @@ export function ServiceSlot({
   const fitted = typeId !== undefined;
   const frame =
     fitted && !preview ? "classes/fitting/slotpassive_structure" : "classes/fitting/stationserviceslotframe";
-  const actions = showActions && fitted && !preview;
+  const actions = showActions && fitted;
 
   return (
     <div
@@ -80,7 +80,7 @@ export function ServiceSlot({
         {onPress && <SlotPress className={styles.press} label={label} onPress={onPress} />}
       </div>
       {actions && (
-        <fieldset className={styles.actions} aria-label={typeName}>
+        <fieldset className={styles.actions} aria-label={typeName} inert={preview}>
           <span className={styles.action}>
             {onUnfit && <SlotAction icon="module-unfit" label="Unfit Module" onPress={onUnfit} />}
           </span>

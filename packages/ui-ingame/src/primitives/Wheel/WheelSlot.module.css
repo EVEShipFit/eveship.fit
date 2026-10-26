@@ -160,6 +160,10 @@
   pointer-events: auto;
 }
 
+.slot > .actions[inert] {
+  opacity: 0;
+}
+
 /* Keeps the slot hovered while the pointer goes from it to the actions. */
 .bridge {
   /* As wide as the inner edge of the slot's clip-path. */

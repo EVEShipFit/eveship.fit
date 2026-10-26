@@ -96,6 +96,10 @@
   pointer-events: auto;
 }
 
+.slot > .actions[inert] {
+  opacity: 0;
+}
+
 .action {
   height: calc(15.5 * var(--service-unit));
   width: calc(15.5 * var(--service-unit));

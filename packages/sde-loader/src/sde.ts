@@ -43,6 +43,7 @@ import {
   buildModuleSearch,
   buildModuleTree,
   buildShipTree,
+  byMetaOf,
   HULL_CATEGORY_IDS,
   sortByMeta,
   type MarketGroupNode,
@@ -52,7 +53,7 @@ import {
   type ShipGroupNode,
 } from "./trees.js";
 
-const MIN_MAJOR_VERSION = 12;
+const MIN_MAJOR_VERSION = 13;
 
 export class Sde {
   readonly bytes: Uint8Array;
@@ -72,6 +73,7 @@ export class Sde {
 
   #attributeIds: Map<string, number> | undefined;
   #typesByName: Map<string, SdeType> | undefined;
+  #variations: Map<number, number[]> | undefined;
   #marketTree: readonly MarketGroupNode[] | undefined;
   #moduleTree: readonly ModuleGroupNode[] | undefined;
   #moduleSearch: readonly ModuleGroupNode[] | undefined;
@@ -177,6 +179,27 @@ export class Sde {
 
   #typesOf(ids: Int32Array | null | undefined): SdeType[] {
     return Array.from(ids ?? [], (id) => this.#types.get(id)!);
+  }
+
+  /** The published variations of a type, itself and its variation parent included; sorted by meta group, meta level and name. */
+  variations(id: number): SdeType[] {
+    const type = this.type(id);
+    if (type === undefined) return [];
+    const parentId = type.variationParentTypeId ?? id;
+    if (this.#variations === undefined) {
+      this.#variations = new Map();
+      for (const raw of this.#types.raws()) {
+        const parent = raw.variationParentTypeId();
+        if (parent === 0) continue;
+        const variations = this.#variations.get(parent);
+        if (variations === undefined) this.#variations.set(parent, [raw.id()]);
+        else variations.push(raw.id());
+      }
+    }
+    return [parentId, ...(this.#variations.get(parentId) ?? [])]
+      .flatMap((variationId) => this.type(variationId) ?? [])
+      .filter((variation) => variation.published || variation === type)
+      .toSorted(byMetaOf(this.#metaLevel()));
   }
 
   attributeId(name: string): number | undefined {

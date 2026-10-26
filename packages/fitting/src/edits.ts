@@ -115,6 +115,23 @@ export function copy(fit: Fit, ref: ItemRef, slot: Slot): Fit {
   return putInSlot(fit, { ...item, slot }).fit;
 }
 
+/** Swap a module for another type that goes in its slot, keeping its state, and its charge when the new one takes it. */
+export function setType(sde: Sde, fit: Fit, stats: Stats, ref: ItemRef, typeId: number): Fit {
+  const item = fit.items[ref];
+  if (item === undefined || item.type_id === typeId || !copiedRacks.includes(item.slot.type)) return fit;
+  const placed = fitType(sde, fit, stats, typeId, item.slot);
+  if (placed.ref === undefined) return fit;
+
+  const module = sde.type(typeId);
+  const charge = item.charge && sde.type(item.charge.type_id);
+  const keepsCharge = module !== undefined && charge !== undefined && acceptsCharge(sde, module, charge);
+  return update(placed.fit, placed.ref, (swapped) => ({
+    ...swapped,
+    state: item.state,
+    ...(keepsCharge && { charge: item.charge }),
+  }));
+}
+
 export function remove(fit: Fit, ...refs: ItemRef[]): Fit {
   const items = fit.items.filter((_, ref) => !refs.includes(ref));
   return items.length === fit.items.length ? fit : { ...fit, items };

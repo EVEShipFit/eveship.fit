@@ -501,6 +501,7 @@ test("info of a module not fitted is as the SDE has it", () => {
     text: "30 MW",
     change: undefined,
   });
+  expect(result.current.variations).toEqual(engine.sde.variations(extender));
 });
 
 test("info of a loaded charge", () => {

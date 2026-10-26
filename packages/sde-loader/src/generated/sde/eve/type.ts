@@ -142,8 +142,13 @@ modeTypeIdsArray():Int32Array|null {
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
+variationParentTypeId():number {
+  const offset = this.bb!.__offset(this.bb_pos, 38);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
 static startType(builder:flatbuffers.Builder) {
-  builder.startObject(17);
+  builder.startObject(18);
 }
 
 static addId(builder:flatbuffers.Builder, id:number) {
@@ -243,13 +248,17 @@ static startModeTypeIdsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
+static addVariationParentTypeId(builder:flatbuffers.Builder, variationParentTypeId:number) {
+  builder.addFieldInt32(17, variationParentTypeId, 0);
+}
+
 static endType(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 6) // name
   return offset;
 }
 
-static createType(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers.Offset, groupId:number, categoryId:number, published:boolean, factionId:number, marketGroupId:number, metaGroupId:number, raceId:number, capacity:number|null, mass:number|null, radius:number|null, volume:number|null, dogmaAttributesOffset:flatbuffers.Offset, dogmaEffectsOffset:flatbuffers.Offset, fighterAbilitiesOffset:flatbuffers.Offset, modeTypeIdsOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createType(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers.Offset, groupId:number, categoryId:number, published:boolean, factionId:number, marketGroupId:number, metaGroupId:number, raceId:number, capacity:number|null, mass:number|null, radius:number|null, volume:number|null, dogmaAttributesOffset:flatbuffers.Offset, dogmaEffectsOffset:flatbuffers.Offset, fighterAbilitiesOffset:flatbuffers.Offset, modeTypeIdsOffset:flatbuffers.Offset, variationParentTypeId:number):flatbuffers.Offset {
   Type.startType(builder);
   Type.addId(builder, id);
   Type.addName(builder, nameOffset);
@@ -272,6 +281,7 @@ static createType(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers
   Type.addDogmaEffects(builder, dogmaEffectsOffset);
   Type.addFighterAbilities(builder, fighterAbilitiesOffset);
   Type.addModeTypeIds(builder, modeTypeIdsOffset);
+  Type.addVariationParentTypeId(builder, variationParentTypeId);
   return Type.endType(builder);
 }
 }
