@@ -44,13 +44,13 @@
 .entries {
   align-items: center;
   background: var(--esf-history-bg);
-  border: var(--history-unit) solid var(--esf-history-border);
+  border: round(var(--history-unit), 1px) solid var(--esf-history-border);
   box-sizing: border-box;
   display: flex;
-  gap: calc(3 * var(--history-unit));
-  height: calc(17 * var(--history-unit));
+  gap: round(calc(3 * var(--history-unit)), 1px);
+  height: round(calc(17 * var(--history-unit)), 1px);
   overflow: hidden;
-  padding: 0 calc(2 * var(--history-unit));
+  padding: 0 round(calc(2 * var(--history-unit)), 1px);
   width: calc(282 * var(--history-unit));
 }
 
@@ -59,9 +59,9 @@
   border: none;
   cursor: pointer;
   flex: none;
-  height: calc(11 * var(--history-unit));
+  height: round(calc(11 * var(--history-unit)), 1px);
   padding: 0;
-  width: calc(7 * var(--history-unit));
+  width: round(calc(7 * var(--history-unit)), 1px);
 }
 
 .entry:nth-child(even) {
