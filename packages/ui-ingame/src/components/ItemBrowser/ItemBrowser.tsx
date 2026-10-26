@@ -1,3 +1,4 @@
+import { useBrowse } from "@eveshipfit/react-hooks";
 import { Activity, useDeferredValue, useId, useState, type ReactNode } from "react";
 
 import { Charges } from "./Charges";
@@ -16,6 +17,12 @@ type Tab = "hulls" | "modules" | "charges" | "implants";
 /** EVE's browser of hulls and fits, modules, charges, and implants, left of the fitting wheel. */
 export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
   const [tab, setTab] = useState<Tab>("hulls");
+  const { request } = useBrowse();
+  const [browsed, setBrowsed] = useState(request);
+  if (request !== browsed) {
+    setBrowsed(request);
+    setTab("modules");
+  }
   const id = useId();
   const ready = useDeferredValue(true, false);
 

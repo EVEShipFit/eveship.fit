@@ -1,5 +1,6 @@
 import type { Fit, ItemRef, Rack } from "@eveshipfit/fitting";
 import {
+  useBrowse,
   useCharges,
   useDrag,
   useFit,
@@ -28,6 +29,15 @@ function copies(event: DragEvent): boolean {
   return mac ? event.altKey : event.ctrlKey;
 }
 
+const rackNames: Record<Rack, string> = {
+  high: "High Slot",
+  medium: "Mid Slot",
+  low: "Low Slot",
+  rig: "Rig Slot",
+  subsystem: "Subsystem Slot",
+  service: "Service Slot",
+};
+
 export type SlotBehaviour = Omit<WheelSlotProps, "rack" | "angle">;
 
 /** What a slot of the fit shows, and what clicking, dragging and dropping on it does. */
@@ -45,12 +55,14 @@ export function useFittingSlot(
   const { show, clear } = usePreview();
   const { dragging, start, end } = useDrag();
   const shownCopy = useRef(false);
+  const { browse } = useBrowse();
   const item = content?.item;
   const stats = content?.stats;
   const type = useType(item?.type_id);
   const charges = useCharges(item?.type_id);
   const ref = content?.ref;
 
+  const empty = available && item === undefined;
   const switchable = ref !== undefined && stats !== undefined && switchedRacks.includes(rack);
 
   const target = `${rack}-${index}`;
@@ -98,7 +110,10 @@ export function useFittingSlot(
     ...shown,
     onPress: switchable
       ? (event) => store.setState(ref, nextState(stats.state, stats.maxState, event.shiftKey))
-      : undefined,
+      : empty
+        ? () => browse(rack)
+        : undefined,
+    label: empty ? `Empty ${rackNames[rack]}` : shown.label,
     onDragStart:
       ref === undefined
         ? undefined

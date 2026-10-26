@@ -267,6 +267,28 @@ export const FitModule: Story = {
   },
 };
 
+/** Clicking an empty slot opens the item browser on the modules for that slot. */
+export const BrowseEmptySlot: Story = {
+  args: { browser: <ItemBrowser /> },
+  play: async ({ canvas, userEvent }) => {
+    const pressed = () =>
+      within(canvas.getByRole("group", { name: "Filters" }))
+        .getAllByRole("button", { pressed: true })
+        .map((button) => button.getAttribute("aria-label"));
+
+    await userEvent.click(canvas.getAllByRole("button", { name: "Empty Low Slot" })[0]!);
+    await expect(canvas.getByRole("tab", { name: "Modules" })).toHaveAttribute("aria-selected", "true");
+    await expect(pressed()).toEqual(["Low Slot"]);
+
+    await userEvent.click(canvas.getByRole("tab", { name: "Charges" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Item Browser" }));
+    await userEvent.click(canvas.getAllByRole("button", { name: "Empty Rig Slot" })[0]!);
+    await expect(canvas.getByRole("button", { name: "Item Browser" })).toHaveAttribute("aria-expanded", "true");
+    await expect(canvas.getByRole("tab", { name: "Modules" })).toHaveAttribute("aria-selected", "true");
+    await expect(pressed()).toEqual(["Rig & Subsystem Slots"]);
+  },
+};
+
 /** Dragging a module to a slot fits it there; to the middle of the wheel, in the first free slot. */
 export const DragModule: Story = {
   args: { browser: <ItemBrowser /> },

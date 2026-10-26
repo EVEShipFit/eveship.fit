@@ -20,6 +20,7 @@ import {
   useBayContents,
   useBayUsage,
   useBoosters,
+  useBrowse,
   useCanFit,
   useCharacters,
   useChargedModules,
@@ -432,6 +433,19 @@ test("drag and drop", () => {
 
   act(() => result.current.end());
   expect(result.current.dragging).toBeUndefined();
+});
+
+test("browse", () => {
+  const { result } = render(() => useBrowse());
+  expect(result.current.request).toBeUndefined();
+
+  act(() => result.current.browse("high"));
+  const first = result.current.request;
+  expect(first).toEqual({ rack: "high" });
+
+  act(() => result.current.browse("high"));
+  expect(result.current.request).toEqual({ rack: "high" });
+  expect(result.current.request).not.toBe(first);
 });
 
 test("saved fits", () => {

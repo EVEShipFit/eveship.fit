@@ -1,5 +1,12 @@
 import type { Placement } from "@eveshipfit/fitting";
-import { useCanFit, useMissingSkills, useModuleSearch, useModuleTree, usePlacement } from "@eveshipfit/react-hooks";
+import {
+  useBrowse,
+  useCanFit,
+  useMissingSkills,
+  useModuleSearch,
+  useModuleTree,
+  usePlacement,
+} from "@eveshipfit/react-hooks";
 import type { SdeType } from "@eveshipfit/sde-loader";
 import { useState } from "react";
 
@@ -32,6 +39,13 @@ export function Modules() {
   const [hullRestrictions, setHullRestrictions] = useState(false);
   const [flyable, setFlyable] = useState(false);
   const [collapses, setCollapses] = useState(0);
+  const { request } = useBrowse();
+  const [browsed, setBrowsed] = useState(request);
+  if (request !== browsed) {
+    setBrowsed(request);
+    const filter = request && slotFilters.find(({ places }) => places.includes(request.rack))?.filter;
+    if (filter !== undefined) setSlots(new Set([filter]));
+  }
 
   const query = search.trim().toLowerCase();
   const places = new Set(slotFilters.filter(({ filter }) => slots.has(filter)).flatMap((slot) => slot.places));

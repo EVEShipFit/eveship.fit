@@ -2,6 +2,7 @@ import type { Slot } from "@eveshipfit/fitting";
 import {
   useAttribute,
   useBayUsage,
+  useBrowse,
   useCanFit,
   useDrag,
   useFit,
@@ -66,6 +67,12 @@ export interface FittingWindowProps {
 /** EVE's fitting window around the `FittingWheel`. */
 export function FittingWindow({ label = "Fitting Window", browser, statistics, preview = false }: FittingWindowProps) {
   const [browserOpen, setBrowserOpen] = useState(true);
+  const { request } = useBrowse();
+  const [browsed, setBrowsed] = useState(request);
+  if (request !== browsed) {
+    setBrowsed(request);
+    setBrowserOpen(true);
+  }
   const [statisticsOpen, setStatisticsOpen] = useState(true);
   const browserId = useId();
   const statisticsId = useId();
