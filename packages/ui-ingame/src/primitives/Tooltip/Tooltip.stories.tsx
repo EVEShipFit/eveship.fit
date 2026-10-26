@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { CSSProperties } from "react";
-import { expect, waitFor, within } from "storybook/test";
+import { expect, fn, waitFor, within } from "storybook/test";
 
 import { Icon } from "../Icon/Icon";
 import { Tooltip, TooltipText } from "./Tooltip";
@@ -157,5 +157,16 @@ export const WithText: Story = {
     await userEvent.hover(canvas.getByRole("button"));
     await expect(canvas.getByText("Shield Capacity")).toBeVisible();
     await expect(canvas.getByText("Amount of time taken to fully recharge the shield")).toBeVisible();
+  },
+};
+
+export const Lazy: Story = {
+  args: { label: fn(() => "Unfit Module") },
+  play: async ({ args, canvas, canvasElement, userEvent }) => {
+    await expect(args.label).not.toHaveBeenCalled();
+
+    await userEvent.hover(canvas.getByRole("button", { name: "Unfit Module" }));
+    await waitFor(() => expect(tooltipOf(canvasElement, "Unfit Module").box).toBeVisible());
+    await expect(args.label).toHaveBeenCalled();
   },
 };

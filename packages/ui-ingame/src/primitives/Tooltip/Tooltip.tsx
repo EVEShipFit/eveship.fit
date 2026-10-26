@@ -1,10 +1,18 @@
-import { useId, useRef, type CSSProperties, type FocusEvent, type KeyboardEvent, type ReactNode } from "react";
+import {
+  useId,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FocusEvent,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 
 import styles from "./Tooltip.module.css";
 
 export interface TooltipProps {
-  /** Without one, there is no tooltip. */
-  label?: ReactNode;
+  /** Without one, there is no tooltip; a function is only called once the tooltip has opened. */
+  label?: ReactNode | (() => ReactNode);
   /** The tooltip points at the first element. */
   children: ReactNode;
 }
@@ -17,8 +25,12 @@ export interface TooltipProps {
 export function Tooltip({ label, children }: TooltipProps) {
   const tooltip = useRef<HTMLSpanElement>(null);
   const id = useId().replace(/[^\w-]/g, "");
+  const [opened, setOpened] = useState(false);
 
-  const show = (open: boolean) => tooltip.current?.togglePopover(open);
+  const show = (open: boolean) => {
+    if (open) setOpened(true);
+    tooltip.current?.togglePopover(open);
+  };
 
   return (
     <span
@@ -43,7 +55,7 @@ export function Tooltip({ label, children }: TooltipProps) {
       {label !== undefined && (
         <span ref={tooltip} className={styles.tooltip} popover="hint" aria-hidden>
           <span className={styles.notch} />
-          <span className={styles.label}>{label}</span>
+          <span className={styles.label}>{typeof label === "function" ? opened && label() : label}</span>
         </span>
       )}
     </span>
