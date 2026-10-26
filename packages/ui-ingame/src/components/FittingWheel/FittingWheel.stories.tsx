@@ -278,15 +278,15 @@ export const DragToMove: Story = {
     await expect(lowSlots(canvasElement).map(moduleIn)).toEqual([
       "Gyrostabilizer II, offline",
       "Damage Control II, online",
-      "empty",
-      "empty",
+      "Empty Low Slot",
+      "Empty Low Slot",
     ]);
 
     await dragAndDrop(canvas.getByRole("button", { name: /^Damage Control II/ }), lowSlots(canvasElement)[3]!);
     await expect(lowSlots(canvasElement).map(moduleIn)).toEqual([
       "Gyrostabilizer II, offline",
-      "empty",
-      "empty",
+      "Empty Low Slot",
+      "Empty Low Slot",
       "Damage Control II, online",
     ]);
   },
@@ -311,8 +311,8 @@ export const DragToCopy: Story = {
     await expect(lowSlots(canvasElement).map(moduleIn)).toEqual([
       "Damage Control II, online",
       "Damage Control II, online",
-      "empty",
-      "empty",
+      "Empty Low Slot",
+      "Empty Low Slot",
     ]);
     await expect(canvas.queryByText("hold Ctrl to copy")).toBeNull();
   },

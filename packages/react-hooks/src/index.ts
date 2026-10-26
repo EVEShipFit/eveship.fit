@@ -1,4 +1,4 @@
-export type { DragItem } from "./context.js";
+export type { BrowseRequest, DragItem } from "./context.js";
 export {
   formatAttribute,
   formatClock,
@@ -9,6 +9,7 @@ export {
 } from "./format.js";
 export { useAttribute, type AttributeOptions, type AttributeValue } from "./hooks/attribute.js";
 export { useCharacters, useMissingSkills, type CharacterChoice, type CharactersControls } from "./hooks/characters.js";
+export { useBrowse, type Browse } from "./hooks/browse.js";
 export { useDrag, type Drag } from "./hooks/drag.js";
 export {
   useFit,

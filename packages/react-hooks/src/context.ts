@@ -1,4 +1,4 @@
-import type { Engine, FitStore, Preview } from "@eveshipfit/fitting";
+import type { Engine, FitStore, Preview, Rack } from "@eveshipfit/fitting";
 import type { Images } from "@eveshipfit/images";
 import type { Texts } from "@eveshipfit/sde-loader";
 import type { ZKillboard } from "@eveshipfit/zkillboard";
@@ -24,6 +24,15 @@ export interface DragState {
   setDragging: (item: DragItem | undefined) => void;
 }
 
+export interface BrowseRequest {
+  readonly rack: Rack;
+}
+
+export interface BrowseState {
+  request: BrowseRequest | undefined;
+  setRequest: (request: BrowseRequest) => void;
+}
+
 export interface CharacterState {
   /** The ID of the character flying the fit, as `useCharacters` lists it. */
   current: string;
@@ -34,6 +43,7 @@ export const EngineContext = createContext<Engine | undefined>(undefined);
 export const FitContext = createContext<FitStore | undefined>(undefined);
 export const PreviewContext = createContext<PreviewState | undefined>(undefined);
 export const DragContext = createContext<DragState | undefined>(undefined);
+export const BrowseContext = createContext<BrowseState | undefined>(undefined);
 export const CharacterContext = createContext<CharacterState | undefined>(undefined);
 export const EsiCharactersContext = createContext<EsiCharacters | undefined>(undefined);
 export const LocalFitsContext = createContext<LocalFits | undefined>(undefined);

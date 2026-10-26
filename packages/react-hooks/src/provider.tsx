@@ -3,6 +3,7 @@ import type { ZKillboard } from "@eveshipfit/zkillboard";
 import { useRef, useState, type ReactNode } from "react";
 
 import {
+  BrowseContext,
   CharacterContext,
   DragContext,
   EngineContext,
@@ -11,6 +12,7 @@ import {
   LocalFitsContext,
   PreviewContext,
   ZKillboardContext,
+  type BrowseRequest,
   type DragItem,
   type PreviewState,
 } from "./context.js";
@@ -61,6 +63,7 @@ export function EveShipFitProvider({
     },
   };
   const [dragging, setDragging] = useState<DragItem>();
+  const [browse, setBrowse] = useState<BrowseRequest>();
   const [character, setCharacter] = useState(firstCharacter ?? ALL_SKILLS_V);
   useFlyCharacter(engine, fit ?? ownFit, characters, character, firstCharacter !== undefined);
 
@@ -72,7 +75,9 @@ export function EveShipFitProvider({
             <CharacterContext value={{ current: character, setCurrent: setCharacter }}>
               <PreviewContext value={previewState}>
                 <DragContext value={{ dragging, setDragging }}>
-                  <ZKillboardContext value={zkillboard}>{children}</ZKillboardContext>
+                  <BrowseContext value={{ request: browse, setRequest: setBrowse }}>
+                    <ZKillboardContext value={zkillboard}>{children}</ZKillboardContext>
+                  </BrowseContext>
                 </DragContext>
               </PreviewContext>
             </CharacterContext>
