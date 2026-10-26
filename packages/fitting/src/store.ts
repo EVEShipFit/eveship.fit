@@ -84,6 +84,11 @@ export class FitStore {
     this.#commit(edits.move(this.#snapshot.fit, ref, slot));
   }
 
+  /** To another slot of the same rack, replacing what is there. */
+  copy(ref: ItemRef, slot: Slot) {
+    this.#commit(edits.copy(this.#snapshot.fit, ref, slot));
+  }
+
   remove(...refs: ItemRef[]) {
     this.#commit(edits.remove(this.#snapshot.fit, ...refs));
   }

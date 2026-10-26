@@ -20,6 +20,7 @@ import { useMemo } from "react";
 import { rackSize, slotAngle, type WheelRack } from "../../primitives/Wheel/layout";
 import { Wheel } from "../../primitives/Wheel/Wheel";
 import { WheelGauge, type WheelResource } from "../../primitives/Wheel/WheelGauge";
+import { WheelHint } from "../../primitives/Wheel/WheelHint";
 import { WheelHardpoints } from "../../primitives/Wheel/WheelHardpoints";
 import { WheelHull } from "../../primitives/Wheel/WheelHull";
 import { WheelLink } from "../../primitives/Wheel/WheelLink";
@@ -27,7 +28,7 @@ import { WheelModes } from "../../primitives/Wheel/WheelModes";
 import { WheelRackMarker, type MarkedRack } from "../../primitives/Wheel/WheelRackMarker";
 import { WheelSlot } from "../../primitives/Wheel/WheelSlot";
 import { FittingAugmentations } from "./FittingAugmentations";
-import { allowDrop, useFittingSlot } from "./fittingSlot";
+import { allowDrop, copyKey, useFittingSlot } from "./fittingSlot";
 import styles from "./FittingWheel.module.css";
 
 const markedRacks: MarkedRack[] = ["high", "medium", "low"];
@@ -58,6 +59,7 @@ export function FittingWheel({
     <Wheel label={label} hideScales={hideStats}>
       <WheelHull typeId={ship} />
       {!readOnly && <FittingCentre />}
+      {!readOnly && <FittingCopyHint />}
       {markedRacks.map((rack) => (
         <WheelRackMarker key={rack} rack={rack} />
       ))}
@@ -147,6 +149,17 @@ function FittingCentre() {
       }}
     />
   );
+}
+
+const copiedRacks: string[] = ["high", "medium", "low", "rig", "service"];
+
+/** Tells how to copy a module while one is dragged. */
+function FittingCopyHint() {
+  const fit = useFit();
+  const { dragging } = useDrag();
+  const slot = dragging?.type === "item" ? fit.items[dragging.ref]?.slot : undefined;
+  if (slot === undefined || !copiedRacks.includes(slot.type)) return null;
+  return <WheelHint text={`hold ${copyKey} to copy`} />;
 }
 
 function FittingModes({ readOnly }: { readOnly: boolean }) {

@@ -385,6 +385,28 @@ describe("edits", () => {
     ]);
   });
 
+  test("copying a module replaces what is in the other slot, and leaves the original", () => {
+    const fit = rifter();
+    const gun = fit.fit(id("200mm AutoCannon II"))!;
+    fit.fit(id("Rocket Launcher II"));
+    fit.setCharge(gun, id("EMP S"));
+    fit.setState(gun, "offline");
+
+    fit.copy(gun, { type: "high", index: 1 });
+    fit.copy(gun, { type: "high", index: 2 });
+    const copied = { type_id: id("200mm AutoCannon II"), state: "offline", charge: { type_id: id("EMP S") } };
+    expect(fit.getSnapshot().fit.items).toMatchObject([
+      { ...copied, slot: { type: "high", index: 0 } },
+      { ...copied, slot: { type: "high", index: 1 } },
+      { ...copied, slot: { type: "high", index: 2 } },
+    ]);
+
+    const before = fit.getSnapshot();
+    fit.copy(gun, { type: "high", index: 0 });
+    fit.copy(gun, { type: "medium", index: 0 });
+    expect(fit.getSnapshot()).toBe(before);
+  });
+
   test("moving a squadron swaps it with what is in the other tube", () => {
     const fit = engine.createFit({ ship: id("Thanatos") });
     const dromi = fit.fit(id("Dromi II"))!;
