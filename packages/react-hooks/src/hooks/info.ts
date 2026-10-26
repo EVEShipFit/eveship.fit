@@ -2,7 +2,7 @@ import type { Slot } from "@eveshipfit/fitting";
 import type { SdeType } from "@eveshipfit/sde-loader";
 import { useMemo } from "react";
 
-import { InfoContext, useRequiredContext, type InfoTarget } from "../context.js";
+import { InfoContext, useRequiredContext, type InfoAnchor, type InfoTarget, type ShownInfo } from "../context.js";
 import { formatAttribute } from "../format.js";
 import { useSnapshot } from "./fit.js";
 import { useSde } from "./sde.js";
@@ -24,14 +24,14 @@ export interface Info {
 }
 
 export interface ShowInfo {
-  readonly shown: InfoTarget | undefined;
-  readonly show: (target: InfoTarget) => void;
+  readonly shown: ShownInfo | undefined;
+  readonly show: (target: InfoTarget, anchor?: InfoAnchor) => void;
   readonly close: () => void;
 }
 
 export function useShowInfo(): ShowInfo {
   const { shown, setShown } = useRequiredContext(InfoContext);
-  return { shown, show: setShown, close: () => setShown(undefined) };
+  return { shown, show: (target, anchor) => setShown({ target, anchor }), close: () => setShown(undefined) };
 }
 
 export function useInfo(target: InfoTarget): Info {

@@ -14,7 +14,7 @@ import {
   PreviewContext,
   ZKillboardContext,
   type BrowseRequest,
-  type InfoTarget,
+  type ShownInfo,
   type DragItem,
   type PreviewState,
 } from "./context.js";
@@ -66,7 +66,7 @@ export function EveShipFitProvider({
   };
   const [dragging, setDragging] = useState<DragItem>();
   const [browse, setBrowse] = useState<BrowseRequest>();
-  const [info, setInfo] = useState<InfoTarget>();
+  const [info, setInfo] = useState<ShownInfo>();
   const [character, setCharacter] = useState(firstCharacter ?? ALL_SKILLS_V);
   useFlyCharacter(engine, fit ?? ownFit, characters, character, firstCharacter !== undefined);
 

@@ -140,7 +140,7 @@ export const Unfit: Story = {
   },
 };
 
-/** Show Info opens in the middle of the wheel, with the values on the fit. */
+/** Show Info opens next to the slot, with the values on the fit. */
 export const ShowInfo: Story = {
   parameters: { fit: rifter },
   play: async ({ canvas, userEvent }) => {

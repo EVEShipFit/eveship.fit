@@ -15,7 +15,7 @@ export function SlotAction({ icon, label, onPress }: { icon: IconName; label: st
   );
 }
 
-export function SlotInfo({ onPress }: { onPress?: () => void }) {
+export function SlotInfo({ onPress }: { onPress?: (anchor: HTMLElement) => void }) {
   return (
     <Tooltip label={onPress ? "Show Info" : "Show Info (not implemented yet)"}>
       <button
@@ -23,7 +23,7 @@ export function SlotInfo({ onPress }: { onPress?: () => void }) {
         className={styles.button}
         aria-label="Show Info"
         aria-disabled={onPress === undefined || undefined}
-        onClick={onPress}
+        onClick={onPress && ((event) => onPress(event.currentTarget))}
       >
         <Icon name="module-info" />
       </button>

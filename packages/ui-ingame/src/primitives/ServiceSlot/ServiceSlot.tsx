@@ -23,7 +23,7 @@ export interface ServiceSlotProps extends HTMLAttributes<HTMLDivElement> {
   label?: string;
   onUnfit?: () => void;
   onTogglePower?: () => void;
-  onShowInfo?: () => void;
+  onShowInfo?: (anchor: HTMLElement) => void;
   /** False leaves out the actions shown on hover. */
   actions?: boolean;
 }

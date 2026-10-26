@@ -52,8 +52,8 @@ export interface WheelSlotProps extends HTMLAttributes<HTMLDivElement> {
   onUnfit?: () => void;
   onRemoveCharge?: () => void;
   onTogglePower?: () => void;
-  onShowInfo?: () => void;
-  onShowChargeInfo?: () => void;
+  onShowInfo?: (anchor: HTMLElement) => void;
+  onShowChargeInfo?: (anchor: HTMLElement) => void;
 }
 
 export function WheelSlot({

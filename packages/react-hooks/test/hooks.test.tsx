@@ -459,7 +459,7 @@ test("show info", () => {
   expect(result.current.shown).toBeUndefined();
 
   act(() => result.current.show({ typeId: DAMAGE_CONTROL_II, ref: 0 }));
-  expect(result.current.shown).toEqual({ typeId: DAMAGE_CONTROL_II, ref: 0 });
+  expect(result.current.shown).toEqual({ target: { typeId: DAMAGE_CONTROL_II, ref: 0 }, anchor: undefined });
 
   act(() => result.current.close());
   expect(result.current.shown).toBeUndefined();

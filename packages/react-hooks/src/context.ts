@@ -42,9 +42,20 @@ export interface InfoTarget {
   readonly ref?: ItemRef;
 }
 
+/** What the info points at, and on which side of it. */
+export interface InfoAnchor {
+  readonly element: Element;
+  readonly side: "left" | "right";
+}
+
+export interface ShownInfo {
+  readonly target: InfoTarget;
+  readonly anchor?: InfoAnchor;
+}
+
 export interface InfoState {
-  shown: InfoTarget | undefined;
-  setShown: (target: InfoTarget | undefined) => void;
+  shown: ShownInfo | undefined;
+  setShown: (shown: ShownInfo | undefined) => void;
 }
 
 export interface CharacterState {

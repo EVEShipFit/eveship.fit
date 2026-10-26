@@ -25,7 +25,7 @@ const folders: Record<MetaFolder, { label: string; metaGroupId: number }> = {
 export interface TypeActions {
   fit: (typeId: number) => void;
   hover: (typeId: number, hovering: boolean) => void;
-  info: (typeId: number) => void;
+  info: (typeId: number, anchor: HTMLElement) => void;
   drag: (event: DragEvent, type: SdeType) => void;
   dragEnd: () => void;
 }
@@ -47,7 +47,7 @@ export function useTypeActions(): { actions: TypeActions; clear: () => void; dra
         show((draft) => void draft.fit(typeId));
       } else clear();
     },
-    info: (typeId) => showInfo({ typeId }),
+    info: (typeId, element) => showInfo({ typeId }, { element, side: "right" }),
     drag: (event, type) => {
       clear();
       const image = dragImage.current;
@@ -99,7 +99,7 @@ export function TypeLeaf({ type, actions, icon = false }: TypeLeafProps) {
             tabIndex={-1}
             onClick={(event) => {
               event.stopPropagation();
-              actions.info(type.id);
+              actions.info(type.id, event.currentTarget);
             }}
           >
             <Icon name="module-info" />

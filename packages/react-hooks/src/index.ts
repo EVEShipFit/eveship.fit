@@ -1,4 +1,4 @@
-export type { BrowseRequest, BrowseTarget, DragItem, InfoTarget } from "./context.js";
+export type { BrowseRequest, BrowseTarget, DragItem, InfoAnchor, InfoTarget, ShownInfo } from "./context.js";
 export {
   formatAttribute,
   formatClock,
