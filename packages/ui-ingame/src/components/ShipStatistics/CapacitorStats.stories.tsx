@@ -20,7 +20,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Stable: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button", { name: /^Capacitor/ })).toHaveTextContent("Stable");
+    await expect(canvas.getByRole("button", { name: "Capacitor" })).toHaveAccessibleDescription("Stable");
     await expect(canvas.getByRole("meter", { name: "Capacitor" })).toHaveAttribute(
       "aria-valuetext",
       "Stable at 100.0%",
@@ -45,7 +45,7 @@ export const StableBelowFull: Story = {
     },
   },
   play: async ({ canvas, canvasElement }) => {
-    await expect(canvas.getByRole("button", { name: /^Capacitor/ })).toHaveTextContent("Stable");
+    await expect(canvas.getByRole("button", { name: "Capacitor" })).toHaveAccessibleDescription("Stable");
     await expect(canvas.getByRole("meter", { name: "Capacitor" })).toHaveAttribute("aria-valuetext", "Stable at 47.8%");
     await expect(canvasElement.querySelectorAll("[data-lit]")).toHaveLength(8);
   },
@@ -62,7 +62,9 @@ export const Depletes: Story = {
     },
   },
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button", { name: /^Capacitor/ })).toHaveTextContent(/Depletes in \d\d:\d\d:\d\d$/);
+    await expect(canvas.getByRole("button", { name: "Capacitor" })).toHaveAccessibleDescription(
+      /Depletes in \d\d:\d\d:\d\d$/,
+    );
     await expect(canvas.getByRole("group", { name: "Peak Recharge Minus Usage" })).toHaveTextContent(/^Δ -/);
     await expect(canvas.getByRole("meter", { name: "Capacitor" })).toHaveAttribute("aria-valuenow", "0");
   },

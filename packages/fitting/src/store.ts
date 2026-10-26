@@ -2,7 +2,7 @@ import type { Sde } from "@eveshipfit/sde-loader";
 
 import * as edits from "./edits.js";
 import type { Stats } from "./stats.js";
-import type { Character, Fit, ItemRef, Slot, State } from "./types.js";
+import type { Character, DamageProfile, Fit, ItemRef, Slot, State } from "./types.js";
 
 export interface Snapshot {
   /** Without `character`; who flies the fit is set on the store. */
@@ -30,15 +30,17 @@ const HISTORY_LIMIT = 25;
 export class FitStore {
   readonly #calculator: Calculator;
   #character: Character;
+  #damageProfile: DamageProfile | undefined;
   #snapshot: Snapshot;
   /** Oldest first; an edit goes at the end, also after going back. */
   readonly #history: Fit[];
   #position: number;
   readonly #listeners = new Set<() => void>();
 
-  constructor(calculator: Calculator, fit: Fit, character: Character) {
+  constructor(calculator: Calculator, fit: Fit, character: Character, damageProfile?: DamageProfile) {
     this.#calculator = calculator;
     this.#character = character;
+    this.#damageProfile = damageProfile;
     this.#snapshot = this.#calculate(edits.withMode(calculator.sde, withoutCharacter(fit)));
     this.#history = [this.#snapshot.fit];
     this.#position = 0;
@@ -53,6 +55,11 @@ export class FitStore {
 
   get character(): Character {
     return this.#character;
+  }
+
+  /** Undefined is uniform. */
+  get damageProfile(): DamageProfile | undefined {
+    return this.#damageProfile;
   }
 
   get canUndo(): boolean {
@@ -146,6 +153,12 @@ export class FitStore {
     this.#publish(this.#calculate(this.#snapshot.fit));
   }
 
+  /** Like the character, not an edit of the fit. */
+  setDamageProfile(damageProfile: DamageProfile | undefined) {
+    this.#damageProfile = damageProfile;
+    this.#publish(this.#calculate(this.#snapshot.fit));
+  }
+
   undo() {
     this.goTo(this.#position - 1);
   }
@@ -172,7 +185,7 @@ export class FitStore {
 
   /** What `edit` would do, without doing it. */
   preview(edit: (fit: FitStore) => void): Preview {
-    const draft = new FitStore(this.#calculator, this.#snapshot.fit, this.#character);
+    const draft = new FitStore(this.#calculator, this.#snapshot.fit, this.#character, this.#damageProfile);
     edit(draft);
     return { before: this.#snapshot, after: draft.getSnapshot() };
   }
@@ -187,7 +200,9 @@ export class FitStore {
   }
 
   #calculate(fit: Fit): Snapshot {
-    return Object.freeze({ fit, stats: this.#calculator.calculate(fit, this.#character) });
+    const environment = this.#damageProfile && { ...fit.environment, damage_profile: this.#damageProfile };
+    const calculated = environment ? { ...fit, environment } : fit;
+    return Object.freeze({ fit, stats: this.#calculator.calculate(calculated, this.#character) });
   }
 
   #publish(snapshot: Snapshot) {

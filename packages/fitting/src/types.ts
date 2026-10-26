@@ -3,6 +3,7 @@ import type { Slot } from "@eveshipfit/dogma-engine";
 export type {
   Calculation,
   Character,
+  DamageProfile,
   Fit,
   FitItem,
   ItemResult,

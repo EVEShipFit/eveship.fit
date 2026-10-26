@@ -13,7 +13,7 @@ type Story = StoryObj<typeof meta>;
 
 export const EmptyRifter: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button", { name: /^Navigation/ })).toHaveTextContent("456.3 m/s");
+    await expect(canvas.getByRole("button", { name: "Navigation" })).toHaveAccessibleDescription("456.3 m/s");
     await expect(canvas.getByRole("group", { name: "Mass" })).toHaveTextContent("1,067.00 t");
     await expect(canvas.getByRole("group", { name: "Inertia Modifier" })).toHaveTextContent("2.1600x");
     await expect(canvas.getByRole("group", { name: "Warp Speed" })).toHaveTextContent("5.00 AU/s");
@@ -24,7 +24,7 @@ export const EmptyRifter: Story = {
 export const Retribution: Story = {
   parameters: { fit: { ship: 11393 } },
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button", { name: /^Navigation/ })).toHaveTextContent("343.8 m/s");
+    await expect(canvas.getByRole("button", { name: "Navigation" })).toHaveAccessibleDescription("343.8 m/s");
     await expect(canvas.getByRole("group", { name: "Align Time" })).toHaveTextContent("4.07s");
   },
 };

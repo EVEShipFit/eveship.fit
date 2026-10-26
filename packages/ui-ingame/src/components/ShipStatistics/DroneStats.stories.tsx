@@ -20,7 +20,7 @@ type Story = StoryObj<typeof meta>;
 export const NoDrones: Story = {
   parameters: { fit: { ship: types.Tristan } },
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button", { name: /^Drones/ })).toHaveTextContent("0.0 dps");
+    await expect(canvas.getByRole("button", { name: "Drones" })).toHaveAccessibleDescription("0.0 dps");
     await expect(canvas.getByRole("group", { name: "Drone Bandwidth" })).toHaveTextContent("0/25 Mbit/sec");
     await expect(canvas.getByRole("group", { name: "Drone Control Range" })).toHaveTextContent("60.00 km");
     await expect(canvas.getByRole("group", { name: "Active Drones" })).toHaveTextContent("0 Active");
@@ -35,7 +35,7 @@ export const TwoHobgoblins: Story = {
     },
   },
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button", { name: /^Drones/ })).toHaveTextContent("39.6 dps");
+    await expect(canvas.getByRole("button", { name: "Drones" })).toHaveAccessibleDescription("39.6 dps");
     await expect(canvas.getByRole("group", { name: "Drone Bandwidth" })).toHaveTextContent("10/25 Mbit/sec");
     await expect(canvas.getByRole("group", { name: "Active Drones" })).toHaveTextContent("2 Active");
   },

@@ -26,7 +26,7 @@ type Story = StoryObj<typeof meta>;
 
 export const NoWeapons: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button", { name: /^Offense/ })).toHaveTextContent("0.0 dps");
+    await expect(canvas.getByRole("button", { name: "Offense" })).toHaveAccessibleDescription("0.0 dps");
     await expect(canvas.getByRole("group", { name: "Damage per Second" })).toHaveTextContent(/^0\.0 dps$/);
     await expect(canvas.getByRole("group", { name: "Alpha Strike" })).toHaveTextContent("0 HP");
   },

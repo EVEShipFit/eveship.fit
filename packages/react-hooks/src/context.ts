@@ -4,6 +4,7 @@ import type { Texts } from "@eveshipfit/sde-loader";
 import type { ZKillboard } from "@eveshipfit/zkillboard";
 import { createContext, useContext, type Context } from "react";
 
+import type { DamageProfiles } from "./damage-profiles.js";
 import type { EsiCharacters } from "./esi-characters.js";
 import type { LocalFits } from "./local-fits.js";
 
@@ -64,6 +65,12 @@ export interface CharacterState {
   setCurrent: (id: string) => void;
 }
 
+export interface DamageProfileState {
+  /** The name of the profile the ehp is for; undefined for uniform. */
+  current: string | undefined;
+  setCurrent: (name: string | undefined) => void;
+}
+
 export const EngineContext = createContext<Engine | undefined>(undefined);
 export const FitContext = createContext<FitStore | undefined>(undefined);
 export const PreviewContext = createContext<PreviewState | undefined>(undefined);
@@ -71,6 +78,8 @@ export const DragContext = createContext<DragState | undefined>(undefined);
 export const BrowseContext = createContext<BrowseState | undefined>(undefined);
 export const InfoContext = createContext<InfoState | undefined>(undefined);
 export const CharacterContext = createContext<CharacterState | undefined>(undefined);
+export const DamageProfileContext = createContext<DamageProfileState | undefined>(undefined);
+export const DamageProfilesContext = createContext<DamageProfiles | undefined>(undefined);
 export const EsiCharactersContext = createContext<EsiCharacters | undefined>(undefined);
 export const LocalFitsContext = createContext<LocalFits | undefined>(undefined);
 export const ImagesContext = createContext<Images | undefined>(undefined);

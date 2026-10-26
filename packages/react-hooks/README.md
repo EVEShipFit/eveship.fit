@@ -110,6 +110,12 @@ characters.loadAll();
 `useLocalFits` lists, saves and removes fits in IndexedDB, and follows changes made in other tabs; pass a `LocalFits`
 to the provider to store them elsewhere.
 
+### Damage profiles
+
+`useDamageProfiles` picks the damage profile the ehp is for: uniform, or one people made. Those are kept in
+`localStorage` and follow changes made in other tabs; pass a `DamageProfiles` to the provider to store them elsewhere.
+The pick itself is not kept; each provider starts at uniform.
+
 ## License
 
 MIT

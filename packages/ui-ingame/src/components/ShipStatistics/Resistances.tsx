@@ -27,7 +27,7 @@ const resonances: Record<Layer, Record<DamageType, string>> = {
 };
 
 const layerNames: Record<Layer, string> = { shield: "Shield", armor: "Armor", structure: "Structure" };
-const damageNames: Record<DamageType, string> = {
+export const damageNames: Record<DamageType, string> = {
   em: "EM",
   thermal: "Thermal",
   kinetic: "Kinetic",

@@ -675,6 +675,40 @@ describe("character", () => {
   });
 });
 
+describe("damage profile", () => {
+  const thermal = { em: 0, thermal: 1, kinetic: 0, explosive: 0 };
+
+  test("changes the ehp without being an edit", () => {
+    const fit = rifter();
+    const uniform = fit.getSnapshot().stats.ship.get("ehp")!;
+
+    fit.setDamageProfile(thermal);
+    expect(fit.getSnapshot().stats.ship.get("ehp")).toBeLessThan(uniform);
+    expect(fit.getSnapshot().fit.environment).toBeUndefined();
+    expect(fit.canUndo).toBe(false);
+
+    fit.setDamageProfile(undefined);
+    expect(fit.getSnapshot().stats.ship.get("ehp")).toBe(uniform);
+  });
+
+  test("stays when the hull changes", () => {
+    const fit = rifter();
+    fit.setDamageProfile(thermal);
+    fit.replace({ ship: { type_id: id("Tristan") }, items: [] });
+
+    const tristan = engine.createFit({ ship: id("Tristan") });
+    tristan.setDamageProfile(thermal);
+    expect(fit.getSnapshot().stats.ship.get("ehp")).toBe(tristan.getSnapshot().stats.ship.get("ehp"));
+  });
+
+  test("applies to a preview", () => {
+    const fit = rifter();
+    fit.setDamageProfile(thermal);
+    const { before, after } = fit.preview((draft) => draft.setName("Draft"));
+    expect(after.stats.ship.get("ehp")).toBe(before.stats.ship.get("ehp"));
+  });
+});
+
 test("preview shows the change without making it", () => {
   const fit = rifter();
   const listener = vi.fn<() => void>();
