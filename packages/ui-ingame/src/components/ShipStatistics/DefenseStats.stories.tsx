@@ -13,7 +13,7 @@ type Story = StoryObj<typeof meta>;
 
 export const EmptyRifter: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button", { name: /^Defense/ })).toHaveTextContent("2,262 ehp");
+    await expect(canvas.getByRole("button", { name: "Defense" })).toHaveAccessibleDescription("2,262 ehp");
     await expect(canvas.getByRole("group", { name: "Shield Hitpoints / Recharge Time" })).toHaveTextContent(
       "562 hp468 s",
     );
@@ -77,7 +77,7 @@ export const MakeADamageProfile: Story = {
     await userEvent.click(dialog.getByRole("button", { name: "Save" }));
 
     await expect(canvas.getByRole("button", { name: "Damage profile: EM and Thermal" })).toBeVisible();
-    await expect(canvas.getByRole("button", { name: /^Defense/ })).toHaveTextContent("2,349 ehp");
+    await expect(canvas.getByRole("button", { name: "Defense" })).toHaveAccessibleDescription("2,349 ehp");
     await expect(shares(canvas)).toEqual([0.5, 0.5, 0, 0]);
   },
 };
@@ -87,12 +87,13 @@ export const PickADamageProfile: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Damage profile: Uniform" }));
     await userEvent.click(canvas.getByRole("button", { name: "Thermal" }));
-    await expect(canvas.getByRole("button", { name: /^Defense/ })).toHaveTextContent("2,221 ehp");
+    await expect(canvas.getByRole("button", { name: "Defense" })).toHaveAttribute("aria-expanded", "true");
+    await expect(canvas.getByRole("button", { name: "Defense" })).toHaveAccessibleDescription("2,221 ehp");
 
     await userEvent.click(canvas.getByRole("button", { name: "Damage profile: Thermal" }));
     await userEvent.click(canvas.getByRole("button", { name: "Edit Thermal" }));
     await userEvent.click(within(canvas.getByRole("dialog")).getByRole("button", { name: "Delete" }));
     await expect(canvas.getByRole("button", { name: "Damage profile: Uniform" })).toBeVisible();
-    await expect(canvas.getByRole("button", { name: /^Defense/ })).toHaveTextContent("2,262 ehp");
+    await expect(canvas.getByRole("button", { name: "Defense" })).toHaveAccessibleDescription("2,262 ehp");
   },
 };

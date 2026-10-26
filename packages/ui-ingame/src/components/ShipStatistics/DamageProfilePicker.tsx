@@ -5,29 +5,48 @@ import { useId, useRef, useState, type CSSProperties } from "react";
 import { Dialog } from "../../primitives/Dialog/Dialog";
 import { Icon } from "../../primitives/Icon/Icon";
 import type { DamageType } from "../../primitives/ResistanceBar/ResistanceBar";
+import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import { damageNames, damageTypes } from "./Resistances";
 import styles from "./ShipStatistics.module.css";
 
 const UNIFORM_NAME = "Uniform";
 
+function shareOf(profile: DamageProfile, damage: DamageType): number {
+  const total = damageTypes.reduce((sum, one) => sum + (profile[one] ?? 0), 0);
+  return (profile[damage] ?? 0) / total;
+}
+
+function shareLabel(profile: DamageProfile, damage: DamageType): string {
+  return `${damageNames[damage]}: ${Math.round(shareOf(profile, damage) * 100)} % of incoming damage`;
+}
+
+/** The four damage type icons, saying their share of `profile`. */
+export function DamageIcons({ profile }: { profile: DamageProfile }) {
+  return damageTypes.map((damage) => (
+    <Tooltip key={damage} label={shareLabel(profile, damage)}>
+      <Icon name={`stat-${damage}-resistance`} />
+    </Tooltip>
+  ));
+}
+
 /** Each damage type's share of `profile`, against the largest one. */
 export function DamageShares({ profile }: { profile: DamageProfile }) {
   const largest = Math.max(...damageTypes.map((damage) => profile[damage] ?? 0));
-  const total = damageTypes.reduce((sum, damage) => sum + (profile[damage] ?? 0), 0);
 
   return damageTypes.map((damage) => (
-    <span
-      key={damage}
-      className={styles.share}
-      data-damage={damage}
-      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- A <meter> cannot be styled the same in every browser.
-      role="meter"
-      aria-label={`Incoming ${damageNames[damage]} Damage`}
-      aria-valuemin={0}
-      aria-valuemax={1}
-      aria-valuenow={(profile[damage] ?? 0) / total}
-      style={{ "--share": (profile[damage] ?? 0) / largest } as CSSProperties}
-    />
+    <Tooltip key={damage} label={shareLabel(profile, damage)}>
+      <span
+        className={styles.share}
+        data-damage={damage}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- A <meter> cannot be styled the same in every browser.
+        role="meter"
+        aria-label={`Incoming ${damageNames[damage]} Damage`}
+        aria-valuemin={0}
+        aria-valuemax={1}
+        aria-valuenow={shareOf(profile, damage)}
+        style={{ "--share": (profile[damage] ?? 0) / largest } as CSSProperties}
+      />
+    </Tooltip>
   ));
 }
 
@@ -53,7 +72,6 @@ export function DamageProfilePicker() {
       className={styles.damageProfile}
       style={{ "--damage-profile-anchor": `--damage-profile-${menuId.replace(/[^\w-]/g, "")}` } as CSSProperties}
     >
-      <span className={styles.damageProfileLabel}>Damage profile</span>
       <button
         type="button"
         className={styles.damageProfilePicker}
@@ -88,7 +106,7 @@ export function DamageProfilePicker() {
               aria-label={`Edit ${profile.name}`}
               onClick={() => edit(profile)}
             >
-              Edit
+              <Icon name="edit" />
             </button>
           </div>
         ))}
@@ -160,7 +178,16 @@ function ProfileForm({ editing, taken, onCancel, onSave, onDelete }: ProfileForm
       }}
     >
       <label htmlFor={id}>Name</label>
-      <input id={id} value={name} onChange={(event) => setName(event.target.value)} />
+      <input
+        id={id}
+        value={name}
+        autoComplete="off"
+        data-1p-ignore
+        data-lpignore="true"
+        data-bwignore
+        data-form-type="other"
+        onChange={(event) => setName(event.target.value)}
+      />
       {clash && <p className={styles.formError}>There is already a profile named &quot;{trimmed}&quot;.</p>}
       <div className={styles.amounts}>
         {damageTypes.map((damage) => (

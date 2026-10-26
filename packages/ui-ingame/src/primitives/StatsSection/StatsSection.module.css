@@ -10,30 +10,52 @@
 .header {
   align-items: center;
   background: var(--esf-stats-header);
+  display: flex;
+  gap: calc(8 * var(--section-unit));
+  height: calc(20 * var(--section-unit));
+  padding: 0 calc(14 * var(--section-unit)) 0 calc(4 * var(--section-unit));
+  position: relative;
+}
+
+.header:has(.toggle:focus-visible) {
+  outline: var(--section-unit) solid var(--esf-text);
+}
+
+.toggle {
+  align-items: center;
+  align-self: stretch;
+  background: none;
   border: none;
   color: inherit;
   cursor: default;
   display: flex;
+  flex: 1;
   font: inherit;
-  height: calc(20 * var(--section-unit));
-  padding: 0 calc(14 * var(--section-unit)) 0 calc(4 * var(--section-unit));
+  min-width: 0;
+  outline: none;
+  padding: 0;
   text-align: left;
-  width: 100%;
 }
 
-.header:focus-visible {
-  outline: var(--section-unit) solid var(--esf-text);
+.toggle::after {
+  content: "";
+  inset: 0;
+  position: absolute;
 }
 
-.header > img {
+.toggle > img {
   height: calc(10 * var(--section-unit));
   margin-right: calc(4 * var(--section-unit));
   transition: transform 150ms ease;
   width: calc(10 * var(--section-unit));
 }
 
-.section[data-closed] .header > img {
+.section[data-closed] .toggle > img {
   transform: rotate(-90deg);
+}
+
+.action {
+  position: relative;
 }
 
 .title {
@@ -67,7 +89,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .header > img,
+  .toggle > img,
   .body,
   .clip {
     transition: none;

@@ -99,11 +99,11 @@
   display: grid;
   grid-auto-rows: calc(32 * var(--defense-unit));
   grid-template-columns: 1fr repeat(4, calc(40 * var(--defense-unit)));
-  grid-template-rows: calc(24 * var(--defense-unit)) calc(26 * var(--defense-unit)) calc(4 * var(--defense-unit));
+  grid-template-rows: calc(26 * var(--defense-unit)) calc(4 * var(--defense-unit));
   padding-right: calc(10 * var(--defense-unit));
 }
 
-.defense > img {
+.defense > span > img {
   height: calc(22 * var(--defense-unit));
   margin-left: calc(4 * var(--defense-unit));
   width: calc(22 * var(--defense-unit));
@@ -212,15 +212,9 @@
 }
 
 .damageProfile {
-  align-items: center;
-  display: flex;
-  grid-column: 1 / -1;
-  justify-content: space-between;
-  padding-left: calc(4 * var(--defense-unit));
-}
+  --damage-profile-unit: calc(1px * var(--esf-scale, 1));
 
-.damageProfileLabel {
-  color: var(--esf-text-muted);
+  display: flex;
 }
 
 .damageProfilePicker {
@@ -232,24 +226,24 @@
   cursor: default;
   display: flex;
   font: inherit;
-  gap: calc(4 * var(--defense-unit));
-  max-width: 60%;
+  gap: calc(4 * var(--damage-profile-unit));
   padding: 0;
 }
 
 .damageProfilePicker:focus-visible {
-  outline: var(--defense-unit) solid var(--esf-text);
+  outline: var(--damage-profile-unit) solid var(--esf-text);
 }
 
 .damageProfileName {
+  max-width: calc(110 * var(--damage-profile-unit));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .damageProfilePicker > img {
-  height: calc(10 * var(--defense-unit));
-  width: calc(10 * var(--defense-unit));
+  height: calc(10 * var(--damage-profile-unit));
+  width: calc(10 * var(--damage-profile-unit));
 }
 
 .damageProfileMenu {
@@ -260,12 +254,12 @@
   font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
   inset: auto;
   margin: 0;
-  max-width: calc(260 * var(--defense-unit));
-  min-width: calc(172 * var(--defense-unit));
+  max-width: calc(260 * var(--damage-profile-unit));
+  min-width: calc(172 * var(--damage-profile-unit));
   padding: 0;
   position-anchor: var(--damage-profile-anchor);
   right: anchor(right);
-  top: calc(anchor(bottom) + 3 * var(--defense-unit));
+  top: calc(anchor(bottom) + 3 * var(--damage-profile-unit));
 }
 
 .damageProfileMenu button {
@@ -274,8 +268,8 @@
   color: inherit;
   cursor: default;
   font: inherit;
-  height: calc(26 * var(--defense-unit));
-  padding: 0 calc(8 * var(--defense-unit));
+  height: calc(26 * var(--damage-profile-unit));
+  padding: 0 calc(8 * var(--damage-profile-unit));
   white-space: nowrap;
 }
 
@@ -301,13 +295,25 @@
 }
 
 .damageProfileMenu .edit {
-  color: var(--esf-text-muted);
+  display: flex;
+  align-items: center;
+  opacity: 0.6;
+}
+
+.damageProfileMenu .edit:hover,
+.damageProfileMenu .edit:focus-visible {
+  opacity: 1;
+}
+
+.edit > img {
+  height: calc(16 * var(--damage-profile-unit));
+  width: calc(16 * var(--damage-profile-unit));
 }
 
 .rule {
   border: none;
-  border-top: var(--defense-unit) solid var(--esf-border);
-  margin: calc(2 * var(--defense-unit)) 0;
+  border-top: var(--damage-profile-unit) solid var(--esf-border);
+  margin: calc(2 * var(--damage-profile-unit)) 0;
 }
 
 .profileForm {

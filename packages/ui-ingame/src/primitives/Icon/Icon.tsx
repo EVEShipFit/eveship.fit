@@ -60,6 +60,7 @@ const textures = {
   "arrow-right": "shared/triangleright",
   "arrow-down": "shared/triangledown",
   "arrow-up": "shared/triangleup",
+  edit: "eveicon/system_icons/edit_16px",
   price: "eveicon/system_icons/market_details_16px",
   "stat-turret-dps": "classes/fitting/statsicons/turretdps",
   "stat-alpha-strike": "classes/fitting/statsicons/alphastrike",

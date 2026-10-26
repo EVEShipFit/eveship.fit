@@ -45,7 +45,7 @@ export const Closes: Story = {
     const header = canvas.getByRole("button", { name: /Navigation/ });
     await userEvent.click(header);
     await expect(header).toHaveAttribute("aria-expanded", "false");
-    await expect(header).toHaveTextContent("399.8 m/s");
+    await expect(header).toHaveAccessibleDescription("399.8 m/s");
     await waitFor(() => expect(canvas.queryByRole("group", { name: "Mass" })).toBeNull());
 
     await userEvent.click(header);

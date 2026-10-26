@@ -1,13 +1,12 @@
 import { useAttribute, useDamageProfiles, useSnapshot } from "@eveshipfit/react-hooks";
 
-import { Icon } from "../../primitives/Icon/Icon";
 import { Stat } from "../../primitives/Stat/Stat";
 import { StatsSection } from "../../primitives/StatsSection/StatsSection";
 import { AttributeText } from "./AttributeText";
 import { AttributeTooltip } from "./AttributeTooltip";
-import { DamageProfilePicker, DamageShares } from "./DamageProfilePicker";
+import { DamageIcons, DamageProfilePicker, DamageShares } from "./DamageProfilePicker";
 import { RepairRate } from "./RepairRate";
-import { damageTypes, Resistances } from "./Resistances";
+import { Resistances } from "./Resistances";
 import styles from "./ShipStatistics.module.css";
 import { hitpoints, unit } from "./units";
 
@@ -21,13 +20,10 @@ export function DefenseStats() {
   const { profile } = useDamageProfiles();
 
   return (
-    <StatsSection title="Defense" summary={<AttributeText value={ehp} />}>
+    <StatsSection title="Defense" summary={<AttributeText value={ehp} />} action={<DamageProfilePicker />}>
       <div className={styles.defense}>
-        <DamageProfilePicker />
         <RepairRate />
-        {damageTypes.map((damage) => (
-          <Icon key={damage} name={`stat-${damage}-resistance`} />
-        ))}
+        <DamageIcons profile={profile} />
         <span />
         <DamageShares profile={profile} />
         <Stat
