@@ -125,11 +125,9 @@
 
 .attributes {
   font-size: calc(11 * var(--info-unit));
-  margin: calc(4 * var(--info-unit)) 0 0;
+  margin: calc(4 * var(--info-unit)) calc(-12 * var(--info-unit)) 0;
   min-height: 0;
   overflow-y: auto;
-  scrollbar-color: var(--esf-border) transparent;
-  scrollbar-width: thin;
 }
 
 .row {
@@ -138,7 +136,11 @@
   gap: calc(8 * var(--info-unit));
   justify-content: space-between;
   min-height: calc(26 * var(--info-unit));
-  padding-right: calc(4 * var(--info-unit));
+  padding: 0 calc(12 * var(--info-unit));
+}
+
+.row:hover {
+  background: var(--esf-tree-hover);
 }
 
 .row > dt {
