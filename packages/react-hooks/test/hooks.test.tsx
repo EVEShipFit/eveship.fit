@@ -442,11 +442,14 @@ test("browse", () => {
 
   act(() => result.current.browse("high"));
   const first = result.current.request;
-  expect(first).toEqual({ rack: "high" });
+  expect(first).toEqual({ target: "high" });
 
   act(() => result.current.browse("high"));
-  expect(result.current.request).toEqual({ rack: "high" });
+  expect(result.current.request).toEqual({ target: "high" });
   expect(result.current.request).not.toBe(first);
+
+  act(() => result.current.browse({ type: "implant", index: 3 }));
+  expect(result.current.request).toEqual({ target: { type: "implant", index: 3 } });
 });
 
 test("saved fits", () => {

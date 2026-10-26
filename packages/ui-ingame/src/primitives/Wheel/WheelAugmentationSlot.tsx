@@ -1,6 +1,6 @@
-import type { CSSProperties, DragEventHandler, HTMLAttributes, ReactNode } from "react";
+import type { CSSProperties, DragEventHandler, HTMLAttributes, MouseEventHandler, ReactNode } from "react";
 
-import { SlotAction } from "../SlotAction/SlotAction";
+import { SlotAction, SlotPress } from "../SlotAction/SlotAction";
 import { Tooltip } from "../Tooltip/Tooltip";
 import { TypeIcon } from "../TypeIcon/TypeIcon";
 import { placeAt, polar } from "./geometry";
@@ -34,6 +34,9 @@ export interface WheelAugmentationSlotProps extends HTMLAttributes<HTMLDivElemen
   onDragEnd?: DragEventHandler<HTMLDivElement>;
   /** Also on right click. */
   onUnfit?: () => void;
+  /** Makes the whole slot a button, named `label`. */
+  onPress?: MouseEventHandler<HTMLElement>;
+  label?: string;
 }
 
 /** A small slot for an implant or a booster, on its `WheelAugmentationTrack`. */
@@ -48,6 +51,8 @@ export function WheelAugmentationSlot({
   onDragStart,
   onDragEnd,
   onUnfit,
+  onPress,
+  label,
   className,
   style,
   ...props
@@ -89,6 +94,7 @@ export function WheelAugmentationSlot({
           ) : (
             number !== undefined && <span className={styles.number}>{number}</span>
           )}
+          {onPress && <SlotPress className={styles.press} label={label} onPress={onPress} />}
         </div>
       </Tooltip>
       {typeId !== undefined && onUnfit && (

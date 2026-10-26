@@ -21,7 +21,7 @@ export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
   const [browsed, setBrowsed] = useState(request);
   if (request !== browsed) {
     setBrowsed(request);
-    setTab("modules");
+    if (request !== undefined) setTab(typeof request.target === "string" ? "modules" : "implants");
   }
   const id = useId();
   const ready = useDeferredValue(true, false);

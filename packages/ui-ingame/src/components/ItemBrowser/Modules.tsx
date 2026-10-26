@@ -43,7 +43,9 @@ export function Modules() {
   const [browsed, setBrowsed] = useState(request);
   if (request !== browsed) {
     setBrowsed(request);
-    const filter = request && slotFilters.find(({ places }) => places.includes(request.rack))?.filter;
+    const target = request?.target;
+    const filter =
+      typeof target === "string" ? slotFilters.find(({ places }) => places.includes(target))?.filter : undefined;
     if (filter !== undefined) {
       setSlots(new Set([filter]));
       setHullRestrictions(true);

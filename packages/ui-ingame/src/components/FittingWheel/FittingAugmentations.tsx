@@ -1,6 +1,7 @@
 import type { Slot } from "@eveshipfit/fitting";
 import {
   useBoosters,
+  useBrowse,
   useDrag,
   useFitStore,
   useImplants,
@@ -76,6 +77,7 @@ function FittingAugmentation({ kind, position, number, content, readOnly }: Fitt
   const placement = usePlacement();
   const { show, clear } = usePreview();
   const { dragging, start, end } = useDrag();
+  const { browse } = useBrowse();
   const item = content?.item;
   const type = useType(item?.type_id);
   const ref = content?.ref;
@@ -89,10 +91,11 @@ function FittingAugmentation({ kind, position, number, content, readOnly }: Fitt
     return place?.type === kind && (number === undefined || place.index === number);
   };
 
+  const slotName = `${kind === "implant" ? "Implant" : "Booster"} Slot`;
   const tooltip = item && type && !content.preview && (
     <span className={styles.tooltip}>
       <TypeRow typeId={item.type_id} />
-      <span className={styles.status}>{`${kind === "implant" ? "Implant" : "Booster"} Slot ${content.index}`}</span>
+      <span className={styles.status}>{`${slotName} ${content.index}`}</span>
     </span>
   );
   const shown = {
@@ -140,6 +143,8 @@ function FittingAugmentation({ kind, position, number, content, readOnly }: Fitt
         end();
       }}
       onUnfit={ref === undefined ? undefined : () => store.remove(ref)}
+      onPress={() => browse({ type: kind, index: number ?? content?.index })}
+      label={type?.name ?? (number === undefined ? `Empty ${slotName}` : `Empty ${slotName} ${number}`)}
     />
   );
 }

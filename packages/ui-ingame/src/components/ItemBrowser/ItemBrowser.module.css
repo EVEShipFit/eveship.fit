@@ -372,3 +372,21 @@
   gap: 8px;
   justify-content: flex-end;
 }
+
+.views {
+  align-self: stretch;
+  border: none;
+  display: flex;
+  margin: 0 0 0 calc(4 * var(--browser-unit));
+  min-width: 0;
+  padding: 0;
+}
+
+.views button {
+  align-items: center;
+}
+
+.views [aria-pressed="true"] {
+  background: var(--esf-tab-active);
+  opacity: 1;
+}

@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { Icon } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import styles from "./ItemBrowser.module.css";
@@ -6,10 +8,12 @@ export interface SearchProps {
   value: string;
   onChange: (value: string) => void;
   onCollapse: () => void;
+  /** Shown right of the field. */
+  after?: ReactNode;
 }
 
 /** The search field above a list of the `ItemBrowser`, after a button that collapses every group. */
-export function Search({ value, onChange, onCollapse }: SearchProps) {
+export function Search({ value, onChange, onCollapse, after }: SearchProps) {
   return (
     <div className={styles.search}>
       <Tooltip label="Collapse All Groups">
@@ -27,6 +31,7 @@ export function Search({ value, onChange, onCollapse }: SearchProps) {
           onChange={(event) => onChange(event.target.value)}
         />
       </label>
+      {after}
     </div>
   );
 }

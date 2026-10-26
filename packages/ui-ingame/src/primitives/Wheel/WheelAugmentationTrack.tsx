@@ -17,13 +17,17 @@ export interface WheelAugmentationTrackProps {
   length: number;
 }
 
+/** The URL of the icon for implants or boosters. */
+export function useAugmentationIcon(kind: Augmentation): string | undefined {
+  const images = useImages();
+  return kind === "implant"
+    ? images.uiTexture("windowicons/augmentations")
+    : images.marketGroupIcon(BOOSTER_MARKET_GROUP_ID);
+}
+
 /** The band implant or booster slots sit on, outside the wheel, with an icon at its top. */
 export function WheelAugmentationTrack({ kind, length }: WheelAugmentationTrackProps) {
-  const images = useImages();
-  const icon =
-    kind === "implant"
-      ? images.uiTexture("windowicons/augmentations")
-      : images.marketGroupIcon(BOOSTER_MARKET_GROUP_ID);
+  const icon = useAugmentationIcon(kind);
   const start = polar(augmentationAngle(kind, -0.35), augmentationRadius);
   const end = polar(augmentationAngle(kind, length - 0.65), augmentationRadius);
   const sweep = kind === "implant" ? 0 : 1;
