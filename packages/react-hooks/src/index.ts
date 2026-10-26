@@ -10,6 +10,7 @@ export {
 export { useAttribute, type AttributeOptions, type AttributeValue } from "./hooks/attribute.js";
 export { useCharacters, useMissingSkills, type CharacterChoice, type CharactersControls } from "./hooks/characters.js";
 export { useBrowse, type Browse } from "./hooks/browse.js";
+export { UNIFORM, useDamageProfiles, type DamageProfilesControls } from "./hooks/damage-profiles.js";
 export { useDrag, type Drag } from "./hooks/drag.js";
 export {
   useFit,
@@ -68,4 +69,5 @@ export {
   type EsiCharacterStatus,
 } from "./esi-characters.js";
 export { LocalFits, type FitOwner, type LocalFitsOptions } from "./local-fits.js";
+export { DamageProfiles, type DamageProfilesOptions, type NamedDamageProfile } from "./damage-profiles.js";
 export { EveShipFitProvider, type EveShipFitProviderProps } from "./provider.js";

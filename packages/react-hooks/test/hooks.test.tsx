@@ -10,6 +10,7 @@ import type { ReactNode } from "react";
 import { beforeAll, expect, test, vi } from "vitest";
 
 import {
+  DamageProfiles,
   EsiCharacters,
   EveShipFitProvider,
   ImagesProvider,
@@ -27,6 +28,7 @@ import {
   useChargeSearch,
   useChargeTree,
   useCharges,
+  useDamageProfiles,
   useDrag,
   useDroneRoom,
   useEngine,
@@ -350,6 +352,35 @@ test("fighter tubes follow the preview, and the fighter bay lists what is not la
   act(() => result.current.preview.show((draft) => void draft.fit(byName("Dromi II"))));
   expect(result.current.tubes[0]).toMatchObject({ ref: undefined, preview: true, item: { quantity: 3 } });
   expect(result.current.usage).toMatchObject({ all: { used: 2, total: 4 }, support: { used: 1, total: 2 } });
+});
+
+test("a damage profile changes the ehp until it is removed", () => {
+  const damageProfiles = new DamageProfiles({ storage: memoryStorage() });
+  const { result } = render(() => ({ profiles: useDamageProfiles(), ehp: useAttribute("ehp") }), { damageProfiles });
+  const uniform = result.current.ehp.value!;
+  expect(result.current.profiles.current).toBeUndefined();
+
+  act(() =>
+    result.current.profiles.save({ name: "Thermal", profile: { em: 0, thermal: 1, kinetic: 0, explosive: 0 } }),
+  );
+  act(() => result.current.profiles.select("Thermal"));
+  expect(result.current.ehp.value).toBeLessThan(uniform);
+  expect(result.current.profiles.profile).toEqual({ em: 0, thermal: 1, kinetic: 0, explosive: 0 });
+
+  act(() =>
+    result.current.profiles.save({ name: "Hot", profile: { em: 0, thermal: 1, kinetic: 0, explosive: 0 } }, "Thermal"),
+  );
+  expect(result.current.profiles.current).toBe("Hot");
+
+  act(() => damageProfiles.remove("Hot"));
+  expect(result.current.profiles.current).toBeUndefined();
+  expect(result.current.ehp.value).toBe(uniform);
+
+  act(() => result.current.profiles.save({ name: "Hot", profile: { em: 0, thermal: 1, kinetic: 0, explosive: 0 } }));
+  act(() => result.current.profiles.select("Hot"));
+  act(() => result.current.profiles.remove("Hot"));
+  expect(result.current.profiles.current).toBeUndefined();
+  expect(result.current.ehp.value).toBe(uniform);
 });
 
 test("a character without skills flies the fit worse", () => {
