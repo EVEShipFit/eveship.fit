@@ -1,5 +1,35 @@
 # @eveshipfit/ui-ingame
 
+## 1.8.0
+
+### Minor Changes
+
+- Filter implants and boosters by kind and skills, list them by slot, and click an implant or booster slot to browse it ([#250](https://github.com/EVEShipFit/eveship.fit/pull/250))
+
+- Clicking an empty slot shows the modules for that slot and hull in the item browser ([#244](https://github.com/EVEShipFit/eveship.fit/pull/244))
+
+- Pick a damage profile for the ehp, or make your own ([#254](https://github.com/EVEShipFit/eveship.fit/pull/254))
+
+- Copy a module by dragging it to another slot with Ctrl (⌥ on Mac) held ([#245](https://github.com/EVEShipFit/eveship.fit/pull/245))
+
+- `FittingWindow` takes a `placeholder` to show an empty wheel with a text instead of the fit, and `FitStore.clearHistory()` forgets all but the current fit ([#251](https://github.com/EVEShipFit/eveship.fit/pull/251))
+
+- Show Info has a Variations tab; on a fitted item, hovering one previews it, and double clicking fits it instead ([#255](https://github.com/EVEShipFit/eveship.fit/pull/255))
+
+- Show Info on a module, charge or other item shows its attributes next to it, on the fit when fitted ([#248](https://github.com/EVEShipFit/eveship.fit/pull/248))
+
+- Hovering a type in the item browser shows its name and estimated price ([#249](https://github.com/EVEShipFit/eveship.fit/pull/249))
+
+### Patch Changes
+
+- Hide a slot's actions while dragging a module ([#247](https://github.com/EVEShipFit/eveship.fit/pull/247))
+
+- Simulation History entries have even gaps at any UI scale ([#252](https://github.com/EVEShipFit/eveship.fit/pull/252))
+
+- Keep a slot's actions open across the full width of the slot ([#253](https://github.com/EVEShipFit/eveship.fit/pull/253))
+- Updated dependencies [[`3fc613e`](https://github.com/EVEShipFit/eveship.fit/commit/3fc613e535c343b519d11666506912ba5c22e08b), [`e2f6552`](https://github.com/EVEShipFit/eveship.fit/commit/e2f6552b270b78e95940b6ec7e1d10e81e1eb868), [`48a5524`](https://github.com/EVEShipFit/eveship.fit/commit/48a552406d21adf612160aba1cb9795d70135712), [`b1d5ae3`](https://github.com/EVEShipFit/eveship.fit/commit/b1d5ae33ba3778a8514a4219a14c9cfcb8972ba9), [`e09a861`](https://github.com/EVEShipFit/eveship.fit/commit/e09a86169750542062ab0401ba38121519ca39f9), [`8c71b4c`](https://github.com/EVEShipFit/eveship.fit/commit/8c71b4c614f20ebc881a5e3ab554fc9dea1d8950)]:
+  - @eveshipfit/react-hooks@2.3.0
+
 ## 1.7.0
 
 ### Minor Changes

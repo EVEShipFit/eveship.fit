@@ -1,5 +1,11 @@
 # @eveshipfit/sde-loader
 
+## 3.0.0
+
+### Major Changes
+
+- Require `@eveshipfit/sde` 13 or newer, and add `variations` and `SdeType.variationParentTypeId` ([#255](https://github.com/EVEShipFit/eveship.fit/pull/255))
+
 ## 2.1.0
 
 ### Minor Changes

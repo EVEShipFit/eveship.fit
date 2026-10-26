@@ -1,5 +1,22 @@
 # @eveshipfit/fitting
 
+## 2.3.0
+
+### Minor Changes
+
+- Pick a damage profile for the ehp, or make your own ([#254](https://github.com/EVEShipFit/eveship.fit/pull/254))
+
+- Copy a module by dragging it to another slot with Ctrl (⌥ on Mac) held ([#245](https://github.com/EVEShipFit/eveship.fit/pull/245))
+
+- `FittingWindow` takes a `placeholder` to show an empty wheel with a text instead of the fit, and `FitStore.clearHistory()` forgets all but the current fit ([#251](https://github.com/EVEShipFit/eveship.fit/pull/251))
+
+- Add `FitStore.setType`, to swap a module for another, keeping its state and charge ([#255](https://github.com/EVEShipFit/eveship.fit/pull/255))
+
+### Patch Changes
+
+- Updated dependencies [[`b1d5ae3`](https://github.com/EVEShipFit/eveship.fit/commit/b1d5ae33ba3778a8514a4219a14c9cfcb8972ba9)]:
+  - @eveshipfit/sde-loader@3.0.0
+
 ## 2.2.1
 
 ### Patch Changes

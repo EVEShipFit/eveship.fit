@@ -1,5 +1,27 @@
 # @eveshipfit/react-hooks
 
+## 2.3.0
+
+### Minor Changes
+
+- Filter implants and boosters by kind and skills, list them by slot, and click an implant or booster slot to browse it ([#250](https://github.com/EVEShipFit/eveship.fit/pull/250))
+
+- Clicking an empty slot shows the modules for that slot and hull in the item browser ([#244](https://github.com/EVEShipFit/eveship.fit/pull/244))
+
+- Pick a damage profile for the ehp, or make your own ([#254](https://github.com/EVEShipFit/eveship.fit/pull/254))
+
+- Show Info has a Variations tab; on a fitted item, hovering one previews it, and double clicking fits it instead ([#255](https://github.com/EVEShipFit/eveship.fit/pull/255))
+
+- Show Info on a module, charge or other item shows its attributes next to it, on the fit when fitted ([#248](https://github.com/EVEShipFit/eveship.fit/pull/248))
+
+- Hovering a type in the item browser shows its name and estimated price ([#249](https://github.com/EVEShipFit/eveship.fit/pull/249))
+
+### Patch Changes
+
+- Updated dependencies [[`48a5524`](https://github.com/EVEShipFit/eveship.fit/commit/48a552406d21adf612160aba1cb9795d70135712), [`ab07819`](https://github.com/EVEShipFit/eveship.fit/commit/ab07819dea96497e6a7660ebb826e6520fe1f598), [`e18bfb6`](https://github.com/EVEShipFit/eveship.fit/commit/e18bfb624ab032d5efaaa6623d3b86915f4bff06), [`b1d5ae3`](https://github.com/EVEShipFit/eveship.fit/commit/b1d5ae33ba3778a8514a4219a14c9cfcb8972ba9), [`b1d5ae3`](https://github.com/EVEShipFit/eveship.fit/commit/b1d5ae33ba3778a8514a4219a14c9cfcb8972ba9)]:
+  - @eveshipfit/fitting@2.3.0
+  - @eveshipfit/sde-loader@3.0.0
+
 ## 2.2.0
 
 ### Minor Changes
