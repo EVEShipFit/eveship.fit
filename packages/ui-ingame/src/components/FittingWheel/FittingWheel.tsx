@@ -28,6 +28,7 @@ import { WheelModes } from "../../primitives/Wheel/WheelModes";
 import { WheelRackMarker, type MarkedRack } from "../../primitives/Wheel/WheelRackMarker";
 import { WheelSlot } from "../../primitives/Wheel/WheelSlot";
 import { FittingAugmentations } from "./FittingAugmentations";
+import { FittingInfo } from "./FittingInfo";
 import { allowDrop, copyKey, useFittingSlot } from "./fittingSlot";
 import styles from "./FittingWheel.module.css";
 
@@ -60,6 +61,7 @@ export function FittingWheel({
       <WheelHull typeId={ship} />
       {!readOnly && <FittingCentre />}
       {!readOnly && <FittingCopyHint />}
+      {!readOnly && <FittingInfo />}
       {markedRacks.map((rack) => (
         <WheelRackMarker key={rack} rack={rack} />
       ))}

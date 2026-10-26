@@ -4,6 +4,7 @@ import { useRef, useState, type ReactNode } from "react";
 
 import {
   BrowseContext,
+  InfoContext,
   CharacterContext,
   DragContext,
   EngineContext,
@@ -13,6 +14,7 @@ import {
   PreviewContext,
   ZKillboardContext,
   type BrowseRequest,
+  type InfoTarget,
   type DragItem,
   type PreviewState,
 } from "./context.js";
@@ -64,6 +66,7 @@ export function EveShipFitProvider({
   };
   const [dragging, setDragging] = useState<DragItem>();
   const [browse, setBrowse] = useState<BrowseRequest>();
+  const [info, setInfo] = useState<InfoTarget>();
   const [character, setCharacter] = useState(firstCharacter ?? ALL_SKILLS_V);
   useFlyCharacter(engine, fit ?? ownFit, characters, character, firstCharacter !== undefined);
 
@@ -76,7 +79,9 @@ export function EveShipFitProvider({
               <PreviewContext value={previewState}>
                 <DragContext value={{ dragging, setDragging }}>
                   <BrowseContext value={{ request: browse, setRequest: setBrowse }}>
-                    <ZKillboardContext value={zkillboard}>{children}</ZKillboardContext>
+                    <InfoContext value={{ shown: info, setShown: setInfo }}>
+                      <ZKillboardContext value={zkillboard}>{children}</ZKillboardContext>
+                    </InfoContext>
                   </BrowseContext>
                 </DragContext>
               </PreviewContext>

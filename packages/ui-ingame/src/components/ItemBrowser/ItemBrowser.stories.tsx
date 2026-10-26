@@ -488,7 +488,7 @@ export const BrowseModules: Story = {
     );
     await expect(
       modules(canvas).getByRole("button", { name: "Show Info on Large Remote Armor Repairer I" }),
-    ).toHaveAttribute("aria-disabled", "true");
+    ).not.toHaveAttribute("aria-disabled");
   },
 };
 

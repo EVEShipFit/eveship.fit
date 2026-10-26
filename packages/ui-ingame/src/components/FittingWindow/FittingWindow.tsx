@@ -500,7 +500,7 @@ function FittingServiceSlot({
   content: SlotContent | undefined;
   readOnly: boolean;
 }) {
-  const { chargeTypeId, chargeable, activatable, onRemoveCharge, tooltip, ...slot } = useFittingSlot(
+  const { chargeTypeId, chargeable, activatable, onRemoveCharge, onShowChargeInfo, tooltip, ...slot } = useFittingSlot(
     "service",
     index,
     content,

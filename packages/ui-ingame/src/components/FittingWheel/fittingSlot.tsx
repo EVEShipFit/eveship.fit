@@ -8,6 +8,7 @@ import {
   usePlacement,
   usePreview,
   useSde,
+  useShowInfo,
   useType,
   type DragItem,
   type SlotContent,
@@ -56,11 +57,13 @@ export function useFittingSlot(
   const { dragging, start, end } = useDrag();
   const shownCopy = useRef(false);
   const { browse } = useBrowse();
+  const { show: showInfo } = useShowInfo();
   const item = content?.item;
   const stats = content?.stats;
   const type = useType(item?.type_id);
   const charges = useCharges(item?.type_id);
   const ref = content?.ref;
+  const chargeTypeId = item?.charge?.type_id;
 
   const empty = available && item === undefined;
   const switchable = ref !== undefined && stats !== undefined && switchedRacks.includes(rack);
@@ -87,7 +90,7 @@ export function useFittingSlot(
     preview: content?.preview,
     typeId: item?.type_id,
     typeName: type?.name,
-    chargeTypeId: item?.charge?.type_id,
+    chargeTypeId,
     chargeable: charges.length > 0,
     state: stats?.state,
     activatable: stats?.maxState === "active" || stats?.maxState === "overload",
@@ -155,6 +158,9 @@ export function useFittingSlot(
       end();
     },
     onUnfit: ref === undefined ? undefined : () => store.remove(ref),
+    onShowInfo: item && ref !== undefined ? () => showInfo({ typeId: item.type_id, ref }) : undefined,
+    onShowChargeInfo:
+      chargeTypeId !== undefined && ref !== undefined ? () => showInfo({ typeId: chargeTypeId, ref }) : undefined,
     onRemoveCharge: ref === undefined ? undefined : () => store.setCharge(ref, undefined),
     onTogglePower:
       switchable && stats.maxState !== "offline"

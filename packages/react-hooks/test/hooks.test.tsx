@@ -39,6 +39,7 @@ import {
   useHardpoints,
   useHullTree,
   useImages,
+  useInfo,
   useImplants,
   useImplantSearch,
   useImplantTree,
@@ -53,6 +54,7 @@ import {
   usePreview,
   useRackUsage,
   useSde,
+  useShowInfo,
   useSlots,
   useSnapshot,
   useStats,
@@ -450,6 +452,80 @@ test("browse", () => {
 
   act(() => result.current.browse({ type: "implant", index: 3 }));
   expect(result.current.request).toEqual({ target: { type: "implant", index: 3 } });
+});
+
+test("show info", () => {
+  const { result } = render(() => useShowInfo());
+  expect(result.current.shown).toBeUndefined();
+
+  act(() => result.current.show({ typeId: DAMAGE_CONTROL_II, ref: 0 }));
+  expect(result.current.shown).toEqual({ typeId: DAMAGE_CONTROL_II, ref: 0 });
+
+  act(() => result.current.close());
+  expect(result.current.shown).toBeUndefined();
+});
+
+test("info of a fitted module is on the fit", () => {
+  const extender = engine.sde.typeByName("Medium Shield Extender II")!.id;
+  const fit = engine.createFit({
+    ship: { type_id: RIFTER },
+    items: [{ type_id: extender, slot: { type: "medium", index: 1 }, state: "active" }],
+  });
+  const { result } = render(() => useInfo({ typeId: extender, ref: 0 }), { fit });
+
+  expect(result.current.type?.id).toBe(extender);
+  expect(result.current.fitted).toEqual({ slot: { type: "medium", index: 1 }, charge: false });
+  const power = engine.sde.attributeId("power");
+  expect(result.current.attributes).toContainEqual({
+    id: power,
+    name: "Powergrid Usage",
+    text: "22.5 MW",
+    change: "better",
+  });
+  expect(result.current.attributes).toContainEqual({
+    id: engine.sde.attributeId("techLevel"),
+    name: "Tech Level",
+    text: "Level 2",
+    change: undefined,
+  });
+});
+
+test("info of a module not fitted is as the SDE has it", () => {
+  const extender = engine.sde.typeByName("Medium Shield Extender II")!.id;
+  const { result } = render(() => useInfo({ typeId: extender }));
+
+  expect(result.current.fitted).toBeUndefined();
+  expect(result.current.attributes).toContainEqual({
+    id: engine.sde.attributeId("power"),
+    name: "Powergrid Usage",
+    text: "30 MW",
+    change: undefined,
+  });
+});
+
+test("info of a loaded charge", () => {
+  const emp = engine.sde.typeByName("EMP S")!.id;
+  const fit = engine.createFit({
+    ship: { type_id: RIFTER },
+    items: [
+      {
+        type_id: engine.sde.typeByName("200mm AutoCannon II")!.id,
+        slot: { type: "high", index: 0 },
+        state: "active",
+        charge: { type_id: emp },
+      },
+    ],
+  });
+  const { result } = render(() => useInfo({ typeId: emp, ref: 0 }), { fit });
+
+  expect(result.current.fitted).toEqual({ slot: { type: "high", index: 0 }, charge: true });
+});
+
+test("info of a ref that no longer holds the type is as the SDE has it", () => {
+  const { result } = render(() => useInfo({ typeId: RIFTER, ref: 0 }), { fit: withDamageControl() });
+
+  expect(result.current.fitted).toBeUndefined();
+  expect(result.current.attributes.every((attribute) => attribute.change === undefined)).toBe(true);
 });
 
 test("saved fits", () => {

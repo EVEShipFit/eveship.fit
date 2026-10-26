@@ -140,6 +140,30 @@ export const Unfit: Story = {
   },
 };
 
+/** Show Info opens in the middle of the wheel, with the values on the fit. */
+export const ShowInfo: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    focusAction(canvas, "Small Shield Extender II", "Show Info");
+    await userEvent.keyboard("{Enter}");
+    const info = canvas.getByRole("region", { name: "Info on Small Shield Extender II" });
+    await expect(within(info).getByText("Fitted · Mid Slot 2")).toBeVisible();
+    await expect(within(info).getByText("Powergrid Usage").closest("dt")!.nextElementSibling).toHaveAttribute(
+      "data-change",
+      "better",
+    );
+
+    const autocannon = canvas.getAllByRole("group", { name: "200mm AutoCannon II" })[0]!;
+    within(autocannon).getAllByRole("button", { name: "Show Info" })[0]!.focus();
+    await userEvent.keyboard("{Enter}");
+    const charge = canvas.getByRole("region", { name: "Info on EMP S" });
+    await expect(within(charge).getByText("Loaded · High Slot 1")).toBeVisible();
+
+    await userEvent.keyboard("{Escape}");
+    await expect(canvas.queryByRole("region", { name: /^Info on/ })).toBeNull();
+  },
+};
+
 export const RemoveCharge: Story = {
   parameters: { fit: rifter },
   play: async ({ canvas, canvasElement, userEvent }) => {

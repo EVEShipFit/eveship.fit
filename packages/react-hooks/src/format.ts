@@ -76,6 +76,7 @@ const Unit = {
   SizeClass: 117,
   AbsolutePercent: 127,
   Boolean: 137,
+  Level: 140,
 } as const;
 
 const sizeClasses: Record<number, string> = { 1: "Small", 2: "Medium", 3: "Large", 4: "X-Large" };
@@ -106,6 +107,8 @@ export function formatAttribute(sde: Sde, attributeId: number, value: number, fo
       return sizeClasses[value] ?? number(value, "");
     case Unit.Boolean:
       return value ? "Yes" : "No";
+    case Unit.Level:
+      return `Level ${formatNumber(value, format)}`;
     default:
       return number(value);
   }

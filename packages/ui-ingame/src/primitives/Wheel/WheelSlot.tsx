@@ -52,6 +52,8 @@ export interface WheelSlotProps extends HTMLAttributes<HTMLDivElement> {
   onUnfit?: () => void;
   onRemoveCharge?: () => void;
   onTogglePower?: () => void;
+  onShowInfo?: () => void;
+  onShowChargeInfo?: () => void;
 }
 
 export function WheelSlot({
@@ -74,6 +76,8 @@ export function WheelSlot({
   onUnfit,
   onRemoveCharge,
   onTogglePower,
+  onShowInfo,
+  onShowChargeInfo,
   className,
   style,
   ...props
@@ -93,7 +97,7 @@ export function WheelSlot({
           node: <SlotAction icon="module-unfit" label="Remove Charge" onPress={onRemoveCharge} />,
         },
       );
-      row.push({ key: "charge-info", node: <SlotInfo /> });
+      row.push({ key: "charge-info", node: <SlotInfo onPress={onShowChargeInfo} /> });
       row.push(
         typeName === undefined
           ? undefined
@@ -112,7 +116,7 @@ export function WheelSlot({
     row.push(
       onUnfit && { key: "unfit", node: <SlotAction icon="module-unfit" label="Unfit Module" onPress={onUnfit} /> },
     );
-    row.push({ key: "info", node: <SlotInfo /> });
+    row.push({ key: "info", node: <SlotInfo onPress={onShowInfo} /> });
     const power = state === "offline" ? "Put Online" : "Put Offline";
     row.push(
       onTogglePower && { key: "power", node: <SlotAction icon="module-power" label={power} onPress={onTogglePower} /> },

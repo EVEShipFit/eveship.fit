@@ -23,6 +23,7 @@ export interface ServiceSlotProps extends HTMLAttributes<HTMLDivElement> {
   label?: string;
   onUnfit?: () => void;
   onTogglePower?: () => void;
+  onShowInfo?: () => void;
   /** False leaves out the actions shown on hover. */
   actions?: boolean;
 }
@@ -40,6 +41,7 @@ export function ServiceSlot({
   label,
   onUnfit,
   onTogglePower,
+  onShowInfo,
   actions: showActions = true,
   className,
   ...props
@@ -83,7 +85,7 @@ export function ServiceSlot({
             {onUnfit && <SlotAction icon="module-unfit" label="Unfit Module" onPress={onUnfit} />}
           </span>
           <span className={styles.action}>
-            <SlotInfo />
+            <SlotInfo onPress={onShowInfo} />
           </span>
           {onTogglePower && (
             <span className={styles.action}>

@@ -1,4 +1,12 @@
-import { formatNumber, useDrag, useFitStore, useImages, usePreview, useTypePrice } from "@eveshipfit/react-hooks";
+import {
+  formatNumber,
+  useDrag,
+  useFitStore,
+  useImages,
+  usePreview,
+  useShowInfo,
+  useTypePrice,
+} from "@eveshipfit/react-hooks";
 import type { MarketGroupNode, MetaFolder, MetaSortedTypes, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
 import { useRef, useState, type DragEvent, type ReactNode } from "react";
 
@@ -17,15 +25,17 @@ const folders: Record<MetaFolder, { label: string; metaGroupId: number }> = {
 export interface TypeActions {
   fit: (typeId: number) => void;
   hover: (typeId: number, hovering: boolean) => void;
+  info: (typeId: number) => void;
   drag: (event: DragEvent, type: SdeType) => void;
   dragEnd: () => void;
 }
 
-/** Previews a type on hover, fits it on double click, and drags it to the wheel; render `dragImage` once. */
+/** Previews a type on hover, fits it on double click, drags it to the wheel, and shows its info; render `dragImage` once. */
 export function useTypeActions(): { actions: TypeActions; clear: () => void; dragImage: ReactNode } {
   const store = useFitStore();
   const { show, clear } = usePreview();
   const { start, end } = useDrag();
+  const { show: showInfo } = useShowInfo();
   const [hovered, setHovered] = useState<number>();
   const dragImage = useRef<HTMLSpanElement>(null);
 
@@ -37,6 +47,7 @@ export function useTypeActions(): { actions: TypeActions; clear: () => void; dra
         show((draft) => void draft.fit(typeId));
       } else clear();
     },
+    info: (typeId) => showInfo({ typeId }),
     drag: (event, type) => {
       clear();
       const image = dragImage.current;
@@ -80,13 +91,16 @@ export function TypeLeaf({ type, actions, icon = false }: TypeLeafProps) {
       onDragStart={(event) => actions.drag(event, type)}
       onDragEnd={actions.dragEnd}
       after={
-        <Tooltip label="Show Info (not implemented yet)">
+        <Tooltip label="Show Info">
           <button
             type="button"
             className={styles.info}
             aria-label={`Show Info on ${type.name}`}
-            aria-disabled
             tabIndex={-1}
+            onClick={(event) => {
+              event.stopPropagation();
+              actions.info(type.id);
+            }}
           >
             <Icon name="module-info" />
           </button>
