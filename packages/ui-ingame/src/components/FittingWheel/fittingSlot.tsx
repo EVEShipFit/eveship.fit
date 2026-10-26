@@ -11,13 +11,22 @@ import {
   type DragItem,
   type SlotContent,
 } from "@eveshipfit/react-hooks";
-import type { DragEvent } from "react";
+import { useRef, type DragEvent } from "react";
 
 import type { WheelSlotProps } from "../../primitives/Wheel/WheelSlot";
 import { ModuleTooltip } from "./ModuleTooltip";
 import { nextState } from "./states";
 
 const switchedRacks: Rack[] = ["high", "medium", "low", "rig", "service"];
+
+const mac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
+/** The key that makes dragging a module copy it. */
+export const copyKey = mac ? "⌥" : "Ctrl";
+
+/** Whether a dragged module is copied. */
+function copies(event: DragEvent): boolean {
+  return mac ? event.altKey : event.ctrlKey;
+}
 
 export type SlotBehaviour = Omit<WheelSlotProps, "rack" | "angle">;
 
@@ -35,6 +44,7 @@ export function useFittingSlot(
   const placement = usePlacement();
   const { show, clear } = usePreview();
   const { dragging, start, end } = useDrag();
+  const shownCopy = useRef(false);
   const item = content?.item;
   const stats = content?.stats;
   const type = useType(item?.type_id);
@@ -52,6 +62,12 @@ export function useFittingSlot(
     const place = placement(dropped);
     if (place?.type === "charge") return ref !== undefined && charges.includes(dropped);
     return place?.type === rack && (place.type !== "subsystem" || place.index === index);
+  };
+
+  const showItem = (moved: ItemRef, copy: boolean) => {
+    const slot = { type: rack, index };
+    shownCopy.current = copy;
+    show((draft) => (copy ? draft.copy(moved, slot) : draft.move(moved, slot)), target);
   };
 
   const shown: SlotBehaviour = {
@@ -87,34 +103,38 @@ export function useFittingSlot(
       ref === undefined
         ? undefined
         : (event) => {
-            event.dataTransfer.effectAllowed = "move";
+            event.dataTransfer.effectAllowed = "copyMove";
             event.dataTransfer.setData("text/plain", type?.name ?? "");
             start({ type: "item", ref });
           },
     onDragEnd: end,
-    onDragEnter: () => {
+    onDragEnter: (event) => {
       if (!takes(dragging)) return;
-      const slot = { type: rack, index };
-      if (dragging.type === "type") {
-        const { typeId } = dragging;
-        show((draft) => void draft.fit(typeId, slot), target);
-      } else {
-        const { ref: moved } = dragging;
-        show((draft) => draft.move(moved, slot), target);
+      if (dragging.type === "item") {
+        showItem(dragging.ref, copies(event));
+        return;
       }
+      const { typeId } = dragging;
+      show((draft) => void draft.fit(typeId, { type: rack, index }), target);
     },
     onDragLeave: (event) => {
       if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
       clear(target);
     },
     onDragOver: (event) => {
-      if (takes(dragging)) allowDrop(event, dragging);
+      if (!takes(dragging)) return;
+      allowDrop(event, dragging);
+      if (dragging.type !== "item") return;
+      const copy = copies(event);
+      if (copy) event.dataTransfer.dropEffect = "copy";
+      if (copy !== shownCopy.current) showItem(dragging.ref, copy);
     },
     onDrop: (event) => {
       if (!takes(dragging)) return;
       event.preventDefault();
       clear(target);
       if (dragging.type === "type") store.fit(dragging.typeId, { type: rack, index });
+      else if (copies(event)) store.copy(dragging.ref, { type: rack, index });
       else store.move(dragging.ref, { type: rack, index });
       end();
     },

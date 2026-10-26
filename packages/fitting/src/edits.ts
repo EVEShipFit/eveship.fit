@@ -105,6 +105,16 @@ export function move(fit: Fit, ref: ItemRef, slot: Slot): Fit {
   return { ...fit, items };
 }
 
+const copiedRacks: readonly SlotType[] = ["high", "medium", "low", "rig", "service"];
+
+/** Copy a module to another slot of its rack, replacing what is there. */
+export function copy(fit: Fit, ref: ItemRef, slot: Slot): Fit {
+  const item = fit.items[ref];
+  if (item === undefined || !copiedRacks.includes(item.slot.type)) return fit;
+  if (slot.type !== item.slot.type || sameSlot(slot, item.slot)) return fit;
+  return putInSlot(fit, { ...item, slot }).fit;
+}
+
 export function remove(fit: Fit, ...refs: ItemRef[]): Fit {
   const items = fit.items.filter((_, ref) => !refs.includes(ref));
   return items.length === fit.items.length ? fit : { ...fit, items };

@@ -292,6 +292,30 @@ export const DragToMove: Story = {
   },
 };
 
+/** Dropping a fitted module with Ctrl held copies it, replacing what is there. */
+export const DragToCopy: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement }) => {
+    const dataTransfer = new DataTransfer();
+    const damageControl = canvas.getByRole("button", { name: /^Damage Control II/ });
+    await fireEvent.dragStart(damageControl, { dataTransfer });
+    await expect(await canvas.findByText("hold Ctrl to copy")).toBeInTheDocument();
+    const [, gyrostabilizer] = lowSlots(canvasElement);
+    await waitFor(async () =>
+      expect(await fireEvent.dragOver(gyrostabilizer!, { dataTransfer, ctrlKey: true })).toBe(false),
+    );
+    await fireEvent.drop(gyrostabilizer!, { dataTransfer, ctrlKey: true });
+    await fireEvent.dragEnd(damageControl, { dataTransfer });
+    await expect(lowSlots(canvasElement).map(moduleIn)).toEqual([
+      "Damage Control II, online",
+      "Damage Control II, online",
+      "empty",
+      "empty",
+    ]);
+    await expect(canvas.queryByText("hold Ctrl to copy")).toBeNull();
+  },
+};
+
 /** A module does not go in a slot of another rack. */
 export const DragToOtherRack: Story = {
   parameters: { fit: rifter },
