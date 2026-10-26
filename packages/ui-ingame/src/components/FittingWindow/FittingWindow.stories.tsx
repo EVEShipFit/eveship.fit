@@ -192,6 +192,44 @@ export const Placeholder: Story = {
   },
 };
 
+/** Show Info opens next to the slot, with the values on the fit. */
+export const ShowInfo: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    within(canvas.getByRole("group", { name: "Small Shield Extender II" }))
+      .getByRole("button", { name: "Show Info" })
+      .focus();
+    await userEvent.keyboard("{Enter}");
+    const info = canvas.getByRole("region", { name: "Info on Small Shield Extender II" });
+    await expect(within(info).getByText("Fitted · Mid Slot 2")).toBeVisible();
+    await expect(within(info).getByText("Powergrid Usage").closest("dt")!.nextElementSibling).toHaveAttribute(
+      "data-change",
+      "better",
+    );
+
+    const autocannon = canvas.getAllByRole("group", { name: "200mm AutoCannon II" })[0]!;
+    within(autocannon).getAllByRole("button", { name: "Show Info" })[0]!.focus();
+    await userEvent.keyboard("{Enter}");
+    const charge = canvas.getByRole("region", { name: "Info on EMP S" });
+    await expect(within(charge).getByText("Loaded · High Slot 1")).toBeVisible();
+
+    await userEvent.click(within(charge).getByRole("button", { name: "Close" }));
+    await expect(canvas.queryByRole("region", { name: /^Info on/ })).toBeNull();
+  },
+};
+
+/** Show Info works from the item browser before a hull is picked. */
+export const ShowInfoWithoutHull: Story = {
+  args: { browser: <ItemBrowser />, placeholder: "To start, select a hull on the left." },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    await userEvent.type(within(canvas.getByRole("tabpanel")).getByRole("searchbox"), "damage control ii");
+    await userEvent.click(canvas.getByRole("button", { name: "Show Info on Damage Control II" }));
+    const info = canvas.getByRole("region", { name: "Info on Damage Control II" });
+    await expect(within(info).getByText("Not fitted")).toBeVisible();
+  },
+};
+
 /** Dragging a hull to the middle of the wheel simulates it; a slot refuses it. */
 export const DragHull: Story = {
   args: { browser: <ItemBrowser /> },
