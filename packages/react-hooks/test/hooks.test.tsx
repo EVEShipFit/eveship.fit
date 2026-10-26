@@ -57,6 +57,7 @@ import {
   useSnapshot,
   useStats,
   useType,
+  useTypePrice,
   useViolations,
   type CharacterStorage,
   type EveShipFitProviderProps,
@@ -827,4 +828,42 @@ test("without ESI, the fit has no price", () => {
   const { result } = render(() => useFitPrice());
 
   expect(result.current.value).toBeUndefined();
+});
+
+test("a type's price is ESI's average, else its adjusted price, else zKillboard's", async () => {
+  const esi = new Esi({ userAgent: "test" });
+  vi.spyOn(esi, "marketPrices").mockResolvedValue(
+    new Map([
+      [RIFTER, { type_id: RIFTER, average_price: 300_000, adjusted_price: 200_000 }],
+      [DAMAGE_CONTROL_II, { type_id: DAMAGE_CONTROL_II, adjusted_price: 500_000 }],
+    ]),
+  );
+  const zkillboard = new ZKillboard();
+  const zkillboardPrice = vi.spyOn(zkillboard, "price").mockResolvedValue(700_000);
+  const priced = new Engine(engine.sde, esi);
+  const { result, rerender } = renderHook(({ typeId }) => useTypePrice(typeId), {
+    initialProps: { typeId: RIFTER },
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <EveShipFitProvider engine={priced} zkillboard={zkillboard}>
+        {children}
+      </EveShipFitProvider>
+    ),
+  });
+
+  expect(result.current).toBeUndefined();
+  await waitFor(() => expect(result.current).toBe(300_000));
+  rerender({ typeId: DAMAGE_CONTROL_II });
+  expect(result.current).toBe(500_000);
+  expect(zkillboardPrice).not.toHaveBeenCalled();
+
+  rerender({ typeId: 1 });
+  expect(result.current).toBeUndefined();
+  await waitFor(() => expect(result.current).toBe(700_000));
+  expect(zkillboardPrice.mock.calls).toEqual([[1]]);
+});
+
+test("without ESI, a type has no price", () => {
+  const { result } = render(() => useTypePrice(RIFTER));
+
+  expect(result.current).toBeUndefined();
 });

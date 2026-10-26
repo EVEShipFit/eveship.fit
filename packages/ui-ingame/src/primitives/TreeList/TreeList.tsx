@@ -1,5 +1,6 @@
 import { useId, useState, type DragEvent, type ReactNode } from "react";
 
+import { Tooltip } from "../Tooltip/Tooltip";
 import { TypeIcon } from "../TypeIcon/TypeIcon";
 import styles from "./TreeList.module.css";
 
@@ -86,6 +87,8 @@ export interface TreeLeafProps {
   /** Shows the type's icon in front of the label. */
   typeId?: number;
   title?: string;
+  /** Only called once the tooltip has opened. */
+  renderTooltip?: () => ReactNode;
   onActivate?: () => void;
   /** Activates on a single click. */
   activateOnClick?: boolean;
@@ -101,6 +104,7 @@ export function TreeLeaf({
   label,
   typeId,
   title,
+  renderTooltip,
   onActivate,
   activateOnClick = false,
   onHover,
@@ -110,26 +114,28 @@ export function TreeLeaf({
 }: TreeLeafProps) {
   return (
     <li className={`${styles.head} ${styles.leaf}`}>
-      <div
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Firefox does not start a drag from a <button>.
-        role="button"
-        tabIndex={0}
-        className={styles.row}
-        title={title}
-        draggable={onDragStart !== undefined}
-        onClick={activateOnClick ? onActivate : undefined}
-        onDoubleClick={activateOnClick ? undefined : onActivate}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") onActivate?.();
-        }}
-        onMouseEnter={() => onHover?.(true)}
-        onMouseLeave={() => onHover?.(false)}
-        onDragStart={onDragStart}
-        onDragEnd={onDragEnd}
-      >
-        {typeId !== undefined && <RowIcon typeId={typeId} />}
-        <span className={styles.label}>{label}</span>
-      </div>
+      <Tooltip label={renderTooltip}>
+        <div
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Firefox does not start a drag from a <button>.
+          role="button"
+          tabIndex={0}
+          className={styles.row}
+          title={title}
+          draggable={onDragStart !== undefined}
+          onClick={activateOnClick ? onActivate : undefined}
+          onDoubleClick={activateOnClick ? undefined : onActivate}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") onActivate?.();
+          }}
+          onMouseEnter={() => onHover?.(true)}
+          onMouseLeave={() => onHover?.(false)}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+        >
+          {typeId !== undefined && <RowIcon typeId={typeId} />}
+          <span className={styles.label}>{label}</span>
+        </div>
+      </Tooltip>
       {after}
     </li>
   );

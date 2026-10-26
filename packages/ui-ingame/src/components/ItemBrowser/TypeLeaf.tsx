@@ -1,9 +1,9 @@
-import { useDrag, useFitStore, useImages, usePreview } from "@eveshipfit/react-hooks";
+import { formatNumber, useDrag, useFitStore, useImages, usePreview, useTypePrice } from "@eveshipfit/react-hooks";
 import type { MarketGroupNode, MetaFolder, MetaSortedTypes, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
 import { useRef, useState, type DragEvent, type ReactNode } from "react";
 
 import { Icon, useIconUrl } from "../../primitives/Icon/Icon";
-import { Tooltip } from "../../primitives/Tooltip/Tooltip";
+import { Tooltip, TooltipText } from "../../primitives/Tooltip/Tooltip";
 import { TreeGroup, TreeLeaf } from "../../primitives/TreeList/TreeList";
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
 import styles from "./ItemBrowser.module.css";
@@ -74,6 +74,7 @@ export function TypeLeaf({ type, actions, icon = false }: TypeLeafProps) {
     <TreeLeaf
       label={type.name}
       typeId={icon ? type.id : undefined}
+      renderTooltip={() => <TypeTooltip type={type} />}
       onActivate={() => actions.fit(type.id)}
       onHover={(hovering) => actions.hover(type.id, hovering)}
       onDragStart={(event) => actions.drag(event, type)}
@@ -91,6 +92,17 @@ export function TypeLeaf({ type, actions, icon = false }: TypeLeafProps) {
           </button>
         </Tooltip>
       }
+    />
+  );
+}
+
+/** What EVE shows when hovering a type in a list. */
+function TypeTooltip({ type }: { type: SdeType }) {
+  const price = useTypePrice(type.id);
+  return (
+    <TooltipText
+      title={type.name}
+      description={price !== undefined && `Est. ${formatNumber(price, { decimals: 2, fixed: true })} ISK`}
     />
   );
 }

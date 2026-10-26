@@ -56,6 +56,34 @@ export function useFitPrice(): FitPriceValue {
 
 const noPrices: ZKillboardPrices = new Map();
 
+/** A type's estimated price in ISK, priced like the fit; undefined until known. */
+export function useTypePrice(typeId: number): number | undefined {
+  const engine = useEngine();
+  const prices = useMarketPrices(engine.esi);
+  const zkillboard = useContext(ZKillboardContext);
+  const [asked, setAsked] = useState<{ zkillboard: ZKillboard; typeId: number; price: number | undefined }>();
+
+  const esi = esiPrice(prices?.get(typeId));
+  const ask = prices !== undefined && esi === undefined ? zkillboard : undefined;
+
+  useEffect(() => {
+    if (ask === undefined) return;
+    let active = true;
+    ask.price(typeId).then(
+      (price) => {
+        if (active) setAsked({ zkillboard: ask, typeId, price });
+      },
+      (error: unknown) => console.error(error),
+    );
+    return () => {
+      active = false;
+    };
+  }, [ask, typeId]);
+
+  if (esi !== undefined) return esi;
+  return asked?.zkillboard === ask && asked?.typeId === typeId ? asked.price : undefined;
+}
+
 /** Prices both fits; `unpriced` is what the current fit has that only zKillboard could price. */
 function priceFits(
   sde: Sde,
@@ -65,10 +93,7 @@ function priceFits(
   zkillboardPrices: ZKillboardPrices,
 ) {
   const unpriced = new Set<number>();
-  const priceOf = (typeId: number) => {
-    const market = prices.get(typeId);
-    return market?.average_price || market?.adjusted_price || zkillboardPrices.get(typeId);
-  };
+  const priceOf = (typeId: number) => esiPrice(prices.get(typeId)) ?? zkillboardPrices.get(typeId);
   const before = fitPrice(sde, current, (typeId) => {
     const price = priceOf(typeId);
     if (price === undefined && !zkillboardPrices.has(typeId)) unpriced.add(typeId);
@@ -76,6 +101,10 @@ function priceFits(
   });
   const value = shown === current ? before : fitPrice(sde, shown, priceOf);
   return { value, before, unpriced: [...unpriced].toSorted((a, b) => a - b) };
+}
+
+function esiPrice(market: MarketPrice | undefined): number | undefined {
+  return market?.average_price || market?.adjusted_price || undefined;
 }
 
 function useMarketPrices(esi: Esi | undefined): ReadonlyMap<number, MarketPrice> | undefined {
