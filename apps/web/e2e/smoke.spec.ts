@@ -24,16 +24,16 @@ test("No skills flags the skills the fit misses, also after a reload", async ({ 
   await page.goto(RIFTER);
   await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("img", { name: /^Missing Skills/ })).toHaveCount(0);
-  await page.getByRole("button", { name: "Skills All L5" }).click();
+  await page.getByRole("button", { name: "Character All L5" }).click();
   await page
-    .getByRole("dialog", { name: "Skills" })
+    .getByRole("dialog", { name: "Character" })
     .getByRole("button", { name: /^All L0/ })
     .click();
-  await expect(page.getByRole("button", { name: "Skills All L0" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Character All L0" })).toBeVisible();
   await expect(page.getByRole("img", { name: /^Missing Skills/ })).toBeVisible();
 
   await page.reload();
-  await expect(page.getByRole("button", { name: "Skills All L0" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("button", { name: "Character All L0" })).toBeVisible({ timeout: 30_000 });
 });
 
 test("without a fit, the wheel asks for a hull until one is picked, and the logo goes back", async ({ page }) => {
