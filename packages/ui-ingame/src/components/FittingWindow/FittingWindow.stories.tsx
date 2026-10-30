@@ -435,6 +435,25 @@ export const DragImplantAndBooster: Story = {
   },
 };
 
+/** Show Info on a fitted implant. */
+export const ShowInfoImplant: Story = {
+  args: { browser: <ItemBrowser /> },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    await userEvent.click(canvas.getByRole("tab", { name: "Implants" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "genolution core augmentation ca-1");
+    await dragAndDrop(
+      canvas.getByRole("button", { name: "Genolution Core Augmentation CA-1" }),
+      canvasElement.querySelector("[data-slot=implant-1]")!,
+    );
+    within(canvas.getByRole("group", { name: "Genolution Core Augmentation CA-1" }))
+      .getByRole("button", { name: "Show Info" })
+      .focus();
+    await userEvent.keyboard("{Enter}");
+    const info = canvas.getByRole("region", { name: "Info on Genolution Core Augmentation CA-1" });
+    await expect(within(info).getByText("Fitted · Implant Slot 1")).toBeVisible();
+  },
+};
+
 /** A module drags its own icon, and previews where it goes over the middle of the wheel. */
 export const DragModulePreview: Story = {
   args: { browser: <ItemBrowser /> },

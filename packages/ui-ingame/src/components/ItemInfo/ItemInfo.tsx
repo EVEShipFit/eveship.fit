@@ -281,5 +281,7 @@ function Variation({ type, current, onHover, onActivate, onInfo }: VariationProp
 
 function slotName(slot: Slot): string {
   const name = slotNames[slot.type] ?? slot.type;
-  return "index" in slot ? `${name} ${slot.index + 1}` : name;
+  if (!("index" in slot)) return name;
+  const numbered = slot.type === "implant" || slot.type === "booster";
+  return `${name} ${numbered ? slot.index : slot.index + 1}`;
 }

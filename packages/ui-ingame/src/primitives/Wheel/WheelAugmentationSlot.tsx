@@ -1,6 +1,6 @@
 import type { CSSProperties, DragEventHandler, HTMLAttributes, MouseEventHandler, ReactNode } from "react";
 
-import { SlotAction, SlotPress } from "../SlotAction/SlotAction";
+import { SlotAction, SlotInfo, SlotPress } from "../SlotAction/SlotAction";
 import { Tooltip } from "../Tooltip/Tooltip";
 import { TypeIcon } from "../TypeIcon/TypeIcon";
 import { placeAt, polar } from "./geometry";
@@ -15,6 +15,7 @@ const slotGap = 3;
 const half = slotSize / 2;
 
 const unfitOffset = 28.99;
+const infoOffset = unfitOffset + 12.97;
 const bridgeOffset = 19.25;
 
 export interface WheelAugmentationSlotProps extends HTMLAttributes<HTMLDivElement> {
@@ -34,6 +35,7 @@ export interface WheelAugmentationSlotProps extends HTMLAttributes<HTMLDivElemen
   onDragEnd?: DragEventHandler<HTMLDivElement>;
   /** Also on right click. */
   onUnfit?: () => void;
+  onShowInfo?: (anchor: HTMLElement) => void;
   /** Makes the whole slot a button, named `label`. */
   onPress?: MouseEventHandler<HTMLElement>;
   label?: string;
@@ -51,6 +53,7 @@ export function WheelAugmentationSlot({
   onDragStart,
   onDragEnd,
   onUnfit,
+  onShowInfo,
   onPress,
   label,
   className,
@@ -59,6 +62,7 @@ export function WheelAugmentationSlot({
 }: WheelAugmentationSlotProps) {
   const angle = augmentationAngle(kind, position);
   const unfit = polar(angle, unfitOffset);
+  const info = polar(angle, infoOffset);
   const bridge = polar(angle, bridgeOffset);
 
   return (
@@ -106,6 +110,9 @@ export function WheelAugmentationSlot({
               label={kind === "implant" ? "Unfit Implant" : "Unfit Booster"}
               onPress={onUnfit}
             />
+          </span>
+          <span className={styles.action} style={{ "--x": info.x, "--y": info.y } as CSSProperties}>
+            <SlotInfo onPress={onShowInfo} />
           </span>
         </fieldset>
       )}
