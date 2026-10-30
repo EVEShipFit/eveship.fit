@@ -1,5 +1,12 @@
 # @eveshipfit/react-hooks
 
+## 2.3.1
+
+### Patch Changes
+
+- Updated dependencies [[`ea1788d`](https://github.com/EVEShipFit/eveship.fit/commit/ea1788d98d671487ad2b155dc0e57c4622ed6040)]:
+  - @eveshipfit/fitting@2.4.0
+
 ## 2.3.0
 
 ### Minor Changes
