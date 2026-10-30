@@ -1,5 +1,11 @@
 # @eveshipfit/fitting
 
+## 2.4.0
+
+### Minor Changes
+
+- Show Info on fitted implants and boosters, and swap an implant for one of its variations ([#257](https://github.com/EVEShipFit/eveship.fit/pull/257))
+
 ## 2.3.0
 
 ### Minor Changes

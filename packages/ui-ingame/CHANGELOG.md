@@ -1,5 +1,19 @@
 # @eveshipfit/ui-ingame
 
+## 1.9.0
+
+### Minor Changes
+
+- Show Info on fitted implants and boosters, and swap an implant for one of its variations ([#257](https://github.com/EVEShipFit/eveship.fit/pull/257))
+
+- Walk the Item Browser with the arrow keys: Down from the search field enters the tree, Left and Right close and open groups ([#260](https://github.com/EVEShipFit/eveship.fit/pull/260))
+
+### Patch Changes
+
+- Point to the Character button when Personal Fittings needs a login ([#258](https://github.com/EVEShipFit/eveship.fit/pull/258))
+- Updated dependencies []:
+  - @eveshipfit/react-hooks@2.3.1
+
 ## 1.8.0
 
 ### Minor Changes
