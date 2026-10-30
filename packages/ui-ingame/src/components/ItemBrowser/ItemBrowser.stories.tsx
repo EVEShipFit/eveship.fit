@@ -85,6 +85,26 @@ export const Search: Story = {
   },
 };
 
+export const SearchKeyboard: Story = {
+  play: async ({ canvas, userEvent }) => {
+    const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
+    const search = canvas.getByRole("searchbox", { name: "Search" });
+    await userEvent.type(search, "rifter");
+
+    await userEvent.keyboard("{Shift>}{ArrowDown}{/Shift}");
+    await expect(search).toHaveFocus();
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(hulls().getByRole("button", { name: "Frigate" })).toHaveFocus();
+    await userEvent.keyboard("{ArrowRight}{ArrowDown}{ArrowRight}{ArrowDown}");
+    await expect(hulls().getByRole("button", { name: "Rifter" })).toHaveFocus();
+    await userEvent.keyboard("{Alt>}{ArrowUp}{/Alt}");
+    await expect(hulls().getByRole("button", { name: "Rifter" })).toHaveFocus();
+
+    await userEvent.keyboard("{Home}{ArrowUp}");
+    await expect(search).toHaveFocus();
+  },
+};
+
 export const Filters: Story = {
   play: async ({ canvas }) => {
     const filters = [

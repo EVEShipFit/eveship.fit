@@ -1,4 +1,4 @@
-import { useId, useState, type DragEvent, type ReactNode } from "react";
+import { useId, useState, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
 
 import { Tooltip } from "../Tooltip/Tooltip";
 import { TypeIcon } from "../TypeIcon/TypeIcon";
@@ -9,12 +9,71 @@ export interface TreeListProps {
   children: ReactNode;
 }
 
+/** Arrow keys, Home and End walk the open rows. */
 export function TreeList({ label, children }: TreeListProps) {
   return (
-    <ul className={styles.tree} aria-label={label}>
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Handles the keys of its rows.
+    <ul className={styles.tree} aria-label={label} onKeyDown={walk}>
       {children}
     </ul>
   );
+}
+
+function rows(scope: ParentNode): HTMLElement[] {
+  return [...scope.querySelectorAll<HTMLElement>(`.${styles.row}`)];
+}
+
+const walkKeys = new Set(["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight", "Home", "End"]);
+
+function hasModifier(event: KeyboardEvent): boolean {
+  return event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
+}
+
+function walk(event: KeyboardEvent<HTMLUListElement>) {
+  if (event.defaultPrevented || hasModifier(event) || !walkKeys.has(event.key)) return;
+  const tree = event.currentTarget;
+  const all = rows(tree);
+  const row = event.target as HTMLElement;
+  const index = all.indexOf(row);
+  if (index === -1) return;
+
+  let next: HTMLElement | undefined;
+  switch (event.key) {
+    case "ArrowDown":
+      next = all[index + 1];
+      break;
+    case "ArrowUp":
+      next = all[index - 1];
+      break;
+    case "Home":
+      next = all[0];
+      break;
+    case "End":
+      next = all.at(-1);
+      break;
+    case "ArrowRight":
+      if (row.getAttribute("aria-expanded") === "true") next = all[index + 1];
+      break;
+    case "ArrowLeft": {
+      const parent = row.closest("li")?.parentElement?.closest("li");
+      if (parent && tree.contains(parent)) next = parent.querySelector<HTMLElement>(`.${styles.row}`) ?? undefined;
+      break;
+    }
+  }
+  if (next === undefined) return;
+  event.preventDefault();
+  next.focus();
+}
+
+/** Focuses the first row of the first `TreeList` in `scope`. */
+export function focusTree(scope: ParentNode): boolean {
+  const first = scope.querySelector<HTMLElement>(`.${styles.tree} .${styles.row}`);
+  first?.focus();
+  return first !== null;
+}
+
+export function isTreeRow(element: Element): boolean {
+  return element.matches(`.${styles.tree} .${styles.row}`);
 }
 
 export interface TreeGroupProps {
@@ -58,6 +117,11 @@ export function TreeGroup({
           aria-describedby={description !== undefined ? descriptionId : undefined}
           draggable={onDragStart !== undefined || undefined}
           onClick={() => setOpen(!open)}
+          onKeyDown={(event) => {
+            if (hasModifier(event) || event.key !== (open ? "ArrowLeft" : "ArrowRight")) return;
+            event.preventDefault();
+            setOpen(!open);
+          }}
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
         >
