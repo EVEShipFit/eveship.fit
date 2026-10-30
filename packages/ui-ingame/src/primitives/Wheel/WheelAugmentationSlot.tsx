@@ -11,12 +11,15 @@ import styles from "./WheelAugmentation.module.css";
 const slotSize = 32;
 const slotGap = 3;
 
-/** From the slot's centre, inward: past the track, and halfway there. */
 const half = slotSize / 2;
 
-const unfitOffset = -28.99;
-const infoOffset = unfitOffset - 12.97;
-const bridgeOffset = -19.25;
+const actionSize = 12.97;
+const trayPadding = 2;
+/** From the slot's centre, inward: where the tray with the actions starts. */
+const trayStart = 20;
+const trayLength = 2 * actionSize + 3 * trayPadding;
+const unfitOffset = -(trayStart + trayPadding + actionSize / 2);
+const infoOffset = unfitOffset - actionSize - trayPadding;
 
 export interface WheelAugmentationSlotProps extends HTMLAttributes<HTMLDivElement> {
   kind: Augmentation;
@@ -63,7 +66,6 @@ export function WheelAugmentationSlot({
   const angle = augmentationAngle(kind, position);
   const unfit = polar(angle, unfitOffset);
   const info = polar(angle, infoOffset);
-  const bridge = polar(angle, bridgeOffset);
 
   return (
     <div
@@ -102,8 +104,20 @@ export function WheelAugmentationSlot({
         </div>
       </Tooltip>
       {typeId !== undefined && onUnfit && (
-        <fieldset className={styles.actions} aria-label={typeName}>
-          <span className={styles.bridge} style={{ "--x": bridge.x, "--y": bridge.y } as CSSProperties} />
+        <fieldset
+          className={styles.actions}
+          aria-label={typeName}
+          style={
+            {
+              "--angle": `${angle}deg`,
+              "--tray-start": trayStart,
+              "--tray-length": trayLength,
+              "--tray-width": actionSize + 2 * trayPadding,
+            } as CSSProperties
+          }
+        >
+          <span className={styles.bridge} />
+          <span className={styles.tray} />
           <span className={styles.action} style={{ "--x": unfit.x, "--y": unfit.y } as CSSProperties}>
             <SlotAction
               icon="module-unfit"
