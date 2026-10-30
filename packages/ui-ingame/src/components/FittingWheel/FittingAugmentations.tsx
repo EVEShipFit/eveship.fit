@@ -110,7 +110,7 @@ function FittingAugmentation({ kind, position, number, content, readOnly }: Fitt
     tooltip,
     "data-slot": slot === undefined ? undefined : `${kind}-${number}`,
   };
-  if (readOnly) return <WheelAugmentationSlot {...shown} />;
+  if (readOnly) return <WheelAugmentationSlot {...shown} actions={false} />;
 
   return (
     <WheelAugmentationSlot

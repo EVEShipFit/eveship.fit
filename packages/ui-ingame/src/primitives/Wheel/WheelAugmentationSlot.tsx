@@ -42,6 +42,8 @@ export interface WheelAugmentationSlotProps extends HTMLAttributes<HTMLDivElemen
   /** Makes the whole slot a button, named `label`. */
   onPress?: MouseEventHandler<HTMLElement>;
   label?: string;
+  /** False leaves out the actions shown on hover. */
+  actions?: boolean;
 }
 
 /** A small slot for an implant or a booster, on its `WheelAugmentationTrack`. */
@@ -59,6 +61,7 @@ export function WheelAugmentationSlot({
   onShowInfo,
   onPress,
   label,
+  actions = true,
   className,
   style,
   ...props
@@ -103,13 +106,16 @@ export function WheelAugmentationSlot({
           {onPress && <SlotPress className={styles.press} label={label} onPress={onPress} />}
         </div>
       </Tooltip>
-      {typeId !== undefined && onUnfit && (
+      {typeId !== undefined && actions && (
         <fieldset
           className={styles.actions}
           aria-label={typeName}
+          inert={preview}
           style={
             {
               "--angle": `${angle}deg`,
+              "--slot-size": slotSize,
+              "--action-size": actionSize,
               "--tray-start": trayStart,
               "--tray-length": trayLength,
               "--tray-width": actionSize + 2 * trayPadding,
@@ -118,13 +124,15 @@ export function WheelAugmentationSlot({
         >
           <span className={styles.bridge} />
           <span className={styles.tray} />
-          <span className={styles.action} style={{ "--x": unfit.x, "--y": unfit.y } as CSSProperties}>
-            <SlotAction
-              icon="module-unfit"
-              label={kind === "implant" ? "Unfit Implant" : "Unfit Booster"}
-              onPress={onUnfit}
-            />
-          </span>
+          {onUnfit && (
+            <span className={styles.action} style={{ "--x": unfit.x, "--y": unfit.y } as CSSProperties}>
+              <SlotAction
+                icon="module-unfit"
+                label={kind === "implant" ? "Unfit Implant" : "Unfit Booster"}
+                onPress={onUnfit}
+              />
+            </span>
+          )}
           <span className={styles.action} style={{ "--x": info.x, "--y": info.y } as CSSProperties}>
             <SlotInfo onPress={onShowInfo} />
           </span>

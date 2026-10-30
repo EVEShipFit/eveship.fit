@@ -115,10 +115,12 @@ export function copy(fit: Fit, ref: ItemRef, slot: Slot): Fit {
   return putInSlot(fit, { ...item, slot }).fit;
 }
 
-/** Swap a module for another type that goes in its slot, keeping its state, and its charge when the new one takes it. */
+const typedRacks: readonly SlotType[] = [...copiedRacks, "implant", "booster"];
+
+/** Swap a module, implant or booster for another type that goes in its slot, keeping its state, and its charge when the new one takes it. */
 export function setType(sde: Sde, fit: Fit, stats: Stats, ref: ItemRef, typeId: number): Fit {
   const item = fit.items[ref];
-  if (item === undefined || item.type_id === typeId || !copiedRacks.includes(item.slot.type)) return fit;
+  if (item === undefined || item.type_id === typeId || !typedRacks.includes(item.slot.type)) return fit;
   const placed = fitType(sde, fit, stats, typeId, item.slot);
   if (placed.ref === undefined) return fit;
 

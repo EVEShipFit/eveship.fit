@@ -133,23 +133,23 @@
 }
 
 .action {
-  height: calc(12.97 * var(--wheel-unit));
+  height: calc(var(--action-size) * var(--wheel-unit));
   left: calc(50% + var(--x) * var(--wheel-unit));
-  margin: calc(-6.49 * var(--wheel-unit));
+  margin: calc(var(--action-size) / -2 * var(--wheel-unit));
   position: absolute;
   top: calc(50% + var(--y) * var(--wheel-unit));
-  width: calc(12.97 * var(--wheel-unit));
+  width: calc(var(--action-size) * var(--wheel-unit));
 }
 
 /* Keeps the slot hovered while the pointer goes from it to the actions. */
 .bridge {
-  height: calc((var(--tray-start) + var(--tray-length) - 16) * var(--wheel-unit));
-  left: calc(50% - 16 * var(--wheel-unit));
+  height: calc((var(--tray-start) + var(--tray-length) - var(--slot-size) / 2) * var(--wheel-unit));
+  left: calc(50% - var(--slot-size) / 2 * var(--wheel-unit));
   position: absolute;
   top: 50%;
-  transform: rotate(var(--angle)) translateY(calc(16 * var(--wheel-unit)));
+  transform: rotate(var(--angle)) translateY(calc(var(--slot-size) / 2 * var(--wheel-unit)));
   transform-origin: 50% 0;
-  width: calc(32 * var(--wheel-unit));
+  width: calc(var(--slot-size) * var(--wheel-unit));
 }
 
 .tray {

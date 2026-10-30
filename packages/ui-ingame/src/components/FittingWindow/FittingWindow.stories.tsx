@@ -435,22 +435,38 @@ export const DragImplantAndBooster: Story = {
   },
 };
 
-/** Show Info on a fitted implant. */
-export const ShowInfoImplant: Story = {
+/** Show Info on a fitted implant or booster; double clicking a variation swaps it in. */
+export const ShowInfoAugmentation: Story = {
   args: { browser: <ItemBrowser /> },
   play: async ({ canvas, canvasElement, userEvent }) => {
     await userEvent.click(canvas.getByRole("tab", { name: "Implants" }));
-    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "genolution core augmentation ca-1");
+    const search = canvas.getByRole("searchbox", { name: "Search" });
+    await userEvent.type(search, "ocular filter - basic");
     await dragAndDrop(
-      canvas.getByRole("button", { name: "Genolution Core Augmentation CA-1" }),
+      canvas.getByRole("button", { name: "Ocular Filter - Basic" }),
       canvasElement.querySelector("[data-slot=implant-1]")!,
     );
-    within(canvas.getByRole("group", { name: "Genolution Core Augmentation CA-1" }))
-      .getByRole("button", { name: "Show Info" })
-      .focus();
-    await userEvent.keyboard("{Enter}");
-    const info = canvas.getByRole("region", { name: "Info on Genolution Core Augmentation CA-1" });
-    await expect(within(info).getByText("Fitted · Implant Slot 1")).toBeVisible();
+    await userEvent.clear(search);
+    await userEvent.type(search, "synth drop booster");
+    await dragAndDrop(
+      canvas.getByRole("button", { name: "Synth Drop Booster" }),
+      canvasElement.querySelector("[data-kind=booster]")!,
+    );
+
+    const showInfo = async (name: string) => {
+      within(canvas.getByRole("group", { name })).getByRole("button", { name: "Show Info" }).focus();
+      await userEvent.keyboard("{Enter}");
+      return canvas.getByRole("region", { name: `Info on ${name}` });
+    };
+    const booster = await showInfo("Synth Drop Booster");
+    await expect(within(booster).getByText("Fitted · Booster Slot 2")).toBeVisible();
+
+    const implant = await showInfo("Ocular Filter - Basic");
+    await expect(within(implant).getByText("Fitted · Implant Slot 1")).toBeVisible();
+    await userEvent.click(within(implant).getByRole("tab", { name: "Variations" }));
+    await userEvent.dblClick(within(implant).getByRole("button", { name: "Ocular Filter - Improved" }));
+    const swapped = canvas.getByRole("region", { name: "Info on Ocular Filter - Improved" });
+    await expect(within(swapped).getByText("Fitted · Implant Slot 1")).toBeVisible();
   },
 };
 
