@@ -148,7 +148,7 @@ function FittingAugmentation({ kind, position, number, content, readOnly }: Fitt
       onShowInfo={
         item && ref !== undefined
           ? (element) =>
-              showInfo({ typeId: item.type_id, ref }, { element, side: kind === "implant" ? "left" : "right" })
+              showInfo({ typeId: item.type_id, ref }, { element, side: kind === "implant" ? "right" : "left" })
           : undefined
       }
       onPress={() => browse({ type: kind, index: number ?? content?.index })}

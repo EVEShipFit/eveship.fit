@@ -11,12 +11,12 @@ import styles from "./WheelAugmentation.module.css";
 const slotSize = 32;
 const slotGap = 3;
 
-/** From the slot's centre, outward: past the track, and halfway there. */
+/** From the slot's centre, inward: past the track, and halfway there. */
 const half = slotSize / 2;
 
-const unfitOffset = 28.99;
-const infoOffset = unfitOffset + 12.97;
-const bridgeOffset = 19.25;
+const unfitOffset = -28.99;
+const infoOffset = unfitOffset - 12.97;
+const bridgeOffset = -19.25;
 
 export interface WheelAugmentationSlotProps extends HTMLAttributes<HTMLDivElement> {
   kind: Augmentation;
