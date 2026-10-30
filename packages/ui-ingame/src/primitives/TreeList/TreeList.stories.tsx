@@ -79,6 +79,35 @@ export const Collapsed: Story = {
   },
 };
 
+export const Keyboard: Story = {
+  play: async ({ canvas, userEvent }) => {
+    const row = (name: RegExp) => canvas.getByRole("button", { name });
+    row(/Frigate/).focus();
+
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(row(/Frigate/)).toHaveAttribute("aria-expanded", "true");
+    await expect(row(/Frigate/)).toHaveFocus();
+    await userEvent.keyboard("{ArrowRight}{ArrowDown}{ArrowDown}{ArrowDown}");
+    await expect(row(/Minmatar/)).toHaveFocus();
+    await userEvent.keyboard("{ArrowRight}{ArrowDown}");
+    await expect(row(/Rifter/)).toHaveFocus();
+    await userEvent.keyboard("{ArrowDown}{ArrowUp}");
+    await expect(row(/Rifter/)).toHaveFocus();
+
+    await userEvent.keyboard("{ArrowLeft}");
+    await expect(row(/Minmatar/)).toHaveFocus();
+    await userEvent.keyboard("{ArrowLeft}");
+    await expect(row(/Minmatar/)).toHaveAttribute("aria-expanded", "false");
+    await userEvent.keyboard("{ArrowLeft}");
+    await expect(row(/Frigate/)).toHaveFocus();
+
+    await userEvent.keyboard("{End}");
+    await expect(row(/Battleship/)).toHaveFocus();
+    await userEvent.keyboard("{Home}{ArrowUp}");
+    await expect(row(/Frigate/)).toHaveFocus();
+  },
+};
+
 export const Expanded: Story = {
   args: { children: shipTree(true) },
 };

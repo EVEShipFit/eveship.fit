@@ -1,6 +1,7 @@
 import { useBrowse } from "@eveshipfit/react-hooks";
 import { Activity, useDeferredValue, useId, useState, type ReactNode } from "react";
 
+import { focusTree, isTreeRow } from "../../primitives/TreeList/TreeList";
 import { Charges } from "./Charges";
 import { FitActions } from "./FitActions";
 import { HullsAndFits } from "./HullsAndFits";
@@ -52,6 +53,7 @@ export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
         ))}
       </div>
       {tabs.map((each) => (
+        // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Handles the keys of its search and tree.
         <div
           key={each.tab}
           id={`${id}-${each.tab}-panel`}
@@ -59,6 +61,20 @@ export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
           role="tabpanel"
           aria-labelledby={`${id}-${each.tab}-tab`}
           hidden={tab !== each.tab}
+          onKeyDown={(event) => {
+            if (event.defaultPrevented || event.nativeEvent.isComposing) return;
+            if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+            const panel = event.currentTarget;
+            const target = event.target as HTMLElement;
+            if (event.key === "ArrowDown" && target.matches("input[type=search]")) {
+              if (focusTree(panel)) event.preventDefault();
+            } else if (event.key === "ArrowUp" && isTreeRow(target)) {
+              const search = panel.querySelector<HTMLInputElement>("input[type=search]");
+              if (search === null) return;
+              event.preventDefault();
+              search.focus();
+            }
+          }}
         >
           {ready ? (
             <Activity mode={tab === each.tab ? "visible" : "hidden"}>{each.panel}</Activity>
