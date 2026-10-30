@@ -1,6 +1,6 @@
 import type { CSSProperties, DragEventHandler, HTMLAttributes, MouseEventHandler, ReactNode } from "react";
 
-import { SlotAction, SlotPress } from "../SlotAction/SlotAction";
+import { SlotAction, SlotInfo, SlotPress } from "../SlotAction/SlotAction";
 import { Tooltip } from "../Tooltip/Tooltip";
 import { TypeIcon } from "../TypeIcon/TypeIcon";
 import { placeAt, polar } from "./geometry";
@@ -11,11 +11,15 @@ import styles from "./WheelAugmentation.module.css";
 const slotSize = 32;
 const slotGap = 3;
 
-/** From the slot's centre, outward: past the track, and halfway there. */
 const half = slotSize / 2;
 
-const unfitOffset = 28.99;
-const bridgeOffset = 19.25;
+const actionSize = 12.97;
+const trayPadding = 2;
+/** From the slot's centre, inward: where the tray with the actions starts. */
+const trayStart = 20;
+const trayLength = 2 * actionSize + 3 * trayPadding;
+const unfitOffset = -(trayStart + trayPadding + actionSize / 2);
+const infoOffset = unfitOffset - actionSize - trayPadding;
 
 export interface WheelAugmentationSlotProps extends HTMLAttributes<HTMLDivElement> {
   kind: Augmentation;
@@ -34,9 +38,12 @@ export interface WheelAugmentationSlotProps extends HTMLAttributes<HTMLDivElemen
   onDragEnd?: DragEventHandler<HTMLDivElement>;
   /** Also on right click. */
   onUnfit?: () => void;
+  onShowInfo?: (anchor: HTMLElement) => void;
   /** Makes the whole slot a button, named `label`. */
   onPress?: MouseEventHandler<HTMLElement>;
   label?: string;
+  /** False leaves out the actions shown on hover. */
+  actions?: boolean;
 }
 
 /** A small slot for an implant or a booster, on its `WheelAugmentationTrack`. */
@@ -51,15 +58,17 @@ export function WheelAugmentationSlot({
   onDragStart,
   onDragEnd,
   onUnfit,
+  onShowInfo,
   onPress,
   label,
+  actions = true,
   className,
   style,
   ...props
 }: WheelAugmentationSlotProps) {
   const angle = augmentationAngle(kind, position);
   const unfit = polar(angle, unfitOffset);
-  const bridge = polar(angle, bridgeOffset);
+  const info = polar(angle, infoOffset);
 
   return (
     <div
@@ -97,15 +106,35 @@ export function WheelAugmentationSlot({
           {onPress && <SlotPress className={styles.press} label={label} onPress={onPress} />}
         </div>
       </Tooltip>
-      {typeId !== undefined && onUnfit && (
-        <fieldset className={styles.actions} aria-label={typeName}>
-          <span className={styles.bridge} style={{ "--x": bridge.x, "--y": bridge.y } as CSSProperties} />
-          <span className={styles.action} style={{ "--x": unfit.x, "--y": unfit.y } as CSSProperties}>
-            <SlotAction
-              icon="module-unfit"
-              label={kind === "implant" ? "Unfit Implant" : "Unfit Booster"}
-              onPress={onUnfit}
-            />
+      {typeId !== undefined && actions && (
+        <fieldset
+          className={styles.actions}
+          aria-label={typeName}
+          inert={preview}
+          style={
+            {
+              "--angle": `${angle}deg`,
+              "--slot-size": slotSize,
+              "--action-size": actionSize,
+              "--tray-start": trayStart,
+              "--tray-length": trayLength,
+              "--tray-width": actionSize + 2 * trayPadding,
+            } as CSSProperties
+          }
+        >
+          <span className={styles.bridge} />
+          <span className={styles.tray} />
+          {onUnfit && (
+            <span className={styles.action} style={{ "--x": unfit.x, "--y": unfit.y } as CSSProperties}>
+              <SlotAction
+                icon="module-unfit"
+                label={kind === "implant" ? "Unfit Implant" : "Unfit Booster"}
+                onPress={onUnfit}
+              />
+            </span>
+          )}
+          <span className={styles.action} style={{ "--x": info.x, "--y": info.y } as CSSProperties}>
+            <SlotInfo onPress={onShowInfo} />
           </span>
         </fieldset>
       )}

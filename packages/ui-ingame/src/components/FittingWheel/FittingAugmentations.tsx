@@ -8,6 +8,7 @@ import {
   usePlacement,
   usePreview,
   useSde,
+  useShowInfo,
   useType,
   type DragItem,
   type SlotContent,
@@ -78,6 +79,7 @@ function FittingAugmentation({ kind, position, number, content, readOnly }: Fitt
   const { show, clear } = usePreview();
   const { dragging, start, end } = useDrag();
   const { browse } = useBrowse();
+  const { show: showInfo } = useShowInfo();
   const item = content?.item;
   const type = useType(item?.type_id);
   const ref = content?.ref;
@@ -108,7 +110,7 @@ function FittingAugmentation({ kind, position, number, content, readOnly }: Fitt
     tooltip,
     "data-slot": slot === undefined ? undefined : `${kind}-${number}`,
   };
-  if (readOnly) return <WheelAugmentationSlot {...shown} />;
+  if (readOnly) return <WheelAugmentationSlot {...shown} actions={false} />;
 
   return (
     <WheelAugmentationSlot
@@ -143,6 +145,12 @@ function FittingAugmentation({ kind, position, number, content, readOnly }: Fitt
         end();
       }}
       onUnfit={ref === undefined ? undefined : () => store.remove(ref)}
+      onShowInfo={
+        item && ref !== undefined
+          ? (element) =>
+              showInfo({ typeId: item.type_id, ref }, { element, side: kind === "implant" ? "right" : "left" })
+          : undefined
+      }
       onPress={() => browse({ type: kind, index: number ?? content?.index })}
       label={type?.name ?? (number === undefined ? `Empty ${slotName}` : `Empty ${slotName} ${number}`)}
     />

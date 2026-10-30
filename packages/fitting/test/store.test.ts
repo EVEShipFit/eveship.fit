@@ -435,6 +435,24 @@ describe("edits", () => {
     expect(fit.getSnapshot()).toBe(before);
   });
 
+  test("setting the type of an implant or booster keeps its slot, when the new one goes there", () => {
+    const fit = rifter();
+    const implant = fit.fit(id("Ocular Filter - Basic"))!;
+    fit.setType(implant, id("Ocular Filter - Improved"));
+    expect(fit.getSnapshot().fit.items[implant]).toMatchObject({
+      type_id: id("Ocular Filter - Improved"),
+      slot: { type: "implant", index: 1 },
+    });
+
+    const booster = fit.fit(id("Synth Drop Booster"))!;
+    fit.setType(booster, id("Synth Exile Booster"));
+    expect(fit.getSnapshot().fit.items[booster]).toMatchObject({ type_id: id("Synth Drop Booster") });
+
+    const before = fit.getSnapshot();
+    fit.setType(implant, id("Memory Augmentation - Basic"));
+    expect(fit.getSnapshot()).toBe(before);
+  });
+
   test("moving a squadron swaps it with what is in the other tube", () => {
     const fit = engine.createFit({ ship: id("Thanatos") });
     const dromi = fit.fit(id("Dromi II"))!;

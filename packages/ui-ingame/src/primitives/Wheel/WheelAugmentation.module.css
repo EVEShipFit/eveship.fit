@@ -117,6 +117,11 @@
   position: absolute;
 }
 
+.slot:hover,
+.slot:has(:focus-visible) {
+  z-index: 1;
+}
+
 .slot:hover > .actions,
 .slot:has(:focus-visible) > .actions {
   opacity: 1;
@@ -128,20 +133,35 @@
 }
 
 .action {
-  height: calc(12.97 * var(--wheel-unit));
+  height: calc(var(--action-size) * var(--wheel-unit));
   left: calc(50% + var(--x) * var(--wheel-unit));
-  margin: calc(-6.49 * var(--wheel-unit));
+  margin: calc(var(--action-size) / -2 * var(--wheel-unit));
   position: absolute;
   top: calc(50% + var(--y) * var(--wheel-unit));
-  width: calc(12.97 * var(--wheel-unit));
+  width: calc(var(--action-size) * var(--wheel-unit));
 }
 
-/* Keeps the slot hovered while the pointer crosses the gap to its action. */
+/* Keeps the slot hovered while the pointer goes from it to the actions. */
 .bridge {
-  height: calc(8 * var(--wheel-unit));
-  left: calc(50% + var(--x) * var(--wheel-unit));
-  margin: calc(-4 * var(--wheel-unit));
+  height: calc((var(--tray-start) + var(--tray-length) - var(--slot-size) / 2) * var(--wheel-unit));
+  left: calc(50% - var(--slot-size) / 2 * var(--wheel-unit));
   position: absolute;
-  top: calc(50% + var(--y) * var(--wheel-unit));
-  width: calc(8 * var(--wheel-unit));
+  top: 50%;
+  transform: rotate(var(--angle)) translateY(calc(var(--slot-size) / 2 * var(--wheel-unit)));
+  transform-origin: 50% 0;
+  width: calc(var(--slot-size) * var(--wheel-unit));
+}
+
+.tray {
+  background: rgb(13 18 19 / 95%);
+  border: 1px solid #3d5960;
+  border-radius: calc(var(--tray-width) / 2 * var(--wheel-unit));
+  box-sizing: border-box;
+  height: calc(var(--tray-length) * var(--wheel-unit));
+  left: calc(50% - var(--tray-width) / 2 * var(--wheel-unit));
+  position: absolute;
+  top: 50%;
+  transform: rotate(var(--angle)) translateY(calc(var(--tray-start) * var(--wheel-unit)));
+  transform-origin: 50% 0;
+  width: calc(var(--tray-width) * var(--wheel-unit));
 }
