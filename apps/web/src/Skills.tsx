@@ -16,7 +16,7 @@ const warnings = {
   failed: "Could not load skills",
 };
 
-/** The button to pick which skills fly the fit, and the card it pops up. */
+/** The button to pick which character flies the fit, and the card it pops up. */
 export function Skills({ loginError }: { loginError?: string }) {
   const id = useId();
   const card = useRef<HTMLDialogElement>(null);
@@ -100,7 +100,7 @@ export function Skills({ loginError }: { loginError?: string }) {
   return (
     <>
       <button type="button" className={styles.skills} popoverTarget={id}>
-        <span className={styles.label}>Skills</span>
+        <span className={styles.label}>Character</span>
         <span className={styles.shown}>{shown?.name}</span>
         {(shown?.login?.status === "expired" || shown?.login?.status === "failed") && (
           <span className={styles.warning} title={warnings[shown.login.status]}>
@@ -113,7 +113,7 @@ export function Skills({ loginError }: { loginError?: string }) {
         id={id}
         popover="auto"
         className={styles.card}
-        aria-label="Skills"
+        aria-label="Character"
         onToggle={(event) => {
           setOpen(event.newState === "open");
           setNow(Date.now());
@@ -139,8 +139,9 @@ export function Skills({ loginError }: { loginError?: string }) {
           <>
             <hr className={styles.rule} />
             <p className={styles.intro}>
-              <strong>Fly with your own skills</strong>
-              Log in with EVE Online. We only read your skills and skill queue. Everything stays in your browser.
+              <strong>Use your own skills and fittings</strong>
+              Log in with EVE Online. We only read your skills, skill queue and fittings. Everything stays in your
+              browser.
             </p>
             <button type="button" className={styles.sso} onClick={startLogin}>
               Log in with EVE Online
