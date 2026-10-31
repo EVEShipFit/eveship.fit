@@ -496,11 +496,23 @@ test("refusal", () => {
 
   act(() => result.current.refuse(2048));
   const first = result.current.refusal;
-  expect(first).toEqual({ typeId: 2048 });
+  expect(first).toEqual({ typeId: 2048, held: false });
 
   act(() => result.current.refuse(2048));
-  expect(result.current.refusal).toEqual({ typeId: 2048 });
+  expect(result.current.refusal).toEqual({ typeId: 2048, held: false });
   expect(result.current.refusal).not.toBe(first);
+
+  act(() => result.current.release());
+  expect(result.current.refusal).toEqual({ typeId: 2048, held: false });
+
+  act(() => result.current.hold(2048));
+  const held = result.current.refusal;
+  expect(held).toEqual({ typeId: 2048, held: true });
+  act(() => result.current.refuse(2048));
+  expect(result.current.refusal).toBe(held);
+
+  act(() => result.current.release());
+  expect(result.current.refusal).toBeUndefined();
 });
 
 test("show info", () => {

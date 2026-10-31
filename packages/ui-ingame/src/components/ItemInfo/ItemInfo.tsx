@@ -4,9 +4,11 @@ import {
   useCharges,
   useFit,
   useFitStore,
+  useHullRefuses,
   useImages,
   useInfo,
   usePreview,
+  useRefusal,
   useSde,
   useShowInfo,
   useTypePrice,
@@ -183,9 +185,14 @@ function Variations({ shown: { target, anchor }, info: { fitted, variations } }:
   const store = useFitStore();
   const preview = usePreview();
   const { show } = useShowInfo();
+  const refuses = useHullRefuses();
+  const { refuse, hold, release } = useRefusal();
   const { ref } = target;
 
-  const clearPreview = useEffectEvent(() => preview.clear(PREVIEW_TARGET));
+  const clearPreview = useEffectEvent(() => {
+    preview.clear(PREVIEW_TARGET);
+    release();
+  });
   useEffect(() => () => clearPreview(), []);
 
   const fit = useFit();
@@ -194,6 +201,12 @@ function Variations({ shown: { target, anchor }, info: { fitted, variations } }:
   const swapper = (type: SdeType) => {
     if (fitted === undefined || typeof ref !== "number") return undefined;
     if (fitted.charge && !charges.includes(type)) return undefined;
+    if (!fitted.charge && refuses(type)) {
+      return {
+        hover: (hovering: boolean) => (hovering ? hold(type.id) : release()),
+        activate: () => refuse(type.id),
+      };
+    }
     const swap = (draft: FitStore) => (fitted.charge ? draft.setCharge(ref, type.id) : draft.setType(ref, type.id));
     return {
       hover: (hovering: boolean) => {

@@ -11,7 +11,7 @@ import {
   useTypePrice,
 } from "@eveshipfit/react-hooks";
 import type { MarketGroupNode, MetaFolder, MetaSortedTypes, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
-import { useRef, useState, type DragEvent, type ReactNode } from "react";
+import { useEffect, useEffectEvent, useRef, useState, type DragEvent, type ReactNode } from "react";
 
 import { Icon, useIconUrl } from "../../primitives/Icon/Icon";
 import { Tooltip, TooltipText } from "../../primitives/Tooltip/Tooltip";
@@ -38,7 +38,7 @@ export function useTypeActions(): { actions: TypeActions; clear: () => void; dra
   const store = useFitStore();
   const sde = useSde();
   const refuses = useHullRefuses();
-  const { refuse } = useRefusal();
+  const { refuse, hold, release } = useRefusal();
   const { show, clear } = usePreview();
   const { start, end } = useDrag();
   const { show: showInfo } = useShowInfo();
@@ -58,12 +58,17 @@ export function useTypeActions(): { actions: TypeActions; clear: () => void; dra
     hover: (typeId, hovering) => {
       if (hovering) {
         setHovered(typeId);
-        if (!refused(typeId)) show((draft) => void draft.fit(typeId));
-      } else clear();
+        if (refused(typeId)) hold(typeId);
+        else show((draft) => void draft.fit(typeId));
+      } else {
+        clear();
+        release();
+      }
     },
     info: (typeId, element) => showInfo({ typeId }, { element, side: "right" }),
     drag: (event, type) => {
       clear();
+      release();
       const image = dragImage.current;
       if (image?.dataset.typeId === String(type.id)) event.dataTransfer.setDragImage(image, 32, 32);
       event.dataTransfer.effectAllowed = "copy";
@@ -76,9 +81,15 @@ export function useTypeActions(): { actions: TypeActions; clear: () => void; dra
     },
   };
 
+  const releaseOnUnmount = useEffectEvent(release);
+  useEffect(() => () => releaseOnUnmount(), []);
+
   return {
     actions,
-    clear,
+    clear: () => {
+      clear();
+      release();
+    },
     dragImage: hovered !== undefined && (
       <span ref={dragImage} className={styles.dragImage} data-type-id={hovered} aria-hidden>
         <TypeIcon typeId={hovered} size={64} loading="eager" />

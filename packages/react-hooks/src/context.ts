@@ -2,7 +2,7 @@ import type { Engine, FitStore, ItemRef, Preview, Rack } from "@eveshipfit/fitti
 import type { Images } from "@eveshipfit/images";
 import type { Texts } from "@eveshipfit/sde-loader";
 import type { ZKillboard } from "@eveshipfit/zkillboard";
-import { createContext, useContext, type Context } from "react";
+import { createContext, useContext, type Context, type Dispatch, type SetStateAction } from "react";
 
 import type { DamageProfiles } from "./damage-profiles.js";
 import type { EsiCharacters } from "./esi-characters.js";
@@ -37,13 +37,15 @@ export interface BrowseState {
   setRequest: (request: BrowseRequest) => void;
 }
 
+/** A type the fit refused; `held` until released, else for a moment. */
 export interface Refusal {
   readonly typeId: number;
+  readonly held: boolean;
 }
 
 export interface RefusalState {
   refusal: Refusal | undefined;
-  setRefusal: (refusal: Refusal) => void;
+  setRefusal: Dispatch<SetStateAction<Refusal | undefined>>;
 }
 
 /** A type to show the info of; with `ref`, as fitted there (as module or its charge) or as the fit's ship. */

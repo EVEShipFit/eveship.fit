@@ -172,7 +172,7 @@ function FittingCopyHint() {
 
 const refusalShown = 3000;
 
-/** Tells that the hull cannot fit the type being dragged, or the type just refused. */
+/** Tells that the hull cannot fit the type being dragged, or the type refused. */
 function FittingHullNotice() {
   const sde = useSde();
   const refuses = useHullRefuses();
@@ -181,13 +181,16 @@ function FittingHullNotice() {
   const [expired, setExpired] = useState(refusal);
 
   useEffect(() => {
-    if (refusal === undefined) return;
+    if (refusal === undefined || refusal.held) return;
     const timer = setTimeout(() => setExpired(refusal), refusalShown);
     return () => clearTimeout(timer);
   }, [refusal]);
 
   const type = dragging?.type === "type" ? sde.type(dragging.typeId) : undefined;
-  const shown = dragging === undefined ? refusal !== expired : type !== undefined && refuses(type);
+  const shown =
+    dragging === undefined
+      ? refusal !== undefined && (refusal.held || refusal !== expired)
+      : type !== undefined && refuses(type);
   if (!shown) return null;
   return <WheelNotice text="Hull cannot fit this module type" />;
 }

@@ -17,6 +17,7 @@ const types = {
   "Gyrostabilizer II": 519,
   "Small Projectile Burst Aerator I": 31668,
   "Medium Projectile Burst Aerator I": 31670,
+  "Prototype Cloaking Device I": 11370,
   "Nanite Repair Paste": 28668,
   "Hobgoblin II": 2456,
   Tristan: 593,
@@ -251,6 +252,35 @@ export const ShowInfoVariations: Story = {
     const swapped = canvas.getByRole("region", { name: "Info on Caldari Navy Small Shield Extender" });
     await expect(within(swapped).getByText("Fitted · Mid Slot 2")).toBeVisible();
     await expect(within(swapped).getByRole("tab", { name: "Variations" })).toHaveAttribute("aria-selected", "true");
+  },
+};
+
+/** Variations refuses one the hull cannot fit, and the wheel says so. */
+export const ShowInfoVariationHullCannotFit: Story = {
+  parameters: {
+    fit: {
+      ship: { type_id: types.Rifter },
+      items: [{ type_id: types["Prototype Cloaking Device I"], slot: { type: "high", index: 0 }, state: "online" }],
+    },
+  },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const wheel = within(canvas.getByRole("region", { name: "Fitting" }));
+    within(canvas.getByRole("group", { name: "Prototype Cloaking Device I" }))
+      .getByRole("button", { name: "Show Info" })
+      .focus();
+    await userEvent.keyboard("{Enter}");
+    const info = canvas.getByRole("region", { name: "Info on Prototype Cloaking Device I" });
+    await userEvent.click(within(info).getByRole("tab", { name: "Variations" }));
+
+    const covertOps = within(info).getByRole("button", { name: "Covert Ops Cloaking Device II" });
+    await userEvent.hover(covertOps);
+    await expect(wheel.getByText("Hull cannot fit this module type")).toBeInTheDocument();
+    await expect(canvasElement.querySelectorAll("[data-preview]")).toHaveLength(0);
+    await userEvent.dblClick(covertOps);
+    await expect(canvas.getByRole("region", { name: "Info on Prototype Cloaking Device I" })).toBeVisible();
+    await expect(wheel.getByRole("button", { name: /^Prototype Cloaking Device I/ })).toBeInTheDocument();
+    await userEvent.unhover(covertOps);
+    await expect(wheel.queryByText("Hull cannot fit this module type")).toBeNull();
   },
 };
 
@@ -595,7 +625,7 @@ export const DropRefused: Story = {
   },
 };
 
-/** The hull refuses a module it cannot fit, dragged or double clicked, and the wheel says so. */
+/** The hull refuses a module it cannot fit, dragged, hovered or double clicked, and the wheel says so. */
 export const HullCannotFit: Story = {
   args: { browser: <ItemBrowser /> },
   parameters: { fit: rifter },
@@ -616,12 +646,18 @@ export const HullCannotFit: Story = {
 
     const previews = () => canvasElement.querySelectorAll("[data-preview]");
     await userEvent.hover(aerator);
+    await expect(wheel.getByText("Hull cannot fit this module type")).toBeInTheDocument();
     await expect(previews()).toHaveLength(0);
     await userEvent.dblClick(aerator);
-    await expect(await wheel.findByText("Hull cannot fit this module type")).toBeInTheDocument();
     await expect(wheel.getAllByRole("button", { name: "Empty Rig Slot" })).toHaveLength(2);
-    await waitFor(() => expect(wheel.queryByText("Hull cannot fit this module type")).toBeNull(), { timeout: 5000 });
+    await expect(wheel.getByText("Hull cannot fit this module type")).toBeInTheDocument();
     await userEvent.unhover(aerator);
+    await expect(wheel.queryByText("Hull cannot fit this module type")).toBeNull();
+
+    aerator.focus();
+    await userEvent.keyboard("{Enter}");
+    await expect(wheel.getByText("Hull cannot fit this module type")).toBeInTheDocument();
+    await waitFor(() => expect(wheel.queryByText("Hull cannot fit this module type")).toBeNull(), { timeout: 5000 });
 
     await userEvent.clear(canvas.getByRole("searchbox", { name: "Search" }));
     await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "small projectile burst aerator i");
