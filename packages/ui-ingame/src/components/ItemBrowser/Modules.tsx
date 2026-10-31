@@ -6,6 +6,7 @@ import {
   useModuleSearch,
   useModuleTree,
   usePlacement,
+  useSnapshot,
 } from "@eveshipfit/react-hooks";
 import type { SdeType } from "@eveshipfit/sde-loader";
 import { useMemo, useState } from "react";
@@ -17,7 +18,7 @@ import styles from "./ItemBrowser.module.css";
 import { Search } from "./Search";
 import { SearchResults, TypeGroup, useTypeActions } from "./TypeLeaf";
 
-type SlotFilter = "low" | "medium" | "high" | "rig" | "drones";
+type SlotFilter = "low" | "medium" | "high" | "rig" | "service" | "drones";
 type Place = Placement["type"];
 
 const slotFilters: { filter: SlotFilter; icon: IconName; label: string; places: readonly Place[] }[] = [
@@ -25,6 +26,7 @@ const slotFilters: { filter: SlotFilter; icon: IconName; label: string; places: 
   { filter: "medium", icon: "filter-medium-slot", label: "Mid Slot", places: ["medium"] },
   { filter: "high", icon: "filter-high-slot", label: "High Slot", places: ["high"] },
   { filter: "rig", icon: "filter-rig-slot", label: "Rig & Subsystem Slots", places: ["rig", "subsystem"] },
+  { filter: "service", icon: "slot-service", label: "Service Slot", places: ["service"] },
   { filter: "drones", icon: "filter-drones", label: "Drones", places: ["drone_bay", "fighter_bay"] },
 ];
 
@@ -34,6 +36,8 @@ export function Modules() {
   const placement = usePlacement();
   const canFit = useCanFit();
   const missingSkills = useMissingSkills();
+  const services = useSnapshot().stats.slots.service.total > 0;
+  const shownFilters = slotFilters.filter(({ filter }) => services || filter !== "service");
   const [search, setSearch] = useState("");
   const [slots, setSlots] = useState<ReadonlySet<SlotFilter>>(() => new Set());
   const [hullRestrictions, setHullRestrictions] = useState(false);
@@ -54,7 +58,11 @@ export function Modules() {
 
   const query = search.trim().toLowerCase();
   const keep = useMemo(() => {
-    const places = new Set(slotFilters.filter(({ filter }) => slots.has(filter)).flatMap((slot) => slot.places));
+    const places = new Set(
+      slotFilters
+        .filter(({ filter }) => slots.has(filter) && (services || filter !== "service"))
+        .flatMap((slot) => slot.places),
+    );
     if (query === "" && places.size === 0 && !hullRestrictions && !flyable) return undefined;
     return (type: SdeType) => {
       if (places.size > 0) {
@@ -65,7 +73,7 @@ export function Modules() {
       if (flyable && missingSkills([type.id]).length > 0) return false;
       return type.name.toLowerCase().includes(query);
     };
-  }, [query, slots, hullRestrictions, flyable, placement, canFit, missingSkills]);
+  }, [query, slots, services, hullRestrictions, flyable, placement, canFit, missingSkills]);
   const tree = useModuleTree(query === "" ? keep : undefined);
   const found = useModuleSearch(query === "" ? undefined : keep);
   const groups = query === "" ? tree : found;
@@ -88,7 +96,7 @@ export function Modules() {
         onCollapse={() => setCollapses(collapses + 1)}
       />
       <fieldset className={styles.filters} aria-label="Filters">
-        {slotFilters.map(({ filter, icon, label }) => (
+        {shownFilters.map(({ filter, icon, label }) => (
           <FilterToggle
             key={filter}
             icon={icon}
