@@ -8,15 +8,19 @@ import {
   useLocalFits,
   useMissingSkills,
   usePersonalFits,
+  useShowInfo,
 } from "@eveshipfit/react-hooks";
 import type { SdeType } from "@eveshipfit/sde-loader";
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState, type CSSProperties, type MouseEvent } from "react";
 
+import { useContextMenu } from "../../primitives/ContextMenu/ContextMenu";
+import { Dialog } from "../../primitives/Dialog/Dialog";
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
 import { Icon, useIconUrl, type IconName } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import { TreeGroup, TreeLeaf, TreeList } from "../../primitives/TreeList/TreeList";
 import styles from "./ItemBrowser.module.css";
+import { useCopyFit } from "./copyFit";
 import { Search } from "./Search";
 
 interface Listed {
@@ -33,7 +37,11 @@ export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
   const images = useImages();
   const store = useFitStore();
   const missingSkills = useMissingSkills();
-  const { fits } = useLocalFits();
+  const { fits, remove } = useLocalFits();
+  const { show: showInfo } = useShowInfo();
+  const { open, menu } = useContextMenu();
+  const { copy, dialog: copyDialog } = useCopyFit();
+  const [deleting, setDeleting] = useState<Fit>();
   const personal = usePersonalFits();
   const { start, end } = useDrag();
   const [search, setSearch] = useState("");
@@ -78,6 +86,30 @@ export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
   const groups = useHullTree(keep);
 
   const simulate = (shipTypeId: number) => store.replace({ ship: { type_id: shipTypeId }, items: [] });
+
+  const hullMenu = (event: MouseEvent<HTMLElement>, ship: SdeType) => {
+    const anchor = event.currentTarget;
+    open(event, [
+      {
+        label: "Show Info",
+        icon: "module-info",
+        onSelect: () => showInfo({ typeId: ship.id }, { element: anchor, side: "right" }),
+      },
+      "separator",
+      { label: "Simulate Ship", onSelect: () => simulate(ship.id) },
+    ]);
+  };
+
+  const fitMenu = (event: MouseEvent<HTMLElement>, { fit, kind }: Listed) => {
+    open(event, [
+      { label: "Simulate Fitting", onSelect: () => store.replace(fit) },
+      "separator",
+      { label: "Copy as EFT", onSelect: () => copy(fit, "eft") },
+      { label: "Copy as esf/1", onSelect: () => copy(fit, "esf") },
+      "separator",
+      kind === "fits-browser" && { label: "Delete Fitting", onSelect: () => setDeleting(fit) },
+    ]);
+  };
 
   return (
     <>
@@ -168,27 +200,32 @@ export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
                                 start({ type: "hull", typeId: ship.id });
                               }}
                               onDragEnd={end}
+                              onContextMenu={(event) => hullMenu(event, ship)}
                             >
                               {() =>
                                 shown.length === 0 ? (
                                   <TreeLeaf label="No Item" />
                                 ) : (
-                                  shown.map(({ fit, kind }, index) => (
-                                    <TreeLeaf
-                                      key={`${kind}:${fit.name ?? ""}:${index}`}
-                                      label={
-                                        <>
-                                          <span className={styles.kind}>
-                                            <Icon name={kind} />
-                                          </span>
-                                          {fit.name || ship.name}
-                                        </>
-                                      }
-                                      onActivate={() => store.replace(fit)}
-                                      activateOnClick
-                                      after={<Flyable fit={fit} />}
-                                    />
-                                  ))
+                                  shown.map((listed, index) => {
+                                    const { fit, kind } = listed;
+                                    return (
+                                      <TreeLeaf
+                                        key={`${kind}:${fit.name ?? ""}:${index}`}
+                                        label={
+                                          <>
+                                            <span className={styles.kind}>
+                                              <Icon name={kind} />
+                                            </span>
+                                            {fit.name || ship.name}
+                                          </>
+                                        }
+                                        onActivate={() => store.replace(fit)}
+                                        onContextMenu={(event) => fitMenu(event, listed)}
+                                        activateOnClick
+                                        after={<Flyable fit={fit} />}
+                                      />
+                                    );
+                                  })
                                 )
                               }
                             </TreeGroup>
@@ -203,6 +240,28 @@ export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
           </TreeList>
         )}
       </div>
+      {menu}
+      {copyDialog}
+      <Dialog open={deleting !== undefined} title="Delete Fitting?" onClose={() => setDeleting(undefined)}>
+        <div className={styles.confirm}>
+          <p>Delete the fit &quot;{deleting?.name || "Unnamed"}&quot; from this browser?</p>
+          <div className={styles.dialogButtons}>
+            <button type="button" className={styles.action} onClick={() => setDeleting(undefined)}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className={styles.action}
+              onClick={() => {
+                if (deleting) remove(deleting);
+                setDeleting(undefined);
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </Dialog>
     </>
   );
 }

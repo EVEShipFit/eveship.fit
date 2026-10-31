@@ -5,6 +5,7 @@ import { useEffect, useId, useState } from "react";
 import { Dialog } from "../../primitives/Dialog/Dialog";
 import { Icon } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
+import { useCopyFit } from "./copyFit";
 import styles from "./ItemBrowser.module.css";
 
 const FLASH_MS = 2000;
@@ -26,7 +27,7 @@ export function FitActions({ noHullSelected, pasteToOpen }: { noHullSelected: bo
   const [importing, setImporting] = useState<Draft>();
   const [naming, setNaming] = useState(false);
   const [overwriting, setOverwriting] = useState<Fit>();
-  const [refused, setRefused] = useState<string>();
+  const { copy: copyFit, dialog: copyDialog } = useCopyFit();
 
   const saveNow = (named: Fit) => {
     setOverwriting(undefined);
@@ -63,10 +64,7 @@ export function FitActions({ noHullSelected, pasteToOpen }: { noHullSelected: bo
 
   const copy = (format: TextFormat) => {
     document.getElementById(menu)?.hidePopover();
-    const text = engine.saveText(fit, format);
-    Promise.resolve()
-      .then(() => navigator.clipboard.writeText(text))
-      .then(flashCopied, () => setRefused(text));
+    copyFit(fit, format, flashCopied);
   };
 
   return (
@@ -128,9 +126,7 @@ export function FitActions({ noHullSelected, pasteToOpen }: { noHullSelected: bo
       <Dialog open={importing !== undefined} title="Import Fit" onClose={() => setImporting(undefined)}>
         <ImportForm draft={importing ?? { text: "" }} onDone={() => setImporting(undefined)} />
       </Dialog>
-      <Dialog open={refused !== undefined} title="Copy Fit" onClose={() => setRefused(undefined)}>
-        <CopyForm text={refused ?? ""} />
-      </Dialog>
+      {copyDialog}
     </div>
   );
 }
@@ -227,17 +223,6 @@ function ImportForm({ draft, onDone }: { draft: Draft; onDone: () => void }) {
         </button>
       </div>
     </form>
-  );
-}
-
-function CopyForm({ text }: { text: string }) {
-  const id = useId();
-
-  return (
-    <div className={styles.form}>
-      <label htmlFor={id}>The browser blocked the clipboard. Copy the fit from here.</label>
-      <textarea id={id} rows={12} readOnly value={text} onFocus={(event) => event.currentTarget.select()} />
-    </div>
   );
 }
 

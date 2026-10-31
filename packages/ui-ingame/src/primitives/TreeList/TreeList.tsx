@@ -1,4 +1,4 @@
-import { useId, useState, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
+import { useId, useState, type DragEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
 
 import { Tooltip } from "../Tooltip/Tooltip";
 import { TypeIcon } from "../TypeIcon/TypeIcon";
@@ -89,6 +89,7 @@ export interface TreeGroupProps {
   after?: ReactNode;
   onDragStart?: (event: DragEvent) => void;
   onDragEnd?: () => void;
+  onContextMenu?: (event: MouseEvent<HTMLElement>) => void;
   /** Only called while the group is open, so large trees stay cheap. */
   children: () => ReactNode;
 }
@@ -102,6 +103,7 @@ export function TreeGroup({
   after,
   onDragStart,
   onDragEnd,
+  onContextMenu,
   children,
 }: TreeGroupProps) {
   const [open, setOpen] = useState(defaultOpen);
@@ -128,6 +130,7 @@ export function TreeGroup({
           }}
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
+          onContextMenu={onContextMenu}
         >
           <svg className={styles.chevron} viewBox="0 0 12 12" aria-hidden>
             <path d="M3 1.5 9.5 6 3 10.5Z" fill="currentColor" />
@@ -163,6 +166,7 @@ export interface TreeLeafProps {
   onHover?: (hovering: boolean) => void;
   onDragStart?: (event: DragEvent) => void;
   onDragEnd?: () => void;
+  onContextMenu?: (event: MouseEvent<HTMLElement>) => void;
   /** Shown at the end of the row, like a count or an action. */
   after?: ReactNode;
 }
@@ -178,6 +182,7 @@ export function TreeLeaf({
   onHover,
   onDragStart,
   onDragEnd,
+  onContextMenu,
   after,
 }: TreeLeafProps) {
   return (
@@ -201,6 +206,7 @@ export function TreeLeaf({
           onMouseLeave={() => onHover?.(false)}
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
+          onContextMenu={onContextMenu}
         >
           {typeId !== undefined && <RowIcon typeId={typeId} />}
           <span className={styles.label}>{label}</span>

@@ -12,8 +12,9 @@ import {
   useTypePrice,
 } from "@eveshipfit/react-hooks";
 import type { MarketGroupNode, MetaFolder, MetaSortedTypes, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
-import { useEffect, useEffectEvent, useRef, useState, type DragEvent, type ReactNode } from "react";
+import { useEffect, useEffectEvent, useRef, useState, type DragEvent, type MouseEvent, type ReactNode } from "react";
 
+import { useContextMenu } from "../../primitives/ContextMenu/ContextMenu";
 import { Icon, useIconUrl } from "../../primitives/Icon/Icon";
 import { Tooltip, TooltipText } from "../../primitives/Tooltip/Tooltip";
 import { TreeGroup, TreeLeaf } from "../../primitives/TreeList/TreeList";
@@ -32,13 +33,14 @@ export interface TypeActions {
   info: (typeId: number, anchor: HTMLElement) => void;
   drag: (event: DragEvent, type: SdeType) => void;
   dragEnd: () => void;
+  menu: (event: MouseEvent<HTMLElement>, type: SdeType) => void;
 }
 
-/** Previews a type on hover, fits it on double click, drags it to the wheel, and shows its info; render `dragImage` once. */
+/** Previews a type on hover, fits it on double click, drags it to the wheel, shows its info and its menu; render `overlays` once. */
 export function useTypeActions(noHullSelected: boolean): {
   actions: TypeActions;
   clear: () => void;
-  dragImage: ReactNode;
+  overlays: ReactNode;
 } {
   const store = useFitStore();
   const sde = useSde();
@@ -48,6 +50,7 @@ export function useTypeActions(noHullSelected: boolean): {
   const { show, clear } = usePreview();
   const { start, end } = useDrag();
   const { show: showInfo } = useShowInfo();
+  const { open, menu } = useContextMenu();
   const [hovered, setHovered] = useState<number>();
   const dragImage = useRef<HTMLSpanElement>(null);
 
@@ -92,6 +95,14 @@ export function useTypeActions(noHullSelected: boolean): {
       clear();
       release();
     },
+    menu: (event, type) => {
+      const anchor = event.currentTarget;
+      open(event, [
+        { label: "Show Info", icon: "module-info", onSelect: () => actions.info(type.id, anchor) },
+        "separator",
+        !noHullSelected && { label: "Fit to Ship", onSelect: () => actions.fit(type.id) },
+      ]);
+    },
   };
 
   const releaseOnUnmount = useEffectEvent(release);
@@ -103,10 +114,15 @@ export function useTypeActions(noHullSelected: boolean): {
       clear();
       release();
     },
-    dragImage: hovered !== undefined && (
-      <span ref={dragImage} className={styles.dragImage} data-type-id={hovered} aria-hidden>
-        <TypeIcon typeId={hovered} size={64} loading="eager" />
-      </span>
+    overlays: (
+      <>
+        {hovered !== undefined && (
+          <span ref={dragImage} className={styles.dragImage} data-type-id={hovered} aria-hidden>
+            <TypeIcon typeId={hovered} size={64} loading="eager" />
+          </span>
+        )}
+        {menu}
+      </>
     ),
   };
 }
@@ -128,6 +144,7 @@ export function TypeLeaf({ type, actions, icon = false }: TypeLeafProps) {
       onHover={(hovering) => actions.hover(type.id, hovering)}
       onDragStart={(event) => actions.drag(event, type)}
       onDragEnd={actions.dragEnd}
+      onContextMenu={(event) => actions.menu(event, type)}
       after={
         <Tooltip label="Show Info">
           <button

@@ -32,7 +32,7 @@ const slotFilters: { filter: SlotFilter; icon: IconName; label: string; places: 
 
 /** The Modules tab of the `ItemBrowser`: what goes on a ship, by market group. */
 export function Modules({ noHullSelected }: { noHullSelected: boolean }) {
-  const { actions, clear, dragImage } = useTypeActions(noHullSelected);
+  const { actions, clear, overlays } = useTypeActions(noHullSelected);
   const placement = usePlacement();
   const canFit = useCanFit();
   const missingSkills = useMissingSkills();
@@ -128,7 +128,7 @@ export function Modules({ noHullSelected }: { noHullSelected: boolean }) {
           </TreeList>
         )}
       </div>
-      {dragImage}
+      {overlays}
     </>
   );
 }

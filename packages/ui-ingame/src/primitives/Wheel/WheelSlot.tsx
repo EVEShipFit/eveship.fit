@@ -171,7 +171,7 @@ export function WheelSlot({
       data-preview={preview || undefined}
     >
       <Tooltip label={tooltip}>
-        <span className={styles.anchor} style={placeAt(angle, box["--slot-centre"])} />
+        <span className={styles.anchor} style={placeAt(angle, box["--slot-centre"])} data-slot-anchor />
         {body}
       </Tooltip>
       {last >= 0 && (

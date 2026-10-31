@@ -1,0 +1,50 @@
+.menu {
+  --menu-unit: calc(1px * var(--esf-scale, 1));
+
+  background: var(--esf-menu-bg);
+  border: var(--menu-unit) solid var(--esf-input-border);
+  color: var(--esf-text);
+  font-family: var(--esf-font);
+  font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
+  inset: auto;
+  margin: 0;
+  min-width: calc(160 * var(--menu-unit));
+  outline: none;
+  padding: calc(6 * var(--menu-unit)) 0;
+  position: fixed;
+}
+
+.menu > button {
+  align-items: center;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  gap: calc(6 * var(--menu-unit));
+  padding: calc(4 * var(--menu-unit)) calc(16 * var(--menu-unit)) calc(4 * var(--menu-unit)) calc(8 * var(--menu-unit));
+  text-align: left;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.menu > button:hover,
+.menu > button:focus-visible {
+  background: var(--esf-menu-hover);
+  outline: none;
+}
+
+.icon {
+  display: grid;
+  flex: none;
+  height: calc(16 * var(--menu-unit));
+  place-items: center;
+  width: calc(16 * var(--menu-unit));
+}
+
+.separator {
+  border: none;
+  border-top: var(--menu-unit) solid var(--esf-border);
+  margin: calc(4 * var(--menu-unit)) 0;
+}

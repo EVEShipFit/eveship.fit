@@ -11,7 +11,7 @@ import { countLeaves, MarketGroup, SearchResults, TypeLeaves, useTypeActions } f
 /** The Charges tab of the `ItemBrowser`: every charge by market group, or only those a fitted module loads. */
 export function Charges({ noHullSelected }: { noHullSelected: boolean }) {
   const sde = useSde();
-  const { actions, clear, dragImage } = useTypeActions(noHullSelected);
+  const { actions, clear, overlays } = useTypeActions(noHullSelected);
   const modules = useChargedModules();
   const [picked, setPicked] = useState<number>();
   const [search, setSearch] = useState("");
@@ -71,7 +71,7 @@ export function Charges({ noHullSelected }: { noHullSelected: boolean }) {
           </TreeList>
         )}
       </div>
-      {dragImage}
+      {overlays}
     </>
   );
 }

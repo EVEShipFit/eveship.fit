@@ -171,6 +171,43 @@ export const PutOfflineAndOnline: Story = {
   },
 };
 
+const menuItems = (canvas: ReturnType<typeof within>) =>
+  canvas.getAllByRole("menuitem").map((item: HTMLElement) => item.textContent);
+
+export const ModuleMenu: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    await fireEvent.contextMenu(canvas.getAllByRole("button", { name: /^200mm AutoCannon II/ })[0]!);
+    await expect(menuItems(canvas)).toEqual([
+      "Show Info",
+      "Show Charge Info",
+      "Remove Charge",
+      "Set Filter for Slot",
+      "Unfit",
+      "Put Offline",
+    ]);
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Put Offline" }));
+    await expect(canvas.queryByRole("menu")).toBeNull();
+    await expect(canvas.getAllByRole("button", { name: /^200mm AutoCannon II/ })[0]).toHaveAccessibleName(
+      "200mm AutoCannon II, offline",
+    );
+
+    await fireEvent.contextMenu(canvasElement.querySelector('[data-state="empty"]')!);
+    await expect(menuItems(canvas)).toEqual(["Set Filter for Slot"]);
+  },
+};
+
+export const StripFitting: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    await fireEvent.contextMenu(canvasElement.querySelector("[data-centre]")!);
+    await expect(menuItems(canvas)).toEqual(["Show Info", "Strip Fitting"]);
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Strip Fitting" }));
+    await expect(canvasElement.querySelectorAll('[data-state="empty"]')).toHaveLength(12);
+    await expect(canvas.getByRole("button", { name: /^Small Projectile Burst Aerator I/ })).toBeInTheDocument();
+  },
+};
+
 const augmented = {
   ship: { type_id: types.Rifter },
   items: [
@@ -211,7 +248,7 @@ export const ImplantsAndBoosters: Story = {
   },
 };
 
-/** Its action, a right click, or dropping it in the middle of the wheel unfits an implant or booster. */
+/** Its action, its right-click menu, or dropping it in the middle of the wheel unfits an implant or booster. */
 export const UnfitAugmentation: Story = {
   parameters: { fit: augmented },
   play: async ({ canvas, canvasElement, userEvent }) => {
@@ -220,6 +257,7 @@ export const UnfitAugmentation: Story = {
     await expect(canvas.queryByRole("group", { name: "Synth Drop Booster" })).toBeNull();
 
     await fireEvent.contextMenu(filled(canvasElement, "implant")[0]!);
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Unfit" }));
     await expect(filled(canvasElement, "implant")).toHaveLength(0);
 
     const booster = canvas.getByRole("group", { name: "Synth Exile Booster" }).closest("[data-kind]")!;
