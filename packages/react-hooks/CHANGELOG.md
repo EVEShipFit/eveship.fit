@@ -1,5 +1,32 @@
 # @eveshipfit/react-hooks
 
+## 2.4.0
+
+### Minor Changes
+
+- Show Info on the hull, with the values on the fit ([#268](https://github.com/EVEShipFit/eveship.fit/pull/268))
+
+- Add `useHullRefuses` and `useRefusal`, for a type the fit's ship cannot fit ([#292](https://github.com/EVEShipFit/eveship.fit/pull/292))
+
+### Patch Changes
+
+- The Item Browser no longer re-filters its tree on every hover ([#281](https://github.com/EVEShipFit/eveship.fit/pull/281))
+
+- Keep the hover preview when a character is saved with the same skills ([#276](https://github.com/EVEShipFit/eveship.fit/pull/276))
+
+- Keep working where the browser blocks IndexedDB ([#274](https://github.com/EVEShipFit/eveship.fit/pull/274))
+
+- A preview's price includes what only zKillboard can price ([#283](https://github.com/EVEShipFit/eveship.fit/pull/283))
+
+- Require @eveshipfit/images 3, like @eveshipfit/ui-ingame ([#282](https://github.com/EVEShipFit/eveship.fit/pull/282))
+
+- Fix the EsiCharacters and usePreview examples in the README ([#280](https://github.com/EVEShipFit/eveship.fit/pull/280))
+
+- A failed zKillboard price is asked for again ([#279](https://github.com/EVEShipFit/eveship.fit/pull/279))
+- Updated dependencies [[`f522554`](https://github.com/EVEShipFit/eveship.fit/commit/f5225545ab5a12e4133ae7beb2975f0a7dd4097c), [`5287b0a`](https://github.com/EVEShipFit/eveship.fit/commit/5287b0a7f1fcd65dbaa80ae55bc5a5b3a6769e2b), [`91c4688`](https://github.com/EVEShipFit/eveship.fit/commit/91c4688807a0a4c42c9208ad0afd80d7b3e1d149), [`9a003be`](https://github.com/EVEShipFit/eveship.fit/commit/9a003be7f8bd1f07bc7132804f785fc23747ecc4), [`7b9be66`](https://github.com/EVEShipFit/eveship.fit/commit/7b9be668ff11140ec259c1a6b36f44691ab6c3d2)]:
+  - @eveshipfit/fitting@2.4.1
+  - @eveshipfit/zkillboard@1.0.1
+
 ## 2.3.1
 
 ### Patch Changes

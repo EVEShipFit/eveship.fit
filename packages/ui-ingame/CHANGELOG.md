@@ -1,5 +1,54 @@
 # @eveshipfit/ui-ingame
 
+## 1.10.0
+
+### Minor Changes
+
+- `ItemBrowser` takes `noHullSelected` to turn off Save, Copy, fitting and the hull filters ([#291](https://github.com/EVEShipFit/eveship.fit/pull/291))
+
+- Show Info on the hull, with the values on the fit ([#268](https://github.com/EVEShipFit/eveship.fit/pull/268))
+
+### Patch Changes
+
+- Hovering an implant or booster looks like hovering a module ([#266](https://github.com/EVEShipFit/eveship.fit/pull/266))
+
+- Hide the actions of a previewed implant or booster slot. ([#284](https://github.com/EVEShipFit/eveship.fit/pull/284))
+
+- Collapsing the statistics no longer makes the page scroll sideways ([#263](https://github.com/EVEShipFit/eveship.fit/pull/263))
+
+- When the browser blocks the clipboard, Copy shows the fit to copy by hand ([#287](https://github.com/EVEShipFit/eveship.fit/pull/287))
+
+- Dropping a charge on a module loads it again ([#273](https://github.com/EVEShipFit/eveship.fit/pull/273))
+
+- Give items in a flat list the normal background, not the one of a group ([#267](https://github.com/EVEShipFit/eveship.fit/pull/267))
+
+- Show a tooltip on the turret and launcher hardpoints ([#271](https://github.com/EVEShipFit/eveship.fit/pull/271))
+
+- The wheel, the item browser and Variations refuse a module the hull cannot fit, and the wheel says so ([#292](https://github.com/EVEShipFit/eveship.fit/pull/292))
+
+- Show only the implants when a search in By Slot finds a single slot ([#262](https://github.com/EVEShipFit/eveship.fit/pull/262))
+
+- Import no longer crashes when the browser has no clipboard ([#289](https://github.com/EVEShipFit/eveship.fit/pull/289))
+
+- The Item Browser no longer re-filters its tree on every hover ([#281](https://github.com/EVEShipFit/eveship.fit/pull/281))
+
+- Screen readers name the slots of a read-only wheel ([#295](https://github.com/EVEShipFit/eveship.fit/pull/295))
+
+- Add a Service Slot filter to the Modules tab, pressed when browsing an empty service slot. ([#290](https://github.com/EVEShipFit/eveship.fit/pull/290))
+
+- Show the module tooltip when hovering a service slot. ([#293](https://github.com/EVEShipFit/eveship.fit/pull/293))
+
+- Scale tooltips and dialogs with the UI scale ([#288](https://github.com/EVEShipFit/eveship.fit/pull/288))
+
+- Drag a tree group in Firefox before 147. ([#285](https://github.com/EVEShipFit/eveship.fit/pull/285))
+
+- Space activates a tree leaf, like Enter ([#294](https://github.com/EVEShipFit/eveship.fit/pull/294))
+
+- Depend on @eveshipfit/fitting instead of bundling a copy ([#270](https://github.com/EVEShipFit/eveship.fit/pull/270))
+- Updated dependencies [[`f522554`](https://github.com/EVEShipFit/eveship.fit/commit/f5225545ab5a12e4133ae7beb2975f0a7dd4097c), [`5287b0a`](https://github.com/EVEShipFit/eveship.fit/commit/5287b0a7f1fcd65dbaa80ae55bc5a5b3a6769e2b), [`13beee7`](https://github.com/EVEShipFit/eveship.fit/commit/13beee77af09e992478858864a4e8000b68b3450), [`719d4f4`](https://github.com/EVEShipFit/eveship.fit/commit/719d4f43d0cbdc1009a9103cebc6ef1e9d0540d5), [`e0c6f86`](https://github.com/EVEShipFit/eveship.fit/commit/e0c6f86199831dc3b71b81f55982e6a9c538c374), [`75a068f`](https://github.com/EVEShipFit/eveship.fit/commit/75a068f3209acb27da83f57c7d5db81d8cf6a529), [`ff59605`](https://github.com/EVEShipFit/eveship.fit/commit/ff596051c1297eee36e56e1a1f21bef8288d5b78), [`c4d52b0`](https://github.com/EVEShipFit/eveship.fit/commit/c4d52b09f5a1df05dbbe3f0a9d850b24a9c52ee6), [`37acfb4`](https://github.com/EVEShipFit/eveship.fit/commit/37acfb49e83d3f0e4acb85eade5fdcb69b66260c), [`91c4688`](https://github.com/EVEShipFit/eveship.fit/commit/91c4688807a0a4c42c9208ad0afd80d7b3e1d149), [`9a003be`](https://github.com/EVEShipFit/eveship.fit/commit/9a003be7f8bd1f07bc7132804f785fc23747ecc4), [`cdd4387`](https://github.com/EVEShipFit/eveship.fit/commit/cdd4387356f0a1124ac080641a3ea735b37a8b78), [`7b9be66`](https://github.com/EVEShipFit/eveship.fit/commit/7b9be668ff11140ec259c1a6b36f44691ab6c3d2)]:
+  - @eveshipfit/fitting@2.4.1
+  - @eveshipfit/react-hooks@2.4.0
+
 ## 1.9.0
 
 ### Minor Changes
