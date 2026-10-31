@@ -62,7 +62,7 @@ async function ogImage(url: URL, fit: string, env: Env, ctx: ExecutionContext) {
       image === null
         ? new Response("This fit could not load.", {
             status: 404,
-            headers: { "Cache-Control": "public, max-age=86400" },
+            headers: { "Cache-Control": "public, max-age=3600" },
           })
         : new Response(image, {
             headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=31536000, immutable" },
