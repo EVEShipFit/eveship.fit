@@ -51,4 +51,7 @@ export const Tracks: Story = {
 
 export const Preview: Story = {
   args: { typeId: types["High-grade Snake Alpha"], preview: true },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("fieldset")).toHaveAttribute("inert");
+  },
 };

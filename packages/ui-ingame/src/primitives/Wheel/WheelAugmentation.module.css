@@ -127,6 +127,10 @@
   opacity: 1;
 }
 
+.slot > .actions[inert] {
+  opacity: 0;
+}
+
 .slot:hover :is(.action, .bridge),
 .slot:has(:focus-visible) :is(.action, .bridge) {
   pointer-events: auto;
