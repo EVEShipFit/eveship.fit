@@ -110,15 +110,19 @@ export function TreeGroup({
   return (
     <li>
       <div className={styles.head}>
-        <button
-          type="button"
+        <div
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Firefox does not start a drag from a <button>.
+          role="button"
+          tabIndex={0}
           className={styles.row}
           aria-expanded={open}
           aria-describedby={description !== undefined ? descriptionId : undefined}
           draggable={onDragStart !== undefined || undefined}
           onClick={() => setOpen(!open)}
           onKeyDown={(event) => {
-            if (hasModifier(event) || event.key !== (open ? "ArrowLeft" : "ArrowRight")) return;
+            const press = event.key === "Enter" || event.key === " ";
+            const arrow = !hasModifier(event) && event.key === (open ? "ArrowLeft" : "ArrowRight");
+            if (!press && !arrow) return;
             event.preventDefault();
             setOpen(!open);
           }}
@@ -138,7 +142,7 @@ export function TreeGroup({
               </span>
             )}
           </span>
-        </button>
+        </div>
         {after}
       </div>
       {open && <ul className={styles.group}>{children()}</ul>}
