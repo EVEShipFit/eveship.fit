@@ -1,7 +1,7 @@
 ---
-"@eveshipfit/fitting": patch
-"@eveshipfit/react-hooks": patch
-"@eveshipfit/ui-ingame": patch
+"@eveshipfit/fitting": minor
+"@eveshipfit/react-hooks": minor
+"@eveshipfit/ui-ingame": minor
 ---
 
 Hovering the Simulation History previews that fit
