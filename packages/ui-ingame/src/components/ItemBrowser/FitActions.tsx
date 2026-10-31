@@ -133,10 +133,12 @@ function ImportForm({ onDone }: { onDone: () => void }) {
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    navigator.clipboard.readText().then(
-      (clipboard) => setText((typed) => typed || clipboard),
-      () => {},
-    );
+    Promise.resolve()
+      .then(() => navigator.clipboard.readText())
+      .then(
+        (clipboard) => setText((typed) => typed || clipboard),
+        () => {},
+      );
   }, []);
 
   const load = () => {

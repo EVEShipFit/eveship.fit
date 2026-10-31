@@ -443,6 +443,17 @@ export const ImportError: Story = {
   },
 };
 
+/** Import opens empty when the browser has no clipboard. */
+export const ImportNoClipboard: Story = {
+  play: async ({ canvas, userEvent }) => {
+    spyOn(navigator, "clipboard", "get").mockReturnValue(undefined as never);
+
+    await userEvent.click(canvas.getByRole("button", { name: "Import…" }));
+    const dialog = within(canvas.getByRole("dialog", { name: "Import Fit" }));
+    await expect(dialog.getByRole("textbox")).toHaveValue("");
+  },
+};
+
 export const Modules: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
