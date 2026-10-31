@@ -115,9 +115,8 @@ function keptFit(engine: Engine, fit: Fit | undefined): FitStore | undefined {
 }
 
 async function loadLinkedFit(engine: Engine): Promise<{ fit?: FitStore; error?: string }> {
-  const url = new URL(location.href);
-  const link = url.searchParams.get("fit");
-  if (link === null) return {};
+  const link = linkInUrl(new URL(location.href));
+  if (link === undefined) return {};
 
   try {
     return { fit: engine.createFit(await engine.loadLink(link)) };
@@ -125,6 +124,14 @@ async function loadLinkedFit(engine: Engine): Promise<{ fit?: FitStore; error?: 
     console.error(error);
     return { error: error instanceof Error ? error.message : String(error) };
   }
+}
+
+/** The fit link in `?fit=`, or in a v1 `#fit:`. */
+function linkInUrl(url: URL): string | undefined {
+  const link = url.searchParams.get("fit");
+  if (link !== null) return link;
+  if (url.hash.startsWith("#fit:")) return url.hash.slice("#fit:".length);
+  return undefined;
 }
 
 /** Writes the fit into the URL whenever it changes; `keepLink` leaves the link as is until then. */
@@ -137,6 +144,7 @@ function keepInUrl(engine: Engine, store: FitStore, keepLink: boolean) {
 
     const url = new URL(location.href);
     url.searchParams.delete("fit");
+    if (url.hash.startsWith("#fit:")) url.hash = "";
     try {
       url.search += `${url.search === "" ? "" : "&"}fit=${engine.saveLink(fit)}`;
     } catch (error) {
