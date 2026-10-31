@@ -44,8 +44,7 @@
   padding-left: calc(21 * var(--tree-unit));
 }
 
-.tree > li > .head,
-.tree > .head {
+.tree > li > .head {
   background: var(--esf-tree-header);
 }
 
