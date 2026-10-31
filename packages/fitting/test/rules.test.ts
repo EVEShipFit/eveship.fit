@@ -25,6 +25,9 @@ describe("placement", () => {
     ["Templar II", { type: "fighter_bay" }],
     ["Mobile Tractor Unit", { type: "cargo" }],
     ["Rifter", undefined],
+    ["Hecate Defense Mode", undefined],
+    ["Gunnery", undefined],
+    ["Astrahus", undefined],
   ])("%s", (name, placement) => {
     expect(placementOf(engine.sde, type(name))).toEqual(placement);
   });

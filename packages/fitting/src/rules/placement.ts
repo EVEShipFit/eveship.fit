@@ -1,6 +1,6 @@
 import type { Sde, SdeType } from "@eveshipfit/sde-loader";
 
-import { Category, Effect, FIRST_SUBSYSTEM_FLAG } from "../ids.js";
+import { Category, Effect, FIRST_SUBSYSTEM_FLAG, Group } from "../ids.js";
 import type { Fit, Rack, SlotType } from "../types.js";
 import { baseValue } from "./attributes.js";
 
@@ -22,8 +22,11 @@ const rackEffects: readonly [number, Exclude<Rack, "subsystem">][] = [
 
 /** Where an item of this type goes when fitted; `undefined` for what cannot be part of a fit, like a ship. */
 export function placementOf(sde: Sde, type: SdeType): Placement | undefined {
+  if (type.groupId === Group.ShipModifier) return undefined;
   switch (type.categoryId) {
     case Category.Ship:
+    case Category.Skill:
+    case Category.Structure:
       return undefined;
     case Category.Charge:
       return { type: "charge" };
