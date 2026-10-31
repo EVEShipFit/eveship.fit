@@ -215,6 +215,23 @@ test("a tab does not undo what another tab stored", async () => {
   ).toEqual(["Other", "Pilot"]);
 });
 
+test("skills stay the same object while their levels do", async () => {
+  const store = await loggedIn();
+  const skills = store.list()[0]!.skills;
+
+  store.refresh(PILOT);
+  await vi.runAllTimersAsync();
+  expect(store.list()[0]!.skills).toBe(skills);
+
+  esi.characterSkills.mockResolvedValue({
+    skills: [{ skill_id: GUNNERY, active_skill_level: 4, trained_skill_level: 4, skillpoints_in_skill: 0 }],
+    total_sp: 0,
+  });
+  store.refresh(PILOT);
+  await vi.runAllTimersAsync();
+  expect(store.list()[0]!.skills).toEqual({ [GUNNERY]: 4 });
+});
+
 test("loading refreshes the token once per page", async () => {
   await loggedIn();
   const store = characters();
