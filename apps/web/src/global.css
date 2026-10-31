@@ -11,7 +11,7 @@ body {
 }
 
 #root {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   height: 100dvh;
 }

@@ -7,6 +7,8 @@ import { DiscordIcon, GitHubIcon } from "./icons";
 import { keepUiScale, keptUiScale, UI_SCALES, useLayout } from "./layout";
 import { Support } from "./Support";
 
+const PREVIEW = location.hostname === "next.eveship.fit";
+
 /** `data` is undefined while it loads, and null when it failed. */
 export function App({ data }: { data: Data | null | undefined }) {
   const [main, setMain] = useState<HTMLElement | null>(null);
@@ -17,6 +19,20 @@ export function App({ data }: { data: Data | null | undefined }) {
 
   return (
     <>
+      {PREVIEW && (
+        <aside className={styles.preview} aria-label="Preview site">
+          <span aria-hidden="true">⚠ </span>
+          <strong>Preview site.</strong> A test version of eveship.fit. Fits and characters are not shared across.{" "}
+          <a
+            href="https://eveship.fit/"
+            onClick={(event) => {
+              event.currentTarget.href = `https://eveship.fit${location.pathname}${location.search}${location.hash}`;
+            }}
+          >
+            Go to eveship.fit →
+          </a>
+        </aside>
+      )}
       <header className={styles.header}>
         <h1 className={styles.title}>
           <a className={styles.brand} href="/">
