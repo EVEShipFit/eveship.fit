@@ -48,7 +48,7 @@ which slots only the preview fills:
 ```tsx
 const preview = usePreview();
 
-<button onMouseEnter={() => preview.show((draft) => draft.fit(typeId))} onMouseLeave={preview.clear} />;
+<button onMouseEnter={() => preview.show((draft) => draft.fit(typeId))} onMouseLeave={() => preview.clear()} />;
 ```
 
 ### Images
@@ -89,16 +89,23 @@ a whole fit.
 To fly with a real character's skills, pass an `EsiCharacters` to the provider. `useCharacters().login` sends the
 browser to EVE's login; when it comes back, call `finishLogin` with the `code` and `state` of the URL, and pass the ID it
 returns as the provider's `character`. Characters are kept in `localStorage`. `loadAll` loads every character's skills,
-with what the skill queue finished, once per page; `refresh` loads one again; `remove` logs one out.
+with what the skill queue finished, and their fittings into the `LocalFits` given, once per page; `refresh` loads one
+again; `remove` logs one out.
 
 ```tsx
-const characters = new EsiCharacters({ esi, sso: new Sso({ clientId, redirectUri: location.origin + "/" }) });
+const localFits = new LocalFits();
+const characters = new EsiCharacters({
+  esi,
+  sso: new Sso({ clientId, redirectUri: location.origin + "/" }),
+  engine: Promise.resolve(engine),
+  localFits,
+});
 
 const code = url.searchParams.get("code");
 const character = code ? String(await characters.finishLogin(code, url.searchParams.get("state")!)) : undefined;
 characters.loadAll();
 
-<EveShipFitProvider engine={engine} characters={characters} character={character}>
+<EveShipFitProvider engine={engine} localFits={localFits} characters={characters} character={character}>
 ```
 
 ### Price
