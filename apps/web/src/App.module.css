@@ -145,6 +145,14 @@
   color: inherit;
 }
 
+.scale {
+  background: var(--esf-button);
+  border: 1px solid var(--esf-button-edge);
+  border-radius: 4px;
+  color: var(--esf-text);
+  font: inherit;
+}
+
 @media (max-width: 640px) {
   .header {
     padding: 10px 12px;

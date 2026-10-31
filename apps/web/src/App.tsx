@@ -4,7 +4,7 @@ import styles from "./App.module.css";
 import type { Data } from "./data";
 import { Fitting } from "./Fitting";
 import { DiscordIcon, GitHubIcon } from "./icons";
-import { useLayout } from "./layout";
+import { keepUiScale, keptUiScale, UI_SCALES, useLayout } from "./layout";
 import { Support } from "./Support";
 
 /** `data` is undefined while it loads, and null when it failed. */
@@ -12,7 +12,8 @@ export function App({ data }: { data: Data | null | undefined }) {
   const [main, setMain] = useState<HTMLElement | null>(null);
   const [footer, setFooter] = useState<HTMLElement | null>(null);
   const [skills, setSkills] = useState<HTMLElement | null>(null);
-  const layout = useLayout(main, footer);
+  const [uiScale, setUiScale] = useState(keptUiScale);
+  const layout = useLayout(main, footer, uiScale);
 
   return (
     <>
@@ -49,8 +50,29 @@ export function App({ data }: { data: Data | null | undefined }) {
         </div>
         <footer ref={setFooter} className={styles.footer}>
           <p>
-            EVEShip.fit {import.meta.env.EVESHIPFIT_VERSION}
-            <DataVersion data={data} />
+            <span>
+              EVEShip.fit {import.meta.env.EVESHIPFIT_VERSION}
+              <DataVersion data={data} />
+            </span>
+            {" · "}
+            <label>
+              UI scale{" "}
+              <select
+                className={styles.scale}
+                value={uiScale}
+                onChange={(event) => {
+                  const scale = Number(event.target.value);
+                  setUiScale(scale);
+                  keepUiScale(scale);
+                }}
+              >
+                {UI_SCALES.map((scale) => (
+                  <option key={scale} value={scale}>
+                    {Math.round(scale * 100)}%
+                  </option>
+                ))}
+              </select>
+            </label>
           </p>
           <p>
             © 2014 CCP hf. All rights reserved. &quot;EVE&quot;, &quot;EVE Online&quot;, &quot;CCP&quot;, and all
