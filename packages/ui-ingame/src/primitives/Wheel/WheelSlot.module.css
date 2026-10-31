@@ -187,11 +187,15 @@
   width: calc(var(--slot-size) * var(--wheel-unit));
 }
 
+/* Whole pixels keep the icons equally sharp wherever they land. */
 .action {
-  height: calc(var(--action-size) * var(--wheel-unit));
-  margin: calc(var(--action-size) / -2 * var(--wheel-unit));
+  --size: round(down, calc(var(--action-size) * var(--wheel-unit)), 1px);
+
+  height: var(--size);
+  left: round(calc(var(--left) - var(--size) / 2), 1px);
   position: absolute;
-  width: calc(var(--action-size) * var(--wheel-unit));
+  top: round(calc(var(--top) - var(--size) / 2), 1px);
+  width: var(--size);
 }
 
 .module {

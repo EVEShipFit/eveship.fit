@@ -188,7 +188,7 @@ export function WheelSlot({
                 <span
                   key={action.key}
                   className={styles.action}
-                  style={placeAt(angle, actions.first - index * actions.step)}
+                  style={actionAt(angle, actions.first - index * actions.step)}
                 >
                   {action.node}
                 </span>
@@ -198,6 +198,11 @@ export function WheelSlot({
       )}
     </div>
   );
+}
+
+function actionAt(angle: number, radius: number): CSSProperties {
+  const { left, top } = placeAt(angle, radius);
+  return { "--left": left, "--top": top } as CSSProperties;
 }
 
 function frameTexture(fitted: boolean, preview: boolean, state: SlotState, activatable: boolean): string {

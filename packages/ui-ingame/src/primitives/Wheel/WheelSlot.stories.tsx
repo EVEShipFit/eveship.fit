@@ -146,7 +146,7 @@ export const Actions: Story = {
     await userEvent.tab();
     const unfit = canvas.getByRole("button", { name: "Unfit Module" });
     await expect(unfit).toHaveFocus();
-    await expect(unfit.getBoundingClientRect().width).toBeCloseTo(16.5, 0);
+    await expect(unfit.getBoundingClientRect().width).toBe(16);
     await userEvent.keyboard("{Enter}");
     await expect(args.onUnfit).toHaveBeenCalledOnce();
 
