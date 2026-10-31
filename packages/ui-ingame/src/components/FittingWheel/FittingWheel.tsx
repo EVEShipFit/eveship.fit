@@ -17,6 +17,7 @@ import {
   useRackUsage,
   useRefusal,
   useSde,
+  useShowInfo,
   useSlots,
   useStats,
   type DragItem,
@@ -24,6 +25,7 @@ import {
 } from "@eveshipfit/react-hooks";
 import { useEffect, useMemo, useState } from "react";
 
+import { useContextMenu } from "../../primitives/ContextMenu/ContextMenu";
 import { rackSize, slotAngle, type WheelRack } from "../../primitives/Wheel/layout";
 import { Wheel } from "../../primitives/Wheel/Wheel";
 import { WheelGauge, type WheelResource } from "../../primitives/Wheel/WheelGauge";
@@ -121,6 +123,8 @@ function FittingRack({ rack, readOnly }: { rack: WheelRack; readOnly: boolean })
   ));
 }
 
+const keptOnStrip = new Set(["subsystem", "rig", "implant", "booster", "cargo"]);
+
 /** Fits a type dropped in the middle of the wheel, and unfits a fitted item. */
 function FittingCentre() {
   const store = useFitStore();
@@ -131,6 +135,8 @@ function FittingCentre() {
   const canFit = useCanFit();
   const hasRoom = useHasRoom();
   const { hold, release } = useRefusal();
+  const { show: showInfo } = useShowInfo();
+  const { open, menu } = useContextMenu();
   const type = dragging?.type === "type" ? sde.type(dragging.typeId) : undefined;
   const fits = type !== undefined && canFit(type) && placesSomewhere(store, type.id);
   const full = type !== undefined && canFit(type) && !hasRoom(type);
@@ -141,31 +147,54 @@ function FittingCentre() {
   };
 
   return (
-    <div
-      className={styles.centre}
-      data-centre
-      onDragEnter={() => {
-        if (full) hold(type.id);
-        if (!fits) return;
-        show((draft) => void draft.fit(type.id), "centre");
-      }}
-      onDragLeave={() => {
-        clear("centre");
-        release();
-      }}
-      onDragOver={(event) => {
-        if (takes(dragging)) allowDrop(event, dragging);
-      }}
-      onDrop={(event) => {
-        if (!takes(dragging)) return;
-        event.preventDefault();
-        clear("centre");
-        if (dragging.type === "type") store.fit(dragging.typeId);
-        else if (dragging.type === "hull") store.replace({ ship: { type_id: dragging.typeId }, items: [] });
-        else store.remove(dragging.ref);
-        end();
-      }}
-    />
+    <>
+      <div
+        className={styles.centre}
+        data-centre
+        onContextMenu={(event) => {
+          const anchor = event.currentTarget;
+          open(event, [
+            {
+              label: "Show Info",
+              icon: "module-info",
+              onSelect: () => showInfo({ typeId: fit.ship.type_id, ref: "ship" }, { element: anchor, side: "right" }),
+            },
+            "separator",
+            fit.items.some((item) => !keptOnStrip.has(item.slot.type)) && {
+              label: "Strip Fitting",
+              onSelect: () =>
+                store.remove(
+                  ...store
+                    .getSnapshot()
+                    .fit.items.flatMap((item, ref) => (keptOnStrip.has(item.slot.type) ? [] : [ref])),
+                ),
+            },
+          ]);
+        }}
+        onDragEnter={() => {
+          if (full) hold(type.id);
+          if (!fits) return;
+          show((draft) => void draft.fit(type.id), "centre");
+        }}
+        onDragLeave={() => {
+          clear("centre");
+          release();
+        }}
+        onDragOver={(event) => {
+          if (takes(dragging)) allowDrop(event, dragging);
+        }}
+        onDrop={(event) => {
+          if (!takes(dragging)) return;
+          event.preventDefault();
+          clear("centre");
+          if (dragging.type === "type") store.fit(dragging.typeId);
+          else if (dragging.type === "hull") store.replace({ ship: { type_id: dragging.typeId }, items: [] });
+          else store.remove(dragging.ref);
+          end();
+        }}
+      />
+      {menu}
+    </>
   );
 }
 
@@ -242,8 +271,13 @@ interface FittingSlotProps {
 }
 
 function FittingSlot({ rack, index, content, available, readOnly }: FittingSlotProps) {
-  const slot = useFittingSlot(rack, index, content, available, readOnly);
-  return <WheelSlot rack={rack} angle={slotAngle(rack, index)} {...slot} />;
+  const { menu, ...slot } = useFittingSlot(rack, index, content, available, readOnly);
+  return (
+    <>
+      <WheelSlot rack={rack} angle={slotAngle(rack, index)} {...slot} />
+      {menu}
+    </>
+  );
 }
 
 function placesSomewhere(store: FitStore, typeId: number): boolean {

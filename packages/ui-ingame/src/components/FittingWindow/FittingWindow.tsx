@@ -517,14 +517,19 @@ function FittingServiceSlot({
   content: SlotContent | undefined;
   readOnly: boolean;
 }) {
-  const { chargeTypeId, chargeable, activatable, onRemoveCharge, onShowChargeInfo, ...slot } = useFittingSlot(
+  const { chargeTypeId, chargeable, activatable, onRemoveCharge, onShowChargeInfo, menu, ...slot } = useFittingSlot(
     "service",
     index,
     content,
     available,
     readOnly,
   );
-  return <ServiceSlot {...slot} />;
+  return (
+    <>
+      <ServiceSlot {...slot} />
+      {menu}
+    </>
+  );
 }
 
 function SimulationHistory() {

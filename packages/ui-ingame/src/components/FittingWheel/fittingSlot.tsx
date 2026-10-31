@@ -14,8 +14,9 @@ import {
   type DragItem,
   type SlotContent,
 } from "@eveshipfit/react-hooks";
-import { useRef, type DragEvent } from "react";
+import { useRef, type DragEvent, type ReactNode } from "react";
 
+import { useContextMenu } from "../../primitives/ContextMenu/ContextMenu";
 import { slotAngle } from "../../primitives/Wheel/layout";
 import type { WheelSlotProps } from "../../primitives/Wheel/WheelSlot";
 import { ModuleTooltip } from "./ModuleTooltip";
@@ -41,7 +42,7 @@ const rackNames: Record<Rack, string> = {
   service: "Service Slot",
 };
 
-export type SlotBehaviour = Omit<WheelSlotProps, "rack" | "angle">;
+export type SlotBehaviour = Omit<WheelSlotProps, "rack" | "angle"> & { menu?: ReactNode };
 
 /** What a slot of the fit shows, and what clicking, dragging and dropping on it does. */
 export function useFittingSlot(
@@ -61,6 +62,7 @@ export function useFittingSlot(
   const shownCopy = useRef(false);
   const { browse } = useBrowse();
   const { show: showInfo } = useShowInfo();
+  const { open, menu } = useContextMenu();
   const item = content?.item;
   const stats = content?.stats;
   const type = useType(item?.type_id);
@@ -113,8 +115,43 @@ export function useFittingSlot(
   };
   if (readOnly) return { ...shown, actions: false };
 
+  const unfit = ref === undefined ? undefined : () => store.remove(ref);
+  const showModuleInfo =
+    item && ref !== undefined
+      ? (element: HTMLElement) => showInfo({ typeId: item.type_id, ref }, { element, side })
+      : undefined;
+  const showChargeInfo =
+    chargeTypeId !== undefined && ref !== undefined
+      ? (element: HTMLElement) => showInfo({ typeId: chargeTypeId, ref }, { element, side })
+      : undefined;
+  const removeCharge = ref === undefined ? undefined : () => store.setCharge(ref, undefined);
+  const togglePower =
+    switchable && stats.maxState !== "offline"
+      ? () => store.setState(ref, stats.state === "offline" ? "online" : "offline")
+      : undefined;
+
   return {
     ...shown,
+    menu,
+    onContextMenu: (event) => {
+      if (!available || content?.preview) return;
+      const anchor = event.currentTarget.querySelector<HTMLElement>("[data-slot-anchor]") ?? event.currentTarget;
+      open(event, [
+        showModuleInfo && { label: "Show Info", icon: "module-info", onSelect: () => showModuleInfo(anchor) },
+        "separator",
+        showChargeInfo && { label: "Show Charge Info", icon: "module-info", onSelect: () => showChargeInfo(anchor) },
+        chargeTypeId !== undefined &&
+          removeCharge && { label: "Remove Charge", icon: "module-unfit", onSelect: removeCharge },
+        "separator",
+        { label: "Set Filter for Slot", onSelect: () => browse(rack) },
+        unfit && { label: "Unfit", icon: "module-unfit", onSelect: unfit },
+        togglePower && {
+          label: stats?.state === "offline" ? "Put Online" : "Put Offline",
+          icon: "module-power",
+          onSelect: togglePower,
+        },
+      ]);
+    },
     actions: dragging === undefined,
     onPress: switchable
       ? (event) => store.setState(ref, nextState(stats.state, stats.maxState, event.shiftKey))
@@ -160,18 +197,11 @@ export function useFittingSlot(
       else store.move(dragging.ref, { type: rack, index });
       end();
     },
-    onUnfit: ref === undefined ? undefined : () => store.remove(ref),
-    onShowInfo:
-      item && ref !== undefined ? (element) => showInfo({ typeId: item.type_id, ref }, { element, side }) : undefined,
-    onShowChargeInfo:
-      chargeTypeId !== undefined && ref !== undefined
-        ? (element) => showInfo({ typeId: chargeTypeId, ref }, { element, side })
-        : undefined,
-    onRemoveCharge: ref === undefined ? undefined : () => store.setCharge(ref, undefined),
-    onTogglePower:
-      switchable && stats.maxState !== "offline"
-        ? () => store.setState(ref, stats.state === "offline" ? "online" : "offline")
-        : undefined,
+    onUnfit: unfit,
+    onShowInfo: showModuleInfo,
+    onShowChargeInfo: showChargeInfo,
+    onRemoveCharge: removeCharge,
+    onTogglePower: togglePower,
   };
 }
 

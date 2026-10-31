@@ -36,7 +36,6 @@ export interface WheelAugmentationSlotProps extends HTMLAttributes<HTMLDivElemen
   /** Makes the slot draggable. */
   onDragStart?: DragEventHandler<HTMLDivElement>;
   onDragEnd?: DragEventHandler<HTMLDivElement>;
-  /** Also on right click. */
   onUnfit?: () => void;
   onShowInfo?: (anchor: HTMLElement) => void;
   /** Makes the whole slot a button, named `label`. */
@@ -79,13 +78,6 @@ export function WheelAugmentationSlot({
       data-kind={kind}
       data-filled={typeId !== undefined || undefined}
       data-preview={preview || undefined}
-      onContextMenu={
-        onUnfit &&
-        ((event) => {
-          event.preventDefault();
-          onUnfit();
-        })
-      }
     >
       <Tooltip label={tooltip}>
         <div

@@ -14,6 +14,7 @@ import {
   type SlotContent,
 } from "@eveshipfit/react-hooks";
 
+import { useContextMenu } from "../../primitives/ContextMenu/ContextMenu";
 import type { Augmentation } from "../../primitives/Wheel/layout";
 import { WheelAugmentationSlot } from "../../primitives/Wheel/WheelAugmentationSlot";
 import { WheelAugmentationTrack } from "../../primitives/Wheel/WheelAugmentationTrack";
@@ -80,6 +81,7 @@ function FittingAugmentation({ kind, position, number, content, readOnly }: Fitt
   const { dragging, start, end } = useDrag();
   const { browse } = useBrowse();
   const { show: showInfo } = useShowInfo();
+  const { open, menu } = useContextMenu();
   const item = content?.item;
   const type = useType(item?.type_id);
   const ref = content?.ref;
@@ -113,46 +115,62 @@ function FittingAugmentation({ kind, position, number, content, readOnly }: Fitt
   };
   if (readOnly) return <WheelAugmentationSlot {...shown} actions={false} />;
 
+  const side = kind === "implant" ? "right" : "left";
+  const unfit = ref === undefined ? undefined : () => store.remove(ref);
+  const showItemInfo =
+    item && ref !== undefined
+      ? (element: HTMLElement) => showInfo({ typeId: item.type_id, ref }, { element, side })
+      : undefined;
+  const filter = () => browse({ type: kind, index: number ?? content?.index });
+
   return (
-    <WheelAugmentationSlot
-      {...shown}
-      onDragStart={
-        ref === undefined
-          ? undefined
-          : (event) => {
-              event.dataTransfer.effectAllowed = "move";
-              event.dataTransfer.setData("text/plain", type?.name ?? "");
-              start({ type: "item", ref });
-            }
-      }
-      onDragEnd={end}
-      onDragEnter={() => {
-        if (!takes(dragging)) return;
-        const { typeId } = dragging;
-        show((draft) => void draft.fit(typeId, slot), target);
-      }}
-      onDragLeave={(event) => {
-        if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
-        clear(target);
-      }}
-      onDragOver={(event) => {
-        if (takes(dragging)) allowDrop(event, dragging);
-      }}
-      onDrop={(event) => {
-        if (!takes(dragging)) return;
-        event.preventDefault();
-        clear(target);
-        store.fit(dragging.typeId, slot);
-        end();
-      }}
-      onUnfit={ref === undefined ? undefined : () => store.remove(ref)}
-      onShowInfo={
-        item && ref !== undefined
-          ? (element) =>
-              showInfo({ typeId: item.type_id, ref }, { element, side: kind === "implant" ? "right" : "left" })
-          : undefined
-      }
-      onPress={() => browse({ type: kind, index: number ?? content?.index })}
-    />
+    <>
+      <WheelAugmentationSlot
+        {...shown}
+        onDragStart={
+          ref === undefined
+            ? undefined
+            : (event) => {
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.setData("text/plain", type?.name ?? "");
+                start({ type: "item", ref });
+              }
+        }
+        onDragEnd={end}
+        onDragEnter={() => {
+          if (!takes(dragging)) return;
+          const { typeId } = dragging;
+          show((draft) => void draft.fit(typeId, slot), target);
+        }}
+        onDragLeave={(event) => {
+          if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+          clear(target);
+        }}
+        onDragOver={(event) => {
+          if (takes(dragging)) allowDrop(event, dragging);
+        }}
+        onDrop={(event) => {
+          if (!takes(dragging)) return;
+          event.preventDefault();
+          clear(target);
+          store.fit(dragging.typeId, slot);
+          end();
+        }}
+        onUnfit={unfit}
+        onShowInfo={showItemInfo}
+        onPress={filter}
+        onContextMenu={(event) => {
+          if (content?.preview) return;
+          const anchor = event.currentTarget;
+          open(event, [
+            showItemInfo && { label: "Show Info", icon: "module-info", onSelect: () => showItemInfo(anchor) },
+            "separator",
+            { label: "Set Filter for Slot", onSelect: filter },
+            unfit && { label: "Unfit", icon: "module-unfit", onSelect: unfit },
+          ]);
+        }}
+      />
+      {menu}
+    </>
   );
 }
