@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useId,
   useRef,
   useState,
@@ -25,9 +26,25 @@ export interface TooltipProps {
  * Firefox places the tooltip as if `children` had no CSS transform, so do not rotate or scale it, or its parents.
  */
 export function Tooltip({ label, children, wide }: TooltipProps) {
+  const anchor = useRef<HTMLSpanElement>(null);
   const tooltip = useRef<HTMLSpanElement>(null);
   const id = useId().replace(/[^\w-]/g, "");
   const [opened, setOpened] = useState(false);
+
+  useEffect(() => {
+    const element = anchor.current;
+    if (element === null) return;
+    const wheel = (event: WheelEvent) => {
+      const open = tooltip.current;
+      if (!open?.matches(":popover-open") || open.contains(event.target as Node)) return;
+      const scroller = scrollerIn(open, event.deltaY);
+      if (scroller === undefined) return;
+      event.preventDefault();
+      scroller.scrollBy({ top: event.deltaY });
+    };
+    element.addEventListener("wheel", wheel, { passive: false });
+    return () => element.removeEventListener("wheel", wheel);
+  }, []);
 
   const show = (open: boolean) => {
     if (open) setOpened(true);
@@ -36,6 +53,7 @@ export function Tooltip({ label, children, wide }: TooltipProps) {
 
   return (
     <span
+      ref={anchor}
       className={styles.anchor}
       role="presentation"
       style={{ "--tooltip-anchor": `--tooltip-anchor-${id}`, "--tooltip-box": `--tooltip-box-${id}` } as CSSProperties}
@@ -62,6 +80,16 @@ export function Tooltip({ label, children, wide }: TooltipProps) {
       )}
     </span>
   );
+}
+
+/** The first element in `root` that can still scroll by `delta`. */
+function scrollerIn(root: Element, delta: number): Element | undefined {
+  for (const element of root.querySelectorAll("*")) {
+    if (element.scrollHeight <= element.clientHeight) continue;
+    const room = delta > 0 ? element.scrollHeight - element.clientHeight - element.scrollTop : element.scrollTop;
+    if (room > 0) return element;
+  }
+  return undefined;
 }
 
 export interface TooltipTextProps {

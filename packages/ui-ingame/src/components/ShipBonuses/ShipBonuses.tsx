@@ -13,7 +13,7 @@ export function ShipBonuses({ typeId }: { typeId: number }) {
   const bonuses = useTypeBonuses(typeId);
 
   const sections = [
-    ...(bonuses?.skills ?? []).map((skill) => ({
+    ...(bonuses?.skills ?? []).toReversed().map((skill) => ({
       title: `${sde.type(skill.skillTypeId)?.name ?? "Unknown"} bonuses (per skill level):`,
       bonuses: skill.bonuses,
     })),

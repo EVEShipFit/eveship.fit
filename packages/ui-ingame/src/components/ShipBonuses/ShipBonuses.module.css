@@ -2,6 +2,7 @@
   --unit: var(--tooltip-unit, 1px);
 
   align-items: baseline;
+  color: var(--esf-text-muted);
   column-gap: calc(8 * var(--unit));
   display: grid;
   grid-template-columns: auto 1fr;
@@ -14,7 +15,7 @@
 }
 
 .name {
-  font-weight: 600;
+  color: var(--esf-text);
   grid-column: 1 / -1;
 }
 
@@ -26,12 +27,14 @@
 }
 
 .value {
+  color: var(--esf-bonus-value);
   font-weight: 600;
   text-align: right;
   white-space: nowrap;
 }
 
 .bonuses [data-bold] {
+  color: var(--esf-text);
   font-weight: 600;
 }
 

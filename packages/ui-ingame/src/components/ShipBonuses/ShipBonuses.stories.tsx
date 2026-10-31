@@ -23,11 +23,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Per skill, then the role bonuses. */
+/** Per skill, the highest skill ID first as EVE does, then the role bonuses. */
 export const Buzzard: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Covert Ops bonuses (per skill level):")).toBeVisible();
-    await expect(canvas.getByText("Caldari Frigate bonuses (per skill level):")).toBeVisible();
+    const covertOps = canvas.getByText("Covert Ops bonuses (per skill level):");
+    const frigate = canvas.getByText("Caldari Frigate bonuses (per skill level):");
+    await expect(covertOps.compareDocumentPosition(frigate)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     await expect(canvas.getByText("Role Bonus:")).toBeVisible();
     await expect(canvas.getByText("10+")).toBeVisible();
     await expect(canvas.getByText("Cloaking Devices")).toHaveAttribute("data-bold");
