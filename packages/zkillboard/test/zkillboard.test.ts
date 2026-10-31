@@ -73,3 +73,19 @@ test("a failed request rejects, and the next still waits its turn", async () => 
   await vi.advanceTimersByTimeAsync(1_000);
   await expect(next).resolves.toBe(1_000);
 });
+
+test("a failed price is asked for again", async () => {
+  vi.useFakeTimers();
+  fetch.mockResolvedValueOnce(new Response(null, { status: 500 }));
+  fetch.mockImplementation(async () => Response.json({ currentPrice: 1_000 }));
+  const zkillboard = new ZKillboard();
+
+  const failed = zkillboard.price(1).catch(() => undefined);
+  await vi.advanceTimersByTimeAsync(0);
+  await failed;
+
+  const retried = zkillboard.price(1);
+  await vi.advanceTimersByTimeAsync(1_000);
+  await expect(retried).resolves.toBe(1_000);
+  expect(fetch).toHaveBeenCalledTimes(2);
+});

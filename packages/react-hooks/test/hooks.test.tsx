@@ -938,6 +938,21 @@ test("a zKillboard failure is asked once, and prices as nothing", async () => {
   expect(zkillboardPrice).toHaveBeenCalledTimes(1);
 });
 
+test("a zKillboard failure is asked again when the fit changes", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  const zkillboard = new ZKillboard();
+  const zkillboardPrice = vi.spyOn(zkillboard, "price").mockRejectedValue(new Error("down"));
+  const fit = withDamageControl();
+  const { result } = renderPriced(zkillboard, [[RIFTER, 300_000]], fit);
+  await waitFor(() => expect(result.current.price.value).toBe(300_000));
+
+  const autocannon = engine.sde.typeByName("200mm AutoCannon II")!.id;
+  act(() => void fit.fit(autocannon));
+
+  await waitFor(() => expect(zkillboardPrice).toHaveBeenCalledTimes(3));
+  expect(zkillboardPrice.mock.calls).toEqual([[DAMAGE_CONTROL_II], [DAMAGE_CONTROL_II], [autocannon]]);
+});
+
 test("a preview does not ask zKillboard", async () => {
   const zkillboard = new ZKillboard();
   const zkillboardPrice = vi.spyOn(zkillboard, "price").mockResolvedValue(500_000);

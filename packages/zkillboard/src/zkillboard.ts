@@ -11,8 +11,12 @@ export class ZKillboard {
   price(typeId: number): Promise<number | undefined> {
     let price = this.#prices.get(typeId);
     if (price === undefined) {
-      price = this.#queued(() => fetchPrice(typeId));
-      this.#prices.set(typeId, price);
+      const asked = this.#queued(() => fetchPrice(typeId));
+      asked.catch(() => {
+        if (this.#prices.get(typeId) === asked) this.#prices.delete(typeId);
+      });
+      this.#prices.set(typeId, asked);
+      price = asked;
     }
     return price;
   }
