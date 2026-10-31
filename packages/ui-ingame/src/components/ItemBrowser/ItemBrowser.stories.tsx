@@ -400,6 +400,14 @@ export const CopyFit: Story = {
   },
 };
 
+/** Before a hull is picked, there is no fit to copy. */
+export const CopyWithoutHull: Story = {
+  args: { empty: true },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("button", { name: "Copy" })).toBeDisabled();
+  },
+};
+
 /** A refused clipboard shows the fit to copy by hand. */
 export const CopyRefused: Story = {
   play: async ({ canvas, userEvent }) => {

@@ -299,6 +299,10 @@
   width: calc(16 * var(--browser-unit));
 }
 
+.copy:disabled > img {
+  opacity: 0.4;
+}
+
 .menu {
   background: var(--esf-menu-bg);
   border: var(--browser-unit) solid var(--esf-input-border);

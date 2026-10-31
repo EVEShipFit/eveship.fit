@@ -11,12 +11,14 @@ import { Modules } from "./Modules";
 
 export interface ItemBrowserProps {
   label?: string;
+  /** No hull is picked yet. */
+  empty?: boolean;
 }
 
 type Tab = "hulls" | "modules" | "charges" | "implants";
 
 /** EVE's browser of hulls and fits, modules, charges, and implants, left of the fitting wheel. */
-export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
+export function ItemBrowser({ label = "Item Browser", empty = false }: ItemBrowserProps) {
   const [tab, setTab] = useState<Tab>("hulls");
   const { request } = useBrowse();
   const [browsed, setBrowsed] = useState(request);
@@ -83,7 +85,7 @@ export function ItemBrowser({ label = "Item Browser" }: ItemBrowserProps) {
           )}
         </div>
       ))}
-      <FitActions />
+      <FitActions empty={empty} />
     </section>
   );
 }

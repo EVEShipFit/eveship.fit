@@ -10,7 +10,7 @@ import styles from "./ItemBrowser.module.css";
 const FLASH_MS = 2000;
 
 /** The buttons under the `ItemBrowser`: save the fit in the browser, import one, or copy it out. */
-export function FitActions() {
+export function FitActions({ empty }: { empty: boolean }) {
   const engine = useEngine();
   const fit = useFit();
   const store = useFitStore();
@@ -54,7 +54,13 @@ export function FitActions() {
       </button>
       <span className={styles.copyAnchor}>
         <Tooltip label={copied ? "Copied" : "Copy"}>
-          <button type="button" className={`${styles.action} ${styles.copy}`} aria-label="Copy" popoverTarget={menu}>
+          <button
+            type="button"
+            className={`${styles.action} ${styles.copy}`}
+            aria-label="Copy"
+            popoverTarget={menu}
+            disabled={empty}
+          >
             <Icon name={copied ? "checkmark" : "export"} />
           </button>
         </Tooltip>
