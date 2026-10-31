@@ -90,6 +90,18 @@ describe("fit", () => {
     ]);
   });
 
+  test("a charge skips modules in the cargo", () => {
+    const fit = rifter();
+    fit.fit(id("200mm AutoCannon II"), { type: "cargo" });
+    fit.fit(id("200mm AutoCannon II"));
+    fit.fit(id("EMP S"));
+
+    expect(fit.getSnapshot().fit.items.map((item) => [item.slot.type, item.charge?.type_id])).toEqual([
+      ["cargo", undefined],
+      ["high", id("EMP S")],
+    ]);
+  });
+
   test("only the cargo takes a charge nothing else takes, or a type that goes nowhere else", () => {
     const fit = rifter();
     expect(fit.fit(id("EMP S"))).toBeUndefined();
