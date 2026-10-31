@@ -36,6 +36,22 @@ test("No skills flags the skills the fit misses, also after a reload", async ({ 
   await expect(page.getByRole("button", { name: "Character All L0" })).toBeVisible({ timeout: 30_000 });
 });
 
+test("the UI scale defaults to 100%, and keeps what is picked after a reload", async ({ page }) => {
+  await page.setViewportSize({ width: 2400, height: 1400 });
+  await page.goto(RIFTER);
+  const window = page.getByRole("region", { name: "Fitting Window" });
+  await expect(window).toBeVisible({ timeout: 30_000 });
+  const scale = page.getByRole("combobox", { name: "UI scale" });
+  await expect(scale).toHaveValue("1");
+  const width = (await window.boundingBox())!.width;
+
+  await scale.selectOption("125%");
+  await expect.poll(async () => (await window.boundingBox())!.width).toBeGreaterThan(width * 1.2);
+
+  await page.reload();
+  await expect(page.getByRole("combobox", { name: "UI scale" })).toHaveValue("1.25", { timeout: 30_000 });
+});
+
 test("without a fit, the wheel asks for a hull until one is picked, and the logo goes back", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("To start, select a hull on the left.")).toBeVisible({ timeout: 30_000 });
