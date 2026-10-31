@@ -60,8 +60,7 @@ pnpm typecheck
 `pnpm dev` runs on `http://localhost:5173/`, the callback URL of the client ID in `apps/web/.env.development`, so
 logging in with EVE works locally.
 
-The website's build takes its client ID from `VITE_ESI_CLIENT_ID`. CI sets it from the `ESI_CLIENT_ID_NEXT` repository
-variable for `next.eveship.fit`, and `ESI_CLIENT_ID_PRODUCTION` for `eveship.fit`.
+The website's build takes its client ID from `VITE_ESI_CLIENT_ID`.
 
 ## Releases and deploys
 
@@ -69,8 +68,7 @@ variable for `next.eveship.fit`, and `ESI_CLIENT_ID_PRODUCTION` for `eveship.fit
   [.changeset/README.md](.changeset/README.md).
 - Every pull request gets a preview of the website and Storybook.
 - A push to `main` deploys [next.eveship.fit](https://next.eveship.fit) and
-  [storybook.eveship.fit](https://storybook.eveship.fit), and opens a "Version Packages" pull request when there are
-  pending changesets. Merging that publishes the packages to npm.
+  [storybook.eveship.fit](https://storybook.eveship.fit).
 - Publishing a GitHub release deploys [eveship.fit](https://eveship.fit).
 
 ## License
