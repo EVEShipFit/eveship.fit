@@ -692,6 +692,15 @@ describe("history", () => {
     expect(fit.getSnapshot().fit.name).toBe("Fit 5");
   });
 
+  test("replacing a fit with the same fit is not in the history", () => {
+    const fit = rifter();
+    const before = fit.getSnapshot();
+
+    fit.replace({ ship: { type_id: id("Rifter") }, items: [] });
+    expect(fit.getSnapshot()).toBe(before);
+    expect(fit.historyLength).toBe(1);
+  });
+
   test("an edit that changes nothing is not in the history", () => {
     const fit = rifter();
     fit.setName("Brawler");

@@ -150,7 +150,9 @@ export class FitStore {
 
   /** Swap in another fit entirely, like an import. */
   replace(fit: Fit) {
-    this.#commit(edits.withMode(this.#calculator.sde, withoutCharacter(fit)));
+    const replacement = edits.withMode(this.#calculator.sde, withoutCharacter(fit));
+    if (equal(replacement, this.#snapshot.fit)) return;
+    this.#commit(replacement);
   }
 
   /** Who flies the fit is not an edit of it, so this does not go in the history. */
@@ -215,6 +217,18 @@ export class FitStore {
     this.#snapshot = snapshot;
     for (const listener of this.#listeners) listener();
   }
+}
+
+function equal(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const keys = Object.keys(a).filter((key) => (a as Record<string, unknown>)[key] !== undefined);
+  const other = Object.keys(b).filter((key) => (b as Record<string, unknown>)[key] !== undefined);
+  return (
+    keys.length === other.length &&
+    keys.every((key) => equal((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key]))
+  );
 }
 
 function withoutCharacter({ character: _, ...fit }: Fit): Fit {
