@@ -124,3 +124,16 @@ test("a character's fits replace the ones it had, and leave the others", async (
   expect(again.list(90000002)).toEqual([]);
   expect(again.list()).toEqual([brawler]);
 });
+
+test("works in memory where the browser blocks IndexedDB", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  const blocked = {
+    open: () => {
+      throw new DOMException("The operation is insecure.", "SecurityError");
+    },
+  } as unknown as IDBFactory;
+  const fits = open({ factory: blocked, name: "blocked" });
+
+  await expect(fits.save(brawler)).rejects.toThrow("insecure");
+  expect(fits.list()).toEqual([brawler]);
+});
