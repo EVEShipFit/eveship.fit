@@ -1,17 +1,26 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "eveship-fit-next",
+  "main": "./dist/_worker.js",
   "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
   "preview_urls": true,
   "routes": [{ "pattern": "next.eveship.fit", "custom_domain": true }],
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "single-page-application",
+    "run_worker_first": ["/_fit", "/og.jpg"],
   },
+  "browser": { "binding": "BROWSER" },
+  "version_metadata": { "binding": "VERSION" },
+  "observability": { "enabled": true },
   "env": {
     "production": {
       "name": "eveship-fit",
       "routes": [{ "pattern": "eveship.fit", "custom_domain": true }],
+      "browser": { "binding": "BROWSER" },
+      "version_metadata": { "binding": "VERSION" },
     },
   },
 }
