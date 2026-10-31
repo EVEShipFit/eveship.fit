@@ -7,8 +7,6 @@ import { DiscordIcon, GitHubIcon } from "./icons";
 import { keepUiScale, keptUiScale, UI_SCALES, useLayout } from "./layout";
 import { Support } from "./Support";
 
-const PREVIEW = location.hostname === "next.eveship.fit";
-
 /** `data` is undefined while it loads, and null when it failed. */
 export function App({ data }: { data: Data | null | undefined }) {
   const [main, setMain] = useState<HTMLElement | null>(null);
@@ -19,7 +17,7 @@ export function App({ data }: { data: Data | null | undefined }) {
 
   return (
     <>
-      {PREVIEW && (
+      {import.meta.env.VITE_PREVIEW === "true" && (
         <aside className={styles.preview} aria-label="Preview site">
           <span aria-hidden="true">⚠ </span>
           <strong>Preview site.</strong> A test version of eveship.fit. Fits and characters are not shared across.{" "}

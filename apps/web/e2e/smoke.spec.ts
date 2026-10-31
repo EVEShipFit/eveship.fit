@@ -11,6 +11,19 @@ test("the site loads", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Discord" })).toHaveAttribute("href", "https://discord.gg/S5V5BkvNf7");
 });
 
+test("the preview banner links to the same fit on eveship.fit", async ({ page }) => {
+  await page.goto(RIFTER);
+  const banner = page.getByRole("complementary", { name: "Preview site" });
+  if (process.env.VITE_PREVIEW !== "true") {
+    await expect(banner).toHaveCount(0);
+    return;
+  }
+
+  await page.route("https://eveship.fit/**", (route) => route.fulfill({ body: "" }));
+  await banner.getByRole("link", { name: "Go to eveship.fit →" }).click();
+  await expect(page).toHaveURL(`https://eveship.fit${RIFTER}`);
+});
+
 test("the fitting window shows its statistics", async ({ page }) => {
   await page.goto(RIFTER);
   await expect(page.getByRole("region", { name: "Fitting Window" })).toBeVisible({ timeout: 30_000 });
