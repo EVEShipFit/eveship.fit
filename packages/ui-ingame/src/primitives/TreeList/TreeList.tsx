@@ -84,6 +84,8 @@ export interface TreeGroupProps {
   icon?: string;
   /** A second line under the label. */
   description?: ReactNode;
+  /** Shown when hovering the type's icon. */
+  renderIconTooltip?: () => ReactNode;
   defaultOpen?: boolean;
   /** Shown at the end of the row, like a count or an action. */
   after?: ReactNode;
@@ -99,6 +101,7 @@ export function TreeGroup({
   typeId,
   icon,
   description,
+  renderIconTooltip,
   defaultOpen = false,
   after,
   onDragStart,
@@ -135,7 +138,11 @@ export function TreeGroup({
           <svg className={styles.chevron} viewBox="0 0 12 12" aria-hidden>
             <path d="M3 1.5 9.5 6 3 10.5Z" fill="currentColor" />
           </svg>
-          {typeId !== undefined && <RowIcon typeId={typeId} />}
+          {typeId !== undefined && (
+            <Tooltip label={renderIconTooltip}>
+              <RowIcon typeId={typeId} />
+            </Tooltip>
+          )}
           {icon !== undefined && <img className={styles.smallIcon} src={icon} alt="" draggable={false} />}
           <span className={styles.text}>
             <span className={styles.label}>{label}</span>

@@ -30,6 +30,8 @@
   --esf-button-active: #366370;
   --esf-button-active-edge: #57a6be;
   --esf-stats-header: var(--esf-tree-header);
+  --esf-bonus-header: #5499c3;
+  --esf-bonus-value: #d0efff;
   --esf-good: #8cc068;
   --esf-bad: #fb444a;
   --esf-damage-em: #1e71a1;

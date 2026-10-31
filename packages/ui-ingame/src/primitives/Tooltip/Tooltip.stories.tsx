@@ -170,3 +170,49 @@ export const Lazy: Story = {
     await expect(args.label).toHaveBeenCalled();
   },
 };
+
+/** The wheel scrolls a label too long to show at once, while the tooltip is open. */
+export const Scrolls: Story = {
+  args: {
+    label: (
+      <span data-testid="scroller" style={{ display: "block", maxHeight: 40, overflowY: "auto" }}>
+        {Array.from({ length: 10 }, (_, line) => (
+          <span key={line} style={{ display: "block" }}>
+            Line {line + 1}
+          </span>
+        ))}
+      </span>
+    ),
+  },
+  play: async ({ canvas, userEvent }) => {
+    const anchor = canvas.getByRole("button", { name: "Unfit Module" });
+    const scroller = canvas.getByTestId("scroller");
+
+    anchor.dispatchEvent(new WheelEvent("wheel", { deltaY: 30, bubbles: true }));
+    await expect(scroller.scrollTop).toBe(0);
+
+    await userEvent.hover(anchor);
+    await waitFor(() => expect(scroller).toBeVisible());
+    const scrolled = !anchor.dispatchEvent(new WheelEvent("wheel", { deltaY: 30, bubbles: true, cancelable: true }));
+    await expect(scrolled).toBe(true);
+    await expect(scroller.scrollTop).toBeGreaterThan(0);
+  },
+};
+
+/** Wraps a long label, even inside something that does not wrap. */
+export const InsideNoWrap: Story = {
+  args: { label: "A label long enough that it has to wrap over more than one line to fit" },
+  decorators: [
+    (Story) => (
+      <div style={{ whiteSpace: "nowrap" }}>
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    await userEvent.hover(canvas.getByRole("button", { name: "Unfit Module" }));
+    const text = within(canvasElement).getByText(/^A label long enough/);
+    await waitFor(() => expect(text).toBeVisible());
+    await expect(text.scrollWidth).toBeLessThanOrEqual(text.clientWidth);
+  },
+};
