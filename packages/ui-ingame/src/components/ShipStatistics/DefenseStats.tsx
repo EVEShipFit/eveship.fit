@@ -1,4 +1,4 @@
-import { useAttribute, useDamageProfiles, useSnapshot } from "@eveshipfit/react-hooks";
+import { useAttribute, useDamageProfiles, useStats } from "@eveshipfit/react-hooks";
 
 import { Stat } from "../../primitives/Stat/Stat";
 import { StatsSection } from "../../primitives/StatsSection/StatsSection";
@@ -16,7 +16,7 @@ export function DefenseStats() {
   const shieldRecharge = useAttribute("shieldRechargeRate", { decimals: 0, rounding: "down" });
   const armor = useAttribute("armorHP", { decimals: 0, rounding: "down", format: hitpoints });
   const structure = useAttribute("hp", { decimals: 0, rounding: "down", format: hitpoints });
-  const recharges = !useSnapshot().stats.structure;
+  const recharges = !useStats().structure;
   const { profile } = useDamageProfiles();
 
   return (

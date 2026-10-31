@@ -6,6 +6,7 @@ import {
   useDrag,
   useEngine,
   useFit,
+  useShownSnapshot,
   useFitStore,
   useHardpoints,
   useHullRefuses,
@@ -57,7 +58,7 @@ export function FittingWheel({
   hideStats = false,
   credit = false,
 }: FittingWheelProps) {
-  const ship = useFit().ship.type_id;
+  const ship = useShownSnapshot().fit.ship.type_id;
   const { turret, launcher } = useHardpoints();
   const { structure } = useStats();
 
@@ -200,7 +201,7 @@ function FittingHullNotice() {
 function FittingModes({ readOnly }: { readOnly: boolean }) {
   const store = useFitStore();
   const modes = useModes();
-  const active = useFit().ship.mode;
+  const active = useShownSnapshot().fit.ship.mode;
   if (modes.length === 0) return null;
 
   return (

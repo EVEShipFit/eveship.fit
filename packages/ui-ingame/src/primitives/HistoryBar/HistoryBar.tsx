@@ -8,12 +8,14 @@ export interface HistoryBarProps {
   /** 0 is the oldest. */
   position: number;
   onGoTo: (position: number) => void;
+  /** The entry under the pointer; undefined when it leaves. */
+  onHover?: (position: number | undefined) => void;
   /** Shows the title as a tooltip. */
   tooltipTitle?: boolean;
 }
 
 /** EVE's Simulation History. */
-export function HistoryBar({ label, length, position, onGoTo, tooltipTitle = false }: HistoryBarProps) {
+export function HistoryBar({ label, length, position, onGoTo, onHover, tooltipTitle = false }: HistoryBarProps) {
   const bar = (
     <fieldset className={styles.history} aria-label={label}>
       {!tooltipTitle && (
@@ -31,7 +33,7 @@ export function HistoryBar({ label, length, position, onGoTo, tooltipTitle = fal
         >
           <Icon name="arrow-left" size={10} />
         </button>
-        <div className={styles.entries}>
+        <div className={styles.entries} onMouseLeave={() => onHover?.(undefined)}>
           {Array.from({ length }, (_, index) => (
             <button
               key={index}
@@ -40,6 +42,7 @@ export function HistoryBar({ label, length, position, onGoTo, tooltipTitle = fal
               aria-label={`${index + 1} of ${length}`}
               aria-current={index === position || undefined}
               onClick={() => onGoTo(index)}
+              onMouseEnter={() => onHover?.(index)}
             />
           ))}
         </div>

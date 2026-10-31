@@ -194,6 +194,8 @@ export class FitStore {
   /** What `edit` would do, without doing it. */
   preview(edit: (fit: FitStore) => void): Preview {
     const draft = new FitStore(this.#calculator, this.#snapshot.fit, this.#character, this.#damageProfile);
+    draft.#history.splice(0, 1, ...this.#history);
+    draft.#position = this.#position;
     edit(draft);
     return { before: this.#snapshot, after: draft.getSnapshot() };
   }

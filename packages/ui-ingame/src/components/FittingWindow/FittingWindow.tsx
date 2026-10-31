@@ -15,8 +15,8 @@ import {
   useSde,
   useShowInfo,
   useShownSnapshot,
-  useSlots,
   useSnapshot,
+  useSlots,
   useType,
   type SlotContent,
 } from "@eveshipfit/react-hooks";
@@ -90,7 +90,7 @@ export function FittingWindow({
   const statisticsId = useId();
   const browserShown = browser !== undefined && browserOpen;
   const statisticsShown = statistics !== undefined && statisticsOpen;
-  const { stats } = useSnapshot();
+  const { stats } = useShownSnapshot();
   const { structure } = stats;
   const fighters = structure || stats.fighterBay.total > 0;
   const fighterBay = useId();
@@ -174,7 +174,7 @@ export function FittingWindow({
               {structure && <ServiceRack readOnly={preview} />}
               {!preview && (
                 <div className={styles.history}>
-                  <SimulationHistory tooltipTitle={structure} />
+                  <SimulationHistory />
                 </div>
               )}
               <div className={styles.resources}>
@@ -201,8 +201,10 @@ function popover(id: string): HTMLElement | null {
 
 function FitName() {
   const fit = useFit();
+  const shown = useShownSnapshot().fit;
   const store = useFitStore();
   const ship = useType(fit.ship.type_id);
+  const shownShip = useType(shown.ship.type_id);
   const { show: showInfo } = useShowInfo();
   const [editing, setEditing] = useState(false);
   const input = useRef<HTMLInputElement>(null);
@@ -228,7 +230,7 @@ function FitName() {
           className={styles.icon}
           aria-label="Show Info"
           onClick={(event) =>
-            showInfo({ typeId: fit.ship.type_id, ref: "ship" }, { element: event.currentTarget, side: "right" })
+            showInfo({ typeId: shown.ship.type_id, ref: "ship" }, { element: event.currentTarget, side: "right" })
           }
         >
           <Icon name="module-info" />
@@ -255,7 +257,7 @@ function FitName() {
       ) : (
         <Tooltip label="Rename Fit">
           <button ref={button} type="button" className={styles.fitName} onClick={() => setEditing(true)}>
-            {fit.name || ship?.name}
+            {shown.name || shownShip?.name}
           </button>
         </Tooltip>
       )}
@@ -525,15 +527,21 @@ function FittingServiceSlot({
   return <ServiceSlot {...slot} />;
 }
 
-function SimulationHistory({ tooltipTitle }: { tooltipTitle: boolean }) {
+function SimulationHistory() {
   const history = useFitHistory();
+  const { structure } = useSnapshot().stats;
+  const { show, clear } = usePreview();
   return (
     <HistoryBar
       label="Simulation History"
       length={history.length}
       position={history.position}
       onGoTo={history.goTo}
-      tooltipTitle={tooltipTitle}
+      onHover={(position) => {
+        if (position === undefined || position === history.position) clear("history");
+        else show((draft) => draft.goTo(position), "history");
+      }}
+      tooltipTitle={structure}
     />
   );
 }
