@@ -22,6 +22,11 @@ const views: { view: View; icon: IconName; label: string }[] = [
 
 const kindLabels: Record<Augmentation, string> = { implant: "Implant", booster: "Booster" };
 
+interface Opened {
+  kind: Augmentation;
+  index?: number;
+}
+
 interface SlotTypes {
   kind: Augmentation;
   index: number;
@@ -38,7 +43,7 @@ export function Implants() {
   const [flyable, setFlyable] = useState(false);
   const [view, setView] = useState<View>("market");
   const [collapses, setCollapses] = useState(0);
-  const [opened, setOpened] = useState<{ kind: Augmentation; index?: number }>();
+  const [opened, setOpened] = useState<Opened>();
   const { request } = useBrowse();
   const [browsed, setBrowsed] = useState(request);
   if (request !== browsed) {
@@ -129,14 +134,7 @@ export function Implants() {
         ) : (
           <TreeList key={`${collapses}-${view}`} label="Implants">
             {view === "slot" ? (
-              slots.map((slot) => (
-                <SlotGroup
-                  key={`${slot.kind}-${slot.index}`}
-                  slot={slot}
-                  open={opened?.kind === slot.kind && opened.index === slot.index}
-                  actions={actions}
-                />
-              ))
+              <SlotGroups slots={slots} opened={opened} searching={query !== ""} actions={actions} />
             ) : query !== "" ? (
               <SearchResults roots={found} actions={actions} />
             ) : (
@@ -168,6 +166,32 @@ function KindToggle({
       onPressedChange={(next) => onPressedChange(kind, next)}
     />
   );
+}
+
+/** The slots; a lone slot found by a search shows only its types. */
+function SlotGroups({
+  slots,
+  opened,
+  searching,
+  actions,
+}: {
+  slots: readonly SlotTypes[];
+  opened: Opened | undefined;
+  searching: boolean;
+  actions: TypeActions;
+}) {
+  const [only] = slots;
+  if (searching && slots.length === 1 && only !== undefined) {
+    return only.types.map((type) => <TypeLeaf key={type.id} type={type} actions={actions} />);
+  }
+  return slots.map((slot) => (
+    <SlotGroup
+      key={`${slot.kind}-${slot.index}`}
+      slot={slot}
+      open={opened?.kind === slot.kind && opened.index === slot.index}
+      actions={actions}
+    />
+  ));
 }
 
 function SlotGroup({ slot, open, actions }: { slot: SlotTypes; open: boolean; actions: TypeActions }) {

@@ -809,12 +809,7 @@ export const ImplantsBySlot: Story = {
     ]);
 
     await userEvent.type(panel.getByRole("searchbox"), "neural boost - basic");
-    await expect(
-      implants(canvas)
-        .getAllByRole("button", { expanded: false })
-        .map((row) => row.textContent),
-    ).toEqual(["Implant Slot 3"]);
-    await userEvent.click(implants(canvas).getByRole("button", { name: "Implant Slot 3" }));
+    await expect(implants(canvas).queryByRole("button", { name: "Implant Slot 3" })).toBeNull();
     await expect(implants(canvas).getByRole("button", { name: "Neural Boost - Basic" })).toBeVisible();
   },
 };
