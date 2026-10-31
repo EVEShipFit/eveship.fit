@@ -21,6 +21,20 @@ export const Rifter: Story = {
   },
 };
 
+export const Tooltips: Story = {
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const turrets = canvas.getByText(/gunnery and mining turrets/);
+    await expect(turrets).not.toBeVisible();
+    await userEvent.hover(canvasElement.querySelector('[data-icon="hardpoint-turret"]')!);
+    await expect(turrets).toBeVisible();
+    await expect(canvas.getByText("2 / 3")).toBeVisible();
+
+    await userEvent.hover(canvasElement.querySelector('[data-icon="hardpoint-launcher"]')!);
+    await expect(canvas.getByText(/missile launcher modules/)).toBeVisible();
+    await expect(canvas.getByText("0 / 2")).toBeVisible();
+  },
+};
+
 export const None: Story = {
   args: { turrets: { used: 0, total: 0 }, launchers: { used: 0, total: 0 } },
 };

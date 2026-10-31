@@ -1,6 +1,7 @@
 import { useImages } from "@eveshipfit/react-hooks";
 
 import { Icon, type IconName } from "../Icon/Icon";
+import { Tooltip, TooltipText } from "../Tooltip/Tooltip";
 import { placeAt } from "./geometry";
 import styles from "./WheelHardpoints.module.css";
 
@@ -19,8 +20,20 @@ export function WheelHardpoints({ turrets, launchers }: WheelHardpointsProps) {
 
   return (
     <>
-      <HardpointIcon name="hardpoint-turret" angle={-43} />
-      <HardpointIcon name="hardpoint-launcher" angle={45} />
+      <HardpointIcon
+        name="hardpoint-turret"
+        angle={-43}
+        title="Turret Hardpoints"
+        description="These hardpoints limit the number of gunnery and mining turrets that can be fitted"
+        {...turrets}
+      />
+      <HardpointIcon
+        name="hardpoint-launcher"
+        angle={45}
+        title="Launcher Hardpoints"
+        description="These hardpoints limit the number of missile launcher modules that can be fitted"
+        {...launchers}
+      />
       {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- An <img> cannot hold the dots. */}
       <div className={styles.dots} role="img" aria-label={label}>
         <Dots {...turrets} first={-38.5} step={3} />
@@ -30,11 +43,34 @@ export function WheelHardpoints({ turrets, launchers }: WheelHardpointsProps) {
   );
 }
 
-function HardpointIcon({ name, angle }: { name: IconName; angle: number }) {
+interface HardpointIconProps extends Hardpoints {
+  name: IconName;
+  angle: number;
+  title: string;
+  description: string;
+}
+
+function HardpointIcon({ name, angle, title, description, used, total }: HardpointIconProps) {
   return (
-    <span className={styles.icon} style={placeAt(angle, 275.5)}>
-      <Icon name={name} />
-    </span>
+    <Tooltip
+      label={
+        <TooltipText
+          title={
+            <span className={styles.title}>
+              {title}
+              <span>
+                {used} / {total}
+              </span>
+            </span>
+          }
+          description={description}
+        />
+      }
+    >
+      <span className={styles.icon} style={placeAt(angle, 275.5)}>
+        <Icon name={name} />
+      </span>
+    </Tooltip>
   );
 }
 

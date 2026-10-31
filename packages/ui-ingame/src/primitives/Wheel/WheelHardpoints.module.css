@@ -4,7 +4,6 @@
   position: absolute;
 }
 
-.icon,
 .dot {
   height: calc(16 * var(--wheel-unit));
   pointer-events: none;
@@ -13,8 +12,22 @@
   width: calc(16 * var(--wheel-unit));
 }
 
+/* Centred with margins: Firefox anchors tooltips as if there were no transform. */
+.icon {
+  height: calc(16 * var(--wheel-unit));
+  margin: calc(-8 * var(--wheel-unit));
+  position: absolute;
+  width: calc(16 * var(--wheel-unit));
+}
+
 .icon > img {
   display: block;
   height: 100%;
   width: 100%;
+}
+
+.title {
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
 }
