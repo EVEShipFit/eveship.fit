@@ -129,9 +129,10 @@ test("a broken fit link says so, and keeps the link until the fit changes", asyn
   await expect(page.getByText("To start, select a hull on the left.")).toBeVisible();
   expect(link()).toBe("v3:broken");
 
-  await page.getByRole("tab", { name: "Modules" }).click();
-  await page.getByRole("searchbox", { name: "Search" }).fill("damage control ii");
-  await page.getByRole("button", { name: "Damage Control II", exact: true }).dblclick();
+  const hulls = page.getByRole("list", { name: "Hulls" });
+  await hulls.getByRole("button", { name: "Frigate", exact: true }).click();
+  await hulls.getByRole("button", { name: /^Minmatar/ }).click();
+  await hulls.getByRole("button", { name: "Simulate Slasher" }).click();
   await expect.poll(link).toMatch(/^esf1:/);
 });
 

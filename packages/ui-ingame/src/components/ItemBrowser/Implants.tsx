@@ -34,8 +34,8 @@ interface SlotTypes {
 }
 
 /** The Implants tab of the `ItemBrowser`: implants and boosters by market group or by slot. */
-export function Implants() {
-  const { actions, clear, dragImage } = useTypeActions();
+export function Implants({ noHullSelected }: { noHullSelected: boolean }) {
+  const { actions, clear, dragImage } = useTypeActions(noHullSelected);
   const placement = usePlacement();
   const missingSkills = useMissingSkills();
   const [search, setSearch] = useState("");

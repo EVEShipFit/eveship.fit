@@ -34,7 +34,11 @@ export interface TypeActions {
 }
 
 /** Previews a type on hover, fits it on double click, drags it to the wheel, and shows its info; render `dragImage` once. */
-export function useTypeActions(): { actions: TypeActions; clear: () => void; dragImage: ReactNode } {
+export function useTypeActions(noHullSelected: boolean): {
+  actions: TypeActions;
+  clear: () => void;
+  dragImage: ReactNode;
+} {
   const store = useFitStore();
   const sde = useSde();
   const refuses = useHullRefuses();
@@ -52,10 +56,12 @@ export function useTypeActions(): { actions: TypeActions; clear: () => void; dra
 
   const actions: TypeActions = {
     fit: (typeId) => {
+      if (noHullSelected) return;
       if (refused(typeId)) refuse(typeId);
       else store.fit(typeId);
     },
     hover: (typeId, hovering) => {
+      if (noHullSelected) return;
       if (hovering) {
         setHovered(typeId);
         if (refused(typeId)) hold(typeId);
@@ -67,6 +73,10 @@ export function useTypeActions(): { actions: TypeActions; clear: () => void; dra
     },
     info: (typeId, element) => showInfo({ typeId }, { element, side: "right" }),
     drag: (event, type) => {
+      if (noHullSelected) {
+        event.preventDefault();
+        return;
+      }
       clear();
       release();
       const image = dragImage.current;

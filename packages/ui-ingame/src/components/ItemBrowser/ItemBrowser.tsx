@@ -11,14 +11,14 @@ import { Modules } from "./Modules";
 
 export interface ItemBrowserProps {
   label?: string;
-  /** No hull is picked yet. */
-  empty?: boolean;
+  /** Turns off everything that needs a hull. */
+  noHullSelected?: boolean;
 }
 
 type Tab = "hulls" | "modules" | "charges" | "implants";
 
 /** EVE's browser of hulls and fits, modules, charges, and implants, left of the fitting wheel. */
-export function ItemBrowser({ label = "Item Browser", empty = false }: ItemBrowserProps) {
+export function ItemBrowser({ label = "Item Browser", noHullSelected = false }: ItemBrowserProps) {
   const [tab, setTab] = useState<Tab>("hulls");
   const { request } = useBrowse();
   const [browsed, setBrowsed] = useState(request);
@@ -30,10 +30,10 @@ export function ItemBrowser({ label = "Item Browser", empty = false }: ItemBrows
   const ready = useDeferredValue(true, false);
 
   const tabs: { tab: Tab; label: string; panel: ReactNode }[] = [
-    { tab: "hulls", label: "Hulls & Fits", panel: <HullsAndFits /> },
-    { tab: "modules", label: "Modules", panel: <Modules /> },
-    { tab: "charges", label: "Charges", panel: <Charges /> },
-    { tab: "implants", label: "Implants", panel: <Implants /> },
+    { tab: "hulls", label: "Hulls & Fits", panel: <HullsAndFits noHullSelected={noHullSelected} /> },
+    { tab: "modules", label: "Modules", panel: <Modules noHullSelected={noHullSelected} /> },
+    { tab: "charges", label: "Charges", panel: <Charges noHullSelected={noHullSelected} /> },
+    { tab: "implants", label: "Implants", panel: <Implants noHullSelected={noHullSelected} /> },
   ];
 
   return (
@@ -85,7 +85,7 @@ export function ItemBrowser({ label = "Item Browser", empty = false }: ItemBrows
           )}
         </div>
       ))}
-      <FitActions empty={empty} />
+      <FitActions noHullSelected={noHullSelected} />
     </section>
   );
 }

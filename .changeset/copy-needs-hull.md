@@ -2,4 +2,4 @@
 "@eveshipfit/ui-ingame": minor
 ---
 
-`ItemBrowser` takes `empty` to disable Copy while there is no fit yet
+`ItemBrowser` takes `noHullSelected` to turn off Save, Copy, fitting and the hull filters

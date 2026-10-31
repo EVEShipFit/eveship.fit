@@ -53,7 +53,7 @@ export function Fitting({ data, layout, skills }: FittingProps) {
               </div>
               <div className={styles.panels}>
                 <div className={`${styles.panel} ${styles.browser}`} style={panelScale}>
-                  <ItemBrowser empty={empty} />
+                  <ItemBrowser noHullSelected={empty} />
                 </div>
                 {!empty && (
                   <div className={styles.panel} style={panelScale}>
@@ -65,7 +65,7 @@ export function Fitting({ data, layout, skills }: FittingProps) {
           ) : (
             <div className={`${styles.panel} ${styles.window}`} style={scale}>
               <FittingWindow
-                browser={<ItemBrowser empty={empty} />}
+                browser={<ItemBrowser noHullSelected={empty} />}
                 statistics={<ShipStatistics />}
                 placeholder={placeholder}
               />

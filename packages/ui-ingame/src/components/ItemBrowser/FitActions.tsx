@@ -10,7 +10,7 @@ import styles from "./ItemBrowser.module.css";
 const FLASH_MS = 2000;
 
 /** The buttons under the `ItemBrowser`: save the fit in the browser, import one, or copy it out. */
-export function FitActions({ empty }: { empty: boolean }) {
+export function FitActions({ noHullSelected }: { noHullSelected: boolean }) {
   const engine = useEngine();
   const fit = useFit();
   const store = useFitStore();
@@ -46,7 +46,12 @@ export function FitActions({ empty }: { empty: boolean }) {
 
   return (
     <div className={styles.actions}>
-      <button type="button" className={styles.action} onClick={() => (fit.name ? trySave(fit) : setNaming(true))}>
+      <button
+        type="button"
+        className={styles.action}
+        disabled={noHullSelected}
+        onClick={() => (fit.name ? trySave(fit) : setNaming(true))}
+      >
         {saved ? "Saved" : "Save"}
       </button>
       <button type="button" className={styles.action} onClick={() => setImporting(true)}>
@@ -59,7 +64,7 @@ export function FitActions({ empty }: { empty: boolean }) {
             className={`${styles.action} ${styles.copy}`}
             aria-label="Copy"
             popoverTarget={menu}
-            disabled={empty}
+            disabled={noHullSelected}
           >
             <Icon name={copied ? "checkmark" : "export"} />
           </button>

@@ -1,3 +1,4 @@
+import { FitStore } from "@eveshipfit/fitting";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { CSSProperties } from "react";
 import { expect, spyOn, waitFor, within } from "storybook/test";
@@ -400,14 +401,6 @@ export const CopyFit: Story = {
   },
 };
 
-/** Before a hull is picked, there is no fit to copy. */
-export const CopyWithoutHull: Story = {
-  args: { empty: true },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button", { name: "Copy" })).toBeDisabled();
-  },
-};
-
 /** A refused clipboard shows the fit to copy by hand. */
 export const CopyRefused: Story = {
   play: async ({ canvas, userEvent }) => {
@@ -477,6 +470,29 @@ export const ImportNoClipboard: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Import…" }));
     const dialog = within(canvas.getByRole("dialog", { name: "Import Fit" }));
     await expect(dialog.getByRole("textbox")).toHaveValue("");
+  },
+};
+
+/** Without a hull, nothing can be saved, copied, fitted or filtered by hull. */
+export const NoHullSelected: Story = {
+  args: { noHullSelected: true },
+  play: async ({ canvas, userEvent }) => {
+    const fit = spyOn(FitStore.prototype, "fit");
+    await expect(canvas.getByRole("button", { name: "Save" })).toBeDisabled();
+    await expect(canvas.getByRole("button", { name: "Copy" })).toBeDisabled();
+    await expect(canvas.getByRole("button", { name: "Import…" })).toBeEnabled();
+
+    const currentHull = canvas.getByRole("button", { name: "Current Hull" });
+    await expect(currentHull).toHaveAttribute("aria-disabled", "true");
+    await userEvent.click(currentHull);
+    await expect(currentHull).toHaveAttribute("aria-pressed", "false");
+
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    const panel = within(canvas.getByRole("tabpanel"));
+    await expect(panel.getByRole("button", { name: "Hull Restrictions" })).toHaveAttribute("aria-disabled", "true");
+    await userEvent.type(panel.getByRole("searchbox"), "damage control ii");
+    await userEvent.dblClick(modules(canvas).getByRole("button", { name: "Damage Control II" }));
+    await expect(fit).not.toHaveBeenCalled();
   },
 };
 
