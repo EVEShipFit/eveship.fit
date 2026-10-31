@@ -105,6 +105,11 @@ export const Keyboard: Story = {
     await expect(row(/Battleship/)).toHaveFocus();
     await userEvent.keyboard("{Home}{ArrowUp}");
     await expect(row(/Frigate/)).toHaveFocus();
+
+    await userEvent.keyboard("{Enter}");
+    await expect(row(/Frigate/)).toHaveAttribute("aria-expanded", "false");
+    await userEvent.keyboard(" ");
+    await expect(row(/Frigate/)).toHaveAttribute("aria-expanded", "true");
   },
 };
 
