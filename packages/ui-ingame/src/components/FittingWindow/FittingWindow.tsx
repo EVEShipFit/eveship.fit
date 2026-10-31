@@ -64,7 +64,7 @@ export interface FittingWindowProps {
   browser?: ReactNode;
   /** Like `ShipStatistics`; slid out by the Statistics button, which is only there with it. */
   statistics?: ReactNode;
-  /** Shows the fit without its name, warnings, history or anything to change it. */
+  /** Shows the fit without its warnings, history or anything to change it. */
   preview?: boolean;
   /** Shows an empty wheel with this text, and nothing of the fit. */
   placeholder?: string;
@@ -120,6 +120,7 @@ export function FittingWindow({
               </Wheel>
             )}
           </div>
+          {preview && placeholder === undefined && <PreviewName />}
           {!preview && placeholder === undefined && (
             <>
               <FitName />
@@ -266,6 +267,17 @@ function FitName() {
           </button>
         </Tooltip>
       )}
+    </div>
+  );
+}
+
+function PreviewName() {
+  const shown = useShownSnapshot().fit;
+  const ship = useType(shown.ship.type_id);
+
+  return (
+    <div className={styles.name}>
+      <span className={styles.fitName}>{shown.name || ship?.name}</span>
     </div>
   );
 }
