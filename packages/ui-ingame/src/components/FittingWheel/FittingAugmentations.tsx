@@ -108,6 +108,7 @@ function FittingAugmentation({ kind, position, number, content, readOnly }: Fitt
     typeName: type?.name,
     preview: content?.preview,
     tooltip,
+    label: type?.name ?? (number === undefined ? `Empty ${slotName}` : `Empty ${slotName} ${number}`),
     "data-slot": slot === undefined ? undefined : `${kind}-${number}`,
   };
   if (readOnly) return <WheelAugmentationSlot {...shown} actions={false} />;
@@ -152,7 +153,6 @@ function FittingAugmentation({ kind, position, number, content, readOnly }: Fitt
           : undefined
       }
       onPress={() => browse({ type: kind, index: number ?? content?.index })}
-      label={type?.name ?? (number === undefined ? `Empty ${slotName}` : `Empty ${slotName} ${number}`)}
     />
   );
 }

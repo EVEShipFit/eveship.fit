@@ -46,6 +46,7 @@ export interface WheelSlotProps extends HTMLAttributes<HTMLDivElement> {
   /** Makes the slot draggable. */
   onDragStart?: DragEventHandler<HTMLDivElement>;
   onDragEnd?: DragEventHandler<HTMLDivElement>;
+  /** The slot's name for screen readers. */
   label?: string;
   /** False leaves out the actions shown on hover. */
   actions?: boolean;
@@ -128,6 +129,8 @@ export function WheelSlot({
   const body = (
     <div
       className={styles.body}
+      role={onPress || !label ? undefined : "img"}
+      aria-label={onPress ? undefined : label}
       draggable={onDragStart !== undefined || undefined}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}

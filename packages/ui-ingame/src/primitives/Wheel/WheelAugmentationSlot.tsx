@@ -41,6 +41,7 @@ export interface WheelAugmentationSlotProps extends HTMLAttributes<HTMLDivElemen
   onShowInfo?: (anchor: HTMLElement) => void;
   /** Makes the whole slot a button, named `label`. */
   onPress?: MouseEventHandler<HTMLElement>;
+  /** The slot's name for screen readers. */
   label?: string;
   /** False leaves out the actions shown on hover. */
   actions?: boolean;
@@ -89,6 +90,8 @@ export function WheelAugmentationSlot({
       <Tooltip label={tooltip}>
         <div
           className={styles.body}
+          role={onPress || !label ? undefined : "img"}
+          aria-label={onPress ? undefined : label}
           draggable={onDragStart !== undefined || undefined}
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
