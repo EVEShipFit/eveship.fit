@@ -40,7 +40,7 @@ export function Fitting({ data, layout, skills }: FittingProps) {
     >
       <ImagesProvider images={data.images}>
         <TextsProvider texts={data.texts}>
-          {skills !== null && createPortal(<Skills loginError={data.login.error} />, skills)}
+          {skills !== null && createPortal(<Skills loginError={data.login.error} empty={empty} />, skills)}
           {data.linkError !== undefined && (
             <div className={styles.contents} style={scale}>
               <LinkError error={data.linkError} />
