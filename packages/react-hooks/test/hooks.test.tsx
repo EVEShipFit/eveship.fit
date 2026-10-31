@@ -956,17 +956,30 @@ test("a zKillboard failure is asked again when the fit changes", async () => {
   expect(zkillboardPrice.mock.calls).toEqual([[DAMAGE_CONTROL_II], [DAMAGE_CONTROL_II], [autocannon]]);
 });
 
-test("a preview does not ask zKillboard", async () => {
+test("a preview asks zKillboard, and is neither better nor worse until it answers", async () => {
   const zkillboard = new ZKillboard();
-  const zkillboardPrice = vi.spyOn(zkillboard, "price").mockResolvedValue(500_000);
-  const { result } = renderPriced(zkillboard, [[RIFTER, 300_000]]);
-  await waitFor(() => expect(result.current.price.value).toBe(300_000));
+  const zkillboardPrice = vi.spyOn(zkillboard, "price").mockResolvedValue(600_000);
+  const { result } = renderPriced(
+    zkillboard,
+    [
+      [RIFTER, 300_000],
+      [DAMAGE_CONTROL_II, 500_000],
+    ],
+    withDamageControl(),
+  );
+  await waitFor(() => expect(result.current.price.value).toBe(800_000));
+  const damageControlI = byName("Damage Control I").id;
 
-  act(() => result.current.preview.show((draft) => void draft.fit(DAMAGE_CONTROL_II)));
-  await new Promise((resolve) => setTimeout(resolve, 50));
-
+  act(() =>
+    result.current.preview.show((draft) => {
+      draft.remove(0);
+      draft.fit(damageControlI);
+    }),
+  );
   expect(result.current.price).toEqual({ value: 300_000, change: undefined });
-  expect(zkillboardPrice).not.toHaveBeenCalled();
+
+  await waitFor(() => expect(result.current.price).toEqual({ value: 900_000, change: "worse" }));
+  expect(zkillboardPrice.mock.calls).toEqual([[damageControlI]]);
 });
 
 test("without ESI, the fit has no price", () => {
