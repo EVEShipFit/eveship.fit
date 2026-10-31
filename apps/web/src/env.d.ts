@@ -3,4 +3,6 @@ interface ImportMetaEnv {
   readonly EVESHIPFIT_VERSION: string;
   /** The client ID of EVE's login; without it, there is no login. */
   readonly VITE_ESI_CLIENT_ID?: string;
+  /** "true" shows the preview banner. */
+  readonly VITE_PREVIEW?: string;
 }

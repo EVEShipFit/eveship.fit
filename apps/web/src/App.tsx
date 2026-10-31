@@ -17,6 +17,20 @@ export function App({ data }: { data: Data | null | undefined }) {
 
   return (
     <>
+      {import.meta.env.VITE_PREVIEW === "true" && (
+        <aside className={styles.preview} aria-label="Preview site">
+          <span aria-hidden="true">⚠ </span>
+          <strong>Preview site.</strong> A test version of eveship.fit. Fits and characters are not shared across.{" "}
+          <a
+            href="https://eveship.fit/"
+            onClick={(event) => {
+              event.currentTarget.href = `https://eveship.fit${location.pathname}${location.search}${location.hash}`;
+            }}
+          >
+            Go to eveship.fit →
+          </a>
+        </aside>
+      )}
       <header className={styles.header}>
         <h1 className={styles.title}>
           <a className={styles.brand} href="/">

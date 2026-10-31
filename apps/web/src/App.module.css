@@ -1,3 +1,21 @@
+.preview {
+  background: repeating-linear-gradient(-45deg, #3a2400 0 12px, #2a1a00 12px 24px);
+  border-bottom: 1px solid #6b4200;
+  color: #ffc680;
+  margin: 0;
+  padding: 6px 20px;
+  text-align: center;
+}
+
+.preview strong {
+  color: #ffd9a8;
+}
+
+.preview a {
+  color: inherit;
+  white-space: nowrap;
+}
+
 .header {
   align-items: center;
   background: rgb(11 13 15 / 80%);
@@ -73,8 +91,10 @@
 
 .main {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 16px;
+  min-height: 0;
   overflow-y: auto;
   padding: 16px;
 }
@@ -158,6 +178,10 @@
 }
 
 @media (max-width: 640px) {
+  .preview {
+    padding: 6px 12px;
+  }
+
   .header {
     padding: 10px 12px;
   }
