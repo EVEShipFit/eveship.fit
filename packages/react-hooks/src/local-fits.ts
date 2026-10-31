@@ -20,7 +20,6 @@ const noFits: readonly Fit[] = [];
 
 /** Fits kept in IndexedDB: the browser's by ship and name, a character's by ESI fitting ID. */
 export class LocalFits {
-  readonly #factory: IDBFactory;
   readonly #db: Promise<IDBDatabase>;
   readonly #channel: BroadcastChannel;
   readonly #listeners = new Set<() => void>();
@@ -28,11 +27,9 @@ export class LocalFits {
   #lists = new Map<FitOwner, readonly Fit[]>();
   #reads = 0;
 
-  constructor({ factory = indexedDB, name = "eveshipfit" }: LocalFitsOptions = {}) {
-    this.#factory = factory;
-    const request = factory.open(name, 1);
-    request.addEventListener("upgradeneeded", () => request.result.createObjectStore(STORE));
-    this.#db = result(request);
+  constructor({ factory, name = "eveshipfit" }: LocalFitsOptions = {}) {
+    this.#db = openDatabase(factory, name);
+    this.#db.catch((error: unknown) => console.error(error));
     this.#channel = new BroadcastChannel(name);
     this.#channel.addEventListener("message", () => void this.#reload());
     void this.#reload();
@@ -49,7 +46,7 @@ export class LocalFits {
   /** Saves the fit in the browser. */
   save(fit: Fit): Promise<void> {
     const key = browserKey(fit);
-    const index = this.#entries.findIndex((entry) => this.#same(entry.key, key));
+    const index = this.#entries.findIndex((entry) => same(entry.key, key));
     void navigator.storage?.persist?.();
     return this.#change(
       index === -1 ? [...this.#entries, { key, fit }] : this.#entries.with(index, { key, fit }),
@@ -61,7 +58,7 @@ export class LocalFits {
   remove(fit: Fit): Promise<void> {
     const key = browserKey(fit);
     return this.#change(
-      this.#entries.filter((entry) => !this.#same(entry.key, key)),
+      this.#entries.filter((entry) => !same(entry.key, key)),
       (store) => store.delete(key),
     );
   }
@@ -85,7 +82,7 @@ export class LocalFits {
   /** Stops listening to other tabs and closes the database. */
   async close() {
     this.#channel.close();
-    (await this.#db).close();
+    (await this.#db.catch(() => undefined))?.close();
   }
 
   async #change(entries: readonly Entry[], write: (store: IDBObjectStore) => void) {
@@ -105,7 +102,9 @@ export class LocalFits {
 
   async #reload() {
     const read = ++this.#reads;
-    const store = (await this.#db).transaction(STORE).objectStore(STORE);
+    const db = await this.#db.catch(() => undefined);
+    if (db === undefined) return;
+    const store = db.transaction(STORE).objectStore(STORE);
     const [keys, fits] = await Promise.all([result(store.getAllKeys()), result<Fit[]>(store.getAll())]);
     if (read === this.#reads) this.#publish(keys.map((key, index) => ({ key, fit: fits[index]! })));
   }
@@ -120,10 +119,12 @@ export class LocalFits {
     );
     for (const listener of this.#listeners) listener();
   }
+}
 
-  #same(a: IDBValidKey, b: IDBValidKey): boolean {
-    return this.#factory.cmp(a, b) === 0;
-  }
+async function openDatabase(factory: IDBFactory = indexedDB, name: string): Promise<IDBDatabase> {
+  const request = factory.open(name, 1);
+  request.addEventListener("upgradeneeded", () => request.result.createObjectStore(STORE));
+  return result(request);
 }
 
 function result<T>(request: IDBRequest<T>): Promise<T> {
@@ -135,6 +136,10 @@ function result<T>(request: IDBRequest<T>): Promise<T> {
 
 function browserKey(fit: Fit): IDBValidKey {
   return ["browser", fit.ship.type_id, fit.name ?? ""];
+}
+
+function same(a: IDBValidKey, b: IDBValidKey): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
 }
 
 function ownerOf(key: IDBValidKey): FitOwner {
