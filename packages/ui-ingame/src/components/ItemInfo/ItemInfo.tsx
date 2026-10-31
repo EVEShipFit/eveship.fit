@@ -48,7 +48,7 @@ type Tab = "attributes" | "variations";
 
 function InfoCard({ shown: { target, anchor }, onClose }: { shown: ShownInfo; onClose: () => void }) {
   const info = useInfo(target);
-  const { type, fitted, variations } = info;
+  const { type, fitted, ship, variations } = info;
   const price = useTypePrice(target.typeId);
   const card = useRef<HTMLElement>(null);
   const anchorName = `--item-info-${useId().replace(/[^\w-]/g, "")}`;
@@ -115,7 +115,11 @@ function InfoCard({ shown: { target, anchor }, onClose }: { shown: ShownInfo; on
             <span className={styles.muted}>{formatNumber(price, { decimals: 0 })} ISK Est. price</span>
           )}
           <span>
-            {fitted === undefined ? "Not fitted" : `${fitted.charge ? "Loaded" : "Fitted"} · ${slotName(fitted.slot)}`}
+            {ship
+              ? "Hull"
+              : fitted === undefined
+                ? "Not fitted"
+                : `${fitted.charge ? "Loaded" : "Fitted"} · ${slotName(fitted.slot)}`}
           </span>
         </div>
       </header>
@@ -185,10 +189,10 @@ function Variations({ shown: { target, anchor }, info: { fitted, variations } }:
   useEffect(() => () => clearPreview(), []);
 
   const fit = useFit();
-  const module = ref === undefined ? undefined : fit.items[ref];
+  const module = typeof ref === "number" ? fit.items[ref] : undefined;
   const charges = useCharges(fitted?.charge ? module?.type_id : undefined);
   const swapper = (type: SdeType) => {
-    if (fitted === undefined || ref === undefined) return undefined;
+    if (fitted === undefined || typeof ref !== "number") return undefined;
     if (fitted.charge && !charges.includes(type)) return undefined;
     const swap = (draft: FitStore) => (fitted.charge ? draft.setCharge(ref, type.id) : draft.setType(ref, type.id));
     return {

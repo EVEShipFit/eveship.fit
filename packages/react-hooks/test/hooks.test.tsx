@@ -553,6 +553,22 @@ test("info of a loaded charge", () => {
   expect(result.current.fitted).toEqual({ slot: { type: "high", index: 0 }, charge: true });
 });
 
+test("info of the ship is on the fit", () => {
+  const { result } = render(() => useInfo({ typeId: RIFTER, ref: "ship" }), { fit: withDamageControl() });
+
+  expect(result.current.ship).toBe(true);
+  expect(result.current.fitted).toBeUndefined();
+  expect(result.current.attributes.some((attribute) => attribute.change === "better")).toBe(true);
+});
+
+test("info of another hull than the ship is as the SDE has it", () => {
+  const slasher = engine.sde.typeByName("Slasher")!.id;
+  const { result } = render(() => useInfo({ typeId: slasher, ref: "ship" }), { fit: withDamageControl() });
+
+  expect(result.current.ship).toBe(false);
+  expect(result.current.attributes.every((attribute) => attribute.change === undefined)).toBe(true);
+});
+
 test("info of a ref that no longer holds the type is as the SDE has it", () => {
   const { result } = render(() => useInfo({ typeId: RIFTER, ref: 0 }), { fit: withDamageControl() });
 

@@ -218,6 +218,21 @@ export const ShowInfo: Story = {
   },
 };
 
+/** Show Info on the fit name shows the hull, with the values on the fit. */
+export const ShowInfoHull: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    const name = canvas.getByRole("button", { name: "Storybook Rifter" }).closest("div")!;
+    await userEvent.click(within(name).getByRole("button", { name: "Show Info" }));
+    const info = canvas.getByRole("region", { name: "Info on Rifter" });
+    await expect(within(info).getByText("Hull")).toBeVisible();
+    await expect(within(info).getByText("Shield Capacity").closest("dt")!.nextElementSibling).toHaveAttribute(
+      "data-change",
+      "better",
+    );
+  },
+};
+
 /** Variations lists the fitted one among the others; double clicking another fits it in its place. */
 export const ShowInfoVariations: Story = {
   parameters: { fit: rifter },

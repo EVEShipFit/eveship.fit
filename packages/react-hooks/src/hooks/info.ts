@@ -19,7 +19,9 @@ export interface Info {
   readonly type: SdeType | undefined;
   /** Where the target is fitted, as a module or as the charge loaded in it. */
   readonly fitted: { readonly slot: Slot; readonly charge: boolean } | undefined;
-  /** The published ones; on the fit when fitted, else as the SDE has them. */
+  /** Whether the target is the fit's ship. */
+  readonly ship: boolean;
+  /** The published ones; on the fit when fitted or the ship, else as the SDE has them. */
   readonly attributes: readonly InfoAttribute[];
   /** Itself included, as `Sde.variations` has them. */
   readonly variations: readonly SdeType[];
@@ -41,11 +43,12 @@ export function useInfo(target: InfoTarget): Info {
   const { fit, stats } = useSnapshot();
   const { typeId, ref } = target;
   const type = sde.type(typeId);
-  const item = ref === undefined ? undefined : fit.items[ref];
+  const ship = ref === "ship" && fit.ship.type_id === typeId;
+  const item = typeof ref === "number" ? fit.items[ref] : undefined;
   const charge = item !== undefined && item.type_id !== typeId && item.charge?.type_id === typeId;
   const fitted = item !== undefined && (item.type_id === typeId || charge) ? { slot: item.slot, charge } : undefined;
-  const itemStats = fitted && ref !== undefined ? stats.items[ref] : undefined;
-  const onFit = charge ? itemStats?.charge : itemStats?.attributes;
+  const itemStats = fitted && typeof ref === "number" ? stats.items[ref] : undefined;
+  const onFit = ship ? stats.ship : charge ? itemStats?.charge : itemStats?.attributes;
 
   const attributes = useMemo(() => {
     const rows: InfoAttribute[] = [];
@@ -67,5 +70,5 @@ export function useInfo(target: InfoTarget): Info {
 
   const variations = useMemo(() => sde.variations(typeId), [sde, typeId]);
 
-  return { type, fitted, attributes, variations };
+  return { type, fitted, ship, attributes, variations };
 }
