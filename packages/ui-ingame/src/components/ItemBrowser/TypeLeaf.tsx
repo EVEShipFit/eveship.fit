@@ -2,13 +2,16 @@ import {
   formatNumber,
   useDrag,
   useFitStore,
+  useHullRefuses,
   useImages,
   usePreview,
+  useRefusal,
+  useSde,
   useShowInfo,
   useTypePrice,
 } from "@eveshipfit/react-hooks";
 import type { MarketGroupNode, MetaFolder, MetaSortedTypes, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
-import { useRef, useState, type DragEvent, type ReactNode } from "react";
+import { useEffect, useEffectEvent, useRef, useState, type DragEvent, type ReactNode } from "react";
 
 import { Icon, useIconUrl } from "../../primitives/Icon/Icon";
 import { Tooltip, TooltipText } from "../../primitives/Tooltip/Tooltip";
@@ -33,23 +36,39 @@ export interface TypeActions {
 /** Previews a type on hover, fits it on double click, drags it to the wheel, and shows its info; render `dragImage` once. */
 export function useTypeActions(): { actions: TypeActions; clear: () => void; dragImage: ReactNode } {
   const store = useFitStore();
+  const sde = useSde();
+  const refuses = useHullRefuses();
+  const { refuse, hold, release } = useRefusal();
   const { show, clear } = usePreview();
   const { start, end } = useDrag();
   const { show: showInfo } = useShowInfo();
   const [hovered, setHovered] = useState<number>();
   const dragImage = useRef<HTMLSpanElement>(null);
 
+  const refused = (typeId: number) => {
+    const type = sde.type(typeId);
+    return type !== undefined && refuses(type);
+  };
+
   const actions: TypeActions = {
-    fit: (typeId) => void store.fit(typeId),
+    fit: (typeId) => {
+      if (refused(typeId)) refuse(typeId);
+      else store.fit(typeId);
+    },
     hover: (typeId, hovering) => {
       if (hovering) {
         setHovered(typeId);
-        show((draft) => void draft.fit(typeId));
-      } else clear();
+        if (refused(typeId)) hold(typeId);
+        else show((draft) => void draft.fit(typeId));
+      } else {
+        clear();
+        release();
+      }
     },
     info: (typeId, element) => showInfo({ typeId }, { element, side: "right" }),
     drag: (event, type) => {
       clear();
+      release();
       const image = dragImage.current;
       if (image?.dataset.typeId === String(type.id)) event.dataTransfer.setDragImage(image, 32, 32);
       event.dataTransfer.effectAllowed = "copy";
@@ -62,9 +81,15 @@ export function useTypeActions(): { actions: TypeActions; clear: () => void; dra
     },
   };
 
+  const releaseOnUnmount = useEffectEvent(release);
+  useEffect(() => () => releaseOnUnmount(), []);
+
   return {
     actions,
-    clear,
+    clear: () => {
+      clear();
+      release();
+    },
     dragImage: hovered !== undefined && (
       <span ref={dragImage} className={styles.dragImage} data-type-id={hovered} aria-hidden>
         <TypeIcon typeId={hovered} size={64} loading="eager" />

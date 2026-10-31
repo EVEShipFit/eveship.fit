@@ -39,6 +39,7 @@ import {
   useFighterTubes,
   useFighterTubeUsage,
   useHardpoints,
+  useHullRefuses,
   useHullTree,
   useImages,
   useInfo,
@@ -55,6 +56,7 @@ import {
   usePlacement,
   usePreview,
   useRackUsage,
+  useRefusal,
   useSde,
   useShowInfo,
   useSlots,
@@ -488,6 +490,31 @@ test("browse", () => {
   expect(result.current.request).toEqual({ target: { type: "implant", index: 3 } });
 });
 
+test("refusal", () => {
+  const { result } = render(() => useRefusal());
+  expect(result.current.refusal).toBeUndefined();
+
+  act(() => result.current.refuse(2048));
+  const first = result.current.refusal;
+  expect(first).toEqual({ typeId: 2048, held: false });
+
+  act(() => result.current.refuse(2048));
+  expect(result.current.refusal).toEqual({ typeId: 2048, held: false });
+  expect(result.current.refusal).not.toBe(first);
+
+  act(() => result.current.release());
+  expect(result.current.refusal).toEqual({ typeId: 2048, held: false });
+
+  act(() => result.current.hold(2048));
+  const held = result.current.refusal;
+  expect(held).toEqual({ typeId: 2048, held: true });
+  act(() => result.current.refuse(2048));
+  expect(result.current.refusal).toBe(held);
+
+  act(() => result.current.release());
+  expect(result.current.refusal).toBeUndefined();
+});
+
 test("show info", () => {
   const { result } = render(() => useShowInfo());
   expect(result.current.shown).toBeUndefined();
@@ -764,6 +791,13 @@ test("where a type goes, and whether it may go on the fit's ship", () => {
   expect(result.current.canFit(byName("Warrior II"))).toBe(false);
   expect(result.current.canFit(byName("Templar II"))).toBe(false);
   expect(result.current.canFit(byName("EMP S"))).toBe(true);
+});
+
+test("the hull refuses a type it cannot fit, but not one without a place", () => {
+  const { result } = render(() => useHullRefuses());
+  expect(result.current(byName("Medium Projectile Burst Aerator I"))).toBe(true);
+  expect(result.current(byName("Damage Control II"))).toBe(false);
+  expect(result.current(byName("Rifter"))).toBe(false);
 });
 
 test("a carrier takes fighters of the kinds it has tubes for", () => {

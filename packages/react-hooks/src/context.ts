@@ -2,7 +2,7 @@ import type { Engine, FitStore, ItemRef, Preview, Rack } from "@eveshipfit/fitti
 import type { Images } from "@eveshipfit/images";
 import type { Texts } from "@eveshipfit/sde-loader";
 import type { ZKillboard } from "@eveshipfit/zkillboard";
-import { createContext, useContext, type Context } from "react";
+import { createContext, useContext, type Context, type Dispatch, type SetStateAction } from "react";
 
 import type { DamageProfiles } from "./damage-profiles.js";
 import type { EsiCharacters } from "./esi-characters.js";
@@ -35,6 +35,17 @@ export interface BrowseRequest {
 export interface BrowseState {
   request: BrowseRequest | undefined;
   setRequest: (request: BrowseRequest) => void;
+}
+
+/** A type the fit refused; `held` until released, else for a moment. */
+export interface Refusal {
+  readonly typeId: number;
+  readonly held: boolean;
+}
+
+export interface RefusalState {
+  refusal: Refusal | undefined;
+  setRefusal: Dispatch<SetStateAction<Refusal | undefined>>;
 }
 
 /** A type to show the info of; with `ref`, as fitted there (as module or its charge) or as the fit's ship. */
@@ -76,6 +87,7 @@ export const FitContext = createContext<FitStore | undefined>(undefined);
 export const PreviewContext = createContext<PreviewState | undefined>(undefined);
 export const DragContext = createContext<DragState | undefined>(undefined);
 export const BrowseContext = createContext<BrowseState | undefined>(undefined);
+export const RefusalContext = createContext<RefusalState | undefined>(undefined);
 export const InfoContext = createContext<InfoState | undefined>(undefined);
 export const CharacterContext = createContext<CharacterState | undefined>(undefined);
 export const DamageProfileContext = createContext<DamageProfileState | undefined>(undefined);

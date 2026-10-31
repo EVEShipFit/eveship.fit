@@ -9,6 +9,7 @@ import {
   DamageProfileContext,
   DamageProfilesContext,
   DragContext,
+  RefusalContext,
   EngineContext,
   EsiCharactersContext,
   FitContext,
@@ -18,6 +19,7 @@ import {
   type BrowseRequest,
   type ShownInfo,
   type DragItem,
+  type Refusal,
   type PreviewState,
 } from "./context.js";
 import { DamageProfiles } from "./damage-profiles.js";
@@ -74,6 +76,7 @@ export function EveShipFitProvider({
   };
   const [dragging, setDragging] = useState<DragItem>();
   const [browse, setBrowse] = useState<BrowseRequest>();
+  const [refusal, setRefusal] = useState<Refusal>();
   const [info, setInfo] = useState<ShownInfo>();
   const [character, setCharacter] = useState(firstCharacter ?? ALL_SKILLS_V);
   useFlyCharacter(engine, fit ?? ownFit, characters, character, firstCharacter !== undefined);
@@ -89,13 +92,15 @@ export function EveShipFitProvider({
               <PreviewContext value={previewState}>
                 <DragContext value={{ dragging, setDragging }}>
                   <BrowseContext value={{ request: browse, setRequest: setBrowse }}>
-                    <InfoContext value={{ shown: info, setShown: setInfo }}>
-                      <DamageProfilesContext value={damageProfiles ?? ownDamageProfiles}>
-                        <DamageProfileContext value={{ current: damageProfile, setCurrent: setDamageProfile }}>
-                          <ZKillboardContext value={zkillboard}>{children}</ZKillboardContext>
-                        </DamageProfileContext>
-                      </DamageProfilesContext>
-                    </InfoContext>
+                    <RefusalContext value={{ refusal, setRefusal }}>
+                      <InfoContext value={{ shown: info, setShown: setInfo }}>
+                        <DamageProfilesContext value={damageProfiles ?? ownDamageProfiles}>
+                          <DamageProfileContext value={{ current: damageProfile, setCurrent: setDamageProfile }}>
+                            <ZKillboardContext value={zkillboard}>{children}</ZKillboardContext>
+                          </DamageProfileContext>
+                        </DamageProfilesContext>
+                      </InfoContext>
+                    </RefusalContext>
                   </BrowseContext>
                 </DragContext>
               </PreviewContext>

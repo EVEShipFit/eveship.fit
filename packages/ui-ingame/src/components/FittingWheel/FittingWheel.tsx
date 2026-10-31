@@ -1,21 +1,26 @@
-import type { FitStore } from "@eveshipfit/fitting";
+import type { FitStore, Placement } from "@eveshipfit/fitting";
 import {
   formatNumber,
   useAttribute,
+  useCanFit,
   useDrag,
   useEngine,
   useFit,
   useFitStore,
   useHardpoints,
+  useHullRefuses,
   useModes,
+  usePlacement,
   usePreview,
   useRackUsage,
+  useRefusal,
+  useSde,
   useSlots,
   useStats,
   type DragItem,
   type SlotContent,
 } from "@eveshipfit/react-hooks";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { rackSize, slotAngle, type WheelRack } from "../../primitives/Wheel/layout";
 import { Wheel } from "../../primitives/Wheel/Wheel";
@@ -25,6 +30,7 @@ import { WheelHardpoints } from "../../primitives/Wheel/WheelHardpoints";
 import { WheelHull } from "../../primitives/Wheel/WheelHull";
 import { WheelLink } from "../../primitives/Wheel/WheelLink";
 import { WheelModes } from "../../primitives/Wheel/WheelModes";
+import { WheelNotice } from "../../primitives/Wheel/WheelNotice";
 import { WheelRackMarker, type MarkedRack } from "../../primitives/Wheel/WheelRackMarker";
 import { WheelSlot } from "../../primitives/Wheel/WheelSlot";
 import { FittingAugmentations } from "./FittingAugmentations";
@@ -60,6 +66,7 @@ export function FittingWheel({
       <WheelHull typeId={ship} />
       {!readOnly && <FittingCentre />}
       {!readOnly && <FittingCopyHint />}
+      {!readOnly && <FittingHullNotice />}
       {markedRacks.map((rack) => (
         <WheelRackMarker key={rack} rack={rack} />
       ))}
@@ -118,7 +125,10 @@ function FittingCentre() {
   const fit = useFit();
   const { show, clear } = usePreview();
   const { dragging, end } = useDrag();
-  const fits = dragging?.type === "type" && placesSomewhere(store, dragging.typeId);
+  const sde = useSde();
+  const canFit = useCanFit();
+  const type = dragging?.type === "type" ? sde.type(dragging.typeId) : undefined;
+  const fits = type !== undefined && canFit(type) && placesSomewhere(store, type.id);
   const takes = (item: DragItem | undefined): item is DragItem => {
     if (item === undefined) return false;
     if (item.type === "item") return fit.items[item.ref] !== undefined;
@@ -130,9 +140,8 @@ function FittingCentre() {
       className={styles.centre}
       data-centre
       onDragEnter={() => {
-        if (dragging?.type !== "type") return;
-        const { typeId } = dragging;
-        show((draft) => void draft.fit(typeId), "centre");
+        if (!fits) return;
+        show((draft) => void draft.fit(type.id), "centre");
       }}
       onDragLeave={() => clear("centre")}
       onDragOver={(event) => {
@@ -160,6 +169,32 @@ function FittingCopyHint() {
   const slot = dragging?.type === "item" ? fit.items[dragging.ref]?.slot : undefined;
   if (slot === undefined || !copiedRacks.includes(slot.type)) return null;
   return <WheelHint text={`hold ${copyKey} to copy`} />;
+}
+
+const refusalShown = 3000;
+const kinds: Partial<Record<Placement["type"], string>> = { drone_bay: "drone", fighter_bay: "fighter" };
+
+/** Tells that the hull cannot fit the type being dragged, or the type refused. */
+function FittingHullNotice() {
+  const sde = useSde();
+  const placement = usePlacement();
+  const refuses = useHullRefuses();
+  const { dragging } = useDrag();
+  const { refusal } = useRefusal();
+  const [expired, setExpired] = useState(refusal);
+
+  useEffect(() => {
+    if (refusal === undefined || refusal.held) return;
+    const timer = setTimeout(() => setExpired(refusal), refusalShown);
+    return () => clearTimeout(timer);
+  }, [refusal]);
+
+  const dragged = dragging?.type === "type" ? sde.type(dragging.typeId) : undefined;
+  const refused = refusal !== undefined && (refusal.held || refusal !== expired) ? sde.type(refusal.typeId) : undefined;
+  const type = dragging === undefined ? refused : dragged && refuses(dragged) ? dragged : undefined;
+  if (type === undefined) return null;
+  const place = placement(type)?.type;
+  return <WheelNotice text={`Hull cannot fit this ${(place && kinds[place]) ?? "module"} type`} />;
 }
 
 function FittingModes({ readOnly }: { readOnly: boolean }) {
