@@ -1,5 +1,11 @@
 # @eveshipfit/sde-loader
 
+## 4.0.0
+
+### Major Changes
+
+- Require `@eveshipfit/sde` 14 or newer, and add `Texts.typeBonuses` ([#312](https://github.com/EVEShipFit/eveship.fit/pull/312))
+
 ## 3.0.0
 
 ### Major Changes

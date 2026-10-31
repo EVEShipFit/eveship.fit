@@ -1,5 +1,38 @@
 # @eveshipfit/ui-ingame
 
+## 1.11.0
+
+### Minor Changes
+
+- Right-click menus on modules, implants, boosters, the hull, items in the item browser, hulls and saved fits ([#314](https://github.com/EVEShipFit/eveship.fit/pull/314))
+
+- Hovering the Simulation History previews that fit ([#308](https://github.com/EVEShipFit/eveship.fit/pull/308))
+
+- Add `pasteToOpen` to `ItemBrowser`: paste a fit anywhere on the page to open it ([#310](https://github.com/EVEShipFit/eveship.fit/pull/310))
+
+- Show a ship's bonuses when hovering its picture in the hull list, or the Show Info button of the fit ([#316](https://github.com/EVEShipFit/eveship.fit/pull/316))
+
+- Scroll an open tooltip with the wheel, when its label is too long to show at once ([#316](https://github.com/EVEShipFit/eveship.fit/pull/316))
+
+### Patch Changes
+
+- Hovering the fit's price lists what it adds up ([#309](https://github.com/EVEShipFit/eveship.fit/pull/309))
+
+- Hulls & Fits says "No hulls found" when nothing matches ([#298](https://github.com/EVEShipFit/eveship.fit/pull/298))
+
+- The item browser refuses a module without a free slot, or a charge no fitted module loads, and the wheel says so ([#307](https://github.com/EVEShipFit/eveship.fit/pull/307))
+
+- The buttons over a hovered slot are equally sharp ([#303](https://github.com/EVEShipFit/eveship.fit/pull/303))
+
+- Make the statistics section headers stand out ([#305](https://github.com/EVEShipFit/eveship.fit/pull/305))
+
+- Line up the tooltip's border with its notch ([#302](https://github.com/EVEShipFit/eveship.fit/pull/302))
+
+- Wrap a long tooltip inside something that does not wrap ([#316](https://github.com/EVEShipFit/eveship.fit/pull/316))
+- Updated dependencies [[`d805b5c`](https://github.com/EVEShipFit/eveship.fit/commit/d805b5c967665ca4f303f097f3621edf9b4272c2), [`8336fc4`](https://github.com/EVEShipFit/eveship.fit/commit/8336fc4aea6e90cbb8945a59a9fa73e429e6c17b), [`56b4b6a`](https://github.com/EVEShipFit/eveship.fit/commit/56b4b6a4140a48925a9cd164448cf13c7d4daff5), [`722bc02`](https://github.com/EVEShipFit/eveship.fit/commit/722bc0299b315e52617d6568667b4eb29a42cb10), [`d390b93`](https://github.com/EVEShipFit/eveship.fit/commit/d390b93c44788ef41da764236fa7bfb550dae6b5)]:
+  - @eveshipfit/fitting@2.5.0
+  - @eveshipfit/react-hooks@2.5.0
+
 ## 1.10.0
 
 ### Minor Changes
