@@ -6,6 +6,8 @@ catalog:
   "@babel/core": ^8.0.9
   "@changesets/changelog-github": 1.0.1
   "@changesets/cli": ^3.0.3
+  "@cloudflare/puppeteer": ^1.4.0
+  "@cloudflare/workers-types": ^5.20261031.1
   "@eveshipfit/dogma-engine": ^13.7.0
   "@eveshipfit/images": ^3.3654997.0
   "@eveshipfit/sde": ^14.3662168.0

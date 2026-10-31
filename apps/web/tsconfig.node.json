@@ -4,5 +4,5 @@
     "types": ["node"],
     "outDir": "${configDir}/.tsbuild/node"
   },
-  "include": ["vite.config.ts", "playwright.config.ts", "e2e"]
+  "include": ["vite.config.ts", "vite.worker.config.ts", "playwright.config.ts", "e2e"]
 }
