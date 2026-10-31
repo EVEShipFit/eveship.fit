@@ -14,7 +14,6 @@
   },
   "browser": { "binding": "BROWSER" },
   "version_metadata": { "binding": "VERSION" },
-  "observability": { "enabled": true },
   "env": {
     "production": {
       "name": "eveship-fit",
