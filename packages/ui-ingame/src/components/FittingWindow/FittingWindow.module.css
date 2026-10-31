@@ -168,7 +168,7 @@
 .alertLine {
   align-items: center;
   display: flex;
-  gap: 8px;
+  gap: calc(8 * var(--window-unit));
 }
 
 .alertLine::before {

@@ -334,8 +334,8 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  width: min(420px, 80vw);
+  gap: calc(8 * var(--browser-unit));
+  width: min(calc(420 * var(--browser-unit)), 80vw);
 }
 
 .form > label {
@@ -345,8 +345,9 @@
 .form > input,
 .form > textarea {
   background: var(--esf-input-bg);
-  border: 1px solid var(--esf-input-border);
+  border: var(--browser-unit) solid var(--esf-input-border);
   color: var(--esf-text);
+  font: inherit;
 }
 
 .form > textarea {
@@ -360,16 +361,16 @@
 }
 
 .confirm {
-  max-width: min(360px, 80vw);
+  max-width: min(calc(360 * var(--browser-unit)), 80vw);
 }
 
 .confirm > p {
-  margin: 0 0 12px;
+  margin: 0 0 calc(12 * var(--browser-unit));
 }
 
 .dialogButtons {
   display: flex;
-  gap: 8px;
+  gap: calc(8 * var(--browser-unit));
   justify-content: flex-end;
 }
 

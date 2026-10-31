@@ -7,19 +7,20 @@
 }
 
 .tooltip {
-  --notch-size: 10px;
+  --tooltip-unit: calc(1px * var(--esf-scale, 1));
+  --notch-size: calc(10 * var(--tooltip-unit));
   /* Half the notch's diagonal, so its tip ends just short of the anchor. */
-  --notch-reach: calc(var(--notch-size) * 0.71 + 1px);
+  --notch-reach: calc(var(--notch-size) * 0.71 + var(--tooltip-unit));
 
   anchor-name: var(--tooltip-box);
   background: none;
   border: none;
   color: var(--esf-text);
   font-family: var(--esf-font);
-  font-size: var(--esf-font-size);
+  font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
   inset: auto;
   margin: var(--notch-reach) 0;
-  max-width: 320px;
+  max-width: calc(320 * var(--tooltip-unit));
   opacity: 0.9;
   overflow: visible;
   padding: 0;
@@ -32,7 +33,7 @@
 .notch,
 .label {
   background: var(--esf-bg);
-  border: 1px solid var(--esf-border);
+  border: var(--tooltip-unit) solid var(--esf-border);
 }
 
 /*
@@ -66,26 +67,26 @@
 
 .label {
   display: block;
-  padding: 8px 14px;
+  padding: calc(8 * var(--tooltip-unit)) calc(14 * var(--tooltip-unit));
   position: relative;
 }
 
 .label::after {
   background: var(--esf-bg);
   content: "";
-  height: 1px;
-  top: clamp(anchor(var(--tooltip-box) top), var(--edge), anchor(var(--tooltip-box) bottom) - 1px);
+  height: var(--tooltip-unit);
+  top: clamp(anchor(var(--tooltip-box) top), var(--edge), anchor(var(--tooltip-box) bottom) - var(--tooltip-unit));
   translate: -50%;
-  width: calc(var(--notch-size) * 1.41 - 2px);
+  width: calc(var(--notch-size) * 1.41 - 2 * var(--tooltip-unit));
 }
 
 .text {
   display: grid;
-  gap: 8px;
+  gap: calc(8 * var(--tooltip-unit));
 }
 
 .text + .text {
-  margin-top: 12px;
+  margin-top: calc(12 * var(--tooltip-unit));
 }
 
 .title {
