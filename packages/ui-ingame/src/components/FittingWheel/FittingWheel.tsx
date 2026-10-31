@@ -2,6 +2,7 @@ import type { FitStore } from "@eveshipfit/fitting";
 import {
   formatNumber,
   useAttribute,
+  useCanFit,
   useDrag,
   useEngine,
   useFit,
@@ -9,13 +10,17 @@ import {
   useHardpoints,
   useModes,
   usePreview,
+  usePlacement,
   useRackUsage,
+  useRefusal,
+  useSde,
   useSlots,
   useStats,
   type DragItem,
+  type Refusal,
   type SlotContent,
 } from "@eveshipfit/react-hooks";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { rackSize, slotAngle, type WheelRack } from "../../primitives/Wheel/layout";
 import { Wheel } from "../../primitives/Wheel/Wheel";
@@ -25,6 +30,7 @@ import { WheelHardpoints } from "../../primitives/Wheel/WheelHardpoints";
 import { WheelHull } from "../../primitives/Wheel/WheelHull";
 import { WheelLink } from "../../primitives/Wheel/WheelLink";
 import { WheelModes } from "../../primitives/Wheel/WheelModes";
+import { WheelNotice } from "../../primitives/Wheel/WheelNotice";
 import { WheelRackMarker, type MarkedRack } from "../../primitives/Wheel/WheelRackMarker";
 import { WheelSlot } from "../../primitives/Wheel/WheelSlot";
 import { FittingAugmentations } from "./FittingAugmentations";
@@ -60,6 +66,7 @@ export function FittingWheel({
       <WheelHull typeId={ship} />
       {!readOnly && <FittingCentre />}
       {!readOnly && <FittingCopyHint />}
+      {!readOnly && <FittingHullNotice />}
       {markedRacks.map((rack) => (
         <WheelRackMarker key={rack} rack={rack} />
       ))}
@@ -118,7 +125,10 @@ function FittingCentre() {
   const fit = useFit();
   const { show, clear } = usePreview();
   const { dragging, end } = useDrag();
-  const fits = dragging?.type === "type" && placesSomewhere(store, dragging.typeId);
+  const sde = useSde();
+  const canFit = useCanFit();
+  const type = dragging?.type === "type" ? sde.type(dragging.typeId) : undefined;
+  const fits = type !== undefined && canFit(type) && placesSomewhere(store, type.id);
   const takes = (item: DragItem | undefined): item is DragItem => {
     if (item === undefined) return false;
     if (item.type === "item") return fit.items[item.ref] !== undefined;
@@ -130,9 +140,8 @@ function FittingCentre() {
       className={styles.centre}
       data-centre
       onDragEnter={() => {
-        if (dragging?.type !== "type") return;
-        const { typeId } = dragging;
-        show((draft) => void draft.fit(typeId), "centre");
+        if (!fits) return;
+        show((draft) => void draft.fit(type.id), "centre");
       }}
       onDragLeave={() => clear("centre")}
       onDragOver={(event) => {
@@ -160,6 +169,29 @@ function FittingCopyHint() {
   const slot = dragging?.type === "item" ? fit.items[dragging.ref]?.slot : undefined;
   if (slot === undefined || !copiedRacks.includes(slot.type)) return null;
   return <WheelHint text={`hold ${copyKey} to copy`} />;
+}
+
+const refusalShown = 3000;
+
+/** Tells that the hull cannot fit the type being dragged, or the type just refused. */
+function FittingHullNotice() {
+  const sde = useSde();
+  const placement = usePlacement();
+  const canFit = useCanFit();
+  const { dragging } = useDrag();
+  const { refusal } = useRefusal();
+  const [expired, setExpired] = useState<Refusal>();
+
+  useEffect(() => {
+    if (refusal === undefined) return;
+    const timer = setTimeout(() => setExpired(refusal), refusalShown);
+    return () => clearTimeout(timer);
+  }, [refusal]);
+
+  const type = dragging?.type === "type" ? sde.type(dragging.typeId) : undefined;
+  const refusesDragged = type !== undefined && placement(type) !== undefined && !canFit(type);
+  if (!refusesDragged && (refusal === undefined || refusal === expired)) return null;
+  return <WheelNotice text="Hull cannot fit this module type" />;
 }
 
 function FittingModes({ readOnly }: { readOnly: boolean }) {

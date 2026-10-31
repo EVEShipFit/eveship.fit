@@ -1,9 +1,13 @@
 import {
   formatNumber,
+  useCanFit,
   useDrag,
   useFitStore,
   useImages,
+  usePlacement,
   usePreview,
+  useRefusal,
+  useSde,
   useShowInfo,
   useTypePrice,
 } from "@eveshipfit/react-hooks";
@@ -33,18 +37,30 @@ export interface TypeActions {
 /** Previews a type on hover, fits it on double click, drags it to the wheel, and shows its info; render `dragImage` once. */
 export function useTypeActions(): { actions: TypeActions; clear: () => void; dragImage: ReactNode } {
   const store = useFitStore();
+  const sde = useSde();
+  const placement = usePlacement();
+  const canFit = useCanFit();
+  const { refuse } = useRefusal();
   const { show, clear } = usePreview();
   const { start, end } = useDrag();
   const { show: showInfo } = useShowInfo();
   const [hovered, setHovered] = useState<number>();
   const dragImage = useRef<HTMLSpanElement>(null);
 
+  const refused = (typeId: number) => {
+    const type = sde.type(typeId);
+    return type !== undefined && placement(type) !== undefined && !canFit(type);
+  };
+
   const actions: TypeActions = {
-    fit: (typeId) => void store.fit(typeId),
+    fit: (typeId) => {
+      if (refused(typeId)) refuse(typeId);
+      else store.fit(typeId);
+    },
     hover: (typeId, hovering) => {
       if (hovering) {
         setHovered(typeId);
-        show((draft) => void draft.fit(typeId));
+        if (!refused(typeId)) show((draft) => void draft.fit(typeId));
       } else clear();
     },
     info: (typeId, element) => showInfo({ typeId }, { element, side: "right" }),

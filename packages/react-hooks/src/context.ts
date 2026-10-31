@@ -37,6 +37,15 @@ export interface BrowseState {
   setRequest: (request: BrowseRequest) => void;
 }
 
+export interface Refusal {
+  readonly typeId: number;
+}
+
+export interface RefusalState {
+  refusal: Refusal | undefined;
+  setRefusal: (refusal: Refusal) => void;
+}
+
 /** A type to show the info of; with `ref`, as fitted there (as module or its charge) or as the fit's ship. */
 export interface InfoTarget {
   readonly typeId: number;
@@ -76,6 +85,7 @@ export const FitContext = createContext<FitStore | undefined>(undefined);
 export const PreviewContext = createContext<PreviewState | undefined>(undefined);
 export const DragContext = createContext<DragState | undefined>(undefined);
 export const BrowseContext = createContext<BrowseState | undefined>(undefined);
+export const RefusalContext = createContext<RefusalState | undefined>(undefined);
 export const InfoContext = createContext<InfoState | undefined>(undefined);
 export const CharacterContext = createContext<CharacterState | undefined>(undefined);
 export const DamageProfileContext = createContext<DamageProfileState | undefined>(undefined);

@@ -1,6 +1,7 @@
 import type { Fit, ItemRef, Rack } from "@eveshipfit/fitting";
 import {
   useBrowse,
+  useCanFit,
   useCharges,
   useDrag,
   useFit,
@@ -54,6 +55,7 @@ export function useFittingSlot(
   const sde = useSde();
   const fit = useFit();
   const placement = usePlacement();
+  const canFit = useCanFit();
   const { show, clear } = usePreview();
   const { dragging, start, end } = useDrag();
   const shownCopy = useRef(false);
@@ -78,7 +80,7 @@ export function useFittingSlot(
     if (dropped === undefined) return false;
     const place = placement(dropped);
     if (place?.type === "charge") return fitted(fit, rack, index) && charges.includes(dropped);
-    return place?.type === rack && (place.type !== "subsystem" || place.index === index);
+    return place?.type === rack && (place.type !== "subsystem" || place.index === index) && canFit(dropped);
   };
 
   const showItem = (moved: ItemRef, copy: boolean) => {

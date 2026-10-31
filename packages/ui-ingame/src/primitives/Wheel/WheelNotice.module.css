@@ -1,0 +1,19 @@
+.notice {
+  height: var(--wheel-texture-size);
+  left: calc(50% - var(--wheel-texture-size) / 2);
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
+  top: calc(50% - var(--wheel-texture-size) / 2);
+  width: var(--wheel-texture-size);
+}
+
+.text {
+  fill: #d9d9d9;
+  font-family: var(--esf-font);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  paint-order: stroke;
+  stroke: rgb(0 0 0 / 60%);
+  stroke-width: 3px;
+}

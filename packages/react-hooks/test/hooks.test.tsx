@@ -55,6 +55,7 @@ import {
   usePlacement,
   usePreview,
   useRackUsage,
+  useRefusal,
   useSde,
   useShowInfo,
   useSlots,
@@ -486,6 +487,19 @@ test("browse", () => {
 
   act(() => result.current.browse({ type: "implant", index: 3 }));
   expect(result.current.request).toEqual({ target: { type: "implant", index: 3 } });
+});
+
+test("refusal", () => {
+  const { result } = render(() => useRefusal());
+  expect(result.current.refusal).toBeUndefined();
+
+  act(() => result.current.refuse(2048));
+  const first = result.current.refusal;
+  expect(first).toEqual({ typeId: 2048 });
+
+  act(() => result.current.refuse(2048));
+  expect(result.current.refusal).toEqual({ typeId: 2048 });
+  expect(result.current.refusal).not.toBe(first);
 });
 
 test("show info", () => {

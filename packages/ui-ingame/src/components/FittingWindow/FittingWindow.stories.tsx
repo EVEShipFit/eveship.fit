@@ -595,6 +595,46 @@ export const DropRefused: Story = {
   },
 };
 
+/** The hull refuses a module it cannot fit, dragged or double clicked, and the wheel says so. */
+export const HullCannotFit: Story = {
+  args: { browser: <ItemBrowser /> },
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const wheel = within(canvas.getByRole("region", { name: "Fitting" }));
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "medium projectile burst aerator i");
+    const aerator = canvas.getByRole("button", { name: "Medium Projectile Burst Aerator I" });
+    const dataTransfer = new DataTransfer();
+    await fireEvent.dragStart(aerator, { dataTransfer });
+    await expect(await wheel.findByText("Hull cannot fit this module type")).toBeInTheDocument();
+    await expect(
+      await fireEvent.dragOver(wheel.getAllByRole("button", { name: "Empty Rig Slot" })[0]!, { dataTransfer }),
+    ).toBe(true);
+    await expect(await fireEvent.dragOver(canvasElement.querySelector("[data-centre]")!, { dataTransfer })).toBe(true);
+    await fireEvent.dragEnd(aerator, { dataTransfer });
+    await expect(wheel.queryByText("Hull cannot fit this module type")).toBeNull();
+
+    const previews = () => canvasElement.querySelectorAll("[data-preview]");
+    await userEvent.hover(aerator);
+    await expect(previews()).toHaveLength(0);
+    await userEvent.dblClick(aerator);
+    await expect(await wheel.findByText("Hull cannot fit this module type")).toBeInTheDocument();
+    await expect(wheel.getAllByRole("button", { name: "Empty Rig Slot" })).toHaveLength(2);
+    await waitFor(() => expect(wheel.queryByText("Hull cannot fit this module type")).toBeNull(), { timeout: 5000 });
+    await userEvent.unhover(aerator);
+
+    await userEvent.clear(canvas.getByRole("searchbox", { name: "Search" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "small projectile burst aerator i");
+    const small = canvas.getByRole("button", { name: "Small Projectile Burst Aerator I" });
+    await userEvent.hover(small);
+    await waitFor(() => expect(previews()).toHaveLength(1));
+    await userEvent.unhover(small);
+    await fireEvent.dragStart(small, { dataTransfer });
+    await expect(wheel.queryByText("Hull cannot fit this module type")).toBeNull();
+    await fireEvent.dragEnd(small, { dataTransfer });
+  },
+};
+
 /** A double click loads a charge in every module that takes it; a drop, in that one module. */
 export const LoadCharge: Story = {
   args: { browser: <ItemBrowser /> },
