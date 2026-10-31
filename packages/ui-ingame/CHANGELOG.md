@@ -1,5 +1,11 @@
 # @eveshipfit/ui-ingame
 
+## 1.11.1
+
+### Patch Changes
+
+- Show the fit's name in the `FittingWindow` preview ([#323](https://github.com/EVEShipFit/eveship.fit/pull/323))
+
 ## 1.11.0
 
 ### Minor Changes
