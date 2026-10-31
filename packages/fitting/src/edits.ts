@@ -59,6 +59,7 @@ export function fitType(sde: Sde, fit: Fit, stats: Stats, typeId: number, slot?:
     case "charge": {
       const modules = fit.items
         .map((item, ref) => ({ item, ref }))
+        .filter(({ item }) => !bays.includes(item.slot.type))
         .filter(({ item }) => slot === undefined || sameSlot(item.slot, slot))
         .filter(({ item }) => {
           const module = sde.type(item.type_id);
@@ -90,6 +91,8 @@ export function fitType(sde: Sde, fit: Fit, stats: Stats, typeId: number, slot?:
       return nowhere;
   }
 }
+
+const bays: readonly SlotType[] = ["cargo", "drone_bay", "fighter_bay"];
 
 const movableRacks: readonly SlotType[] = ["high", "medium", "low", "rig", "service", "fighter_tube"];
 
