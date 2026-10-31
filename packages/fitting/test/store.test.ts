@@ -41,6 +41,32 @@ describe("fit", () => {
     expect(fit.getSnapshot()).toBe(before);
   });
 
+  test("the same type in the same slot changes nothing", () => {
+    const fit = rifter();
+    const implant = fit.fit(id("Ocular Filter - Basic"));
+    const module = fit.fit(id("200mm AutoCannon II"))!;
+    fit.setState(module, "offline");
+    fit.setCharge(module, id("EMP S"));
+
+    const before = fit.getSnapshot();
+    expect(fit.fit(id("Ocular Filter - Basic"))).toBe(implant);
+    expect(fit.fit(id("200mm AutoCannon II"), { type: "high", index: 0 })).toBe(module);
+    expect(fit.getSnapshot()).toBe(before);
+    expect(fit.historyLength).toBe(5);
+  });
+
+  test("the same type in the same slot of an imported fit changes nothing", () => {
+    const fit = rifter();
+    fit.replace({
+      ship: { type_id: id("Rifter") },
+      items: [{ type_id: id("200mm AutoCannon II"), slot: { type: "high", index: 0 }, quantity: 1, state: "active" }],
+    });
+
+    const before = fit.getSnapshot();
+    expect(fit.fit(id("200mm AutoCannon II"), { type: "high", index: 0 })).toBe(0);
+    expect(fit.getSnapshot()).toBe(before);
+  });
+
   test("into a given slot, replacing what is there", () => {
     const fit = rifter();
     fit.fit(id("200mm AutoCannon II"));
