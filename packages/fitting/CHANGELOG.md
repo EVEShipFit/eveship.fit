@@ -1,5 +1,17 @@
 # @eveshipfit/fitting
 
+## 2.4.1
+
+### Patch Changes
+
+- Structures, T3D modes and skills no longer go in the cargo ([#278](https://github.com/EVEShipFit/eveship.fit/pull/278))
+
+- A charge no longer loads into modules in the cargo ([#272](https://github.com/EVEShipFit/eveship.fit/pull/272))
+
+- Fitting the same type into a slot that already has it no longer adds to the history ([#261](https://github.com/EVEShipFit/eveship.fit/pull/261))
+
+- Replacing a fit with the same fit no longer adds to the history ([#269](https://github.com/EVEShipFit/eveship.fit/pull/269))
+
 ## 2.4.0
 
 ### Minor Changes
