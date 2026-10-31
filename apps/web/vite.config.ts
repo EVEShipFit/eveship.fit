@@ -9,6 +9,12 @@ import { defineConfig, type Plugin } from "vite";
 const version =
   process.env.EVESHIPFIT_VERSION ||
   (JSON.parse(readFileSync(new URL("package.json", import.meta.url), "utf8")) as { version: string }).version;
+const packageVersion = (name: string) =>
+  (
+    JSON.parse(readFileSync(new URL(`node_modules/${name}/package.json`, import.meta.url), "utf8")) as {
+      version: string;
+    }
+  ).version;
 const imagesDir = fileURLToPath(new URL("node_modules/@eveshipfit/images/dist/images", import.meta.url));
 
 /** Serves the images of `@eveshipfit/images` at /images/, and copies them into the build. */
@@ -55,6 +61,8 @@ export default defineConfig({
   plugins: [react(), babel({ presets: [reactCompilerPreset()] }), images(), preload()],
   define: {
     "import.meta.env.EVESHIPFIT_VERSION": JSON.stringify(version),
+    "import.meta.env.EVESHIPFIT_SDE_VERSION": JSON.stringify(packageVersion("@eveshipfit/sde")),
+    "import.meta.env.EVESHIPFIT_IMAGES_VERSION": JSON.stringify(packageVersion("@eveshipfit/images")),
   },
   build: {
     target: "es2024",

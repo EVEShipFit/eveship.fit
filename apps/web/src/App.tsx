@@ -105,5 +105,14 @@ function DataVersion({ data }: { data: Data | null | undefined }) {
   const releaseDate = data?.sde.releaseDate;
   if (releaseDate === undefined) return null;
 
-  return <> · EVE data from {releaseDate.toISOString().slice(0, 10)}</>;
+  return (
+    <>
+      {" · "}
+      <span
+        title={`sde ${import.meta.env.EVESHIPFIT_SDE_VERSION}\nimages ${import.meta.env.EVESHIPFIT_IMAGES_VERSION}`}
+      >
+        EVE data from {releaseDate.toISOString().slice(0, 10)}
+      </span>
+    </>
+  );
 }
