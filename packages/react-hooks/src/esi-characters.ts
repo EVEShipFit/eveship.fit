@@ -280,18 +280,28 @@ export class EsiCharacters {
   }
 
   #publish() {
+    const before = new Map(this.#list.map((character) => [character.id, character.skills]));
     this.#list = this.#stored
-      .map(({ id, name, refreshToken, scopes, skills, updated }) => ({
-        id,
-        name,
-        skills,
-        updated,
-        status: this.#status.get(id) ?? (refreshToken === undefined ? "expired" : "ready"),
-        canReadFits: scopes?.includes(FITTINGS_SCOPE) ?? false,
-      }))
+      .map(({ id, name, refreshToken, scopes, skills, updated }) => {
+        const known = before.get(id);
+        return {
+          id,
+          name,
+          skills: sameLevels(known, skills) ? known : skills,
+          updated,
+          status: this.#status.get(id) ?? (refreshToken === undefined ? "expired" : "ready"),
+          canReadFits: scopes?.includes(FITTINGS_SCOPE) ?? false,
+        };
+      })
       .toSorted((a, b) => a.name.localeCompare(b.name));
     for (const listener of this.#listeners) listener();
   }
+}
+
+function sameLevels(a: Readonly<Record<number, number>> | undefined, b: Readonly<Record<number, number>> | undefined) {
+  if (a === undefined || b === undefined) return a === b;
+  const keys = Object.keys(a);
+  return keys.length === Object.keys(b).length && keys.every((key) => a[Number(key)] === b[Number(key)]);
 }
 
 /** The fitting as a fit with its fitting ID; none when the engine cannot read it. */
