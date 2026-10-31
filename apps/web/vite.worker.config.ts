@@ -1,4 +1,3 @@
-import { builtinModules } from "node:module";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -14,6 +13,5 @@ export default defineConfig({
   ssr: {
     target: "webworker",
     noExternal: true,
-    external: [...builtinModules, ...builtinModules.map((name) => `node:${name}`)],
   },
 });
