@@ -247,9 +247,10 @@ export const AugmentationTooltip: Story = {
 export const AugmentationsReadOnly: Story = {
   args: { readOnly: true },
   parameters: { fit: { ship: { type_id: types.Rifter }, items: [augmented.items[2]!] } },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvas, canvasElement }) => {
     await expect(canvasElement.querySelectorAll("[data-kind=implant]")).toHaveLength(0);
     await expect(canvasElement.querySelectorAll("[data-kind=booster]")).toHaveLength(1);
+    await expect(canvas.getByRole("img", { name: "Synth Exile Booster" })).toBeVisible();
     await expect(canvasElement.querySelector("[data-marker=implant]")).toBeNull();
   },
 };
@@ -438,6 +439,8 @@ export const ReadOnly: Story = {
     await expect(canvas.queryByRole("group")).toBeNull();
     await expect(canvasElement.querySelector("[draggable=true]")).toBeNull();
     await expect(canvasElement.querySelector("[data-centre]")).toBeNull();
+    await expect(canvas.getByRole("img", { name: "1MN Afterburner II, active" })).toBeVisible();
+    await expect(canvas.getAllByRole("img", { name: "Empty Low Slot" }).length).toBeGreaterThan(0);
   },
 };
 

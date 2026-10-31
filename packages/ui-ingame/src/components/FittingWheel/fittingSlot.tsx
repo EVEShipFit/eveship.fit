@@ -96,7 +96,7 @@ export function useFittingSlot(
     chargeable: charges.length > 0,
     state: stats?.state,
     activatable: stats?.maxState === "active" || stats?.maxState === "overload",
-    label: type && stats && `${type.name}, ${stats.state}`,
+    label: empty ? `Empty ${rackNames[rack]}` : type && stats && `${type.name}, ${stats.state}`,
     tooltip:
       item && stats && ref !== undefined && !content.preview ? (
         <ModuleTooltip
@@ -119,7 +119,6 @@ export function useFittingSlot(
       : empty
         ? () => browse(rack)
         : undefined,
-    label: empty ? `Empty ${rackNames[rack]}` : shown.label,
     onDragStart:
       ref === undefined
         ? undefined
