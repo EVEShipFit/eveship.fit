@@ -47,14 +47,14 @@ export function fitType(sde: Sde, fit: Fit, stats: Stats, typeId: number, slot?:
       const index =
         slot === undefined ? firstFreeIndex(fit, placement.type, stats.slots[placement.type].total) : slotIndex(slot);
       if (index === undefined) return nowhere;
-      return putInSlot(fit, { type_id: typeId, slot: { type: placement.type, index }, state: "active" });
+      return refit(fit, { type_id: typeId, slot: { type: placement.type, index }, state: "active" });
     }
 
     case "subsystem":
     case "implant":
     case "booster":
       if (slot !== undefined && !sameSlot(slot, placement)) return nowhere;
-      return putInSlot(fit, { type_id: typeId, slot: placement, state: "active" });
+      return refit(fit, { type_id: typeId, slot: placement, state: "active" });
 
     case "charge": {
       const modules = fit.items
@@ -83,7 +83,7 @@ export function fitType(sde: Sde, fit: Fit, stats: Stats, typeId: number, slot?:
         return addToStack(fit, { type_id: typeId, slot: { type: "fighter_bay" }, quantity, state: "offline" });
       }
       if (!tubeTakes(sde, fit, stats, type, index)) return nowhere;
-      return putInSlot(fit, { type_id: typeId, slot: { type: "fighter_tube", index }, quantity, state: "active" });
+      return refit(fit, { type_id: typeId, slot: { type: "fighter_tube", index }, quantity, state: "active" });
     }
 
     case "cargo":
@@ -271,6 +271,14 @@ function putInSlot(fit: Fit, item: FitItem): Placed {
   const ref = fit.items.findIndex((existing) => sameSlot(existing.slot, item.slot));
   if (ref === -1) return append(fit, item);
   return { fit: { ...fit, items: fit.items.with(ref, item) }, ref };
+}
+
+/** Like `putInSlot`, but the same type already there stays as it is. */
+function refit(fit: Fit, item: FitItem): Placed {
+  const ref = fit.items.findIndex((existing) => sameSlot(existing.slot, item.slot));
+  const existing = fit.items[ref];
+  if (existing?.type_id === item.type_id && (existing.quantity ?? 1) === (item.quantity ?? 1)) return { fit, ref };
+  return putInSlot(fit, item);
 }
 
 /** Drones, fighters and cargo of the same type and state share a stack. */
