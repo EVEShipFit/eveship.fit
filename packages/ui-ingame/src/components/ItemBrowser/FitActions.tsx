@@ -21,6 +21,7 @@ export function FitActions() {
   const [importing, setImporting] = useState(false);
   const [naming, setNaming] = useState(false);
   const [overwriting, setOverwriting] = useState<Fit>();
+  const [refused, setRefused] = useState<string>();
 
   const saveNow = (named: Fit) => {
     setOverwriting(undefined);
@@ -37,7 +38,10 @@ export function FitActions() {
 
   const copy = (format: TextFormat) => {
     document.getElementById(menu)?.hidePopover();
-    void navigator.clipboard.writeText(engine.saveText(fit, format)).then(flashCopied);
+    const text = engine.saveText(fit, format);
+    Promise.resolve()
+      .then(() => navigator.clipboard.writeText(text))
+      .then(flashCopied, () => setRefused(text));
   };
 
   return (
@@ -87,6 +91,9 @@ export function FitActions() {
       </Dialog>
       <Dialog open={importing} title="Import Fit" onClose={() => setImporting(false)}>
         <ImportForm onDone={() => setImporting(false)} />
+      </Dialog>
+      <Dialog open={refused !== undefined} title="Copy Fit" onClose={() => setRefused(undefined)}>
+        <CopyForm text={refused ?? ""} />
       </Dialog>
     </div>
   );
@@ -181,6 +188,17 @@ function ImportForm({ onDone }: { onDone: () => void }) {
         </button>
       </div>
     </form>
+  );
+}
+
+function CopyForm({ text }: { text: string }) {
+  const id = useId();
+
+  return (
+    <div className={styles.form}>
+      <label htmlFor={id}>The browser blocked the clipboard. Copy the fit from here.</label>
+      <textarea id={id} rows={12} readOnly value={text} onFocus={(event) => event.currentTarget.select()} />
+    </div>
   );
 }
 

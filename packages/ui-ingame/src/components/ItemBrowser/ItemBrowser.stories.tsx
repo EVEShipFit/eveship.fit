@@ -400,6 +400,24 @@ export const CopyFit: Story = {
   },
 };
 
+/** A refused clipboard shows the fit to copy by hand. */
+export const CopyRefused: Story = {
+  play: async ({ canvas, userEvent }) => {
+    spyOn(navigator.clipboard, "writeText").mockRejectedValue(new Error("Denied"));
+
+    await userEvent.click(canvas.getByRole("button", { name: "Copy" }));
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Copy as EFT" }));
+    const dialog = within(await canvas.findByRole("dialog", { name: "Copy Fit" }));
+    const text = dialog.getByRole<HTMLTextAreaElement>("textbox");
+    await expect(text.value).toMatch(/^\[Rifter, /);
+    await expect(text).toHaveFocus();
+    await expect([text.selectionStart, text.selectionEnd]).toEqual([0, text.value.length]);
+
+    await userEvent.click(dialog.getByRole("button", { name: "Close" }));
+    await expect(canvas.queryByRole("dialog")).toBeNull();
+  },
+};
+
 /** Import starts from what is on the clipboard, and replaces the fit with it. */
 export const ImportFit: Story = {
   play: async ({ canvas, userEvent }) => {
