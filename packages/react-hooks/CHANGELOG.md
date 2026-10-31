@@ -1,5 +1,23 @@
 # @eveshipfit/react-hooks
 
+## 2.5.0
+
+### Minor Changes
+
+- Add `fitPriceItems`, and `items` to `useFitPrice` ([#309](https://github.com/EVEShipFit/eveship.fit/pull/309))
+
+- Add `useHasRoom` ([#307](https://github.com/EVEShipFit/eveship.fit/pull/307))
+
+- Hovering the Simulation History previews that fit ([#308](https://github.com/EVEShipFit/eveship.fit/pull/308))
+
+- Add `useTypeBonuses` ([#312](https://github.com/EVEShipFit/eveship.fit/pull/312))
+
+### Patch Changes
+
+- Updated dependencies [[`d805b5c`](https://github.com/EVEShipFit/eveship.fit/commit/d805b5c967665ca4f303f097f3621edf9b4272c2), [`8336fc4`](https://github.com/EVEShipFit/eveship.fit/commit/8336fc4aea6e90cbb8945a59a9fa73e429e6c17b), [`722bc02`](https://github.com/EVEShipFit/eveship.fit/commit/722bc0299b315e52617d6568667b4eb29a42cb10), [`d390b93`](https://github.com/EVEShipFit/eveship.fit/commit/d390b93c44788ef41da764236fa7bfb550dae6b5)]:
+  - @eveshipfit/fitting@2.5.0
+  - @eveshipfit/sde-loader@4.0.0
+
 ## 2.4.0
 
 ### Minor Changes

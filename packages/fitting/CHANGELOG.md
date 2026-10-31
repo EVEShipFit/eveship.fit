@@ -1,5 +1,19 @@
 # @eveshipfit/fitting
 
+## 2.5.0
+
+### Minor Changes
+
+- Add `fitPriceItems`, and `items` to `useFitPrice` ([#309](https://github.com/EVEShipFit/eveship.fit/pull/309))
+
+- Hovering the Simulation History previews that fit ([#308](https://github.com/EVEShipFit/eveship.fit/pull/308))
+
+### Patch Changes
+
+- Require `@eveshipfit/dogma-engine` 13.7.0 ([#315](https://github.com/EVEShipFit/eveship.fit/pull/315))
+- Updated dependencies [[`d390b93`](https://github.com/EVEShipFit/eveship.fit/commit/d390b93c44788ef41da764236fa7bfb550dae6b5)]:
+  - @eveshipfit/sde-loader@4.0.0
+
 ## 2.4.1
 
 ### Patch Changes
