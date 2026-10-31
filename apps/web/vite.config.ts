@@ -6,7 +6,9 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vite";
 
-const { version } = JSON.parse(readFileSync(new URL("package.json", import.meta.url), "utf8")) as { version: string };
+const version =
+  process.env.EVESHIPFIT_VERSION ||
+  (JSON.parse(readFileSync(new URL("package.json", import.meta.url), "utf8")) as { version: string }).version;
 const imagesDir = fileURLToPath(new URL("node_modules/@eveshipfit/images/dist/images", import.meta.url));
 
 /** Serves the images of `@eveshipfit/images` at /images/, and copies them into the build. */

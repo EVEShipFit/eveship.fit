@@ -56,6 +56,9 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/v2' && vars.ESI_CLIENT_ID == ''
         run: echo "::error::Set the ESI_CLIENT_ID repository variable" && exit 1
 
+      - name: Set the version
+        run: echo "EVESHIPFIT_VERSION=$(git describe --tags)" >> "$GITHUB_ENV"
+
       - name: Build website
         env:
           VITE_ESI_CLIENT_ID: ${{ github.event_name == 'push' && github.ref == 'refs/heads/v2' && vars.ESI_CLIENT_ID || '' }}
