@@ -6,7 +6,7 @@ import { baseValue } from "./attributes.js";
 
 export type FighterKind = "light" | "support" | "heavy";
 
-export const fighterKinds: readonly FighterKind[] = ["light", "support", "heavy"];
+const fighterKinds: readonly FighterKind[] = ["light", "support", "heavy"];
 
 const kindAttributes: Record<FighterKind, { ship: string; structure: string }> = {
   light: { ship: "fighterSquadronIsLight", structure: "fighterSquadronIsStandupLight" },

@@ -12,7 +12,7 @@ const places: readonly { angle: number; icon: IconName }[] = [
   { angle: -119, icon: "mode-propulsion" },
 ];
 
-export interface WheelMode {
+interface WheelMode {
   typeId: number;
   name: string;
 }
