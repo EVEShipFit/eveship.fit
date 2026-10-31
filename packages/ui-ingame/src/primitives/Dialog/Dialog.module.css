@@ -1,11 +1,13 @@
 .dialog {
+  --dialog-unit: calc(1px * var(--esf-scale, 1));
+
   background: var(--esf-surface);
-  border: 1px solid var(--esf-border);
+  border: var(--dialog-unit) solid var(--esf-border);
   border-radius: var(--esf-radius);
   color: var(--esf-text);
   font-family: var(--esf-font);
-  font-size: var(--esf-font-size);
-  max-width: min(640px, 90vw);
+  font-size: calc(var(--esf-font-size) * var(--esf-scale, 1));
+  max-width: min(calc(640 * var(--dialog-unit)), 90vw);
   padding: 0;
 }
 
@@ -16,9 +18,9 @@
 .header {
   align-items: center;
   background: var(--esf-surface-raised);
-  border-bottom: 1px solid var(--esf-border);
+  border-bottom: var(--dialog-unit) solid var(--esf-border);
   display: flex;
-  padding: 6px 10px;
+  padding: calc(6 * var(--dialog-unit)) calc(10 * var(--dialog-unit));
 }
 
 .title {
@@ -42,5 +44,5 @@
 }
 
 .content {
-  padding: 10px;
+  padding: calc(10 * var(--dialog-unit));
 }

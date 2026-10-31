@@ -319,8 +319,8 @@
 .profileForm {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  width: min(300px, 80vw);
+  gap: calc(8 * var(--damage-profile-unit));
+  width: min(calc(300 * var(--damage-profile-unit)), 80vw);
 }
 
 .profileForm > label {
@@ -329,7 +329,7 @@
 
 .profileForm input {
   background: var(--esf-input-bg);
-  border: 1px solid var(--esf-input-border);
+  border: var(--damage-profile-unit) solid var(--esf-input-border);
   color: var(--esf-text);
   font: inherit;
 }
@@ -340,23 +340,23 @@
 }
 
 .amounts {
-  --share-unit: 1px;
+  --share-unit: var(--damage-profile-unit);
 
   display: grid;
-  gap: 4px 8px;
+  gap: calc(4 * var(--damage-profile-unit)) calc(8 * var(--damage-profile-unit));
   grid-template-columns: repeat(4, 1fr);
-  margin-top: 4px;
+  margin-top: calc(4 * var(--damage-profile-unit));
 }
 
 .amount {
   align-items: center;
   display: flex;
-  gap: 2px;
+  gap: calc(2 * var(--damage-profile-unit));
 }
 
 .amount > img {
-  height: 22px;
-  width: 22px;
+  height: calc(22 * var(--damage-profile-unit));
+  width: calc(22 * var(--damage-profile-unit));
 }
 
 .amount > input {
@@ -366,20 +366,20 @@
 
 .dialogButtons {
   display: flex;
-  gap: 8px;
+  gap: calc(8 * var(--damage-profile-unit));
   justify-content: flex-end;
-  margin-top: 4px;
+  margin-top: calc(4 * var(--damage-profile-unit));
 }
 
 .action {
   background: var(--esf-button);
-  border: 1px solid var(--esf-button-edge);
+  border: var(--damage-profile-unit) solid var(--esf-button-edge);
   color: var(--esf-text);
   cursor: pointer;
   font: inherit;
-  height: 32px;
-  min-width: 80px;
-  padding: 0 16px;
+  height: calc(32 * var(--damage-profile-unit));
+  min-width: calc(80 * var(--damage-profile-unit));
+  padding: 0 calc(16 * var(--damage-profile-unit));
 }
 
 .action:hover:not(:disabled),

@@ -118,12 +118,16 @@
   color: var(--esf-text-muted);
 }
 
+.contents {
+  display: contents;
+}
+
 .linkError {
-  max-width: min(360px, 80vw);
+  max-width: min(calc(360px * var(--esf-scale)), 80vw);
 }
 
 .linkError > p {
-  margin: 0 0 8px;
+  margin: 0 0 calc(8px * var(--esf-scale));
 }
 
 .linkError > .reason {

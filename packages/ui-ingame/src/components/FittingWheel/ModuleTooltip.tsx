@@ -36,7 +36,9 @@ export function TypeRow({ typeId, count }: { typeId: number; count?: string }) {
   const type = useType(typeId);
   return (
     <span className={styles.type}>
-      <TypeIcon typeId={typeId} size={24} />
+      <span className={styles.icon}>
+        <TypeIcon typeId={typeId} size={24} />
+      </span>
       {count === undefined ? type?.name : `${count} ${type?.name}`}
     </span>
   );
