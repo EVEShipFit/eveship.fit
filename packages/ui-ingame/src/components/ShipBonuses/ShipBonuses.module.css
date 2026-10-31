@@ -1,0 +1,40 @@
+.bonuses {
+  --unit: var(--tooltip-unit, 1px);
+
+  align-items: baseline;
+  column-gap: calc(8 * var(--unit));
+  display: grid;
+  grid-template-columns: auto 1fr;
+  line-height: 1.3;
+  row-gap: calc(4 * var(--unit));
+}
+
+.name {
+  font-weight: 600;
+  grid-column: 1 / -1;
+}
+
+.header {
+  color: var(--esf-bonus-header);
+  font-weight: 600;
+  grid-column: 1 / -1;
+  margin-top: calc(6 * var(--unit));
+}
+
+.value {
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.bonuses [data-bold] {
+  font-weight: 600;
+}
+
+.bonuses [data-italic] {
+  font-style: italic;
+}
+
+.bonuses [data-underline] {
+  text-decoration: underline;
+}

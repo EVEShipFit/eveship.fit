@@ -39,6 +39,7 @@ import { Wheel } from "../../primitives/Wheel/Wheel";
 import { useFittingSlot } from "../FittingWheel/fittingSlot";
 import { FittingWheel } from "../FittingWheel/FittingWheel";
 import { ItemInfo } from "../ItemInfo/ItemInfo";
+import { ShipBonuses } from "../ShipBonuses/ShipBonuses";
 import { AttributeTooltip } from "../ShipStatistics/AttributeTooltip";
 import { BayContents, type Bay as BayName } from "./BayContents";
 import styles from "./FittingWindow.module.css";
@@ -199,6 +200,10 @@ function popover(id: string): HTMLElement | null {
   return element?.matches(":popover-open") ? null : element;
 }
 
+function renderShipBonuses(typeId: number): () => ReactNode {
+  return () => <ShipBonuses typeId={typeId} />;
+}
+
 function FitName() {
   const fit = useFit();
   const shown = useShownSnapshot().fit;
@@ -224,7 +229,7 @@ function FitName() {
 
   return (
     <div className={styles.name}>
-      <Tooltip label="Show Info">
+      <Tooltip label={renderShipBonuses(shown.ship.type_id)}>
         <button
           type="button"
           className={styles.icon}

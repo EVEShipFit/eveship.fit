@@ -19,6 +19,7 @@ import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
 import { Icon, useIconUrl, type IconName } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import { TreeGroup, TreeLeaf, TreeList } from "../../primitives/TreeList/TreeList";
+import { ShipBonuses } from "../ShipBonuses/ShipBonuses";
 import styles from "./ItemBrowser.module.css";
 import { useCopyFit } from "./copyFit";
 import { Search } from "./Search";
@@ -193,6 +194,7 @@ export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
                                 ) : undefined
                               }
                               typeId={ship.id}
+                              renderTooltip={() => <ShipBonuses typeId={ship.id} />}
                               after={simulateShip}
                               onDragStart={(event) => {
                                 event.dataTransfer.effectAllowed = "copy";
