@@ -9,8 +9,13 @@ import styles from "./ItemBrowser.module.css";
 
 const FLASH_MS = 2000;
 
+interface Draft {
+  text: string;
+  error?: string;
+}
+
 /** The buttons under the `ItemBrowser`: save the fit in the browser, import one, or copy it out. */
-export function FitActions({ noHullSelected }: { noHullSelected: boolean }) {
+export function FitActions({ noHullSelected, pasteToOpen }: { noHullSelected: boolean; pasteToOpen: boolean }) {
   const engine = useEngine();
   const fit = useFit();
   const store = useFitStore();
@@ -18,7 +23,7 @@ export function FitActions({ noHullSelected }: { noHullSelected: boolean }) {
   const menu = useId();
   const [saved, flashSaved] = useFlash();
   const [copied, flashCopied] = useFlash();
-  const [importing, setImporting] = useState(false);
+  const [importing, setImporting] = useState<Draft>();
   const [naming, setNaming] = useState(false);
   const [overwriting, setOverwriting] = useState<Fit>();
   const [refused, setRefused] = useState<string>();
@@ -35,6 +40,26 @@ export function FitActions({ noHullSelected }: { noHullSelected: boolean }) {
     if (existing === undefined || JSON.stringify(existing) === JSON.stringify(named)) saveNow(named);
     else setOverwriting(named);
   };
+
+  useEffect(() => {
+    if (!pasteToOpen) return;
+    const onPaste = (event: ClipboardEvent) => {
+      if (event.defaultPrevented) return;
+      const target = event.target;
+      if (target instanceof HTMLElement && target.isContentEditable) return;
+      if (target instanceof Element && target.closest("input, textarea, select, dialog")) return;
+      const text = event.clipboardData?.getData("text/plain").trim() ?? "";
+      if (text === "") return;
+      event.preventDefault();
+      try {
+        store.replace(engine.loadText(text, store.character));
+      } catch (failure) {
+        setImporting({ text, error: failure instanceof Error ? failure.message : String(failure) });
+      }
+    };
+    document.addEventListener("paste", onPaste);
+    return () => document.removeEventListener("paste", onPaste);
+  }, [engine, store, pasteToOpen]);
 
   const copy = (format: TextFormat) => {
     document.getElementById(menu)?.hidePopover();
@@ -54,7 +79,7 @@ export function FitActions({ noHullSelected }: { noHullSelected: boolean }) {
       >
         {saved ? "Saved" : "Save"}
       </button>
-      <button type="button" className={styles.action} onClick={() => setImporting(true)}>
+      <button type="button" className={styles.action} onClick={() => setImporting({ text: "" })}>
         Import…
       </button>
       <span className={styles.copyAnchor}>
@@ -100,8 +125,8 @@ export function FitActions({ noHullSelected }: { noHullSelected: boolean }) {
           </div>
         </div>
       </Dialog>
-      <Dialog open={importing} title="Import Fit" onClose={() => setImporting(false)}>
-        <ImportForm onDone={() => setImporting(false)} />
+      <Dialog open={importing !== undefined} title="Import Fit" onClose={() => setImporting(undefined)}>
+        <ImportForm draft={importing ?? { text: "" }} onDone={() => setImporting(undefined)} />
       </Dialog>
       <Dialog open={refused !== undefined} title="Copy Fit" onClose={() => setRefused(undefined)}>
         <CopyForm text={refused ?? ""} />
@@ -143,21 +168,22 @@ function NameForm({ onCancel, onSave }: { onCancel: () => void; onSave: (named: 
   );
 }
 
-function ImportForm({ onDone }: { onDone: () => void }) {
+function ImportForm({ draft, onDone }: { draft: Draft; onDone: () => void }) {
   const engine = useEngine();
   const store = useFitStore();
   const id = useId();
-  const [text, setText] = useState("");
-  const [error, setError] = useState<string>();
+  const [text, setText] = useState(draft.text);
+  const [error, setError] = useState(draft.error);
 
   useEffect(() => {
+    if (draft.text !== "") return;
     Promise.resolve()
       .then(() => navigator.clipboard.readText())
       .then(
         (clipboard) => setText((typed) => typed || clipboard),
         () => {},
       );
-  }, []);
+  }, [draft.text]);
 
   const load = () => {
     try {
