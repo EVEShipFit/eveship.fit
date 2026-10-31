@@ -14,12 +14,12 @@ const slotGap = 3;
 const half = slotSize / 2;
 
 const actionSize = 12.97;
-const trayPadding = 2;
-/** From the slot's centre, inward: where the tray with the actions starts. */
-const trayStart = 20;
-const trayLength = 2 * actionSize + 3 * trayPadding;
-const unfitOffset = -(trayStart + trayPadding + actionSize / 2);
-const infoOffset = unfitOffset - actionSize - trayPadding;
+const actionGap = 2;
+/** From the slot's centre, inward: where the actions start. */
+const actionsStart = 20;
+const actionsLength = 2 * actionSize + 3 * actionGap;
+const unfitOffset = -(actionsStart + actionGap + actionSize / 2);
+const infoOffset = unfitOffset - actionSize - actionGap;
 
 export interface WheelAugmentationSlotProps extends HTMLAttributes<HTMLDivElement> {
   kind: Augmentation;
@@ -116,14 +116,12 @@ export function WheelAugmentationSlot({
               "--angle": `${angle}deg`,
               "--slot-size": slotSize,
               "--action-size": actionSize,
-              "--tray-start": trayStart,
-              "--tray-length": trayLength,
-              "--tray-width": actionSize + 2 * trayPadding,
+              "--actions-start": actionsStart,
+              "--actions-length": actionsLength,
             } as CSSProperties
           }
         >
           <span className={styles.bridge} />
-          <span className={styles.tray} />
           {onUnfit && (
             <span className={styles.action} style={{ "--x": unfit.x, "--y": unfit.y } as CSSProperties}>
               <SlotAction

@@ -95,7 +95,7 @@
 
 .slot:has(.press:hover) .frame,
 .slot:has(.press:focus-visible) .frame {
-  stroke: var(--esf-text-muted);
+  fill: #1a2a2d;
 }
 
 .number {
@@ -133,6 +133,9 @@
 }
 
 .action {
+  background: #0d1213;
+  border-radius: 50%;
+  box-shadow: 0 0 0 calc(2 * var(--wheel-unit)) #0d1213;
   height: calc(var(--action-size) * var(--wheel-unit));
   left: calc(50% + var(--x) * var(--wheel-unit));
   margin: calc(var(--action-size) / -2 * var(--wheel-unit));
@@ -143,25 +146,11 @@
 
 /* Keeps the slot hovered while the pointer goes from it to the actions. */
 .bridge {
-  height: calc((var(--tray-start) + var(--tray-length) - var(--slot-size) / 2) * var(--wheel-unit));
+  height: calc((var(--actions-start) + var(--actions-length) - var(--slot-size) / 2) * var(--wheel-unit));
   left: calc(50% - var(--slot-size) / 2 * var(--wheel-unit));
   position: absolute;
   top: 50%;
   transform: rotate(var(--angle)) translateY(calc(var(--slot-size) / 2 * var(--wheel-unit)));
   transform-origin: 50% 0;
   width: calc(var(--slot-size) * var(--wheel-unit));
-}
-
-.tray {
-  background: rgb(13 18 19 / 95%);
-  border: 1px solid #3d5960;
-  border-radius: calc(var(--tray-width) / 2 * var(--wheel-unit));
-  box-sizing: border-box;
-  height: calc(var(--tray-length) * var(--wheel-unit));
-  left: calc(50% - var(--tray-width) / 2 * var(--wheel-unit));
-  position: absolute;
-  top: 50%;
-  transform: rotate(var(--angle)) translateY(calc(var(--tray-start) * var(--wheel-unit)));
-  transform-origin: 50% 0;
-  width: calc(var(--tray-width) * var(--wheel-unit));
 }
