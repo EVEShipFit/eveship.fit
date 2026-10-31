@@ -200,7 +200,7 @@ test("the OG image shows the linked fit in preview", async ({ page }) => {
   await expect(page.locator("body")).toHaveAttribute("data-ready", "true", { timeout: 30_000 });
   await expect(page.getByRole("region", { name: "Statistics" })).toBeVisible();
   await expect(page.getByRole("group", { name: "Simulation History" })).toHaveCount(0);
-  await expect(page.getByText("Link Rifter")).toHaveCount(0);
+  await expect(page.getByText("Link Rifter", { exact: true })).toBeVisible();
   await expect(page.getByRole("region", { name: "Fitting", exact: true }).getByRole("button")).toHaveCount(0);
   await expect(page.locator('[data-state="active"]')).not.toHaveCount(0);
   const window = await page.getByRole("region", { name: "Fitting Window" }).boundingBox();
