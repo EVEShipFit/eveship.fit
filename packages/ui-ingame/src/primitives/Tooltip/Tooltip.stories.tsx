@@ -198,3 +198,21 @@ export const Scrolls: Story = {
     await expect(scroller.scrollTop).toBeGreaterThan(0);
   },
 };
+
+/** Wraps a long label, even inside something that does not wrap. */
+export const InsideNoWrap: Story = {
+  args: { label: "A label long enough that it has to wrap over more than one line to fit" },
+  decorators: [
+    (Story) => (
+      <div style={{ whiteSpace: "nowrap" }}>
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    await userEvent.hover(canvas.getByRole("button", { name: "Unfit Module" }));
+    const text = within(canvasElement).getByText(/^A label long enough/);
+    await waitFor(() => expect(text).toBeVisible());
+    await expect(text.scrollWidth).toBeLessThanOrEqual(text.clientWidth);
+  },
+};

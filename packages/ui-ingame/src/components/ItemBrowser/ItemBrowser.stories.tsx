@@ -86,6 +86,23 @@ export const Search: Story = {
   },
 };
 
+/** Hovering a hull's picture shows its bonuses; the rest of the row does not. */
+export const HullBonuses: Story = {
+  play: async ({ canvas, userEvent }) => {
+    const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "rifter");
+    await userEvent.click(hulls().getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls().getByRole("button", { name: "Minmatar [1]" }));
+
+    const rifter = hulls().getByRole("button", { name: "Rifter" });
+    await userEvent.hover(within(rifter).getByText("Rifter"));
+    await expect(canvas.queryByText("Role Bonus:")).toBeNull();
+
+    await userEvent.hover(rifter.querySelector("img")!);
+    await waitFor(() => expect(canvas.getByText("Minmatar Frigate bonuses (per skill level):")).toBeVisible());
+  },
+};
+
 export const SearchKeyboard: Story = {
   play: async ({ canvas, userEvent }) => {
     const hulls = () => within(canvas.getByRole("list", { name: "Hulls" }));

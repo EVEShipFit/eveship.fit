@@ -194,7 +194,7 @@ export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
                                 ) : undefined
                               }
                               typeId={ship.id}
-                              renderTooltip={() => <ShipBonuses typeId={ship.id} />}
+                              renderIconTooltip={() => <ShipBonuses typeId={ship.id} />}
                               after={simulateShip}
                               onDragStart={(event) => {
                                 event.dataTransfer.effectAllowed = "copy";

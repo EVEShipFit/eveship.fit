@@ -84,7 +84,8 @@ export interface TreeGroupProps {
   icon?: string;
   /** A second line under the label. */
   description?: ReactNode;
-  renderTooltip?: () => ReactNode;
+  /** Shown when hovering the type's icon. */
+  renderIconTooltip?: () => ReactNode;
   defaultOpen?: boolean;
   /** Shown at the end of the row, like a count or an action. */
   after?: ReactNode;
@@ -100,7 +101,7 @@ export function TreeGroup({
   typeId,
   icon,
   description,
-  renderTooltip,
+  renderIconTooltip,
   defaultOpen = false,
   after,
   onDragStart,
@@ -114,42 +115,44 @@ export function TreeGroup({
   return (
     <li>
       <div className={styles.head}>
-        <Tooltip label={renderTooltip}>
-          <div
-            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Firefox does not start a drag from a <button>.
-            role="button"
-            tabIndex={0}
-            className={styles.row}
-            aria-expanded={open}
-            aria-describedby={description !== undefined ? descriptionId : undefined}
-            draggable={onDragStart !== undefined || undefined}
-            onClick={() => setOpen(!open)}
-            onKeyDown={(event) => {
-              const press = event.key === "Enter" || event.key === " ";
-              const arrow = !hasModifier(event) && event.key === (open ? "ArrowLeft" : "ArrowRight");
-              if (!press && !arrow) return;
-              event.preventDefault();
-              setOpen(!open);
-            }}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-            onContextMenu={onContextMenu}
-          >
-            <svg className={styles.chevron} viewBox="0 0 12 12" aria-hidden>
-              <path d="M3 1.5 9.5 6 3 10.5Z" fill="currentColor" />
-            </svg>
-            {typeId !== undefined && <RowIcon typeId={typeId} />}
-            {icon !== undefined && <img className={styles.smallIcon} src={icon} alt="" draggable={false} />}
-            <span className={styles.text}>
-              <span className={styles.label}>{label}</span>
-              {description !== undefined && (
-                <span id={descriptionId} className={styles.label} aria-hidden>
-                  {description}
-                </span>
-              )}
-            </span>
-          </div>
-        </Tooltip>
+        <div
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Firefox does not start a drag from a <button>.
+          role="button"
+          tabIndex={0}
+          className={styles.row}
+          aria-expanded={open}
+          aria-describedby={description !== undefined ? descriptionId : undefined}
+          draggable={onDragStart !== undefined || undefined}
+          onClick={() => setOpen(!open)}
+          onKeyDown={(event) => {
+            const press = event.key === "Enter" || event.key === " ";
+            const arrow = !hasModifier(event) && event.key === (open ? "ArrowLeft" : "ArrowRight");
+            if (!press && !arrow) return;
+            event.preventDefault();
+            setOpen(!open);
+          }}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+          onContextMenu={onContextMenu}
+        >
+          <svg className={styles.chevron} viewBox="0 0 12 12" aria-hidden>
+            <path d="M3 1.5 9.5 6 3 10.5Z" fill="currentColor" />
+          </svg>
+          {typeId !== undefined && (
+            <Tooltip label={renderIconTooltip}>
+              <RowIcon typeId={typeId} />
+            </Tooltip>
+          )}
+          {icon !== undefined && <img className={styles.smallIcon} src={icon} alt="" draggable={false} />}
+          <span className={styles.text}>
+            <span className={styles.label}>{label}</span>
+            {description !== undefined && (
+              <span id={descriptionId} className={styles.label} aria-hidden>
+                {description}
+              </span>
+            )}
+          </span>
+        </div>
         {after}
       </div>
       {open && <ul className={styles.group}>{children()}</ul>}
