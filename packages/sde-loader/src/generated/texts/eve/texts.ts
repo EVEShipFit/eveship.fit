@@ -5,6 +5,7 @@
 import * as flatbuffers from 'flatbuffers';
 
 import { DogmaAttributeText } from '../eve/dogma-attribute-text.js';
+import { TypeBonuses } from '../eve/type-bonuses.js';
 
 
 export class Texts {
@@ -51,8 +52,18 @@ releaseDate(optionalEncoding?:any):string|Uint8Array|null {
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
+typeBonuses(index: number, obj?:TypeBonuses):TypeBonuses|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new TypeBonuses()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+typeBonusesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startTexts(builder:flatbuffers.Builder) {
-  builder.startObject(3);
+  builder.startObject(4);
 }
 
 static addBuildNumber(builder:flatbuffers.Builder, buildNumber:number) {
@@ -79,6 +90,22 @@ static addReleaseDate(builder:flatbuffers.Builder, releaseDateOffset:flatbuffers
   builder.addFieldOffset(2, releaseDateOffset, 0);
 }
 
+static addTypeBonuses(builder:flatbuffers.Builder, typeBonusesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, typeBonusesOffset, 0);
+}
+
+static createTypeBonusesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startTypeBonusesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static endTexts(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 6) // dogma_attributes
@@ -93,11 +120,12 @@ static finishSizePrefixedTextsBuffer(builder:flatbuffers.Builder, offset:flatbuf
   builder.finish(offset, 'ESFT', true);
 }
 
-static createTexts(builder:flatbuffers.Builder, buildNumber:number, dogmaAttributesOffset:flatbuffers.Offset, releaseDateOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createTexts(builder:flatbuffers.Builder, buildNumber:number, dogmaAttributesOffset:flatbuffers.Offset, releaseDateOffset:flatbuffers.Offset, typeBonusesOffset:flatbuffers.Offset):flatbuffers.Offset {
   Texts.startTexts(builder);
   Texts.addBuildNumber(builder, buildNumber);
   Texts.addDogmaAttributes(builder, dogmaAttributesOffset);
   Texts.addReleaseDate(builder, releaseDateOffset);
+  Texts.addTypeBonuses(builder, typeBonusesOffset);
   return Texts.endTexts(builder);
 }
 }

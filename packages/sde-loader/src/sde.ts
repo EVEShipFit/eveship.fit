@@ -53,7 +53,7 @@ import {
   type ShipGroupNode,
 } from "./trees.js";
 
-const MIN_MAJOR_VERSION = 13;
+const MIN_MAJOR_VERSION = 14;
 
 export class Sde {
   readonly bytes: Uint8Array;

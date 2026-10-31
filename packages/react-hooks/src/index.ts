@@ -45,7 +45,7 @@ export {
   useSde,
   useType,
 } from "./hooks/sde.js";
-export { useAttributeTooltip, useTexts } from "./hooks/texts.js";
+export { useAttributeTooltip, useTexts, useTypeBonuses } from "./hooks/texts.js";
 export {
   useBayContents,
   useBayUsage,
