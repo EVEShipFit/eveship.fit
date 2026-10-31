@@ -1,4 +1,4 @@
-import type { FitStore } from "@eveshipfit/fitting";
+import type { FitStore, Placement } from "@eveshipfit/fitting";
 import {
   formatNumber,
   useAttribute,
@@ -10,6 +10,7 @@ import {
   useHardpoints,
   useHullRefuses,
   useModes,
+  usePlacement,
   usePreview,
   useRackUsage,
   useRefusal,
@@ -171,10 +172,12 @@ function FittingCopyHint() {
 }
 
 const refusalShown = 3000;
+const kinds: Partial<Record<Placement["type"], string>> = { drone_bay: "drone", fighter_bay: "fighter" };
 
 /** Tells that the hull cannot fit the type being dragged, or the type refused. */
 function FittingHullNotice() {
   const sde = useSde();
+  const placement = usePlacement();
   const refuses = useHullRefuses();
   const { dragging } = useDrag();
   const { refusal } = useRefusal();
@@ -186,13 +189,12 @@ function FittingHullNotice() {
     return () => clearTimeout(timer);
   }, [refusal]);
 
-  const type = dragging?.type === "type" ? sde.type(dragging.typeId) : undefined;
-  const shown =
-    dragging === undefined
-      ? refusal !== undefined && (refusal.held || refusal !== expired)
-      : type !== undefined && refuses(type);
-  if (!shown) return null;
-  return <WheelNotice text="Hull cannot fit this module type" />;
+  const dragged = dragging?.type === "type" ? sde.type(dragging.typeId) : undefined;
+  const refused = refusal !== undefined && (refusal.held || refusal !== expired) ? sde.type(refusal.typeId) : undefined;
+  const type = dragging === undefined ? refused : dragged && refuses(dragged) ? dragged : undefined;
+  if (type === undefined) return null;
+  const place = placement(type)?.type;
+  return <WheelNotice text={`Hull cannot fit this ${(place && kinds[place]) ?? "module"} type`} />;
 }
 
 function FittingModes({ readOnly }: { readOnly: boolean }) {

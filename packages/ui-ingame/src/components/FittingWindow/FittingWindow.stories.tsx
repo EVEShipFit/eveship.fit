@@ -668,6 +668,18 @@ export const HullCannotFit: Story = {
     await fireEvent.dragStart(small, { dataTransfer });
     await expect(wheel.queryByText("Hull cannot fit this module type")).toBeNull();
     await fireEvent.dragEnd(small, { dataTransfer });
+
+    for (const [name, text] of [
+      ["Hobgoblin II", "Hull cannot fit this drone type"],
+      ["Templar II", "Hull cannot fit this fighter type"],
+    ] as const) {
+      await userEvent.clear(canvas.getByRole("searchbox", { name: "Search" }));
+      await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), name.toLowerCase());
+      const leaf = canvas.getByRole("button", { name });
+      await userEvent.hover(leaf);
+      await expect(wheel.getByText(text)).toBeInTheDocument();
+      await userEvent.unhover(leaf);
+    }
   },
 };
 
