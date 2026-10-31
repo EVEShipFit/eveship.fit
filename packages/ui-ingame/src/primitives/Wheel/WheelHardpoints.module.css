@@ -28,6 +28,6 @@
 
 .title {
   display: flex;
-  gap: 24px;
+  gap: calc(24px * var(--esf-scale, 1));
   justify-content: space-between;
 }

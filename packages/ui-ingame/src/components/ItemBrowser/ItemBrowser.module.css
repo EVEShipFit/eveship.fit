@@ -347,6 +347,7 @@
   background: var(--esf-input-bg);
   border: var(--browser-unit) solid var(--esf-input-border);
   color: var(--esf-text);
+  font: inherit;
 }
 
 .form > textarea {
