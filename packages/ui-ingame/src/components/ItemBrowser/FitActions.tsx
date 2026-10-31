@@ -10,7 +10,7 @@ import styles from "./ItemBrowser.module.css";
 const FLASH_MS = 2000;
 
 /** The buttons under the `ItemBrowser`: save the fit in the browser, import one, or copy it out. */
-export function FitActions() {
+export function FitActions({ noHullSelected }: { noHullSelected: boolean }) {
   const engine = useEngine();
   const fit = useFit();
   const store = useFitStore();
@@ -46,7 +46,12 @@ export function FitActions() {
 
   return (
     <div className={styles.actions}>
-      <button type="button" className={styles.action} onClick={() => (fit.name ? trySave(fit) : setNaming(true))}>
+      <button
+        type="button"
+        className={styles.action}
+        disabled={noHullSelected}
+        onClick={() => (fit.name ? trySave(fit) : setNaming(true))}
+      >
         {saved ? "Saved" : "Save"}
       </button>
       <button type="button" className={styles.action} onClick={() => setImporting(true)}>
@@ -54,7 +59,13 @@ export function FitActions() {
       </button>
       <span className={styles.copyAnchor}>
         <Tooltip label={copied ? "Copied" : "Copy"}>
-          <button type="button" className={`${styles.action} ${styles.copy}`} aria-label="Copy" popoverTarget={menu}>
+          <button
+            type="button"
+            className={`${styles.action} ${styles.copy}`}
+            aria-label="Copy"
+            popoverTarget={menu}
+            disabled={noHullSelected}
+          >
             <Icon name={copied ? "checkmark" : "export"} />
           </button>
         </Tooltip>

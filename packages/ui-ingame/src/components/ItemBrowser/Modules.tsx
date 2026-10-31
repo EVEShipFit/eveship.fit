@@ -31,8 +31,8 @@ const slotFilters: { filter: SlotFilter; icon: IconName; label: string; places: 
 ];
 
 /** The Modules tab of the `ItemBrowser`: what goes on a ship, by market group. */
-export function Modules() {
-  const { actions, clear, dragImage } = useTypeActions();
+export function Modules({ noHullSelected }: { noHullSelected: boolean }) {
+  const { actions, clear, dragImage } = useTypeActions(noHullSelected);
   const placement = usePlacement();
   const canFit = useCanFit();
   const missingSkills = useMissingSkills();
@@ -69,11 +69,11 @@ export function Modules() {
         const place = placement(type)?.type;
         if (place === undefined || !places.has(place)) return false;
       }
-      if (hullRestrictions && !canFit(type)) return false;
+      if (hullRestrictions && !noHullSelected && !canFit(type)) return false;
       if (flyable && missingSkills([type.id]).length > 0) return false;
       return type.name.toLowerCase().includes(query);
     };
-  }, [query, slots, services, hullRestrictions, flyable, placement, canFit, missingSkills]);
+  }, [query, slots, services, hullRestrictions, noHullSelected, flyable, placement, canFit, missingSkills]);
   const tree = useModuleTree(query === "" ? keep : undefined);
   const found = useModuleSearch(query === "" ? undefined : keep);
   const groups = query === "" ? tree : found;
@@ -109,6 +109,7 @@ export function Modules() {
           icon="filter-hull-restrictions"
           label="Hull Restrictions"
           pressed={hullRestrictions}
+          disabled={noHullSelected}
           onPressedChange={setHullRestrictions}
         />
         <FilterToggle icon="filter-resources" label="Resources" />

@@ -13,12 +13,21 @@ export type FilterToggleProps = (
 ) & {
   label: string;
   pressed?: boolean;
+  disabled?: boolean;
   /** Without it, the filter shows as not implemented yet. */
   onPressedChange?: (pressed: boolean) => void;
 };
 
 /** One of the icons above EVE's lists that filter them. */
-export function FilterToggle({ icon, typeId, src, label, pressed = false, onPressedChange }: FilterToggleProps) {
+export function FilterToggle({
+  icon,
+  typeId,
+  src,
+  label,
+  pressed = false,
+  disabled = false,
+  onPressedChange,
+}: FilterToggleProps) {
   const texture = useIconUrl(icon) ?? src;
   const implemented = onPressedChange !== undefined;
 
@@ -29,9 +38,11 @@ export function FilterToggle({ icon, typeId, src, label, pressed = false, onPres
         className={styles.toggle}
         aria-label={label}
         aria-pressed={pressed}
-        aria-disabled={!implemented || undefined}
+        aria-disabled={!implemented || disabled || undefined}
         style={texture === undefined ? undefined : ({ "--texture": `url(${texture})` } as CSSProperties)}
-        onClick={() => onPressedChange?.(!pressed)}
+        onClick={() => {
+          if (!disabled) onPressedChange?.(!pressed);
+        }}
       >
         {icon !== undefined ? (
           <Icon name={icon} />

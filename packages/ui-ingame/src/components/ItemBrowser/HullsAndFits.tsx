@@ -28,7 +28,7 @@ const noFits: readonly Listed[] = [];
 const SHIPS_MARKET_GROUP_ID = 4;
 
 /** The Hulls & Fits tab of the `ItemBrowser`: EVE's hulls by group and race, with the fits saved for each. */
-export function HullsAndFits() {
+export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
   const fitShipId = useFit().ship.type_id;
   const images = useImages();
   const store = useFitStore();
@@ -45,7 +45,7 @@ export function HullsAndFits() {
 
   const query = search.trim().toLowerCase();
   const anySource = browserFits || personalFits;
-  const currentShipId = currentHull ? fitShipId : undefined;
+  const currentShipId = currentHull && !noHullSelected ? fitShipId : undefined;
 
   const { browserByHull, personalByHull, shownFits } = useMemo(() => {
     const matches = (name: string | undefined) => (name ?? "").toLowerCase().includes(query);
@@ -98,7 +98,13 @@ export function HullsAndFits() {
         <FilterToggle icon="fits-corporation" label="Corporation Fittings" />
         <FilterToggle icon="fits-alliance" label="Alliance Fittings" />
         <FilterToggle icon="fits-community" label="Community Fittings" />
-        <FilterToggle icon="current-hull" label="Current Hull" pressed={currentHull} onPressedChange={setCurrentHull} />
+        <FilterToggle
+          icon="current-hull"
+          label="Current Hull"
+          pressed={currentHull}
+          disabled={noHullSelected}
+          onPressedChange={setCurrentHull}
+        />
         <FilterToggle icon="skills" label="Skills" pressed={flyable} onPressedChange={setFlyable} />
       </fieldset>
       <div className={styles.tree}>
