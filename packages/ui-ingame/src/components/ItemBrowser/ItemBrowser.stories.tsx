@@ -473,6 +473,76 @@ export const ImportError: Story = {
   },
 };
 
+function pasteOnPage(text: string) {
+  const clipboardData = new DataTransfer();
+  clipboardData.setData("text/plain", text);
+  const target = document.activeElement ?? document.body;
+  return target.dispatchEvent(new ClipboardEvent("paste", { clipboardData, bubbles: true, cancelable: true }));
+}
+
+/** Pasting a fit on the page opens it. */
+export const PasteFit: Story = {
+  args: { pasteToOpen: true },
+  play: async ({ canvas, userEvent }) => {
+    pasteOnPage("[Slasher, Pasted]\n200mm AutoCannon II");
+    await expect(canvas.queryByRole("dialog")).toBeNull();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await userEvent.type(canvas.getByRole("searchbox"), "pasted");
+    const hulls = within(canvas.getByRole("list", { name: "Hulls" }));
+    await userEvent.click(hulls.getByRole("button", { name: "Frigate" }));
+    await userEvent.click(hulls.getByRole("button", { name: /^Minmatar/ }));
+    await userEvent.click(hulls.getByRole("button", { name: "Slasher" }));
+    await expect(hulls.getByRole("button", { name: "Pasted" })).toBeVisible();
+  },
+};
+
+/** Pasting something that is not a fit opens Import with the text and why it failed. */
+export const PasteError: Story = {
+  args: { pasteToOpen: true },
+  play: async ({ canvas }) => {
+    const readText = spyOn(navigator.clipboard, "readText");
+    pasteOnPage("[Rifter, Broken]\nDamage Contrl II");
+
+    const dialog = within(await canvas.findByRole("dialog", { name: "Import Fit" }));
+    await expect(dialog.getByRole("textbox")).toHaveValue("[Rifter, Broken]\nDamage Contrl II");
+    await expect(dialog.getByRole("alert")).toHaveTextContent("Could not import: unknown type Damage Contrl II");
+    await expect(readText).not.toHaveBeenCalled();
+  },
+};
+
+/** Pasting into a text field pastes there. */
+export const PasteInSearch: Story = {
+  args: { pasteToOpen: true },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("searchbox"));
+    await userEvent.paste("[Rifter, Broken]");
+    await expect(canvas.getByRole("searchbox")).toHaveValue("[Rifter, Broken]");
+    await expect(canvas.queryByRole("dialog")).toBeNull();
+  },
+};
+
+/** Pasting while a dialog is open leaves the fit alone. */
+export const PasteInDialog: Story = {
+  args: { pasteToOpen: true },
+  play: async ({ canvas, userEvent }) => {
+    spyOn(navigator.clipboard, "readText").mockRejectedValue(new Error("Denied"));
+    await userEvent.click(canvas.getByRole("button", { name: "Import…" }));
+    const dialog = within(canvas.getByRole("dialog", { name: "Import Fit" }));
+    dialog.getByRole("button", { name: "Cancel" }).focus();
+    await expect(pasteOnPage("[Slasher, Pasted]")).toBe(true);
+    await expect(dialog.getByRole("textbox")).toHaveValue("");
+  },
+};
+
+/** Pasting does nothing unless `pasteToOpen` is set. */
+export const PasteOff: Story = {
+  play: async ({ canvas }) => {
+    await expect(pasteOnPage("[Rifter, Broken]\nDamage Contrl II")).toBe(true);
+    await expect(canvas.queryByRole("dialog")).toBeNull();
+  },
+};
+
 /** Import opens empty when the browser has no clipboard. */
 export const ImportNoClipboard: Story = {
   play: async ({ canvas, userEvent }) => {

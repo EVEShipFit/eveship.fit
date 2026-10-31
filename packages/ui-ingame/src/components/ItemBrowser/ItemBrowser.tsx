@@ -13,12 +13,14 @@ export interface ItemBrowserProps {
   label?: string;
   /** Turns off everything that needs a hull. */
   noHullSelected?: boolean;
+  /** Opens a fit pasted anywhere on the page. */
+  pasteToOpen?: boolean;
 }
 
 type Tab = "hulls" | "modules" | "charges" | "implants";
 
 /** EVE's browser of hulls and fits, modules, charges, and implants, left of the fitting wheel. */
-export function ItemBrowser({ label = "Item Browser", noHullSelected = false }: ItemBrowserProps) {
+export function ItemBrowser({ label = "Item Browser", noHullSelected = false, pasteToOpen = false }: ItemBrowserProps) {
   const [tab, setTab] = useState<Tab>("hulls");
   const { request } = useBrowse();
   const [browsed, setBrowsed] = useState(request);
@@ -85,7 +87,7 @@ export function ItemBrowser({ label = "Item Browser", noHullSelected = false }: 
           )}
         </div>
       ))}
-      <FitActions noHullSelected={noHullSelected} />
+      <FitActions noHullSelected={noHullSelected} pasteToOpen={pasteToOpen} />
     </section>
   );
 }
