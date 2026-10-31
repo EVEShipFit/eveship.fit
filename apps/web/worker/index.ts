@@ -49,12 +49,8 @@ async function ogImage(url: URL, fit: string, env: Env, ctx: ExecutionContext) {
   key.searchParams.set("fit", fit);
 
   const cached = await caches.default.match(key);
-  if (cached !== undefined) {
-    console.log({ og: "hit" });
-    return cached;
-  }
+  if (cached !== undefined) return cached;
 
-  const start = Date.now();
   let response: Response;
   try {
     const image = await render(new URL("/og", url), fit, env);
@@ -68,11 +64,10 @@ async function ogImage(url: URL, fit: string, env: Env, ctx: ExecutionContext) {
             headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=31536000, immutable" },
           });
   } catch (error) {
-    console.error({ og: "failed", ms: Date.now() - start, error: String(error) });
+    console.error(error);
     return new Response("The image could not be made.", { status: 503, headers: { "Cache-Control": "no-store" } });
   }
 
-  console.log({ og: "miss", ms: Date.now() - start, status: response.status });
   ctx.waitUntil(caches.default.put(key, response.clone()));
   return response;
 }
