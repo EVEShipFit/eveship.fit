@@ -14,20 +14,18 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const fit = url.searchParams.get("fit");
-    if (url.pathname === "/_fit") return fitPage(url, fit, env);
+    if (url.pathname === "/" && fit !== null) return fitPage(url, fit, env);
     if (url.pathname === "/og.jpg" && fit !== null) return ogImage(url, fit, env, ctx);
     return env.ASSETS.fetch(request);
   },
 } satisfies ExportedHandler<Env>;
 
 /** The website, with the fit's image as its OG image. */
-async function fitPage(url: URL, fit: string | null, env: Env) {
+async function fitPage(url: URL, fit: string, env: Env) {
   const page = await env.ASSETS.fetch(new URL("/", url));
-  if (fit === null) return page;
-
   const image = new URL("/og.jpg", url);
   image.searchParams.set("fit", fit);
-  return new HTMLRewriter()
+  const response = new HTMLRewriter()
     .on("head", {
       element(head) {
         head.append(
@@ -39,6 +37,9 @@ async function fitPage(url: URL, fit: string | null, env: Env) {
       },
     })
     .transform(page);
+  const rewritten = new Response(response.body, response);
+  rewritten.headers.delete("ETag");
+  return rewritten;
 }
 
 /** The OG image of the fit, from the cache or rendered by Browser Run. */
