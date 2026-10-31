@@ -84,6 +84,14 @@ test("a fit link opens its fit, and the url keeps it", async ({ page }) => {
   await expect(page.getByText("Link Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
 });
 
+test("a v1 #fit: link opens its fit, and the url moves it to ?fit=", async ({ page }) => {
+  await page.goto(
+    "/#fit:v3:H4sIAAAAAAAAAyvOyCzQMbUw1/HJzMtWCMpMK0kt0uHKzU8pzUnV8chMz9Ax1DGyMDfWcUwuySxL1TG0MEWRNcKQTSnKz0vVMTKxMNMx1DHgSk4sSs8HSegYGhhwAQBLJK6dbwAAAA==",
+  );
+  await expect(page.getByText("Link Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
+  await expect.poll(() => new URL(page.url()).search + new URL(page.url()).hash).toMatch(/^\?fit=esf1:[\w-]+$/);
+});
+
 test("an edit to the fit updates the url", async ({ page }) => {
   const link = () => new URL(page.url()).searchParams.get("fit");
   await page.goto(RIFTER);
