@@ -108,96 +108,100 @@ export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
         <FilterToggle icon="skills" label="Skills" pressed={flyable} onPressedChange={setFlyable} />
       </fieldset>
       <div className={styles.tree}>
-        {personalFits && personal.character?.canReadFits !== true && (
+        {personalFits && personal.character?.canReadFits !== true ? (
           <p className={styles.empty}>
             {personal.character === undefined
               ? "Log in or pick a character with the Character button"
               : "Log in again with the Character button to see fittings"}
           </p>
-        )}
-        <TreeList key={collapses} label="Hulls">
-          {groups.map(({ group, races }) => (
-            <TreeGroup key={group.id} label={group.name}>
-              {() =>
-                races.map(({ race, factionId, ships }) => (
-                  <TreeGroup
-                    key={race}
-                    label={`${raceName(race)} [${ships.length}]`}
-                    icon={
-                      factionId === undefined
-                        ? images.marketGroupIcon(SHIPS_MARKET_GROUP_ID)
-                        : images.factionIcon(factionId)
-                    }
-                  >
-                    {() =>
-                      ships.map((ship) => {
-                        const shown = shownFits(ship);
-                        const simulateShip = (
-                          <Tooltip label="Simulate Ship">
-                            <button
-                              type="button"
-                              className={styles.simulate}
-                              aria-label={`Simulate ${ship.name}`}
-                              onClick={() => simulate(ship.id)}
-                            >
-                              <Icon name="simulate" />
-                            </button>
-                          </Tooltip>
-                        );
+        ) : groups.length === 0 ? (
+          <p className={styles.empty}>No hulls found</p>
+        ) : null}
+        {groups.length > 0 && (
+          <TreeList key={collapses} label="Hulls">
+            {groups.map(({ group, races }) => (
+              <TreeGroup key={group.id} label={group.name}>
+                {() =>
+                  races.map(({ race, factionId, ships }) => (
+                    <TreeGroup
+                      key={race}
+                      label={`${raceName(race)} [${ships.length}]`}
+                      icon={
+                        factionId === undefined
+                          ? images.marketGroupIcon(SHIPS_MARKET_GROUP_ID)
+                          : images.factionIcon(factionId)
+                      }
+                    >
+                      {() =>
+                        ships.map((ship) => {
+                          const shown = shownFits(ship);
+                          const simulateShip = (
+                            <Tooltip label="Simulate Ship">
+                              <button
+                                type="button"
+                                className={styles.simulate}
+                                aria-label={`Simulate ${ship.name}`}
+                                onClick={() => simulate(ship.id)}
+                              >
+                                <Icon name="simulate" />
+                              </button>
+                            </Tooltip>
+                          );
 
-                        return (
-                          <TreeGroup
-                            key={ship.id}
-                            label={<span className={styles.hull}>{ship.name}</span>}
-                            description={
-                              shown.length > 0 ? (
-                                <Counts
-                                  browserFits={browserByHull.get(ship.id)?.length ?? 0}
-                                  personalFits={personalByHull.get(ship.id)?.length ?? 0}
-                                />
-                              ) : undefined
-                            }
-                            typeId={ship.id}
-                            after={simulateShip}
-                            onDragStart={(event) => {
-                              event.dataTransfer.effectAllowed = "copy";
-                              event.dataTransfer.setData("text/plain", ship.name);
-                              start({ type: "hull", typeId: ship.id });
-                            }}
-                            onDragEnd={end}
-                          >
-                            {() =>
-                              shown.length === 0 ? (
-                                <TreeLeaf label="No Item" />
-                              ) : (
-                                shown.map(({ fit, kind }, index) => (
-                                  <TreeLeaf
-                                    key={`${kind}:${fit.name ?? ""}:${index}`}
-                                    label={
-                                      <>
-                                        <span className={styles.kind}>
-                                          <Icon name={kind} />
-                                        </span>
-                                        {fit.name || ship.name}
-                                      </>
-                                    }
-                                    onActivate={() => store.replace(fit)}
-                                    activateOnClick
-                                    after={<Flyable fit={fit} />}
+                          return (
+                            <TreeGroup
+                              key={ship.id}
+                              label={<span className={styles.hull}>{ship.name}</span>}
+                              description={
+                                shown.length > 0 ? (
+                                  <Counts
+                                    browserFits={browserByHull.get(ship.id)?.length ?? 0}
+                                    personalFits={personalByHull.get(ship.id)?.length ?? 0}
                                   />
-                                ))
-                              )
-                            }
-                          </TreeGroup>
-                        );
-                      })
-                    }
-                  </TreeGroup>
-                ))
-              }
-            </TreeGroup>
-          ))}
-        </TreeList>
+                                ) : undefined
+                              }
+                              typeId={ship.id}
+                              after={simulateShip}
+                              onDragStart={(event) => {
+                                event.dataTransfer.effectAllowed = "copy";
+                                event.dataTransfer.setData("text/plain", ship.name);
+                                start({ type: "hull", typeId: ship.id });
+                              }}
+                              onDragEnd={end}
+                            >
+                              {() =>
+                                shown.length === 0 ? (
+                                  <TreeLeaf label="No Item" />
+                                ) : (
+                                  shown.map(({ fit, kind }, index) => (
+                                    <TreeLeaf
+                                      key={`${kind}:${fit.name ?? ""}:${index}`}
+                                      label={
+                                        <>
+                                          <span className={styles.kind}>
+                                            <Icon name={kind} />
+                                          </span>
+                                          {fit.name || ship.name}
+                                        </>
+                                      }
+                                      onActivate={() => store.replace(fit)}
+                                      activateOnClick
+                                      after={<Flyable fit={fit} />}
+                                    />
+                                  ))
+                                )
+                              }
+                            </TreeGroup>
+                          );
+                        })
+                      }
+                    </TreeGroup>
+                  ))
+                }
+              </TreeGroup>
+            ))}
+          </TreeList>
+        )}
       </div>
     </>
   );
