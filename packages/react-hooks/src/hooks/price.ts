@@ -1,5 +1,5 @@
 import type { Esi, MarketPrice } from "@eveshipfit/esi";
-import { fitPrice, type Fit } from "@eveshipfit/fitting";
+import { fitPriceItems, type Fit, type FitPriceItem } from "@eveshipfit/fitting";
 import type { Sde } from "@eveshipfit/sde-loader";
 import type { ZKillboard } from "@eveshipfit/zkillboard";
 import { useContext, useEffect, useState } from "react";
@@ -13,6 +13,8 @@ export interface FitPriceValue {
   readonly value: number | undefined;
   /** How a preview would change the price, if it would; cheaper is better. */
   readonly change: "better" | "worse" | undefined;
+  /** What `value` adds up; undefined like `value`. */
+  readonly items: readonly FitPriceItem[] | undefined;
 }
 
 type ZKillboardPrices = ReadonlyMap<number, number | undefined>;
@@ -45,10 +47,10 @@ export function useFitPrice(): FitPriceValue {
     }
   }, [zkillboard, unpriced]);
 
-  if (priced === undefined) return { value: undefined, change: undefined };
-  const { value, before, guessed } = priced;
-  if (guessed || before === value) return { value, change: undefined };
-  return { value, change: value < before ? "better" : "worse" };
+  if (priced === undefined) return { value: undefined, change: undefined, items: undefined };
+  const { value, before, guessed, items } = priced;
+  if (guessed || before === value) return { value, change: undefined, items };
+  return { value, change: value < before ? "better" : "worse", items };
 }
 
 const noPrices: ZKillboardPrices = new Map();
@@ -95,11 +97,17 @@ function priceFits(
     if (price === undefined && !zkillboardPrices.has(typeId)) unpriced.add(typeId);
     return price;
   };
-  const before = fitPrice(sde, current, priceOf);
+  const currentItems = fitPriceItems(sde, current, priceOf);
   const known = unpriced.size;
-  const value = shown === current ? before : fitPrice(sde, shown, priceOf);
+  const items = shown === current ? currentItems : fitPriceItems(sde, shown, priceOf);
   const guessed = unpriced.size > known;
-  return { value, before, guessed, unpriced: [...unpriced].toSorted((a, b) => a - b) };
+  const value = totalPrice(items);
+  const before = totalPrice(currentItems);
+  return { value, before, guessed, items, unpriced: [...unpriced].toSorted((a, b) => a - b) };
+}
+
+function totalPrice(items: readonly FitPriceItem[]): number {
+  return items.reduce((total, item) => total + (item.price ?? 0) * item.quantity, 0);
 }
 
 function esiPrice(market: MarketPrice | undefined): number | undefined {

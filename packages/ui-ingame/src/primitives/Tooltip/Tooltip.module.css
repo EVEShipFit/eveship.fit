@@ -30,6 +30,10 @@
   position-try-fallbacks: flip-block;
 }
 
+.tooltip[data-wide] {
+  max-width: 90vw;
+}
+
 .notch,
 .label {
   background: var(--esf-bg);

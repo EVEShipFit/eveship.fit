@@ -1,6 +1,6 @@
 import { beforeAll, expect, test } from "vitest";
 
-import { fitPrice, type Engine, type Fit } from "../src/index.js";
+import { fitPrice, fitPriceItems, type Engine, type Fit } from "../src/index.js";
 import { testEngine, typeIdOf } from "./engine.js";
 
 const ABYSSAL_DAMAGE_CONTROL = 52227;
@@ -80,4 +80,30 @@ test("implants and boosters are the pilot's, not the fit's", () => {
 
 test("a type without a price is free", () => {
   expect(fitPrice(engine.sde, caracal([]), () => undefined)).toBe(0);
+});
+
+test("the items add up the same types, most expensive first", () => {
+  const launcher = {
+    type_id: typeIdOf(engine, "Heavy Missile Launcher I"),
+    state: "active",
+    charge: { type_id: typeIdOf(engine, "Caldari Navy Inferno Heavy Missile") },
+  } as const;
+  const fit = caracal([
+    { ...launcher, slot: { type: "high", index: 0 } },
+    { ...launcher, slot: { type: "high", index: 1 } },
+    { type_id: typeIdOf(engine, "Hobgoblin I"), slot: { type: "drone_bay" }, quantity: 5, state: "active" },
+  ]);
+
+  const items = fitPriceItems(
+    engine.sde,
+    fit,
+    prices({ Caracal: 10_000_000, "Heavy Missile Launcher I": 100_000, "Caldari Navy Inferno Heavy Missile": 1_000 }),
+  );
+
+  expect(items).toEqual([
+    { typeId: typeIdOf(engine, "Caracal"), quantity: 1, price: 10_000_000 },
+    { typeId: typeIdOf(engine, "Heavy Missile Launcher I"), quantity: 2, price: 100_000 },
+    { typeId: typeIdOf(engine, "Caldari Navy Inferno Heavy Missile"), quantity: 60, price: 1_000 },
+    { typeId: typeIdOf(engine, "Hobgoblin I"), quantity: 5, price: undefined },
+  ]);
 });

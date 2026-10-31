@@ -67,6 +67,50 @@
   width: calc(16 * var(--statistics-unit));
 }
 
+.priceList {
+  --price-unit: calc(1px * var(--esf-scale, 1));
+
+  column-gap: calc(12 * var(--price-unit));
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  row-gap: calc(4 * var(--price-unit));
+  white-space: nowrap;
+}
+
+.priceTotal,
+.priceItem {
+  align-items: center;
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+}
+
+.priceTotal {
+  border-bottom: calc(1 * var(--price-unit)) solid var(--esf-border);
+  font-weight: 600;
+  padding-bottom: calc(6 * var(--price-unit));
+}
+
+.priceTotal > :first-child {
+  grid-column: 1 / -2;
+}
+
+.priceIcon {
+  height: calc(24 * var(--price-unit));
+  width: calc(24 * var(--price-unit));
+}
+
+.priceIcon > span {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.priceTotal > :last-child,
+.priceItem > :nth-child(n + 3) {
+  text-align: right;
+}
+
 .fighters {
   --fighters-unit: calc(1px * var(--esf-scale, 1));
 
