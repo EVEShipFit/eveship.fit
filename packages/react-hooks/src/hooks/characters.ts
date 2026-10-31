@@ -108,5 +108,8 @@ export function useMissingSkills(): (types: Iterable<number> | Fit) => readonly 
   const sde = useSde();
   const store = useFitStore();
   const character = useSyncExternalStore(store.subscribe, () => store.character);
-  return (types) => missingSkills(sde, character, "ship" in types ? typesInUse(types) : types);
+  return useMemo(
+    () => (types: Iterable<number> | Fit) => missingSkills(sde, character, "ship" in types ? typesInUse(types) : types),
+    [sde, character],
+  );
 }

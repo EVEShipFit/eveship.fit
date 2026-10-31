@@ -9,7 +9,8 @@ import {
   useMissingSkills,
   usePersonalFits,
 } from "@eveshipfit/react-hooks";
-import { useState, type CSSProperties } from "react";
+import type { SdeType } from "@eveshipfit/sde-loader";
+import { useMemo, useState, type CSSProperties } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
 import { Icon, useIconUrl, type IconName } from "../../primitives/Icon/Icon";
@@ -28,7 +29,7 @@ const SHIPS_MARKET_GROUP_ID = 4;
 
 /** The Hulls & Fits tab of the `ItemBrowser`: EVE's hulls by group and race, with the fits saved for each. */
 export function HullsAndFits() {
-  const currentShipId = useFit().ship.type_id;
+  const fitShipId = useFit().ship.type_id;
   const images = useImages();
   const store = useFitStore();
   const missingSkills = useMissingSkills();
@@ -43,33 +44,38 @@ export function HullsAndFits() {
   const [collapses, setCollapses] = useState(0);
 
   const query = search.trim().toLowerCase();
-  const matches = (name: string | undefined) => (name ?? "").toLowerCase().includes(query);
-
   const anySource = browserFits || personalFits;
-  const listed: Listed[] = [
-    ...(!anySource || browserFits ? fits.map((fit) => ({ fit, kind: "fits-browser" as const })) : []),
-    ...(!anySource || personalFits ? personal.fits.map((fit) => ({ fit, kind: "fits-personal" as const })) : []),
-  ].toSorted((a, b) => (a.fit.name ?? "").localeCompare(b.fit.name ?? ""));
-  const fitsByHull = Map.groupBy(listed, ({ fit }) => fit.ship.type_id);
-  const browserByHull = Map.groupBy(fits, (fit) => fit.ship.type_id);
-  const personalByHull = Map.groupBy(personal.fits, (fit) => fit.ship.type_id);
-  const shownFits = (ship: { id: number; name: string }) => {
-    const saved = fitsByHull.get(ship.id) ?? noFits;
-    const kept = flyable ? saved.filter(({ fit }) => missingSkills(fit).length === 0) : saved;
-    return matches(ship.name) ? kept : kept.filter(({ fit }) => matches(fit.name));
-  };
+  const currentShipId = currentHull ? fitShipId : undefined;
 
-  const groups = useHullTree(
-    query !== "" || currentHull || anySource || flyable
-      ? (ship) => {
-          if (currentHull && ship.id !== currentShipId) return false;
-          if (flyable && missingSkills([ship.id]).length > 0) return false;
-          const shown = shownFits(ship);
-          if (anySource && shown.length === 0 && !currentHull) return false;
-          return matches(ship.name) || shown.length > 0;
-        }
-      : undefined,
-  );
+  const { browserByHull, personalByHull, shownFits } = useMemo(() => {
+    const matches = (name: string | undefined) => (name ?? "").toLowerCase().includes(query);
+    const listed: Listed[] = [
+      ...(!anySource || browserFits ? fits.map((fit) => ({ fit, kind: "fits-browser" as const })) : []),
+      ...(!anySource || personalFits ? personal.fits.map((fit) => ({ fit, kind: "fits-personal" as const })) : []),
+    ].toSorted((a, b) => (a.fit.name ?? "").localeCompare(b.fit.name ?? ""));
+    const fitsByHull = Map.groupBy(listed, ({ fit }) => fit.ship.type_id);
+    return {
+      browserByHull: Map.groupBy(fits, (fit) => fit.ship.type_id),
+      personalByHull: Map.groupBy(personal.fits, (fit) => fit.ship.type_id),
+      shownFits: (ship: { id: number; name: string }) => {
+        const saved = fitsByHull.get(ship.id) ?? noFits;
+        const kept = flyable ? saved.filter(({ fit }) => missingSkills(fit).length === 0) : saved;
+        return matches(ship.name) ? kept : kept.filter(({ fit }) => matches(fit.name));
+      },
+    };
+  }, [query, anySource, browserFits, personalFits, fits, personal.fits, flyable, missingSkills]);
+
+  const keep = useMemo(() => {
+    if (query === "" && !currentHull && !anySource && !flyable) return undefined;
+    return (ship: SdeType) => {
+      if (currentShipId !== undefined && ship.id !== currentShipId) return false;
+      if (flyable && missingSkills([ship.id]).length > 0) return false;
+      const shown = shownFits(ship);
+      if (anySource && shown.length === 0 && !currentHull) return false;
+      return ship.name.toLowerCase().includes(query) || shown.length > 0;
+    };
+  }, [query, currentHull, anySource, flyable, currentShipId, missingSkills, shownFits]);
+  const groups = useHullTree(keep);
 
   const simulate = (shipTypeId: number) => store.replace({ ship: { type_id: shipTypeId }, items: [] });
 

@@ -8,7 +8,7 @@ import {
   usePlacement,
 } from "@eveshipfit/react-hooks";
 import type { SdeType } from "@eveshipfit/sde-loader";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
 import type { IconName } from "../../primitives/Icon/Icon";
@@ -53,20 +53,19 @@ export function Modules() {
   }
 
   const query = search.trim().toLowerCase();
-  const places = new Set(slotFilters.filter(({ filter }) => slots.has(filter)).flatMap((slot) => slot.places));
-
-  const keep =
-    query !== "" || places.size > 0 || hullRestrictions || flyable
-      ? (type: SdeType) => {
-          if (places.size > 0) {
-            const place = placement(type)?.type;
-            if (place === undefined || !places.has(place)) return false;
-          }
-          if (hullRestrictions && !canFit(type)) return false;
-          if (flyable && missingSkills([type.id]).length > 0) return false;
-          return type.name.toLowerCase().includes(query);
-        }
-      : undefined;
+  const keep = useMemo(() => {
+    const places = new Set(slotFilters.filter(({ filter }) => slots.has(filter)).flatMap((slot) => slot.places));
+    if (query === "" && places.size === 0 && !hullRestrictions && !flyable) return undefined;
+    return (type: SdeType) => {
+      if (places.size > 0) {
+        const place = placement(type)?.type;
+        if (place === undefined || !places.has(place)) return false;
+      }
+      if (hullRestrictions && !canFit(type)) return false;
+      if (flyable && missingSkills([type.id]).length > 0) return false;
+      return type.name.toLowerCase().includes(query);
+    };
+  }, [query, slots, hullRestrictions, flyable, placement, canFit, missingSkills]);
   const tree = useModuleTree(query === "" ? keep : undefined);
   const found = useModuleSearch(query === "" ? undefined : keep);
   const groups = query === "" ? tree : found;
