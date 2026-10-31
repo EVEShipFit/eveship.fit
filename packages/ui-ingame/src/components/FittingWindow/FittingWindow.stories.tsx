@@ -899,6 +899,8 @@ export const Keepstar: Story = {
     await expect(rack.left + rack.width / 2).toBeCloseTo(wheel.left + wheel.width / 2, 0);
     await expect(canvas.getByRole("region", { name: "Fitting Window" }).getBoundingClientRect().height).toBe(694);
 
+    await userEvent.hover(services[1]!);
+    await expect(canvas.getByText("Offline Passive Module")).toBeVisible();
     await userEvent.click(services[1]!);
     await expect(canvas.getByRole("button", { name: "Standup Cloning Center I, online" })).toBeInTheDocument();
     const actions = within(canvas.getByRole("group", { name: "Standup Market Hub I" }));

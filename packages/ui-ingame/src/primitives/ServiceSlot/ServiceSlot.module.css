@@ -60,15 +60,15 @@
   outline: var(--service-unit) solid var(--esf-text);
 }
 
-.slot[data-state="empty"] > .body::before {
+.slot[data-state="empty"] .body::before {
   opacity: 0.4;
 }
 
-.slot[data-state="offline"] > .body {
+.slot[data-state="offline"] .body {
   opacity: 0.3;
 }
 
-.slot[data-state="unavailable"] > .body {
+.slot[data-state="unavailable"] .body {
   opacity: 0.1;
 }
 

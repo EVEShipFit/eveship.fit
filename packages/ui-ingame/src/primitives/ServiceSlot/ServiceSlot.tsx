@@ -1,8 +1,9 @@
 import { useImages } from "@eveshipfit/react-hooks";
-import type { CSSProperties, DragEventHandler, HTMLAttributes, MouseEventHandler } from "react";
+import type { CSSProperties, DragEventHandler, HTMLAttributes, MouseEventHandler, ReactNode } from "react";
 
 import { Icon } from "../Icon/Icon";
 import { SlotAction, SlotInfo, SlotPress } from "../SlotAction/SlotAction";
+import { Tooltip } from "../Tooltip/Tooltip";
 import { TypeIcon } from "../TypeIcon/TypeIcon";
 import type { SlotState } from "../Wheel/WheelSlot";
 import styles from "./ServiceSlot.module.css";
@@ -15,6 +16,7 @@ export interface ServiceSlotProps extends HTMLAttributes<HTMLDivElement> {
   available?: boolean;
   /** Shown, but not fitted yet. */
   preview?: boolean;
+  tooltip?: ReactNode;
   /** Makes the slot a button, named `label`. */
   onPress?: MouseEventHandler<HTMLElement>;
   /** Makes the slot draggable. */
@@ -35,6 +37,7 @@ export function ServiceSlot({
   state = "online",
   available = true,
   preview = false,
+  tooltip,
   onPress,
   onDragStart,
   onDragEnd,
@@ -59,26 +62,28 @@ export function ServiceSlot({
       data-state={fitted ? state : available ? "empty" : "unavailable"}
       data-preview={preview || undefined}
     >
-      <div
-        className={styles.body}
-        style={{ "--texture": `url(${images.uiTexture(frame)})` } as CSSProperties}
-        draggable={onDragStart !== undefined || undefined}
-        onDragStart={onDragStart}
-        onDragEnd={onDragEnd}
-      >
-        {fitted ? (
-          <span className={styles.icon}>
-            <TypeIcon typeId={typeId} size={64} marker={false} />
-          </span>
-        ) : (
-          available && (
-            <span className={styles.empty}>
-              <Icon name="slot-service" />
+      <Tooltip label={tooltip}>
+        <div
+          className={styles.body}
+          style={{ "--texture": `url(${images.uiTexture(frame)})` } as CSSProperties}
+          draggable={onDragStart !== undefined || undefined}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+        >
+          {fitted ? (
+            <span className={styles.icon}>
+              <TypeIcon typeId={typeId} size={64} marker={false} />
             </span>
-          )
-        )}
-        {onPress && <SlotPress className={styles.press} label={label} onPress={onPress} />}
-      </div>
+          ) : (
+            available && (
+              <span className={styles.empty}>
+                <Icon name="slot-service" />
+              </span>
+            )
+          )}
+          {onPress && <SlotPress className={styles.press} label={label} onPress={onPress} />}
+        </div>
+      </Tooltip>
       {actions && (
         <fieldset className={styles.actions} aria-label={typeName} inert={preview}>
           <span className={styles.action}>
