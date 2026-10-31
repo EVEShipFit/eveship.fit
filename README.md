@@ -8,7 +8,7 @@ To show fits on your own site, see [docs/embedding.md](docs/embedding.md).
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) 26 or newer.
+- [Node.js](https://nodejs.org/) 24 or newer.
 - [pnpm](https://pnpm.io/) 10; `corepack enable` picks the right version.
 - Chromium for the tests: `pnpm exec playwright install chromium` (after `pnpm install`).
 
