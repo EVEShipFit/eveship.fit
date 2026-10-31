@@ -1095,6 +1095,7 @@ async function refuses(from: Element, to: Element) {
 async function dragAndDrop(from: Element, to: Element) {
   const dataTransfer = new DataTransfer();
   await fireEvent.dragStart(from, { dataTransfer });
+  await fireEvent.dragEnter(to, { dataTransfer });
   await waitFor(async () => expect(await fireEvent.dragOver(to, { dataTransfer })).toBe(false));
   await fireEvent.drop(to, { dataTransfer });
   await fireEvent.dragEnd(from, { dataTransfer });
