@@ -1,7 +1,7 @@
 import type { Placement } from "@eveshipfit/fitting";
 import { useBrowse, useImplantSearch, useImplantTree, useMissingSkills, usePlacement } from "@eveshipfit/react-hooks";
 import type { MarketGroupNode, SdeType } from "@eveshipfit/sde-loader";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { FilterToggle } from "../../primitives/FilterToggle/FilterToggle";
 import { Icon, type IconName } from "../../primitives/Icon/Icon";
@@ -58,21 +58,21 @@ export function Implants() {
   }
 
   const query = search.trim().toLowerCase();
-  const keep =
-    query !== "" || kinds.size > 0 || flyable
-      ? (type: SdeType) => {
-          if (kinds.size > 0) {
-            const place = placement(type)?.type;
-            if (place !== "implant" && place !== "booster") return false;
-            if (!kinds.has(place)) return false;
-          }
-          if (flyable && missingSkills([type.id]).length > 0) return false;
-          return type.name.toLowerCase().includes(query);
-        }
-      : undefined;
+  const keep = useMemo(() => {
+    if (query === "" && kinds.size === 0 && !flyable) return undefined;
+    return (type: SdeType) => {
+      if (kinds.size > 0) {
+        const place = placement(type)?.type;
+        if (place !== "implant" && place !== "booster") return false;
+        if (!kinds.has(place)) return false;
+      }
+      if (flyable && missingSkills([type.id]).length > 0) return false;
+      return type.name.toLowerCase().includes(query);
+    };
+  }, [query, kinds, flyable, placement, missingSkills]);
   const tree = useImplantTree(view === "slot" || query === "" ? keep : undefined);
   const found = useImplantSearch(view === "market" && query !== "" ? keep : undefined);
-  const slots = view === "slot" ? slotGroups(tree, placement) : [];
+  const slots = useMemo(() => (view === "slot" ? slotGroups(tree, placement) : []), [view, tree, placement]);
   const empty = view === "slot" ? slots.length === 0 : query === "" ? tree.length === 0 : found.length === 0;
 
   const treeRef = useRef<HTMLDivElement>(null);

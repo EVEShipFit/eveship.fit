@@ -394,8 +394,11 @@ test("a character without skills flies the fit worse", () => {
 });
 
 test("missing skills follow the character", () => {
-  const { result } = render(() => ({ characters: useCharacters(), missingSkills: useMissingSkills() }));
+  const { result, rerender } = render(() => ({ characters: useCharacters(), missingSkills: useMissingSkills() }));
   expect(result.current.missingSkills([RIFTER])).toEqual([]);
+  const stable = result.current.missingSkills;
+  rerender();
+  expect(result.current.missingSkills).toBe(stable);
 
   act(() => result.current.characters.select("no-skills"));
   expect(result.current.missingSkills([RIFTER])).toContainEqual(
