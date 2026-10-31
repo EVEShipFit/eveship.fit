@@ -381,6 +381,22 @@ export const BrowseEmptySlot: Story = {
   },
 };
 
+/** Clicking an empty service slot opens the item browser on the service modules. */
+export const BrowseEmptyServiceSlot: Story = {
+  args: { browser: <ItemBrowser /> },
+  parameters: { fit: keepstar },
+  play: async ({ canvas, userEvent }) => {
+    const pressed = () =>
+      within(canvas.getByRole("group", { name: "Filters" }))
+        .getAllByRole("button", { pressed: true })
+        .map((button) => button.getAttribute("aria-label"));
+
+    await userEvent.click(canvas.getAllByRole("button", { name: "Empty Service Slot" })[0]!);
+    await expect(canvas.getByRole("tab", { name: "Modules" })).toHaveAttribute("aria-selected", "true");
+    await expect(pressed()).toEqual(["Service Slot", "Hull Restrictions"]);
+  },
+};
+
 /** Clicking an implant or booster slot opens the item browser on that slot. */
 export const BrowseAugmentationSlot: Story = {
   args: { browser: <ItemBrowser /> },
