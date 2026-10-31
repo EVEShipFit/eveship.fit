@@ -46,8 +46,8 @@ export function useFitPrice(): FitPriceValue {
   }, [zkillboard, unpriced]);
 
   if (priced === undefined) return { value: undefined, change: undefined };
-  const { value, before } = priced;
-  if (before === value) return { value, change: undefined };
+  const { value, before, guessed } = priced;
+  if (guessed || before === value) return { value, change: undefined };
   return { value, change: value < before ? "better" : "worse" };
 }
 
@@ -81,7 +81,7 @@ export function useTypePrice(typeId: number): number | undefined {
   return asked?.zkillboard === ask && asked?.typeId === typeId ? asked.price : undefined;
 }
 
-/** Prices both fits; `unpriced` is what the current fit has that only zKillboard could price. */
+/** Prices both fits; `unpriced` is what they have that only zKillboard could price. */
 function priceFits(
   sde: Sde,
   shown: Fit,
@@ -90,14 +90,16 @@ function priceFits(
   zkillboardPrices: ZKillboardPrices,
 ) {
   const unpriced = new Set<number>();
-  const priceOf = (typeId: number) => esiPrice(prices.get(typeId)) ?? zkillboardPrices.get(typeId);
-  const before = fitPrice(sde, current, (typeId) => {
-    const price = priceOf(typeId);
+  const priceOf = (typeId: number) => {
+    const price = esiPrice(prices.get(typeId)) ?? zkillboardPrices.get(typeId);
     if (price === undefined && !zkillboardPrices.has(typeId)) unpriced.add(typeId);
     return price;
-  });
+  };
+  const before = fitPrice(sde, current, priceOf);
+  const known = unpriced.size;
   const value = shown === current ? before : fitPrice(sde, shown, priceOf);
-  return { value, before, unpriced: [...unpriced].toSorted((a, b) => a - b) };
+  const guessed = unpriced.size > known;
+  return { value, before, guessed, unpriced: [...unpriced].toSorted((a, b) => a - b) };
 }
 
 function esiPrice(market: MarketPrice | undefined): number | undefined {
