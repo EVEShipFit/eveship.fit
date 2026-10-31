@@ -10,7 +10,6 @@
     "e2e": "playwright test"
   },
   "dependencies": {
-    "@cloudflare/puppeteer": "catalog:",
     "@eveshipfit/dogma-engine": "catalog:",
     "@eveshipfit/esi": "workspace:*",
     "@eveshipfit/fitting": "workspace:*",
