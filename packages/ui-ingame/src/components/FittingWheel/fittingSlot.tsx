@@ -77,7 +77,7 @@ export function useFittingSlot(
     const dropped = sde.type(drop.typeId);
     if (dropped === undefined) return false;
     const place = placement(dropped);
-    if (place?.type === "charge") return ref !== undefined && charges.includes(dropped);
+    if (place?.type === "charge") return fitted(fit, rack, index) && charges.includes(dropped);
     return place?.type === rack && (place.type !== "subsystem" || place.index === index);
   };
 
@@ -184,4 +184,9 @@ function movesTo(fit: Fit, ref: ItemRef, rack: Rack, index: number): boolean {
   const item = fit.items[ref];
   if (item === undefined || rack === "subsystem" || item.slot.type !== rack) return false;
   return "index" in item.slot && item.slot.index !== index;
+}
+
+/** Whether the fit has an item in this slot. */
+function fitted(fit: Fit, rack: Rack, index: number): boolean {
+  return fit.items.some((item) => item.slot.type === rack && "index" in item.slot && item.slot.index === index);
 }
