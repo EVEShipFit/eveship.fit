@@ -361,7 +361,11 @@
 /* Just right of the Statistics button. */
 .statistics {
   left: calc(700 * var(--window-unit) + var(--browser-width));
+  right: 0;
   transition: left 200ms ease;
+}
+
+.statistics > .slide {
   width: calc(280 * var(--window-unit));
 }
 
