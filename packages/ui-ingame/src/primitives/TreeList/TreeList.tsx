@@ -193,7 +193,9 @@ export function TreeLeaf({
           onClick={activateOnClick ? onActivate : undefined}
           onDoubleClick={activateOnClick ? undefined : onActivate}
           onKeyDown={(event) => {
-            if (event.key === "Enter") onActivate?.();
+            if (event.key !== "Enter" && event.key !== " ") return;
+            event.preventDefault();
+            onActivate?.();
           }}
           onMouseEnter={() => onHover?.(true)}
           onMouseLeave={() => onHover?.(false)}

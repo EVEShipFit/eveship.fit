@@ -76,6 +76,8 @@ export const Collapsed: Story = {
     canvas.getByRole("button", { name: /Rifter/ }).focus();
     await userEvent.keyboard("{Enter}");
     await expect(onActivate).toHaveBeenCalledTimes(2);
+    await userEvent.keyboard(" ");
+    await expect(onActivate).toHaveBeenCalledTimes(3);
   },
 };
 
