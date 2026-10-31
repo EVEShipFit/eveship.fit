@@ -15,6 +15,8 @@ export interface TooltipProps {
   label?: ReactNode | (() => ReactNode);
   /** The tooltip points at the first element. */
   children: ReactNode;
+  /** Lets the tooltip grow as wide as its label. */
+  wide?: boolean;
 }
 
 /**
@@ -22,7 +24,7 @@ export interface TooltipProps {
  *
  * Firefox places the tooltip as if `children` had no CSS transform, so do not rotate or scale it, or its parents.
  */
-export function Tooltip({ label, children }: TooltipProps) {
+export function Tooltip({ label, children, wide }: TooltipProps) {
   const tooltip = useRef<HTMLSpanElement>(null);
   const id = useId().replace(/[^\w-]/g, "");
   const [opened, setOpened] = useState(false);
@@ -53,7 +55,7 @@ export function Tooltip({ label, children }: TooltipProps) {
     >
       {children}
       {label !== undefined && (
-        <span ref={tooltip} className={styles.tooltip} popover="hint" aria-hidden>
+        <span ref={tooltip} className={styles.tooltip} data-wide={wide || undefined} popover="hint" aria-hidden>
           <span className={styles.notch} />
           <span className={styles.label}>{typeof label === "function" ? opened && label() : label}</span>
         </span>

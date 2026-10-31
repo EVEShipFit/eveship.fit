@@ -920,11 +920,24 @@ test("the fit price is the shown fit's, at the engine's ESI prices", async () =>
     ),
   });
 
-  expect(result.current.price).toEqual({ value: undefined, change: undefined });
-  await waitFor(() => expect(result.current.price).toEqual({ value: 300_000, change: undefined }));
+  expect(result.current.price).toEqual({ value: undefined, change: undefined, items: undefined });
+  await waitFor(() =>
+    expect(result.current.price).toEqual({
+      value: 300_000,
+      change: undefined,
+      items: [{ typeId: RIFTER, quantity: 1, price: 300_000 }],
+    }),
+  );
 
   act(() => result.current.preview.show((draft) => void draft.fit(DAMAGE_CONTROL_II)));
-  expect(result.current.price).toEqual({ value: 800_000, change: "worse" });
+  expect(result.current.price).toEqual({
+    value: 800_000,
+    change: "worse",
+    items: [
+      { typeId: DAMAGE_CONTROL_II, quantity: 1, price: 500_000 },
+      { typeId: RIFTER, quantity: 1, price: 300_000 },
+    ],
+  });
 });
 
 test("the fit price is gone with the engine's ESI", async () => {
@@ -1027,9 +1040,9 @@ test("a preview asks zKillboard, and is neither better nor worse until it answer
       draft.fit(damageControlI);
     }),
   );
-  expect(result.current.price).toEqual({ value: 300_000, change: undefined });
+  expect(result.current.price).toMatchObject({ value: 300_000, change: undefined });
 
-  await waitFor(() => expect(result.current.price).toEqual({ value: 900_000, change: "worse" }));
+  await waitFor(() => expect(result.current.price).toMatchObject({ value: 900_000, change: "worse" }));
   expect(zkillboardPrice.mock.calls).toEqual([[damageControlI]]);
 });
 

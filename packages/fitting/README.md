@@ -73,7 +73,7 @@ its fit in one of them, which `setMode` switches.
 `missingSkills` says which skills a character lacks to use some types, with the skills those skills need;
 `typesInUse` gives the types of a fit that need them.
 
-`fitPrice` says what a fit costs at a price per type, without implants and boosters.
+`fitPrice` says what a fit costs at a price per type, without implants and boosters. `fitPriceItems` lists what it adds up, one entry per type.
 
 ## License
 
