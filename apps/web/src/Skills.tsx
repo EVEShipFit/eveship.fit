@@ -17,7 +17,7 @@ const warnings = {
 };
 
 /** The button to pick which character flies the fit, and the card it pops up. */
-export function Skills({ loginError }: { loginError?: string }) {
+export function Skills({ loginError, empty }: { loginError?: string; empty: boolean }) {
   const id = useId();
   const card = useRef<HTMLDialogElement>(null);
   const store = useFitStore();
@@ -45,7 +45,7 @@ export function Skills({ loginError }: { loginError?: string }) {
   const startLogin =
     login &&
     (() => {
-      keepFit(store.getSnapshot().fit);
+      if (!empty) keepFit(store.getSnapshot().fit);
       login();
     });
 
