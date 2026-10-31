@@ -36,6 +36,13 @@ export function useCanFit(): (type: SdeType) => boolean {
   }, [sde, shipId, shipRacks, droneBay]);
 }
 
+/** Whether the fit's ship refuses a type that has a place on a fit. */
+export function useHullRefuses(): (type: SdeType) => boolean {
+  const placement = usePlacement();
+  const fits = useCanFit();
+  return useMemo(() => (type: SdeType) => placement(type) !== undefined && !fits(type), [placement, fits]);
+}
+
 /** How many more drones of a type can be active; does not follow the preview. */
 export function useDroneRoom(type: SdeType): number {
   const sde = useSde();

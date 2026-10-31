@@ -39,6 +39,7 @@ import {
   useFighterTubes,
   useFighterTubeUsage,
   useHardpoints,
+  useHullRefuses,
   useHullTree,
   useImages,
   useInfo,
@@ -778,6 +779,13 @@ test("where a type goes, and whether it may go on the fit's ship", () => {
   expect(result.current.canFit(byName("Warrior II"))).toBe(false);
   expect(result.current.canFit(byName("Templar II"))).toBe(false);
   expect(result.current.canFit(byName("EMP S"))).toBe(true);
+});
+
+test("the hull refuses a type it cannot fit, but not one without a place", () => {
+  const { result } = render(() => useHullRefuses());
+  expect(result.current(byName("Medium Projectile Burst Aerator I"))).toBe(true);
+  expect(result.current(byName("Damage Control II"))).toBe(false);
+  expect(result.current(byName("Rifter"))).toBe(false);
 });
 
 test("a carrier takes fighters of the kinds it has tubes for", () => {

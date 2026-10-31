@@ -29,7 +29,7 @@ export { useInfo, useShowInfo, type Info, type InfoAttribute, type ShowInfo } fr
 export { useLocalFits, usePersonalFits, type LocalFitsControls, type PersonalFitsValue } from "./hooks/local-fits.js";
 export { useFitPrice, useTypePrice, type FitPriceValue } from "./hooks/price.js";
 export { useRefusal, type Refuse } from "./hooks/refusal.js";
-export { useCanFit, useDroneRoom, useModes, usePlacement } from "./hooks/rules.js";
+export { useCanFit, useDroneRoom, useHullRefuses, useModes, usePlacement } from "./hooks/rules.js";
 export {
   useChargedModules,
   useChargeSearch,

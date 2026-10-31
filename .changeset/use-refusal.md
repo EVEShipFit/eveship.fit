@@ -2,4 +2,4 @@
 "@eveshipfit/react-hooks": minor
 ---
 
-Add `useRefusal`, telling that the fit refused a type
+Add `useHullRefuses` and `useRefusal`, for a type the fit's ship cannot fit

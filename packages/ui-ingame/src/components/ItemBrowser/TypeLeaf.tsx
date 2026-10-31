@@ -1,10 +1,9 @@
 import {
   formatNumber,
-  useCanFit,
   useDrag,
   useFitStore,
+  useHullRefuses,
   useImages,
-  usePlacement,
   usePreview,
   useRefusal,
   useSde,
@@ -38,8 +37,7 @@ export interface TypeActions {
 export function useTypeActions(): { actions: TypeActions; clear: () => void; dragImage: ReactNode } {
   const store = useFitStore();
   const sde = useSde();
-  const placement = usePlacement();
-  const canFit = useCanFit();
+  const refuses = useHullRefuses();
   const { refuse } = useRefusal();
   const { show, clear } = usePreview();
   const { start, end } = useDrag();
@@ -49,7 +47,7 @@ export function useTypeActions(): { actions: TypeActions; clear: () => void; dra
 
   const refused = (typeId: number) => {
     const type = sde.type(typeId);
-    return type !== undefined && placement(type) !== undefined && !canFit(type);
+    return type !== undefined && refuses(type);
   };
 
   const actions: TypeActions = {

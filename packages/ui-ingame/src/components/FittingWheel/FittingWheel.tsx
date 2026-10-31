@@ -8,16 +8,15 @@ import {
   useFit,
   useFitStore,
   useHardpoints,
+  useHullRefuses,
   useModes,
   usePreview,
-  usePlacement,
   useRackUsage,
   useRefusal,
   useSde,
   useSlots,
   useStats,
   type DragItem,
-  type Refusal,
   type SlotContent,
 } from "@eveshipfit/react-hooks";
 import { useEffect, useMemo, useState } from "react";
@@ -176,11 +175,10 @@ const refusalShown = 3000;
 /** Tells that the hull cannot fit the type being dragged, or the type just refused. */
 function FittingHullNotice() {
   const sde = useSde();
-  const placement = usePlacement();
-  const canFit = useCanFit();
+  const refuses = useHullRefuses();
   const { dragging } = useDrag();
   const { refusal } = useRefusal();
-  const [expired, setExpired] = useState<Refusal>();
+  const [expired, setExpired] = useState(refusal);
 
   useEffect(() => {
     if (refusal === undefined) return;
@@ -189,8 +187,8 @@ function FittingHullNotice() {
   }, [refusal]);
 
   const type = dragging?.type === "type" ? sde.type(dragging.typeId) : undefined;
-  const refusesDragged = type !== undefined && placement(type) !== undefined && !canFit(type);
-  if (!refusesDragged && (refusal === undefined || refusal === expired)) return null;
+  const shown = dragging === undefined ? refusal !== expired : type !== undefined && refuses(type);
+  if (!shown) return null;
   return <WheelNotice text="Hull cannot fit this module type" />;
 }
 
