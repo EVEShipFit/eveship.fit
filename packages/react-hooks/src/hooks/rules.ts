@@ -1,4 +1,14 @@
-import { canFit, droneRoom, modesOf, placementOf, type Placement, type Rack } from "@eveshipfit/fitting";
+import {
+  acceptsCharge,
+  canFit,
+  droneRoom,
+  firstFreeIndex,
+  modesOf,
+  placementOf,
+  type Placement,
+  type Rack,
+  type SlotType,
+} from "@eveshipfit/fitting";
 import type { SdeType } from "@eveshipfit/sde-loader";
 import { useMemo } from "react";
 
@@ -6,6 +16,7 @@ import { useFit, useSnapshot } from "./fit.js";
 import { useSde, useType } from "./sde.js";
 
 const racks: readonly Rack[] = ["high", "medium", "low", "rig", "subsystem", "service"];
+const bays: readonly SlotType[] = ["cargo", "drone_bay", "fighter_bay"];
 const noModes: readonly SdeType[] = [];
 
 /** Where a type goes when fitted; `undefined` for what cannot be part of a fit, like a ship. */
@@ -41,6 +52,34 @@ export function useHullRefuses(): (type: SdeType) => boolean {
   const placement = usePlacement();
   const fits = useCanFit();
   return useMemo(() => (type: SdeType) => placement(type) !== undefined && !fits(type), [placement, fits]);
+}
+
+/** Whether the fit has a free slot for a module, or a fitted module for a charge; true for any other type. */
+export function useHasRoom(): (type: SdeType) => boolean {
+  const sde = useSde();
+  const { fit, stats } = useSnapshot();
+
+  return useMemo(
+    () => (type: SdeType) => {
+      const placement = placementOf(sde, type);
+      switch (placement?.type) {
+        case "high":
+        case "medium":
+        case "low":
+        case "rig":
+        case "service":
+          return firstFreeIndex(fit, placement.type, stats.slots[placement.type].total) !== undefined;
+        case "charge":
+          return fit.items.some((item) => {
+            const module = sde.type(item.type_id);
+            return module !== undefined && !bays.includes(item.slot.type) && acceptsCharge(sde, module, type);
+          });
+        default:
+          return true;
+      }
+    },
+    [sde, fit, stats],
+  );
 }
 
 /** How many more drones of a type can be active; does not follow the preview. */

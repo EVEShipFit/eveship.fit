@@ -2,6 +2,7 @@ import {
   formatNumber,
   useDrag,
   useFitStore,
+  useHasRoom,
   useHullRefuses,
   useImages,
   usePreview,
@@ -42,6 +43,7 @@ export function useTypeActions(noHullSelected: boolean): {
   const store = useFitStore();
   const sde = useSde();
   const refuses = useHullRefuses();
+  const hasRoom = useHasRoom();
   const { refuse, hold, release } = useRefusal();
   const { show, clear } = usePreview();
   const { start, end } = useDrag();
@@ -51,7 +53,7 @@ export function useTypeActions(noHullSelected: boolean): {
 
   const refused = (typeId: number) => {
     const type = sde.type(typeId);
-    return type !== undefined && refuses(type);
+    return type !== undefined && (refuses(type) || !hasRoom(type));
   };
 
   const actions: TypeActions = {
@@ -88,6 +90,7 @@ export function useTypeActions(noHullSelected: boolean): {
     dragEnd: () => {
       end();
       clear();
+      release();
     },
   };
 

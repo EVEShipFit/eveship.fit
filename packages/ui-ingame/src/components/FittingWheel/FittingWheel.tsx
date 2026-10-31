@@ -8,6 +8,7 @@ import {
   useFit,
   useFitStore,
   useHardpoints,
+  useHasRoom,
   useHullRefuses,
   useModes,
   usePlacement,
@@ -127,8 +128,11 @@ function FittingCentre() {
   const { dragging, end } = useDrag();
   const sde = useSde();
   const canFit = useCanFit();
+  const hasRoom = useHasRoom();
+  const { hold, release } = useRefusal();
   const type = dragging?.type === "type" ? sde.type(dragging.typeId) : undefined;
   const fits = type !== undefined && canFit(type) && placesSomewhere(store, type.id);
+  const full = type !== undefined && canFit(type) && !hasRoom(type);
   const takes = (item: DragItem | undefined): item is DragItem => {
     if (item === undefined) return false;
     if (item.type === "item") return fit.items[item.ref] !== undefined;
@@ -140,10 +144,14 @@ function FittingCentre() {
       className={styles.centre}
       data-centre
       onDragEnter={() => {
+        if (full) hold(type.id);
         if (!fits) return;
         show((draft) => void draft.fit(type.id), "centre");
       }}
-      onDragLeave={() => clear("centre")}
+      onDragLeave={() => {
+        clear("centre");
+        release();
+      }}
       onDragOver={(event) => {
         if (takes(dragging)) allowDrop(event, dragging);
       }}
@@ -174,7 +182,7 @@ function FittingCopyHint() {
 const refusalShown = 3000;
 const kinds: Partial<Record<Placement["type"], string>> = { drone_bay: "drone", fighter_bay: "fighter" };
 
-/** Tells that the hull cannot fit the type being dragged, or the type refused. */
+/** Tells that the hull cannot fit the type being dragged, or why the fit refused a type. */
 function FittingHullNotice() {
   const sde = useSde();
   const placement = usePlacement();
@@ -191,9 +199,21 @@ function FittingHullNotice() {
 
   const dragged = dragging?.type === "type" ? sde.type(dragging.typeId) : undefined;
   const refused = refusal !== undefined && (refusal.held || refusal !== expired) ? sde.type(refusal.typeId) : undefined;
-  const type = dragging === undefined ? refused : dragged && refuses(dragged) ? dragged : undefined;
+  const type =
+    dragging === undefined
+      ? refused
+      : dragged && (refuses(dragged) || refused?.id === dragged.id)
+        ? dragged
+        : undefined;
   if (type === undefined) return null;
   const place = placement(type)?.type;
+  if (!refuses(type)) {
+    return (
+      <WheelNotice
+        text={place === "charge" ? "No fitted module can load this charge" : "No free slot for this module type"}
+      />
+    );
+  }
   return <WheelNotice text={`Hull cannot fit this ${(place && kinds[place]) ?? "module"} type`} />;
 }
 

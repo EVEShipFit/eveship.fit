@@ -39,6 +39,7 @@ import {
   useFighterTubes,
   useFighterTubeUsage,
   useHardpoints,
+  useHasRoom,
   useHullRefuses,
   useHullTree,
   useImages,
@@ -798,6 +799,22 @@ test("the hull refuses a type it cannot fit, but not one without a place", () =>
   expect(result.current(byName("Medium Projectile Burst Aerator I"))).toBe(true);
   expect(result.current(byName("Damage Control II"))).toBe(false);
   expect(result.current(byName("Rifter"))).toBe(false);
+});
+
+test("the fit has room for a module while its rack has a free slot, and for a charge a module loads", () => {
+  const { result } = render(() => ({ store: useFitStore(), hasRoom: useHasRoom() }));
+  expect(result.current.hasRoom(byName("Damage Control II"))).toBe(true);
+  expect(result.current.hasRoom(byName("Hobgoblin II"))).toBe(true);
+
+  act(() => void result.current.store.fit(byName("200mm AutoCannon II").id, { type: "cargo" }));
+  expect(result.current.hasRoom(byName("EMP S"))).toBe(false);
+
+  act(() => {
+    for (let index = 0; index < 4; index++) result.current.store.fit(byName("Damage Control II").id);
+    result.current.store.fit(byName("200mm AutoCannon II").id);
+  });
+  expect(result.current.hasRoom(byName("Gyrostabilizer II"))).toBe(false);
+  expect(result.current.hasRoom(byName("EMP S"))).toBe(true);
 });
 
 test("a carrier takes fighters of the kinds it has tubes for", () => {
