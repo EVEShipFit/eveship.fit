@@ -1,9 +1,9 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
-  "name": "eveship-fit-preview",
+  "name": "eveship-fit-next",
   "compatibility_date": "2026-09-01",
   "preview_urls": true,
-  "routes": [{ "pattern": "preview.eveship.fit", "custom_domain": true }],
+  "routes": [{ "pattern": "next.eveship.fit", "custom_domain": true }],
   "assets": {
     "directory": "./dist",
     "not_found_handling": "single-page-application",
