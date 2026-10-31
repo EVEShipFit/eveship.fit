@@ -12,7 +12,7 @@ import {
 import type { SdeType } from "@eveshipfit/sde-loader";
 import { useMemo } from "react";
 
-import { useFit, useSnapshot } from "./fit.js";
+import { useShownSnapshot, useSnapshot } from "./fit.js";
 import { useSde, useType } from "./sde.js";
 
 const racks: readonly Rack[] = ["high", "medium", "low", "rig", "subsystem", "service"];
@@ -92,6 +92,6 @@ export function useDroneRoom(type: SdeType): number {
 /** The modes of the fit's ship, in the order EVE shows them; empty for a ship without modes. */
 export function useModes(): readonly SdeType[] {
   const sde = useSde();
-  const ship = useType(useFit().ship.type_id);
+  const ship = useType(useShownSnapshot().fit.ship.type_id);
   return ship === undefined ? noModes : modesOf(sde, ship);
 }

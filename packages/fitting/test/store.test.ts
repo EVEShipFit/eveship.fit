@@ -815,3 +815,15 @@ test("preview shows the change without making it", () => {
   expect(fit.canUndo).toBe(false);
   expect(listener).not.toHaveBeenCalled();
 });
+
+test("preview can go to an entry in the history", () => {
+  const fit = rifter();
+  fit.fit(id("Damage Control II"));
+
+  const { after } = fit.preview((draft) => draft.goTo(0));
+
+  expect(after.fit.items).toHaveLength(0);
+  expect(fit.getSnapshot().fit.items).toHaveLength(1);
+  expect(fit.historyPosition).toBe(1);
+  expect(fit.historyLength).toBe(2);
+});

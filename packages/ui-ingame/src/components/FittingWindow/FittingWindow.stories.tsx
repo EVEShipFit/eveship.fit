@@ -176,6 +176,22 @@ export const SimulateShip: Story = {
   },
 };
 
+export const HoverHistory: Story = {
+  ...SimulateShip,
+  play: async (context) => {
+    await SimulateShip.play!(context);
+    const { canvas, userEvent } = context;
+    const entry = within(canvas.getByRole("group", { name: "Simulation History" })).getByRole("button", {
+      name: "1 of 2",
+    });
+
+    await userEvent.hover(entry);
+    await expect(canvas.getByRole("button", { name: "Rifter" })).toBeVisible();
+    await userEvent.unhover(entry);
+    await expect(canvas.queryByRole("button", { name: "Rifter" })).toBeNull();
+  },
+};
+
 export const Placeholder: Story = {
   args: {
     browser: <ItemBrowser />,

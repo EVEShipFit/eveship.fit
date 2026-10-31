@@ -6,7 +6,7 @@ import { HistoryBar, type HistoryBarProps } from "./HistoryBar";
 
 const meta = {
   component: HistoryBar,
-  args: { label: "Simulation History", length: 9, position: 8, onGoTo: fn() },
+  args: { label: "Simulation History", length: 9, position: 8, onGoTo: fn(), onHover: fn() },
 } satisfies Meta<typeof HistoryBar>;
 
 export default meta;
@@ -32,6 +32,15 @@ export const TooltipTitle: Story = {
 
 export const WentBack: Story = {
   args: { position: 3 },
+};
+
+export const Hover: Story = {
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.hover(canvas.getByRole("button", { name: "3 of 9" }));
+    await expect(args.onHover).toHaveBeenLastCalledWith(2);
+    await userEvent.unhover(canvas.getByRole("button", { name: "3 of 9" }));
+    await expect(args.onHover).toHaveBeenLastCalledWith(undefined);
+  },
 };
 
 export const OnlyOne: Story = {
