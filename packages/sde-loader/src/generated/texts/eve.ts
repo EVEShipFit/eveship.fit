@@ -4,3 +4,6 @@
 
 export { DogmaAttributeText } from './eve/dogma-attribute-text.js';
 export { Texts } from './eve/texts.js';
+export { TypeBonus } from './eve/type-bonus.js';
+export { TypeBonusSkill } from './eve/type-bonus-skill.js';
+export { TypeBonuses } from './eve/type-bonuses.js';

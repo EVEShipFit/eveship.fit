@@ -64,6 +64,7 @@ import {
   useSnapshot,
   useStats,
   useType,
+  useTypeBonuses,
   useTypePrice,
   useViolations,
   type CharacterStorage,
@@ -649,6 +650,15 @@ test("attribute tooltips need both the engine and their own provider", async () 
   expect(() => render(() => useAttributeTooltip("scanLadarStrength"))).toThrow(
     "This hook needs to be inside an <TextsProvider>",
   );
+});
+
+test("the bonuses of a ship", async () => {
+  const texts = await testTexts();
+  const { result } = renderHook(() => ({ rifter: useTypeBonuses(RIFTER), none: useTypeBonuses(undefined) }), {
+    wrapper: ({ children }: { children: ReactNode }) => <TextsProvider texts={texts}>{children}</TextsProvider>,
+  });
+  expect(result.current.rifter?.skills).toHaveLength(1);
+  expect(result.current.none).toBeUndefined();
 });
 
 test("types", () => {

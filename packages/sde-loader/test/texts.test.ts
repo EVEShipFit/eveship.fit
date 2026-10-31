@@ -31,3 +31,19 @@ test("the tooltip of an attribute", () => {
 test("most attributes have no tooltip", () => {
   expect(texts.attributeTooltip(sde.attributeId("shieldEmDamageResonance")!)).toBeUndefined();
 });
+
+test("the bonuses of a ship, in the order EVE shows them", () => {
+  const bonuses = texts.typeBonuses(sde.typeByName("Hecate")!.id)!;
+  expect(bonuses.skills).toHaveLength(1);
+  expect(bonuses.role).toEqual([]);
+  expect(bonuses.misc[0]).toEqual({
+    bonus: 33,
+    unitId: 105,
+    text: "bonus to <a href=showinfo:3301>Small Hybrid Turret</a> damage",
+  });
+  expect(bonuses.misc[3]).toEqual({ bonus: undefined, unitId: 0, text: "<b><u>Defense Mode</b></u>" });
+});
+
+test("most types have no bonuses", () => {
+  expect(texts.typeBonuses(sde.typeByName("Hobgoblin II")!.id)).toBeUndefined();
+});
