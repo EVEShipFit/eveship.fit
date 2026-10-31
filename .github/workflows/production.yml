@@ -3,6 +3,7 @@ name: Production
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -13,8 +14,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Find the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: echo "TAG=${TAG:-$(gh release view -R "$GITHUB_REPOSITORY" --json tagName --jq .tagName)}" >> "$GITHUB_ENV"
+
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TAG }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
@@ -28,13 +37,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Use the latest SDE and images
+        run: pnpm update -r --no-save @eveshipfit/sde @eveshipfit/images
+
       - name: Require the ESI client ID
         if: vars.ESI_CLIENT_ID_PRODUCTION == ''
         run: echo "::error::Set the ESI_CLIENT_ID_PRODUCTION repository variable" && exit 1
 
       - name: Build website
         env:
-          EVESHIPFIT_VERSION: ${{ github.event.release.tag_name }}
+          EVESHIPFIT_VERSION: ${{ env.TAG }}
           VITE_ESI_CLIENT_ID: ${{ vars.ESI_CLIENT_ID_PRODUCTION }}
         run: pnpm --filter @eveshipfit/web build
 
