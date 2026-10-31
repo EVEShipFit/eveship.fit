@@ -396,6 +396,9 @@ importers:
 
   packages/ui-ingame:
     dependencies:
+      '@eveshipfit/fitting':
+        specifier: workspace:*
+        version: link:../fitting
       '@eveshipfit/react-hooks':
         specifier: workspace:*
         version: link:../react-hooks
@@ -403,9 +406,6 @@ importers:
       '@babel/core':
         specifier: 'catalog:'
         version: 7.29.7
-      '@eveshipfit/fitting':
-        specifier: workspace:*
-        version: link:../fitting
       '@eveshipfit/images':
         specifier: 'catalog:'
         version: 3.3561556.0
