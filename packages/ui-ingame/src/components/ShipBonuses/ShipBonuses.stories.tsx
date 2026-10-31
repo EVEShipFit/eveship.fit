@@ -34,13 +34,16 @@ export const Buzzard: Story = {
   },
 };
 
-/** The modes of a Tactical Destroyer come as misc bonuses, with their own headers. */
+/** The modes of a Tactical Destroyer come as misc bonuses, with their own headers; too many to show at once. */
 export const Hecate: Story = {
   args: { typeId: HECATE },
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Misc bonus:")).toBeVisible();
     await expect(canvas.getByText("7.5%")).toBeVisible();
     await expect(canvas.getByText("Defense Mode", { selector: "[data-underline]" })).toHaveAttribute("data-bold");
+
+    const list = canvas.getByText("Misc bonus:").parentElement!;
+    await expect(list.scrollHeight).toBeGreaterThan(list.clientHeight);
   },
 };
 

@@ -6,7 +6,11 @@
   display: grid;
   grid-template-columns: auto 1fr;
   line-height: 1.3;
+  max-height: min(calc(500 * var(--unit)), 60vh);
+  overflow-y: auto;
   row-gap: calc(4 * var(--unit));
+  scrollbar-color: var(--esf-border) transparent;
+  scrollbar-width: thin;
 }
 
 .name {
