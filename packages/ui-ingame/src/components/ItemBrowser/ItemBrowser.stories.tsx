@@ -263,7 +263,18 @@ export const PersonalFittings: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Personal Fittings" }));
     await expect(canvas.getByText("Log in or pick a character with the Character button")).toBeVisible();
-    await expect(within(canvas.getByRole("list", { name: "Hulls" })).queryByRole("button")).toBeNull();
+    await expect(canvas.queryByText("No hulls found")).toBeNull();
+    await expect(canvas.queryByRole("list", { name: "Hulls" })).toBeNull();
+  },
+};
+
+/** No match, no list. */
+export const NoHullsFound: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "asdasda");
+
+    await expect(canvas.getByText("No hulls found")).toBeVisible();
+    await expect(canvas.queryByRole("list", { name: "Hulls" })).toBeNull();
   },
 };
 
