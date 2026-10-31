@@ -40,10 +40,7 @@ export function useFitPrice(): FitPriceValue {
     for (const typeId of unpriced.split(",").map(Number)) {
       zkillboard.price(typeId).then(
         (price) => found(typeId, price),
-        (error: unknown) => {
-          console.error(error);
-          found(typeId, undefined);
-        },
+        (error: unknown) => console.error(error),
       );
     }
   }, [zkillboard, unpriced]);
