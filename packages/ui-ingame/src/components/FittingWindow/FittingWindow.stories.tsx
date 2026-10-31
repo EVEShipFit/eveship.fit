@@ -641,6 +641,48 @@ export const DropRefused: Story = {
   },
 };
 
+/** The fit refuses a module without a free slot, or a charge no fitted module loads, and the wheel says so. */
+export const NoRoom: Story = {
+  args: { browser: <ItemBrowser /> },
+  parameters: { fit: rifter },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const wheel = within(canvas.getByRole("region", { name: "Fitting" }));
+    const previews = () => canvasElement.querySelectorAll("[data-preview]");
+    await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "gyrostabilizer ii");
+    const gyrostabilizer = canvas.getByRole("button", { name: "Gyrostabilizer II" });
+    await userEvent.dblClick(gyrostabilizer);
+    await userEvent.dblClick(gyrostabilizer);
+    await userEvent.unhover(gyrostabilizer);
+
+    await userEvent.hover(gyrostabilizer);
+    await expect(wheel.getByText("No free slot for this module type")).toBeInTheDocument();
+    await expect(previews()).toHaveLength(0);
+    await userEvent.dblClick(gyrostabilizer);
+    await expect(wheel.getAllByRole("button", { name: /^Gyrostabilizer II/ })).toHaveLength(3);
+    await userEvent.unhover(gyrostabilizer);
+    await expect(wheel.queryByText("No free slot for this module type")).toBeNull();
+
+    const centre = canvasElement.querySelector("[data-centre]")!;
+    const dataTransfer = new DataTransfer();
+    await fireEvent.dragStart(gyrostabilizer, { dataTransfer });
+    await expect(wheel.queryByText("No free slot for this module type")).toBeNull();
+    await fireEvent.dragEnter(centre, { dataTransfer });
+    await expect(wheel.getByText("No free slot for this module type")).toBeInTheDocument();
+    await fireEvent.dragLeave(centre, { dataTransfer });
+    await expect(wheel.queryByText("No free slot for this module type")).toBeNull();
+    await fireEvent.dragEnd(gyrostabilizer, { dataTransfer });
+
+    await userEvent.click(canvas.getByRole("tab", { name: "Charges" }));
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "scourge heavy missile");
+    const missile = canvas.getByRole("button", { name: "Scourge Heavy Missile" });
+    await userEvent.hover(missile);
+    await expect(wheel.getByText("No fitted module can load this charge")).toBeInTheDocument();
+    await userEvent.unhover(missile);
+    await expect(wheel.queryByText("No fitted module can load this charge")).toBeNull();
+  },
+};
+
 /** The hull refuses a module it cannot fit, dragged, hovered or double clicked, and the wheel says so. */
 export const HullCannotFit: Story = {
   args: { browser: <ItemBrowser /> },
