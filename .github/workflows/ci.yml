@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, v2]
+    branches: [main]
   pull_request:
 
 permissions:
@@ -53,15 +53,15 @@ jobs:
         run: pnpm test
 
       - name: Require the ESI client ID
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ESI_CLIENT_ID == ''
-        run: echo "::error::Set the ESI_CLIENT_ID repository variable" && exit 1
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ESI_CLIENT_ID_PREVIEW == ''
+        run: echo "::error::Set the ESI_CLIENT_ID_PREVIEW repository variable" && exit 1
 
       - name: Set the version
         run: echo "EVESHIPFIT_VERSION=$(git describe --tags)" >> "$GITHUB_ENV"
 
       - name: Build website
         env:
-          VITE_ESI_CLIENT_ID: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ESI_CLIENT_ID || '' }}
+          VITE_ESI_CLIENT_ID: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ESI_CLIENT_ID_PREVIEW || '' }}
         run: pnpm --filter @eveshipfit/web build
 
       - name: Test website end-to-end

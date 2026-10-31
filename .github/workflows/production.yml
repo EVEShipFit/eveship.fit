@@ -29,13 +29,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Require the ESI client ID
-        if: vars.ESI_CLIENT_ID == ''
-        run: echo "::error::Set the ESI_CLIENT_ID repository variable" && exit 1
+        if: vars.ESI_CLIENT_ID_PRODUCTION == ''
+        run: echo "::error::Set the ESI_CLIENT_ID_PRODUCTION repository variable" && exit 1
 
       - name: Build website
         env:
           EVESHIPFIT_VERSION: ${{ github.event.release.tag_name }}
-          VITE_ESI_CLIENT_ID: ${{ vars.ESI_CLIENT_ID }}
+          VITE_ESI_CLIENT_ID: ${{ vars.ESI_CLIENT_ID_PRODUCTION }}
         run: pnpm --filter @eveshipfit/web build
 
       - name: Deploy eveship.fit
