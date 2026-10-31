@@ -1,11 +1,17 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
-  "name": "eveship-fit-v2",
+  "name": "eveship-fit-preview",
   "compatibility_date": "2026-09-01",
   "preview_urls": true,
-  "routes": [{ "pattern": "v2.eveship.fit", "custom_domain": true }],
+  "routes": [{ "pattern": "preview.eveship.fit", "custom_domain": true }],
   "assets": {
     "directory": "./dist",
     "not_found_handling": "single-page-application",
+  },
+  "env": {
+    "production": {
+      "name": "eveship-fit",
+      "routes": [{ "pattern": "eveship.fit", "custom_domain": true }],
+    },
   },
 }
