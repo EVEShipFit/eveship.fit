@@ -37,10 +37,10 @@ export interface BrowseState {
   setRequest: (request: BrowseRequest) => void;
 }
 
-/** A type to show the info of; with `ref`, as fitted there, as module or as its charge. */
+/** A type to show the info of; with `ref`, as fitted there (as module or its charge) or as the fit's ship. */
 export interface InfoTarget {
   readonly typeId: number;
-  readonly ref?: ItemRef;
+  readonly ref?: ItemRef | "ship";
 }
 
 /** What the info points at, and on which side of it. */

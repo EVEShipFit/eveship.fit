@@ -13,6 +13,7 @@ import {
   usePreview,
   useRackUsage,
   useSde,
+  useShowInfo,
   useShownSnapshot,
   useSlots,
   useSnapshot,
@@ -202,6 +203,7 @@ function FitName() {
   const fit = useFit();
   const store = useFitStore();
   const ship = useType(fit.ship.type_id);
+  const { show: showInfo } = useShowInfo();
   const [editing, setEditing] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const button = useRef<HTMLButtonElement>(null);
@@ -220,7 +222,18 @@ function FitName() {
 
   return (
     <div className={styles.name}>
-      <NotImplementedButton className={styles.icon} icon="module-info" label="Show Info" />
+      <Tooltip label="Show Info">
+        <button
+          type="button"
+          className={styles.icon}
+          aria-label="Show Info"
+          onClick={(event) =>
+            showInfo({ typeId: fit.ship.type_id, ref: "ship" }, { element: event.currentTarget, side: "right" })
+          }
+        >
+          <Icon name="module-info" />
+        </button>
+      </Tooltip>
       <NotImplementedButton className={styles.icon} icon="link" label="Link Fit" />
       {editing ? (
         <input
