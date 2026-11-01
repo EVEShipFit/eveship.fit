@@ -9,6 +9,10 @@ const byRule: Record<Exclude<Rule["type"], "resource">, ViolationKind> = {
   skill: "skill",
   slots: "error",
   wrong_slot: "error",
+  not_a_module: "error",
+  not_a_drone: "error",
+  not_a_fighter: "error",
+  not_an_implant: "error",
   slot_taken: "error",
   wrong_slot_index: "error",
   subsystem_taken: "error",
@@ -19,6 +23,9 @@ const byRule: Record<Exclude<Rule["type"], "resource">, ViolationKind> = {
   ship_item: "error",
   max_group: "error",
   max_type: "error",
+  not_a_hull: "error",
+  not_a_mode: "error",
+  not_a_skill: "error",
   charge_group: "error",
   charge_size: "error",
 };
@@ -117,6 +124,14 @@ export function violationText({ target, rule }: Violation, fit: Fit, names: Name
       return `${names.type(rule.type_id)} ${romanLevels[rule.required - 1]}`;
     case "wrong_slot":
       return `${subject}: goes in ${slotNames[rule.expected]}`;
+    case "not_a_module":
+      return `${subject}: not a module`;
+    case "not_a_drone":
+      return `${subject}: not a drone`;
+    case "not_an_implant":
+      return `${subject}: not an implant`;
+    case "not_a_fighter":
+      return `${subject}: not a fighter`;
     case "slot_taken":
       return `${subject}: slot already taken`;
     case "wrong_slot_index":
@@ -137,6 +152,12 @@ export function violationText({ target, rule }: Violation, fit: Fit, names: Name
       return `${subject}: only ${rule.allowed} ${names.group(rule.group_id)} can be ${rule.limit}`;
     case "max_type":
       return `${subject}: only ${rule.allowed} can be fitted`;
+    case "not_a_hull":
+      return `${names.type(fit.ship.type_id)}: not a ship, structure or container`;
+    case "not_a_mode":
+      return `${fit.ship.mode === undefined ? "" : names.type(fit.ship.mode)}: not a mode of this ship`;
+    case "not_a_skill":
+      return `${names.type(rule.type_id)}: not a skill`;
     case "charge_group":
       return `${charge}: cannot be loaded in ${module}`;
     case "charge_size":
