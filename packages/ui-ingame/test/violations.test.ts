@@ -32,7 +32,7 @@ test("a missing skill counts once, however many items need it", () => {
 });
 
 const fit: Fit = {
-  ship: { type_id: 587 },
+  ship: { type_id: 587, mode: 34317 },
   items: [
     { type_id: 2889, slot: { type: "high", index: 0 }, state: "active", charge: { type_id: 185 } },
     { type_id: 31670, slot: { type: "rig", index: 0 }, state: "active" },
@@ -61,6 +61,10 @@ test("a violation says what is wrong, and with what", () => {
   expect(text(charge(0), { type: "charge_group" })).toBe("Type 185: cannot be loaded in Type 2889");
   expect(text(charge(0), { type: "charge_size", module: 1, charge: 2 })).toBe("Type 185: wrong size for Type 2889");
   expect(text(item(0), { type: "skill", type_id: 3300, required: 4, level: 0 })).toBe("Type 3300 IV");
+  expect(text(item(1), { type: "not_a_module" })).toBe("Type 31670: not a module");
+  expect(text(ship, { type: "not_a_hull" })).toBe("Type 587: not a ship, structure or container");
+  expect(text(ship, { type: "not_a_mode" })).toBe("Type 34317: not a mode of this ship");
+  expect(text(ship, { type: "not_a_skill", type_id: 2889 })).toBe("Type 2889: not a skill");
 });
 
 test("a missing skill is listed once, at the highest level asked for", () => {
