@@ -1,5 +1,15 @@
 # EVEShip.fit
 
+[![npm fitting](https://img.shields.io/npm/v/%40eveshipfit%2Ffitting.svg?label=%40eveshipfit%2Ffitting)](https://www.npmjs.com/package/@eveshipfit/fitting)
+[![npm react-hooks](https://img.shields.io/npm/v/%40eveshipfit%2Freact-hooks.svg?label=%40eveshipfit%2Freact-hooks)](https://www.npmjs.com/package/@eveshipfit/react-hooks)
+[![npm ui-ingame](https://img.shields.io/npm/v/%40eveshipfit%2Fui-ingame.svg?label=%40eveshipfit%2Fui-ingame)](https://www.npmjs.com/package/@eveshipfit/ui-ingame)
+[![npm sde-loader](https://img.shields.io/npm/v/%40eveshipfit%2Fsde-loader.svg?label=%40eveshipfit%2Fsde-loader)](https://www.npmjs.com/package/@eveshipfit/sde-loader)
+[![npm esi](https://img.shields.io/npm/v/%40eveshipfit%2Fesi.svg?label=%40eveshipfit%2Fesi)](https://www.npmjs.com/package/@eveshipfit/esi)
+[![npm zkillboard](https://img.shields.io/npm/v/%40eveshipfit%2Fzkillboard.svg?label=%40eveshipfit%2Fzkillboard)](https://www.npmjs.com/package/@eveshipfit/zkillboard)
+[![CI](https://github.com/EVEShipFit/eveship.fit/actions/workflows/ci.yml/badge.svg)](https://github.com/EVEShipFit/eveship.fit/actions/workflows/ci.yml)
+
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/S5V5BkvNf7)
+
 View, create and share EVE Online ship fits: [eveship.fit](https://eveship.fit).
 
 This repository holds the website and the packages it is built from. The packages are published to npm, so you can use
