@@ -1,5 +1,14 @@
 # @eveshipfit/ui-ingame
 
+## 1.11.2
+
+### Patch Changes
+
+- Show the new dogma-engine 14 violations ([#329](https://github.com/EVEShipFit/eveship.fit/pull/329))
+- Updated dependencies [[`562265b`](https://github.com/EVEShipFit/eveship.fit/commit/562265b105a49740eef2ea950fbda3722c5c491e)]:
+  - @eveshipfit/fitting@2.5.1
+  - @eveshipfit/react-hooks@2.5.1
+
 ## 1.11.1
 
 ### Patch Changes
