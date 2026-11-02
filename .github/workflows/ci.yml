@@ -74,24 +74,8 @@ jobs:
         run: pnpm --filter @eveshipfit/web e2e
 
       - name: Build Storybook
+        if: github.event_name != 'pull_request'
         run: pnpm --filter @eveshipfit/storybook build
-
-      - name: Upload website preview
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v7
-        with:
-          name: preview
-          path: apps/web/dist
-          include-hidden-files: true
-          retention-days: 7
-
-      - name: Upload Storybook preview
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v7
-        with:
-          name: storybook-preview
-          path: apps/storybook/dist
-          retention-days: 7
 
       - name: Deploy next.eveship.fit
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
