@@ -13,13 +13,13 @@
 
 .toolbar {
   display: flex;
+  position: relative;
   gap: calc(6 * var(--info-unit));
 }
 
 .picker {
   flex: 1;
   min-width: 0;
-  position: relative;
 }
 
 .select {
@@ -108,7 +108,7 @@
   grid-template-columns: auto 1fr;
   left: 0;
   position: absolute;
-  right: calc(-36 * var(--info-unit));
+  right: 0;
   top: calc(100% + 2px);
   z-index: 1;
 }

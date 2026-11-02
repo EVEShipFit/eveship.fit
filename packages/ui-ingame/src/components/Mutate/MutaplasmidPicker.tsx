@@ -122,7 +122,7 @@ interface RangeChartProps {
   names: readonly string[];
 }
 
-/** Each stat's range under one mutaplasmid, the current one's behind it, and the roll. */
+/** Each stat's range under one mutaplasmid, the widest one's behind it, and the roll. */
 function RangeChart({ mutaplasmids, shown, roll, names }: RangeChartProps) {
   const sde = useSde();
   const rangesOf = (mutaplasmid: number) => mutationRanges(sde, roll.base, mutaplasmid);
@@ -132,28 +132,27 @@ function RangeChart({ mutaplasmids, shown, roll, names }: RangeChartProps) {
   const low = Math.min(1, ...all);
   const high = Math.max(1, ...all);
   const at = (value: number) => `${((value - low) / (high - low || 1)) * 100}%`;
-  const current = new Map(rangesOf(roll.mutaplasmid).map((range) => [range.attributeId, range]));
+  const widest = mutaplasmids.at(-1)?.id ?? shown;
+  const behind = new Map(rangesOf(widest).map((range) => [range.attributeId, range]));
   const nameOf = (mutaplasmidId: number) => names[mutaplasmids.findIndex(({ id }) => id === mutaplasmidId)];
 
   return (
     <div className={styles.chart} aria-hidden>
       <span className={styles.chartTitle}>
         {nameOf(shown)}
-        <span className={styles.muted}>
-          {shown === roll.mutaplasmid ? "Your pick" : `vs. ${nameOf(roll.mutaplasmid)}`}
-        </span>
+        <span className={styles.muted}>{shown === widest ? "The widest" : `vs. ${nameOf(widest)}`}</span>
       </span>
       {rangesOf(shown).map((range) => {
         const attribute = sde.attribute(range.attributeId);
-        const behind = current.get(range.attributeId);
+        const widestRange = behind.get(range.attributeId);
         const [from, to] = ends(range);
         const rolled = roll.attributes[range.attributeId];
         return (
           <div key={range.attributeId} className={styles.chartRow}>
             <span className={styles.chartName}>{attribute?.displayName ?? attribute?.name}</span>
             <span className={styles.chartBar}>
-              {shown !== roll.mutaplasmid && behind !== undefined && (
-                <span className={styles.chartBehind} style={span(at, ...ends(behind))} />
+              {shown !== widest && widestRange !== undefined && (
+                <span className={styles.chartBehind} style={span(at, ...ends(widestRange))} />
               )}
               <span
                 className={styles.chartRange}
