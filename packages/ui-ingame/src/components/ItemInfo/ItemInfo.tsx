@@ -17,10 +17,11 @@ import {
   type ShownInfo,
 } from "@eveshipfit/react-hooks";
 import type { SdeType } from "@eveshipfit/sde-loader";
-import { useEffect, useEffectEvent, useId, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useEffectEvent, useId, useState } from "react";
 
 import { Icon } from "../../primitives/Icon/Icon";
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
+import { useAnchoredCard } from "./anchoredCard";
 import styles from "./ItemInfo.module.css";
 
 const slotNames: Partial<Record<Slot["type"], string>> = {
@@ -52,45 +53,11 @@ function InfoCard({ shown: { target, anchor }, onClose }: { shown: ShownInfo; on
   const info = useInfo(target);
   const { type, fitted, ship, variations } = info;
   const price = useTypePrice(target.typeId);
-  const card = useRef<HTMLElement>(null);
-  const anchorName = `--item-info-${useId().replace(/[^\w-]/g, "")}`;
+  const { card, style } = useAnchoredCard(anchor, onClose);
   const tabId = useId();
   const [picked, setPicked] = useState<Tab>("attributes");
   const tabs: Tab[] = variations.length > 1 ? ["attributes", "variations"] : ["attributes"];
   const tab = tabs.includes(picked) ? picked : "attributes";
-
-  useLayoutEffect(() => {
-    const element = anchor?.element;
-    if (!(element instanceof HTMLElement)) return;
-    const inline = element.style.getPropertyValue("anchor-name");
-    const own = getComputedStyle(element).getPropertyValue("anchor-name");
-    element.style.setProperty("anchor-name", own && own !== "none" ? `${own}, ${anchorName}` : anchorName);
-    return () => element.style.setProperty("anchor-name", inline);
-  }, [anchor, anchorName]);
-
-  useEffect(() => {
-    card.current?.showPopover();
-    const element = anchor?.element;
-    if (element === undefined) return;
-
-    const gone = new MutationObserver(() => {
-      if (!element.isConnected) onClose();
-    });
-    gone.observe(document.body, { childList: true, subtree: true });
-    const hidden = new ResizeObserver(([entry]) => {
-      if (entry?.contentRect.width === 0 && entry.contentRect.height === 0) onClose();
-    });
-    hidden.observe(element);
-    const onScroll = (event: Event) => {
-      if (!(event.target instanceof Node && card.current?.contains(event.target))) onClose();
-    };
-    document.addEventListener("scroll", onScroll, { capture: true, passive: true });
-    return () => {
-      gone.disconnect();
-      hidden.disconnect();
-      document.removeEventListener("scroll", onScroll, { capture: true });
-    };
-  }, [anchor, onClose]);
 
   return (
     <section
@@ -102,7 +69,7 @@ function InfoCard({ shown: { target, anchor }, onClose }: { shown: ShownInfo; on
       }}
       aria-label={`Info on ${type?.name ?? ""}`}
       data-side={anchor?.side}
-      style={{ "--item-info-anchor": anchorName } as CSSProperties}
+      style={style}
     >
       <button type="button" className={styles.close} aria-label="Close" onClick={onClose}>
         <Icon name="close" />

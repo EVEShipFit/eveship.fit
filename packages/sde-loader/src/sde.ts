@@ -10,6 +10,7 @@ import {
   type Group,
   type MarketGroup,
   type MetaGroup,
+  type Mutaplasmid,
   type Type,
 } from "./generated/sde/eve.js";
 import {
@@ -22,6 +23,7 @@ import {
   toGroup,
   toMarketGroup,
   toMetaGroup,
+  toMutaplasmid,
   toUnit,
   type SdeFighterAbilityInfo,
   type SdeAttribute,
@@ -30,6 +32,7 @@ import {
   type SdeGroup,
   type SdeMarketGroup,
   type SdeMetaGroup,
+  type SdeMutaplasmid,
   type SdeUnit,
 } from "./records.js";
 import { readSource, type Source } from "./source.js";
@@ -70,10 +73,12 @@ export class Sde {
   readonly #metaGroups: Table<MetaGroup, SdeMetaGroup>;
   readonly #units: Table<DogmaUnit, SdeUnit>;
   readonly #fighterAbilities: Table<FighterAbility, SdeFighterAbilityInfo>;
+  readonly #mutaplasmids: Table<Mutaplasmid, SdeMutaplasmid>;
 
   #attributeIds: Map<string, number> | undefined;
   #typesByName: Map<string, SdeType> | undefined;
   #variations: Map<number, number[]> | undefined;
+  #mutaplasmidsByType: Map<number, number[]> | undefined;
   #marketTree: readonly MarketGroupNode[] | undefined;
   #moduleTree: readonly ModuleGroupNode[] | undefined;
   #moduleSearch: readonly ModuleGroupNode[] | undefined;
@@ -110,6 +115,7 @@ export class Sde {
     this.#metaGroups = new Table(raw.metaGroupsLength(), (i) => raw.metaGroups(i), toMetaGroup);
     this.#units = new Table(raw.dogmaUnitsLength(), (i) => raw.dogmaUnits(i), toUnit);
     this.#fighterAbilities = new Table(raw.fighterAbilitiesLength(), (i) => raw.fighterAbilities(i), toFighterAbility);
+    this.#mutaplasmids = new Table(raw.mutaplasmidsLength(), (i) => raw.mutaplasmids(i), toMutaplasmid);
   }
 
   type(id: number): SdeType | undefined {
@@ -146,6 +152,27 @@ export class Sde {
 
   fighterAbility(id: number): SdeFighterAbilityInfo | undefined {
     return this.#fighterAbilities.get(id);
+  }
+
+  mutaplasmid(id: number): SdeMutaplasmid | undefined {
+    return this.#mutaplasmids.get(id);
+  }
+
+  /** The mutaplasmids that work on a type, lowest ID first. */
+  mutaplasmidsFor(typeId: number): SdeMutaplasmid[] {
+    if (this.#mutaplasmidsByType === undefined) {
+      this.#mutaplasmidsByType = new Map();
+      for (const mutaplasmid of this.#mutaplasmids.all()) {
+        for (const mapping of mutaplasmid.mappings) {
+          for (const applicable of mapping.applicableTypeIds) {
+            const ids = this.#mutaplasmidsByType.get(applicable);
+            if (ids === undefined) this.#mutaplasmidsByType.set(applicable, [mutaplasmid.id]);
+            else if (ids.at(-1) !== mutaplasmid.id) ids.push(mutaplasmid.id);
+          }
+        }
+      }
+    }
+    return (this.#mutaplasmidsByType.get(typeId) ?? []).map((id) => this.mutaplasmid(id)!);
   }
 
   types(): Iterable<SdeType> {

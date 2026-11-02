@@ -257,6 +257,26 @@ export const ShowInfo: Story = {
   },
 };
 
+/** Mutate opens next to the slot; the roll counts in the fit, and Remove turns it back. */
+export const Mutate: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    const extender = () => canvas.getByRole("button", { name: /Shield Extender/ });
+    await fireEvent.contextMenu(extender());
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Mutate" }));
+    const window = canvas.getByRole("region", { name: "Mutate Small Shield Extender II" });
+    await expect(within(window).getByRole("button", { name: "Decayed" })).toHaveAttribute("aria-pressed", "true");
+    await expect(extender()).toHaveAccessibleName("Small Abyssal Shield Extender, online");
+
+    await userEvent.click(within(window).getByRole("button", { name: "Best" }));
+    await expect(within(window).getByText("+10%")).toBeVisible();
+
+    await userEvent.click(within(window).getByRole("button", { name: "Remove" }));
+    await expect(canvas.queryByRole("region", { name: /^Mutate/ })).toBeNull();
+    await expect(extender()).toHaveAccessibleName("Small Shield Extender II, online");
+  },
+};
+
 /** Show Info on the fit name shows the hull, with the values on the fit. */
 export const ShowInfoHull: Story = {
   parameters: { fit: rifter },

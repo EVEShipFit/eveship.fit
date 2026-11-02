@@ -6,6 +6,7 @@ import { allSkills } from "./character.js";
 import { emptyFit } from "./edits.js";
 import { loadLink, saveLink } from "./link.js";
 import { postLoad } from "./post-load.js";
+import type { MutationRoll } from "./rules/mutation.js";
 import { Stats } from "./stats.js";
 import { FitStore, type Calculator } from "./store.js";
 import { loadText, saveText, type TextFormat } from "./text.js";
@@ -80,6 +81,19 @@ export class Engine implements Calculator {
 
   saveText(fit: Fit, format: TextFormat): string {
     return saveText(fit, format);
+  }
+
+  /** How a mutated item in game was rolled, by its type ID and item ID. */
+  async loadMutation(typeId: number, itemId: number): Promise<MutationRoll> {
+    if (this.esi === undefined) throw new Error("Looking up a mutated item needs the engine to have `esi`");
+    const item = await this.esi.dynamicItem(typeId, itemId);
+    const plasmid = this.sde.mutaplasmid(item.mutator_type_id);
+    if (plasmid === undefined) throw new Error(`Unknown mutaplasmid ${item.mutator_type_id}`);
+    const attributes: Record<number, number> = {};
+    for (const { attribute_id, value } of item.dogma_attributes) {
+      if (plasmid.attributes.has(attribute_id)) attributes[attribute_id] = value;
+    }
+    return { base: item.source_type_id, mutaplasmid: plasmid.id, attributes };
   }
 
   /** The fit of a fitting a character saved in game. */

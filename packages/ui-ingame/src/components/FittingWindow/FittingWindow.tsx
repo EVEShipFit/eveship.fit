@@ -39,6 +39,7 @@ import { Wheel } from "../../primitives/Wheel/Wheel";
 import { allowDrop, useFittingSlot } from "../FittingWheel/fittingSlot";
 import { FittingWheel } from "../FittingWheel/FittingWheel";
 import { ItemInfo } from "../ItemInfo/ItemInfo";
+import { Mutate } from "../Mutate/Mutate";
 import { ShipBonuses } from "../ShipBonuses/ShipBonuses";
 import { AttributeTooltip } from "../ShipStatistics/AttributeTooltip";
 import { BayContents, type Bay as BayName } from "./BayContents";
@@ -105,6 +106,7 @@ export function FittingWindow({
         data-statistics={statisticsShown || undefined}
       >
         {!preview && <ItemInfo />}
+        {!preview && <Mutate />}
         {browser !== undefined && (
           <div id={browserId} className={styles.browser} inert={!browserShown}>
             <div className={styles.slide}>{browser}</div>

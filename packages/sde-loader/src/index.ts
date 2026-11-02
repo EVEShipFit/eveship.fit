@@ -10,6 +10,9 @@ export {
   type SdeGroup,
   type SdeMarketGroup,
   type SdeMetaGroup,
+  type SdeMutaplasmid,
+  type SdeMutaplasmidMapping,
+  type SdeMutationRange,
   type SdeUnit,
 } from "./records.js";
 export { loadSde, Sde } from "./sde.js";

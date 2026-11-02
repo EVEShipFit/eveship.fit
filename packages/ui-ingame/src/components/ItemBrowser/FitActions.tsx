@@ -1,4 +1,4 @@
-import type { Fit, TextFormat } from "@eveshipfit/fitting";
+import { parseItemLink, type Engine, type Fit, type FitStore, type TextFormat } from "@eveshipfit/fitting";
 import { useEngine, useFit, useFitStore, useLocalFits } from "@eveshipfit/react-hooks";
 import { useEffect, useId, useState } from "react";
 
@@ -52,6 +52,13 @@ export function FitActions({ noHullSelected, pasteToOpen }: { noHullSelected: bo
       const text = event.clipboardData?.getData("text/plain").trim() ?? "";
       if (text === "") return;
       event.preventDefault();
+      const item = engine.esi === undefined || noHullSelected ? undefined : parseItemLink(text);
+      if (item !== undefined) {
+        void fitMutated(engine, store, item.typeId, item.itemId).catch((failure: unknown) =>
+          setImporting({ text, error: failure instanceof Error ? failure.message : String(failure) }),
+        );
+        return;
+      }
       try {
         store.replace(engine.loadText(text, store.character));
       } catch (failure) {
@@ -60,7 +67,7 @@ export function FitActions({ noHullSelected, pasteToOpen }: { noHullSelected: bo
     };
     document.addEventListener("paste", onPaste);
     return () => document.removeEventListener("paste", onPaste);
-  }, [engine, store, pasteToOpen]);
+  }, [engine, store, pasteToOpen, noHullSelected]);
 
   const copy = (format: TextFormat) => {
     document.getElementById(menu)?.hidePopover();
@@ -236,4 +243,10 @@ function useFlash(): [boolean, () => void] {
   }, [shown]);
 
   return [shown > 0, () => setShown(Date.now())];
+}
+
+/** Fits a mutated item from the game in the first free slot of its rack, rolled as it is. */
+async function fitMutated(engine: Engine, store: FitStore, typeId: number, itemId: number) {
+  const roll = await engine.loadMutation(typeId, itemId);
+  if (store.fitMutated(roll) === undefined) throw new Error("This item does not fit on the ship");
 }

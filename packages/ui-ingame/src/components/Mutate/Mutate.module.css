@@ -1,0 +1,227 @@
+.card {
+  max-height: min(calc(560 * var(--info-unit)), calc(100vh - 16px));
+  width: calc(400 * var(--info-unit));
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10 * var(--info-unit));
+  min-height: 0;
+  overflow-y: auto;
+  padding: calc(10 * var(--info-unit)) 0 calc(6 * var(--info-unit));
+}
+
+.mutaplasmids {
+  border: none;
+  display: grid;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+  gap: calc(4 * var(--info-unit));
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.mutaplasmid {
+  background: var(--esf-button);
+  border: 1px solid var(--esf-button-edge);
+  color: var(--esf-text);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  font: inherit;
+  font-size: calc(11 * var(--info-unit));
+  gap: calc(4 * var(--info-unit));
+  padding: calc(4 * var(--info-unit)) calc(6 * var(--info-unit)) calc(6 * var(--info-unit));
+  text-align: left;
+}
+
+.mutaplasmid:hover,
+.mutaplasmid:focus-visible {
+  background: var(--esf-hover);
+}
+
+.mutaplasmid[aria-pressed="true"] {
+  background: var(--esf-button-active);
+  border-color: var(--esf-button-active-edge);
+}
+
+.spread {
+  background: var(--esf-input-bg);
+  height: calc(4 * var(--info-unit));
+  position: relative;
+}
+
+.spread::before {
+  background: var(--esf-button-active-edge);
+  content: "";
+  inset: 0 calc(100% - var(--to)) 0 var(--from);
+  position: absolute;
+}
+
+.spread::after {
+  background: var(--esf-text);
+  content: "";
+  inset: calc(-2 * var(--info-unit)) auto calc(-2 * var(--info-unit)) 50%;
+  position: absolute;
+  width: 1px;
+}
+
+.stats {
+  display: grid;
+  font-size: calc(11 * var(--info-unit));
+  gap: calc(4 * var(--info-unit)) calc(8 * var(--info-unit));
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto calc(44 * var(--info-unit));
+}
+
+.stat {
+  align-items: center;
+  display: contents;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slider {
+  --worse: var(--esf-bad);
+  --better: var(--esf-good);
+  --low: var(--worse);
+  --high: var(--better);
+
+  align-self: center;
+  display: flex;
+  position: relative;
+}
+
+.slider:not([data-high-is-good]) {
+  --low: var(--better);
+  --high: var(--worse);
+}
+
+.slider::after {
+  background: var(--esf-text);
+  content: "";
+  height: calc(14 * var(--info-unit));
+  left: var(--base);
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  width: 1px;
+}
+
+.slider > input {
+  appearance: none;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--low) 60%, transparent),
+    var(--esf-resistance-bg) var(--base),
+    color-mix(in srgb, var(--high) 60%, transparent)
+  );
+  cursor: pointer;
+  height: calc(4 * var(--info-unit));
+  margin: calc(8 * var(--info-unit)) 0;
+  width: 100%;
+}
+
+.slider > input::-webkit-slider-thumb {
+  appearance: none;
+  background: var(--esf-text);
+  border: 1px solid var(--esf-bg);
+  height: calc(14 * var(--info-unit));
+  width: calc(8 * var(--info-unit));
+}
+
+.slider > input::-moz-range-thumb {
+  background: var(--esf-text);
+  border: 1px solid var(--esf-bg);
+  border-radius: 0;
+  height: calc(14 * var(--info-unit));
+  width: calc(8 * var(--info-unit));
+}
+
+.slider > input:focus-visible {
+  outline: 1px solid var(--esf-button-active-edge);
+  outline-offset: calc(4 * var(--info-unit));
+}
+
+.value {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.change {
+  color: var(--esf-text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.change[data-change="better"] {
+  color: var(--esf-good);
+}
+
+.change[data-change="worse"] {
+  color: var(--esf-bad);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(6 * var(--info-unit));
+}
+
+.button {
+  background: var(--esf-button);
+  border: 1px solid var(--esf-button-edge);
+  color: var(--esf-text);
+  cursor: pointer;
+  font: inherit;
+  padding: calc(4 * var(--info-unit)) calc(12 * var(--info-unit));
+}
+
+.button:hover:not(:disabled),
+.button:focus-visible {
+  background: var(--esf-button-active);
+  border-color: var(--esf-button-active-edge);
+}
+
+.button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.remove {
+  margin-left: auto;
+}
+
+.lookup {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8 * var(--info-unit));
+}
+
+.lookup > .button {
+  align-self: flex-start;
+}
+
+.field {
+  background: var(--esf-input-bg);
+  border: 1px solid var(--esf-input-border);
+  color: var(--esf-text);
+  font: inherit;
+  padding: calc(6 * var(--info-unit)) calc(8 * var(--info-unit));
+}
+
+.field:focus {
+  border-color: var(--esf-text-muted);
+  outline: none;
+}
+
+.error {
+  color: var(--esf-violation-error);
+  margin: 0;
+}

@@ -39,6 +39,8 @@ export interface WheelSlotProps extends HTMLAttributes<HTMLDivElement> {
   available?: boolean;
   /** Shown, but not fitted yet. */
   preview?: boolean;
+  /** Marks the module as mutated. */
+  mutated?: boolean;
   /** Shown when hovering the slot. */
   tooltip?: ReactNode;
   /** Makes the slot a button, named `label`. */
@@ -68,6 +70,7 @@ export function WheelSlot({
   activatable = false,
   available = true,
   preview = false,
+  mutated = false,
   tooltip,
   onPress,
   onDragStart,
@@ -149,7 +152,7 @@ export function WheelSlot({
         ))}
       {iconTypeId !== undefined ? (
         <span className={styles.icon}>
-          <TypeIcon typeId={iconTypeId} size={64} marker={false} />
+          <TypeIcon typeId={iconTypeId} size={64} marker={mutated && chargeTypeId === undefined} />
         </span>
       ) : (
         available && (

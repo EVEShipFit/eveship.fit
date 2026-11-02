@@ -4,6 +4,7 @@ import { droneRoom } from "./rules/drones.js";
 import { firstFreeTube, squadronSize, tubeTakes } from "./rules/fighters.js";
 import { acceptsCharge } from "./rules/filters.js";
 import { modesOf } from "./rules/modes.js";
+import { canMutate, completeRoll, mutatedTypeOf, rolledValues, type MutationRoll } from "./rules/mutation.js";
 import { firstFreeIndex, placementOf } from "./rules/placement.js";
 import type { Stats } from "./stats.js";
 import type { Fit, FitItem, ItemRef, Slot, SlotType, State } from "./types.js";
@@ -134,6 +135,40 @@ export function setType(sde: Sde, fit: Fit, stats: Stats, ref: ItemRef, typeId: 
     ...swapped,
     state: item.state,
     ...(keepsCharge && { charge: item.charge }),
+  }));
+}
+
+/** Mutate a module, or with `undefined` turn it back. */
+export function setMutation(sde: Sde, fit: Fit, ref: ItemRef, roll: MutationRoll | undefined): Fit {
+  const item = fit.items[ref];
+  if (item === undefined) return fit;
+  if (roll === undefined) {
+    if (item.mutation === undefined) return fit;
+    const { mutation, ...rest } = item;
+    return update(fit, ref, () => ({ ...rest, type_id: mutation.base }));
+  }
+
+  const base = sde.type(item.mutation?.base ?? item.type_id);
+  const typeId = mutatedTypeOf(sde, roll.base, roll.mutaplasmid);
+  const type = typeId === undefined ? undefined : sde.type(typeId);
+  if (base?.id !== roll.base || !canMutate(sde, base) || type === undefined) return fit;
+
+  const { attributes } = completeRoll(sde, roll);
+  const rolled = rolledValues(item.mutation?.attributes);
+  const same =
+    item.type_id === type.id &&
+    rolled.size === Object.keys(attributes).length &&
+    Object.entries(attributes).every(([id, value]) => rolled.get(Number(id)) === value);
+  if (same) return fit;
+
+  const charge = item.charge && sde.type(item.charge.type_id);
+  const keepsCharge = charge !== undefined && acceptsCharge(sde, type, charge);
+  const { charge: _, ...module } = item;
+  return update(fit, ref, () => ({
+    ...module,
+    ...(keepsCharge && { charge: item.charge }),
+    type_id: type.id,
+    mutation: { base: roll.base, attributes },
   }));
 }
 

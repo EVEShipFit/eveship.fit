@@ -47,6 +47,18 @@ test("an error carries ESI's reason and status", async () => {
   });
 });
 
+test("a mutated item by its type ID and item ID", async () => {
+  fetch.mockResolvedValue(Response.json({ source_type_id: 3841, mutator_type_id: 47807, dogma_attributes: [] }));
+
+  const item = await esi().dynamicItem(47808, 1043219876543);
+
+  expect(fetch).toHaveBeenCalledWith(
+    "https://esi.evetech.net/dogma/dynamic/items/47808/1043219876543",
+    expect.anything(),
+  );
+  expect(item).toMatchObject({ source_type_id: 3841, mutator_type_id: 47807 });
+});
+
 test("market prices by type ID", async () => {
   fetch.mockResolvedValue(Response.json([{ type_id: 587, average_price: 250_000, adjusted_price: 240_000 }]));
 
