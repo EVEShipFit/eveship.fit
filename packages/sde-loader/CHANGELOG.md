@@ -1,5 +1,11 @@
 # @eveshipfit/sde-loader
 
+## 4.1.0
+
+### Minor Changes
+
+- Look up mutaplasmids ([#335](https://github.com/EVEShipFit/eveship.fit/pull/335))
+
 ## 4.0.0
 
 ### Major Changes

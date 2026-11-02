@@ -1,5 +1,18 @@
 # @eveshipfit/fitting
 
+## 2.6.0
+
+### Minor Changes
+
+- Mutate modules into abyssal ones ([#335](https://github.com/EVEShipFit/eveship.fit/pull/335))
+
+### Patch Changes
+
+- Require `@eveshipfit/dogma-engine` 14.1.0 ([#335](https://github.com/EVEShipFit/eveship.fit/pull/335))
+- Updated dependencies [[`e83c6ea`](https://github.com/EVEShipFit/eveship.fit/commit/e83c6eabcd5c074e3499b995dc8bf030fc146883), [`e83c6ea`](https://github.com/EVEShipFit/eveship.fit/commit/e83c6eabcd5c074e3499b995dc8bf030fc146883)]:
+  - @eveshipfit/esi@1.2.0
+  - @eveshipfit/sde-loader@4.1.0
+
 ## 2.5.1
 
 ### Patch Changes
