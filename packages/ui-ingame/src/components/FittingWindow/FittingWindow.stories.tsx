@@ -266,6 +266,7 @@ export const Mutate: Story = {
     await userEvent.click(canvas.getByRole("menuitem", { name: "Mutate" }));
     const window = canvas.getByRole("region", { name: "Mutate Small Shield Extender II" });
     await expect(extender()).toHaveAccessibleName("Small Abyssal Shield Extender, online");
+    await expect(within(window).getAllByText("0%")).toHaveLength(within(window).getAllByRole("slider").length);
 
     await userEvent.click(within(window).getByRole("button", { name: "Decayed" }));
     await userEvent.click(within(window).getByRole("menuitemradio", { name: "Unstable" }));

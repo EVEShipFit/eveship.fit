@@ -234,6 +234,8 @@ function Stat({ range, value, onChange, onFinish }: StatProps) {
   const span = range.max - range.min;
   const base = `${span === 0 ? 50 : ((range.base - range.min) / span) * 100}%`;
   const change = range.base === 0 ? 0 : value / range.base - 1;
+  const percent = formatNumber(Math.abs(change) * 100, { decimals: 1 });
+  const unchanged = Number(percent) === 0;
   const better = value > range.base === range.highIsGood;
   const text = formatAttribute(sde, range.attributeId, value);
   const slider = useRef<HTMLInputElement>(null);
@@ -271,8 +273,8 @@ function Stat({ range, value, onChange, onFinish }: StatProps) {
         />
       </span>
       <span className={styles.value}>{text}</span>
-      <span className={styles.change} data-change={change === 0 ? undefined : better ? "better" : "worse"}>
-        {change === 0 ? "" : `${change > 0 ? "+" : ""}${formatNumber(change * 100, { decimals: 1 })}%`}
+      <span className={styles.change} data-change={unchanged ? undefined : better ? "better" : "worse"}>
+        {unchanged ? "0%" : `${change > 0 ? "+" : "-"}${percent}%`}
       </span>
     </div>
   );
