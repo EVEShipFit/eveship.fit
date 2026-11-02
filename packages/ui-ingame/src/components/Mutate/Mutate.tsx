@@ -3,6 +3,7 @@ import {
   mutationRanges,
   mutationRollOf,
   parseItemLink,
+  parseMutationText,
   rollFits,
   rollMutation,
   type Fit,
@@ -74,7 +75,6 @@ interface MutateCardProps {
 
 function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitted, onClose }: MutateCardProps) {
   const sde = useSde();
-  const engine = useEngine();
   const store = useFitStore();
   const preview = usePreview();
   const { card, style } = useAnchoredCard(anchor, onClose);
@@ -89,7 +89,6 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
   const roll = dragged ?? { ...fitted, mutaplasmid };
   const ranges = mutationRanges(sde, roll.base, roll.mutaplasmid);
   const base = sde.type(roll.base);
-  const tabs: Tab[] = engine.esi === undefined ? ["roll"] : ["roll", "lookup"];
 
   const clearPreview = useEffectEvent(() => preview.clear(PREVIEW_TARGET));
   useEffect(() => () => clearPreview(), []);
@@ -142,23 +141,21 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
           <span className={info.muted}>{sde.type(roll.mutaplasmid)?.name}</span>
         </div>
       </header>
-      {tabs.length > 1 && (
-        <div className={info.tabs} role="tablist">
-          {tabs.map((name) => (
-            <button
-              key={name}
-              type="button"
-              id={`${tabId}-${name}`}
-              className={info.tab}
-              role="tab"
-              aria-selected={name === tab}
-              onClick={() => setTab(name)}
-            >
-              {tabLabels[name]}
-            </button>
-          ))}
-        </div>
-      )}
+      <div className={info.tabs} role="tablist">
+        {tabs.map((name) => (
+          <button
+            key={name}
+            type="button"
+            id={`${tabId}-${name}`}
+            className={info.tab}
+            role="tab"
+            aria-selected={name === tab}
+            onClick={() => setTab(name)}
+          >
+            {tabLabels[name]}
+          </button>
+        ))}
+      </div>
       <div className={styles.panel} role="tabpanel" aria-labelledby={`${tabId}-${tab}`}>
         {tab === "roll" ? (
           <>
@@ -217,7 +214,8 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
   );
 }
 
-const tabLabels: Record<Tab, string> = { roll: "Roll", lookup: "Look up" };
+const tabs: readonly Tab[] = ["roll", "lookup"];
+const tabLabels: Record<Tab, string> = { roll: "Roll", lookup: "Paste" };
 
 interface StatProps {
   range: MutationRange;
@@ -277,7 +275,7 @@ function Stat({ range, value, onChange, onFinish }: StatProps) {
   );
 }
 
-/** Looks up a mutated item in game by its link or IDs, and rolls this module like it. */
+/** Rolls this module like one pasted from Pyfa, or one in game looked up by its link or IDs. */
 function Lookup({ slot, onFound }: { slot: Slot; onFound: (roll: MutationRoll) => void }) {
   const engine = useEngine();
   const store = useFitStore();
@@ -285,24 +283,32 @@ function Lookup({ slot, onFound }: { slot: Slot; onFound: (roll: MutationRoll) =
   const fieldId = useId();
   const [text, setText] = useState("");
   const [status, setStatus] = useState<{ busy: true } | { error: string } | undefined>();
-  const ids = parseItemLink(text);
+  const pasted = parseMutationText(sde, text);
+  const ids = engine.esi === undefined ? undefined : parseItemLink(text);
+
+  const apply = (roll: MutationRoll) => {
+    const { fit } = store.getSnapshot();
+    const ref = refIn(fit, slot);
+    const base = fit.items[ref]?.mutation?.base;
+    if (base !== roll.base) {
+      const name = (typeId: number | undefined) => (typeId === undefined ? "module" : sde.type(typeId)?.name);
+      setStatus({ error: `That is a ${name(roll.base)}, not a ${name(base)}` });
+      return;
+    }
+    store.setMutation(ref, roll);
+    setStatus(undefined);
+    onFound(roll);
+  };
 
   const lookUp = async () => {
+    if (pasted !== undefined) {
+      apply(pasted);
+      return;
+    }
     if (ids === undefined) return;
     setStatus({ busy: true });
     try {
-      const roll = await engine.loadMutation(ids.typeId, ids.itemId);
-      const { fit } = store.getSnapshot();
-      const ref = refIn(fit, slot);
-      const base = fit.items[ref]?.mutation?.base;
-      if (base !== roll.base) {
-        const name = (typeId: number | undefined) => (typeId === undefined ? "module" : sde.type(typeId)?.name);
-        setStatus({ error: `That is a ${name(roll.base)}, not a ${name(base)}` });
-        return;
-      }
-      store.setMutation(ref, roll);
-      setStatus(undefined);
-      onFound(roll);
+      apply(await engine.loadMutation(ids.typeId, ids.itemId));
     } catch (failure) {
       setStatus({ error: failure instanceof Error ? failure.message : String(failure) });
     }
@@ -316,11 +322,16 @@ function Lookup({ slot, onFound }: { slot: Slot; onFound: (roll: MutationRoll) =
         void lookUp();
       }}
     >
-      <label htmlFor={fieldId}>Paste the item link from EVE, or type its type ID and item ID.</label>
-      <input
+      <label htmlFor={fieldId}>
+        {engine.esi === undefined
+          ? "Paste the module from Pyfa."
+          : "Paste the module from Pyfa or its item link from EVE, or type its type ID and item ID."}
+      </label>
+      <textarea
         id={fieldId}
         className={styles.field}
-        placeholder="47808 1043219876543"
+        rows={3}
+        placeholder={"Large Shield Extender II\nGravid Large Shield Extender Mutaplasmid\ncpu 40, capacityBonus 3000"}
         value={text}
         onChange={(event) => {
           setText(event.currentTarget.value);
@@ -330,9 +341,9 @@ function Lookup({ slot, onFound }: { slot: Slot; onFound: (roll: MutationRoll) =
       <button
         type="submit"
         className={styles.button}
-        disabled={ids === undefined || (status !== undefined && "busy" in status)}
+        disabled={(pasted === undefined && ids === undefined) || (status !== undefined && "busy" in status)}
       >
-        Look up
+        Apply
       </button>
       {status !== undefined && "error" in status && (
         <p className={styles.error} role="alert">

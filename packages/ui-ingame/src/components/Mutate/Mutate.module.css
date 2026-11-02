@@ -367,6 +367,7 @@
 }
 
 .field {
+  resize: vertical;
   background: var(--esf-input-bg);
   border: 1px solid var(--esf-input-border);
   color: var(--esf-text);

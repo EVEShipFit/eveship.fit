@@ -292,6 +292,27 @@ export const Mutate: Story = {
   },
 };
 
+/** The Paste tab rolls the module like one copied from Pyfa. */
+export const MutatePaste: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    await fireEvent.contextMenu(canvas.getByRole("button", { name: /Shield Extender/ }));
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Mutate" }));
+    const window = canvas.getByRole("region", { name: "Mutate Small Shield Extender II" });
+
+    await userEvent.click(within(window).getByRole("tab", { name: "Paste" }));
+    await userEvent.type(
+      within(window).getByRole("textbox"),
+      "Small Shield Extender II{Enter}Gravid Small Shield Extender Mutaplasmid{Enter}cpu 20",
+    );
+    await userEvent.click(within(window).getByRole("button", { name: "Apply" }));
+
+    await expect(within(window).getByRole("tab", { name: "Roll" })).toHaveAttribute("aria-selected", "true");
+    await expect(within(window).getByRole("button", { name: "Gravid" })).toBeVisible();
+    await expect(within(window).getByRole("slider", { name: "CPU usage" })).toHaveAttribute("aria-valuetext", "20 tf");
+  },
+};
+
 /** Show Info on the fit name shows the hull, with the values on the fit. */
 export const ShowInfoHull: Story = {
   parameters: { fit: rifter },

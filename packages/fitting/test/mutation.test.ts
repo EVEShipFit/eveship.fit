@@ -8,6 +8,7 @@ import {
   mutationRanges,
   mutationRollOf,
   parseItemLink,
+  parseMutationText,
   rollMutation,
   type FitStore,
   type MutationRoll,
@@ -234,6 +235,44 @@ describe("parseItemLink", () => {
     expect(parseItemLink("[Drake, Shield]")).toBeUndefined();
     expect(parseItemLink("47808")).toBeUndefined();
     expect(parseItemLink("587:2")).toBeUndefined();
+  });
+});
+
+describe("parseMutationText", () => {
+  const sink = `Entropic Radiation Sink II
+Gravid Entropic Radiation Sink Mutaplasmid
+cpu 27.876000337600708, damageMultiplier 1.1440403131908177, speedMultiplier 0.9305765089869499, dpsIncreaseTurrets 1.2293887736713343`;
+
+  test("a module as Pyfa copies it, without the stats EVE does not have", () => {
+    expect(parseMutationText(engine.sde, sink)).toEqual({
+      base: id("Entropic Radiation Sink II"),
+      mutaplasmid: id("Gravid Entropic Radiation Sink Mutaplasmid"),
+      attributes: {
+        [attribute("cpu")]: 27.876000337600708,
+        [attribute("damageMultiplier")]: 1.1440403131908177,
+        [attribute("speedMultiplier")]: 0.9305765089869499,
+      },
+    });
+  });
+
+  test("a section of Pyfa's EFT, and a stat left out at its base value", () => {
+    const roll = parseMutationText(
+      engine.sde,
+      `[1] Large Shield Extender II\n  Gravid Large Shield Extender Mutaplasmid\n  cpu 40`,
+    );
+
+    expect(roll?.attributes[attribute("cpu")]).toBe(40);
+    expect(roll?.attributes[attribute("capacityBonus")]).toBe(2600);
+  });
+
+  test("anything else", () => {
+    expect(parseMutationText(engine.sde, "Large Shield Extender II")).toBeUndefined();
+    expect(
+      parseMutationText(engine.sde, "Large Shield Extender II\nGravid Entropic Radiation Sink Mutaplasmid"),
+    ).toBeUndefined();
+    expect(
+      parseMutationText(engine.sde, "[Drake, Shield]\nLarge Shield Extender II\nDamage Control II"),
+    ).toBeUndefined();
   });
 });
 

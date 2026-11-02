@@ -140,6 +140,30 @@ export function rolledValues(
   return new Map(Object.entries(attributes ?? {}).map(([id, value]) => [Number(id), value]));
 }
 
+/** A mutated module as Pyfa copies it: its name, the mutaplasmid's, and the rolled values by attribute name. */
+export function parseMutationText(sde: Sde, text: string): MutationRoll | undefined {
+  const lines = text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line !== "");
+  if (lines.length < 2 || lines.length > 3) return undefined;
+
+  const base = sde.typeByName(lines[0]!.replace(/^\[\d+\]\s*/, ""));
+  const mutaplasmid = sde.typeByName(lines[1]!);
+  if (base === undefined || mutaplasmid === undefined) return undefined;
+  if (mutatedTypeOf(sde, base.id, mutaplasmid.id) === undefined) return undefined;
+
+  const attributes: Record<number, number> = {};
+  for (const pair of lines[2]?.split(",") ?? []) {
+    const match = /^(\S+)\s+(\S+)$/.exec(pair.trim());
+    if (match === null) continue;
+    const attributeId = sde.attributeId(match[1]!);
+    const value = Number(match[2]);
+    if (attributeId !== undefined && Number.isFinite(value)) attributes[attributeId] = value;
+  }
+  return completeRoll(sde, { base: base.id, mutaplasmid: mutaplasmid.id, attributes });
+}
+
 /** The type ID and item ID of an item, from an in-game item link or the two IDs. */
 export function parseItemLink(text: string): { typeId: number; itemId: number } | undefined {
   const match = /showinfo:(\d+)\/\/(\d+)/.exec(text) ?? /^\s*(\d+)[\s,/]+(\d+)\s*$/.exec(text);

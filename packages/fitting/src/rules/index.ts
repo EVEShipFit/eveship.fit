@@ -10,6 +10,7 @@ export {
   mutationRanges,
   mutationRollOf,
   parseItemLink,
+  parseMutationText,
   rollFits,
   rollMutation,
   type MutationRange,

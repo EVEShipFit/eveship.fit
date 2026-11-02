@@ -1,4 +1,11 @@
-import { parseItemLink, type Engine, type Fit, type FitStore, type TextFormat } from "@eveshipfit/fitting";
+import {
+  parseItemLink,
+  parseMutationText,
+  type Engine,
+  type Fit,
+  type FitStore,
+  type TextFormat,
+} from "@eveshipfit/fitting";
 import { useEngine, useFit, useFitStore, useLocalFits } from "@eveshipfit/react-hooks";
 import { useEffect, useId, useState } from "react";
 
@@ -52,6 +59,12 @@ export function FitActions({ noHullSelected, pasteToOpen }: { noHullSelected: bo
       const text = event.clipboardData?.getData("text/plain").trim() ?? "";
       if (text === "") return;
       event.preventDefault();
+      const pasted = noHullSelected ? undefined : parseMutationText(engine.sde, text);
+      if (pasted !== undefined) {
+        if (store.fitMutated(pasted) === undefined)
+          setImporting({ text, error: "This module does not fit on the ship" });
+        return;
+      }
       const item = engine.esi === undefined || noHullSelected ? undefined : parseItemLink(text);
       if (item !== undefined) {
         void fitMutated(engine, store, item.typeId, item.itemId).catch((failure: unknown) =>

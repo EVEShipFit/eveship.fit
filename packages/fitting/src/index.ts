@@ -22,6 +22,7 @@ export {
   mutationRanges,
   mutationRollOf,
   parseItemLink,
+  parseMutationText,
   placementOf,
   rollFits,
   rollMutation,
