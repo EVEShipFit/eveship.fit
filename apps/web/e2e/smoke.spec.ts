@@ -67,21 +67,25 @@ test("the UI scale defaults to 100%, and keeps what is picked after a reload", a
 
 test("without a fit, the wheel asks for a hull until one is picked, and the logo goes back", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText("To start, select a hull on the left.")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("To start, right-click a hull on the left and pick Simulate Ship.")).toBeVisible({
+    timeout: 30_000,
+  });
   await expect(page.getByRole("region", { name: "Statistics" })).toHaveCount(0);
 
   const hulls = page.getByRole("list", { name: "Hulls" });
   await hulls.getByRole("button", { name: "Frigate", exact: true }).click();
   await hulls.getByRole("button", { name: /^Minmatar/ }).click();
   await hulls.getByRole("button", { name: "Simulate Slasher" }).click();
-  await expect(page.getByText("To start, select a hull on the left.")).toHaveCount(0);
+  await expect(page.getByText("To start, right-click a hull on the left and pick Simulate Ship.")).toHaveCount(0);
   await expect(page.getByRole("region", { name: "Statistics" })).toBeVisible();
   const history = page.getByRole("group", { name: "Simulation History" });
   await expect(history.getByRole("button", { name: / of \d+$/ })).toHaveAccessibleName("1 of 1");
   await expect.poll(() => new URL(page.url()).searchParams.get("fit")).toMatch(/^esf1:/);
 
   await page.getByRole("link", { name: "EVEShip.fit", exact: true }).click();
-  await expect(page.getByText("To start, select a hull on the left.")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("To start, right-click a hull on the left and pick Simulate Ship.")).toBeVisible({
+    timeout: 30_000,
+  });
   expect(new URL(page.url()).search).toBe("");
 });
 
@@ -139,7 +143,7 @@ test("a broken fit link says so, and keeps the link until the fit changes", asyn
   await expect(dialog).toContainText("This link has a fit that EVEShip.fit could not load.");
   await dialog.getByRole("button", { name: "Close" }).click();
   await expect(dialog).toBeHidden();
-  await expect(page.getByText("To start, select a hull on the left.")).toBeVisible();
+  await expect(page.getByText("To start, right-click a hull on the left and pick Simulate Ship.")).toBeVisible();
   expect(link()).toBe("v3:broken");
 
   const hulls = page.getByRole("list", { name: "Hulls" });

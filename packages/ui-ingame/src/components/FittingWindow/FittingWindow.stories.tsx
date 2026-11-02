@@ -196,11 +196,11 @@ export const Placeholder: Story = {
   args: {
     browser: <ItemBrowser />,
     statistics: <ShipStatistics />,
-    placeholder: "To start, select a hull on the left.",
+    placeholder: "To start, right-click a hull on the left and pick Simulate Ship.",
   },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("region", { name: "Fitting" })).toHaveTextContent(
-      "To start, select a hull on the left.",
+      "To start, right-click a hull on the left and pick Simulate Ship.",
     );
     await expect(canvas.queryByText("Rifter")).toBeNull();
     await expect(canvas.queryByRole("group", { name: "Simulation History" })).toBeNull();
@@ -302,7 +302,7 @@ export const ShowInfoVariationHullCannotFit: Story = {
 
 /** Show Info works from the item browser before a hull is picked. */
 export const ShowInfoWithoutHull: Story = {
-  args: { browser: <ItemBrowser />, placeholder: "To start, select a hull on the left." },
+  args: { browser: <ItemBrowser />, placeholder: "To start, right-click a hull on the left and pick Simulate Ship." },
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
     await userEvent.type(within(canvas.getByRole("tabpanel")).getByRole("searchbox"), "damage control ii");
