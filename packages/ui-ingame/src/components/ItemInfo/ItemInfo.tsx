@@ -1,4 +1,4 @@
-import type { FitStore, Slot } from "@eveshipfit/fitting";
+import type { FitStore } from "@eveshipfit/fitting";
 import {
   formatNumber,
   useCharges,
@@ -23,21 +23,7 @@ import { Icon } from "../../primitives/Icon/Icon";
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
 import { useAnchoredCard } from "./anchoredCard";
 import styles from "./ItemInfo.module.css";
-
-const slotNames: Partial<Record<Slot["type"], string>> = {
-  high: "High Slot",
-  medium: "Mid Slot",
-  low: "Low Slot",
-  rig: "Rig Slot",
-  subsystem: "Subsystem Slot",
-  service: "Service Slot",
-  drone_bay: "Drone Bay",
-  fighter_bay: "Fighter Bay",
-  fighter_tube: "Fighter Tube",
-  implant: "Implant Slot",
-  booster: "Booster Slot",
-  cargo: "Cargo",
-};
+import { slotName } from "./slotName";
 
 /** EVE's Show Info of what `useShowInfo` shows, next to what asked for it. */
 export function ItemInfo() {
@@ -262,11 +248,4 @@ function Variation({ type, current, onHover, onActivate, onInfo }: VariationProp
       </button>
     </li>
   );
-}
-
-function slotName(slot: Slot): string {
-  const name = slotNames[slot.type] ?? slot.type;
-  if (!("index" in slot)) return name;
-  const numbered = slot.type === "implant" || slot.type === "booster";
-  return `${name} ${numbered ? slot.index : slot.index + 1}`;
 }

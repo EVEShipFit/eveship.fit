@@ -31,6 +31,7 @@ import { Icon } from "../../primitives/Icon/Icon";
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
 import { useAnchoredCard } from "../ItemInfo/anchoredCard";
 import info from "../ItemInfo/ItemInfo.module.css";
+import { slotName } from "../ItemInfo/slotName";
 import styles from "./Mutate.module.css";
 import { MutaplasmidPicker } from "./MutaplasmidPicker";
 
@@ -140,6 +141,7 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
         <div className={info.title}>
           <h2 className={info.name}>Mutate {base?.name}</h2>
           <span className={info.muted}>{sde.type(roll.mutaplasmid)?.name}</span>
+          <span>Fitted · {slotName(slot)}</span>
         </div>
       </header>
       <div className={info.tabs} role="tablist">
