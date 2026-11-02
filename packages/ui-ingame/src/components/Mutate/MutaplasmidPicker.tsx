@@ -138,10 +138,7 @@ function RangeChart({ mutaplasmids, shown, roll, names }: RangeChartProps) {
 
   return (
     <div className={styles.chart} aria-hidden>
-      <span className={styles.chartTitle}>
-        {nameOf(shown)}
-        <span className={styles.muted}>{shown === widest ? "The widest" : `vs. ${nameOf(widest)}`}</span>
-      </span>
+      <span className={styles.chartTitle}>{nameOf(shown)}</span>
       {rangesOf(shown).map((range) => {
         const attribute = sde.attribute(range.attributeId);
         const widestRange = behind.get(range.attributeId);
