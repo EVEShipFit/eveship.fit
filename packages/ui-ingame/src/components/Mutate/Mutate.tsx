@@ -18,6 +18,7 @@ import {
   useEngine,
   useFit,
   useFitStore,
+  useImages,
   useMutate,
   usePreview,
   useSde,
@@ -229,6 +230,7 @@ function Stat({ range, value, onChange, onFinish }: StatProps) {
   const sde = useSde();
   const attribute = sde.attribute(range.attributeId);
   const name = attribute?.displayName ?? attribute?.name ?? String(range.attributeId);
+  const icon = useImages().attributeIcon(range.attributeId);
   const span = range.max - range.min;
   const base = `${span === 0 ? 50 : ((range.base - range.min) / span) * 100}%`;
   const change = range.base === 0 ? 0 : value / range.base - 1;
@@ -246,7 +248,8 @@ function Stat({ range, value, onChange, onFinish }: StatProps) {
   return (
     <div className={styles.stat}>
       <span className={styles.name} title={name}>
-        {name}
+        {icon === undefined ? <span className={styles.icon} /> : <img className={styles.icon} src={icon} alt="" />}
+        <span className={styles.label}>{name}</span>
       </span>
       <span
         className={styles.slider}

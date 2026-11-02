@@ -248,6 +248,19 @@
 }
 
 .name {
+  align-items: center;
+  display: flex;
+  gap: calc(6 * var(--info-unit));
+  min-width: 0;
+}
+
+.icon {
+  flex: none;
+  height: calc(16 * var(--info-unit));
+  width: calc(16 * var(--info-unit));
+}
+
+.label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
