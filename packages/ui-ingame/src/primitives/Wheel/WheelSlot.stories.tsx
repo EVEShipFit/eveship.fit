@@ -250,3 +250,25 @@ export const AllStates: Story = {
     </>
   ),
 };
+
+/** A tick on the rim marks a mutated module, in every state. */
+export const Mutated: Story = {
+  render: () => (
+    <>
+      {(["offline", "online", "active", "overload"] as const).map((state, index) => (
+        <WheelSlot
+          key={state}
+          rack="medium"
+          angle={60 + index * 10.2}
+          typeId={types["1MN Afterburner II"]}
+          activatable
+          state={state}
+          mutated
+        />
+      ))}
+    </>
+  ),
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelectorAll('[class*="mutated"]')).toHaveLength(4);
+  },
+};

@@ -157,7 +157,10 @@
 }
 
 .chartTitle {
+  display: flex;
+  flex-direction: column;
   font-size: calc(11 * var(--info-unit));
+  white-space: nowrap;
 }
 
 .muted {

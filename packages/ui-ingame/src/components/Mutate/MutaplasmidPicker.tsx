@@ -139,7 +139,9 @@ function RangeChart({ mutaplasmids, shown, roll, names }: RangeChartProps) {
     <div className={styles.chart} aria-hidden>
       <span className={styles.chartTitle}>
         {nameOf(shown)}
-        {shown !== roll.mutaplasmid && <span className={styles.muted}> vs. {nameOf(roll.mutaplasmid)}</span>}
+        <span className={styles.muted}>
+          {shown === roll.mutaplasmid ? "Your pick" : `vs. ${nameOf(roll.mutaplasmid)}`}
+        </span>
       </span>
       {rangesOf(shown).map((range) => {
         const attribute = sde.attribute(range.attributeId);

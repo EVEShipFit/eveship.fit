@@ -140,6 +140,7 @@ export function WheelSlot({
     >
       {fitted && <span className={styles.fill} style={texture("classes/fitting/moduleslotfill")} />}
       <span className={styles.frame} style={texture(frameTexture(fitted, preview, state, activatable))} />
+      {fitted && mutated && <span className={styles.mutated} />}
       {fitted &&
         chargeable &&
         ammoBars.map((offset) => (
@@ -152,7 +153,7 @@ export function WheelSlot({
         ))}
       {iconTypeId !== undefined ? (
         <span className={styles.icon}>
-          <TypeIcon typeId={iconTypeId} size={64} marker={mutated && chargeTypeId === undefined} />
+          <TypeIcon typeId={iconTypeId} size={64} marker={false} />
         </span>
       ) : (
         available && (
