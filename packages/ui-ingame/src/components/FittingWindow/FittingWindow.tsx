@@ -36,7 +36,7 @@ import { Icon, type IconName } from "../../primitives/Icon/Icon";
 import { ServiceSlot } from "../../primitives/ServiceSlot/ServiceSlot";
 import { Tooltip, TooltipText } from "../../primitives/Tooltip/Tooltip";
 import { Wheel } from "../../primitives/Wheel/Wheel";
-import { useFittingSlot } from "../FittingWheel/fittingSlot";
+import { allowDrop, useFittingSlot } from "../FittingWheel/fittingSlot";
 import { FittingWheel } from "../FittingWheel/FittingWheel";
 import { ItemInfo } from "../ItemInfo/ItemInfo";
 import { ShipBonuses } from "../ShipBonuses/ShipBonuses";
@@ -116,7 +116,7 @@ export function FittingWindow({
               <FittingWheel readOnly={preview} credit={preview} />
             ) : (
               <Wheel label="Fitting">
-                <p className={styles.placeholder}>{placeholder}</p>
+                <Placeholder text={placeholder} />
               </Wheel>
             )}
           </div>
@@ -193,6 +193,30 @@ export function FittingWindow({
         )}
       </section>
     </ManageFightersContext>
+  );
+}
+
+/** Picks a hull dropped on the empty wheel. */
+function Placeholder({ text }: { text: string }) {
+  const store = useFitStore();
+  const { dragging, end } = useDrag();
+  const hull = dragging?.type === "hull" ? dragging.typeId : undefined;
+
+  return (
+    <div
+      className={styles.placeholder}
+      onDragOver={(event) => {
+        if (dragging?.type === "hull") allowDrop(event, dragging);
+      }}
+      onDrop={(event) => {
+        if (hull === undefined) return;
+        event.preventDefault();
+        store.replace({ ship: { type_id: hull }, items: [] });
+        end();
+      }}
+    >
+      <p>{text}</p>
+    </div>
   );
 }
 
