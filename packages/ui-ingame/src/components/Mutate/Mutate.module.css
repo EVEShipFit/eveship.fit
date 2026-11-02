@@ -52,6 +52,30 @@
   color: var(--esf-text-muted);
 }
 
+.roll {
+  display: flex;
+  flex: none;
+}
+
+.more {
+  background: var(--esf-button);
+  border: 1px solid var(--esf-button-edge);
+  border-left: none;
+  color: var(--esf-text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: calc(10 * var(--info-unit));
+  padding: 0 calc(5 * var(--info-unit));
+}
+
+.more:hover,
+.more:focus-visible {
+  background: var(--esf-button-active);
+  border-color: var(--esf-button-active-edge);
+  color: var(--esf-text);
+  outline: none;
+}
+
 .dice {
   align-items: center;
   background: var(--esf-button);

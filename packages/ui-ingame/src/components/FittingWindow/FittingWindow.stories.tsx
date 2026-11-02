@@ -280,6 +280,15 @@ export const Mutate: Story = {
     const before = rolled();
     await userEvent.click(within(window).getByRole("button", { name: "Roll" }));
     await waitFor(() => expect(rolled()).not.toBe(before));
+
+    await userEvent.click(within(window).getByRole("button", { name: "More Rolls" }));
+    await userEvent.click(within(window).getByRole("menuitem", { name: "Best Roll" }));
+    const slider = (name: string) => within(window).getByRole<HTMLInputElement>("slider", { name });
+    const at = (name: string, end: "min" | "max") =>
+      expect(Number(slider(name).value)).toBeCloseTo(Number(slider(name)[end]));
+    await waitFor(() => at("Shield Hitpoint Bonus", "max"));
+    await at("CPU usage", "min");
+    await expect(canvas.getByRole("region", { name: /^Mutate/ })).toBeVisible();
   },
 };
 

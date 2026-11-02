@@ -8,6 +8,7 @@ import {
   type Fit,
   type MutationRange,
   type MutationRoll,
+  type RollKind,
   type Slot,
 } from "@eveshipfit/fitting";
 import {
@@ -23,6 +24,7 @@ import {
 } from "@eveshipfit/react-hooks";
 import { useEffect, useEffectEvent, useId, useRef, useState, type CSSProperties } from "react";
 
+import { useContextMenu } from "../../primitives/ContextMenu/ContextMenu";
 import { Icon } from "../../primitives/Icon/Icon";
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
 import { useAnchoredCard } from "../ItemInfo/anchoredCard";
@@ -76,6 +78,7 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
   const store = useFitStore();
   const preview = usePreview();
   const { card, style } = useAnchoredCard(anchor, onClose);
+  const { open: openMenu, menu } = useContextMenu();
   const tabId = useId();
   const [tab, setTab] = useState<Tab>("roll");
   const [chosen, setChosen] = useState<number>();
@@ -106,6 +109,7 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
   const finish = () => {
     if (dragged !== undefined) commit(dragged);
   };
+  const reroll = (kind: RollKind) => commit(rollMutation(sde, roll.base, roll.mutaplasmid, kind));
   const choose = (picked: number) => {
     const attributes: Record<number, number> = {};
     for (const range of mutationRanges(sde, roll.base, picked)) {
@@ -120,7 +124,7 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
       className={`${info.card} ${styles.card}`}
       popover="auto"
       onToggle={(event) => {
-        if (event.newState === "closed") onClose();
+        if (event.target === event.currentTarget && event.newState === "closed") onClose();
       }}
       aria-label={`Mutate ${base?.name ?? ""}`}
       data-side={anchor?.side}
@@ -160,16 +164,33 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
           <>
             <div className={styles.toolbar}>
               <MutaplasmidPicker mutaplasmids={mutaplasmids} roll={roll} onChoose={choose} />
-              <button
-                type="button"
-                className={styles.dice}
-                aria-label="Roll"
-                title="Roll"
-                onClick={() => commit(rollMutation(sde, roll.base, roll.mutaplasmid, "random"))}
-              >
-                <Dice />
-              </button>
+              <span className={styles.roll}>
+                <button
+                  type="button"
+                  className={styles.dice}
+                  aria-label="Roll"
+                  title="Roll"
+                  onClick={() => reroll("random")}
+                >
+                  <Dice />
+                </button>
+                <button
+                  type="button"
+                  className={styles.more}
+                  aria-label="More Rolls"
+                  aria-haspopup="menu"
+                  onClick={(event) =>
+                    openMenu(event, [
+                      { label: "Best Roll", onSelect: () => reroll("best") },
+                      { label: "Worst Roll", onSelect: () => reroll("worst") },
+                    ])
+                  }
+                >
+                  ▾
+                </button>
+              </span>
             </div>
+            {menu}
             <div className={styles.stats}>
               {ranges.map((range) => (
                 <Stat
