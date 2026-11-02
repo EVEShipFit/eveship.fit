@@ -1,5 +1,11 @@
 # @eveshipfit/ui-ingame
 
+## 1.12.0
+
+### Minor Changes
+
+- Drop a hull on the `FittingWindow` placeholder to pick it ([#332](https://github.com/EVEShipFit/eveship.fit/pull/332))
+
 ## 1.11.2
 
 ### Patch Changes
