@@ -66,7 +66,7 @@ export function Mutate() {
   );
 }
 
-type Tab = "roll" | "lookup";
+type Tab = "attributes" | "import";
 
 interface MutateCardProps {
   shown: ShownMutation;
@@ -83,7 +83,7 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
   const { card, style } = useAnchoredCard(anchor, onClose);
   const { open: openMenu, menu } = useContextMenu();
   const tabId = useId();
-  const [tab, setTab] = useState<Tab>("roll");
+  const [tab, setTab] = useState<Tab>("attributes");
   const [chosen, setChosen] = useState<number>();
   const [dragged, setDragged] = useState<MutationRoll>();
   const mutaplasmids = mutaplasmidsOf(sde, fitted.base);
@@ -161,7 +161,7 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
         ))}
       </div>
       <div className={styles.panel} role="tabpanel" aria-labelledby={`${tabId}-${tab}`}>
-        {tab === "roll" ? (
+        {tab === "attributes" ? (
           <>
             <div className={styles.toolbar}>
               <MutaplasmidPicker mutaplasmids={mutaplasmids} roll={roll} onChoose={choose} />
@@ -205,12 +205,12 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
             </div>
           </>
         ) : (
-          <Lookup
+          <Import
             slot={slot}
             current={fitted}
             onFound={(found) => {
               setChosen(found.mutaplasmid);
-              setTab("roll");
+              setTab("attributes");
             }}
           />
         )}
@@ -219,8 +219,8 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
   );
 }
 
-const tabs: readonly Tab[] = ["roll", "lookup"];
-const tabLabels: Record<Tab, string> = { roll: "Roll", lookup: "Paste" };
+const tabs: readonly Tab[] = ["attributes", "import"];
+const tabLabels: Record<Tab, string> = { attributes: "Attributes", import: "Import" };
 
 interface StatProps {
   range: MutationRange;
@@ -284,14 +284,14 @@ function Stat({ range, value, onChange, onFinish }: StatProps) {
   );
 }
 
-interface LookupProps {
+interface ImportProps {
   slot: Slot;
   current: MutationRoll;
   onFound: (roll: MutationRoll) => void;
 }
 
 /** Rolls this module like one pasted from Pyfa, or one in game looked up by its link or IDs. */
-function Lookup({ slot, current, onFound }: LookupProps) {
+function Import({ slot, current, onFound }: ImportProps) {
   const engine = useEngine();
   const store = useFitStore();
   const sde = useSde();
@@ -331,7 +331,7 @@ function Lookup({ slot, current, onFound }: LookupProps) {
 
   return (
     <form
-      className={styles.lookup}
+      className={styles.import}
       onSubmit={(event) => {
         event.preventDefault();
         void lookUp();

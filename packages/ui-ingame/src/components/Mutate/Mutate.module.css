@@ -362,13 +362,13 @@
   opacity: 0.5;
 }
 
-.lookup {
+.import {
   display: flex;
   flex-direction: column;
   gap: calc(8 * var(--info-unit));
 }
 
-.lookup > .button {
+.import > .button {
   align-self: flex-start;
 }
 
