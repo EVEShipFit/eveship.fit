@@ -1,5 +1,17 @@
 # @eveshipfit/ui-ingame
 
+## 1.13.0
+
+### Minor Changes
+
+- Mutate modules into abyssal ones ([#335](https://github.com/EVEShipFit/eveship.fit/pull/335))
+
+### Patch Changes
+
+- Updated dependencies [[`e83c6ea`](https://github.com/EVEShipFit/eveship.fit/commit/e83c6eabcd5c074e3499b995dc8bf030fc146883), [`e83c6ea`](https://github.com/EVEShipFit/eveship.fit/commit/e83c6eabcd5c074e3499b995dc8bf030fc146883)]:
+  - @eveshipfit/fitting@2.6.0
+  - @eveshipfit/react-hooks@2.6.0
+
 ## 1.12.0
 
 ### Minor Changes

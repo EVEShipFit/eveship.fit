@@ -1,5 +1,11 @@
 # @eveshipfit/esi
 
+## 1.2.0
+
+### Minor Changes
+
+- Fetch mutated items ([#335](https://github.com/EVEShipFit/eveship.fit/pull/335))
+
 ## 1.1.0
 
 ### Minor Changes
