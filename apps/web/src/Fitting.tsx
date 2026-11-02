@@ -30,7 +30,7 @@ export function Fitting({ data, layout, skills }: FittingProps) {
   const placeholder = empty
     ? layout.stacked
       ? "To start, right-click a hull below and pick Simulate Ship."
-      : "To start, drag a hull here from the left, or right-click it and pick Simulate Ship."
+      : "To start, drag a hull here from the left,\nor right-click it and pick Simulate Ship."
     : undefined;
 
   return (

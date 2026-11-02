@@ -196,7 +196,7 @@ export const Placeholder: Story = {
   args: {
     browser: <ItemBrowser />,
     statistics: <ShipStatistics />,
-    placeholder: "To start, drag a hull here from the left, or right-click it and pick Simulate Ship.",
+    placeholder: "To start, drag a hull here from the left,\nor right-click it and pick Simulate Ship.",
   },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("region", { name: "Fitting" })).toHaveTextContent(
@@ -213,7 +213,7 @@ export const Placeholder: Story = {
 export const DropHullOnPlaceholder: Story = {
   args: {
     browser: <ItemBrowser />,
-    placeholder: "To start, drag a hull here from the left, or right-click it and pick Simulate Ship.",
+    placeholder: "To start, drag a hull here from the left,\nor right-click it and pick Simulate Ship.",
   },
   play: async ({ canvas, userEvent }) => {
     await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "slasher");
@@ -326,7 +326,7 @@ export const ShowInfoVariationHullCannotFit: Story = {
 export const ShowInfoWithoutHull: Story = {
   args: {
     browser: <ItemBrowser />,
-    placeholder: "To start, drag a hull here from the left, or right-click it and pick Simulate Ship.",
+    placeholder: "To start, drag a hull here from the left,\nor right-click it and pick Simulate Ship.",
   },
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
