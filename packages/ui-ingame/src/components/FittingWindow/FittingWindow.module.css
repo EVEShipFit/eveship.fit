@@ -50,8 +50,13 @@
   display: flex;
   inset: 0;
   justify-content: center;
-  margin: 0;
   position: absolute;
+}
+
+.placeholder > p {
+  margin: 0;
+  text-align: center;
+  white-space: pre-line;
 }
 
 .name,

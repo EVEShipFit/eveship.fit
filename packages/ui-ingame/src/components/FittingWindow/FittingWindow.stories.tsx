@@ -196,16 +196,38 @@ export const Placeholder: Story = {
   args: {
     browser: <ItemBrowser />,
     statistics: <ShipStatistics />,
-    placeholder: "To start, right-click a hull on the left and pick Simulate Ship.",
+    placeholder: "To start, drag a hull here from the left,\nor right-click it and pick Simulate Ship.",
   },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("region", { name: "Fitting" })).toHaveTextContent(
-      "To start, right-click a hull on the left and pick Simulate Ship.",
+      "To start, drag a hull here from the left, or right-click it and pick Simulate Ship.",
     );
     await expect(canvas.queryByText("Rifter")).toBeNull();
     await expect(canvas.queryByRole("group", { name: "Simulation History" })).toBeNull();
     await expect(canvas.queryByRole("button", { name: "Statistics" })).toBeNull();
     await expect(canvas.getByRole("button", { name: "Item Browser" })).toBeVisible();
+  },
+};
+
+/** Dropping a hull on the placeholder simulates it. */
+export const DropHullOnPlaceholder: Story = {
+  args: {
+    browser: <ItemBrowser />,
+    placeholder: "To start, drag a hull here from the left,\nor right-click it and pick Simulate Ship.",
+  },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "slasher");
+    await userEvent.click(canvas.getByRole("button", { name: "Frigate" }));
+    await userEvent.click(canvas.getByRole("button", { name: /^Minmatar/ }));
+    const placeholder = canvas.getByText(/^To start/);
+    await dragAndDrop(canvas.getByRole("button", { name: "Slasher" }), placeholder);
+
+    await userEvent.clear(canvas.getByRole("searchbox", { name: "Search" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Current Hull" }));
+    await expect(
+      within(canvas.getByRole("list", { name: "Hulls" })).getAllByRole("button", { name: /^Simulate / }),
+    ).toHaveLength(1);
+    await expect(canvas.getByRole("button", { name: "Simulate Slasher" })).toBeVisible();
   },
 };
 
@@ -302,7 +324,10 @@ export const ShowInfoVariationHullCannotFit: Story = {
 
 /** Show Info works from the item browser before a hull is picked. */
 export const ShowInfoWithoutHull: Story = {
-  args: { browser: <ItemBrowser />, placeholder: "To start, right-click a hull on the left and pick Simulate Ship." },
+  args: {
+    browser: <ItemBrowser />,
+    placeholder: "To start, drag a hull here from the left,\nor right-click it and pick Simulate Ship.",
+  },
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
     await userEvent.type(within(canvas.getByRole("tabpanel")).getByRole("searchbox"), "damage control ii");
