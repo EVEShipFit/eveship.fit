@@ -8,7 +8,6 @@ import {
   type Fit,
   type MutationRange,
   type MutationRoll,
-  type RollKind,
   type Slot,
 } from "@eveshipfit/fitting";
 import {
@@ -22,7 +21,6 @@ import {
   useSde,
   type ShownMutation,
 } from "@eveshipfit/react-hooks";
-import type { SdeMutaplasmid } from "@eveshipfit/sde-loader";
 import { useEffect, useEffectEvent, useId, useRef, useState, type CSSProperties } from "react";
 
 import { Icon } from "../../primitives/Icon/Icon";
@@ -30,6 +28,7 @@ import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
 import { useAnchoredCard } from "../ItemInfo/anchoredCard";
 import info from "../ItemInfo/ItemInfo.module.css";
 import styles from "./Mutate.module.css";
+import { MutaplasmidPicker } from "./MutaplasmidPicker";
 
 const PREVIEW_TARGET = "mutate";
 
@@ -114,7 +113,6 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
     }
     commit({ base: roll.base, mutaplasmid: picked, attributes });
   };
-  const reroll = (kind: RollKind) => commit(rollMutation(sde, roll.base, roll.mutaplasmid, kind));
 
   return (
     <section
@@ -160,7 +158,18 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
       <div className={styles.panel} role="tabpanel" aria-labelledby={`${tabId}-${tab}`}>
         {tab === "roll" ? (
           <>
-            <Mutaplasmids mutaplasmids={mutaplasmids} current={roll.mutaplasmid} onChoose={choose} />
+            <div className={styles.toolbar}>
+              <MutaplasmidPicker mutaplasmids={mutaplasmids} roll={roll} onChoose={choose} />
+              <button
+                type="button"
+                className={styles.dice}
+                aria-label="Roll"
+                title="Roll"
+                onClick={() => commit(rollMutation(sde, roll.base, roll.mutaplasmid, "random"))}
+              >
+                <Dice />
+              </button>
+            </div>
             <div className={styles.stats}>
               {ranges.map((range) => (
                 <Stat
@@ -171,27 +180,6 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
                   onFinish={finish}
                 />
               ))}
-            </div>
-            <div className={styles.buttons}>
-              <button type="button" className={styles.button} onClick={() => reroll("random")}>
-                Roll
-              </button>
-              <button type="button" className={styles.button} onClick={() => reroll("base")}>
-                Base
-              </button>
-              <button type="button" className={styles.button} onClick={() => reroll("worst")}>
-                Worst
-              </button>
-              <button type="button" className={styles.button} onClick={() => reroll("best")}>
-                Best
-              </button>
-              <button
-                type="button"
-                className={`${styles.button} ${styles.remove}`}
-                onClick={() => store.setMutation(ref, undefined)}
-              >
-                Remove
-              </button>
             </div>
           </>
         ) : (
@@ -209,49 +197,6 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
 }
 
 const tabLabels: Record<Tab, string> = { roll: "Roll", lookup: "Look up" };
-
-interface MutaplasmidsProps {
-  mutaplasmids: readonly SdeMutaplasmid[];
-  current: number;
-  onChoose: (mutaplasmid: number) => void;
-}
-
-/** One button per mutaplasmid, with how far it rolls compared to the others. */
-function Mutaplasmids({ mutaplasmids, current, onChoose }: MutaplasmidsProps) {
-  const sde = useSde();
-  const names = shortNames(mutaplasmids.map(({ id }) => sde.type(id)?.name ?? String(id)));
-  const spreads = mutaplasmids.map(spreadOf);
-  const widest = Math.max(...spreads.flatMap(({ min, max }) => [1 - min, max - 1]), 0.01);
-
-  return (
-    <fieldset className={styles.mutaplasmids} aria-label="Mutaplasmid">
-      {mutaplasmids.map((mutaplasmid, index) => {
-        const { min, max } = spreads[index]!;
-        return (
-          <button
-            key={mutaplasmid.id}
-            type="button"
-            aria-pressed={mutaplasmid.id === current}
-            className={styles.mutaplasmid}
-            title={sde.type(mutaplasmid.id)?.name}
-            onClick={() => onChoose(mutaplasmid.id)}
-          >
-            <span>{names[index]}</span>
-            <span
-              className={styles.spread}
-              style={
-                {
-                  "--from": `${50 - ((1 - min) / widest) * 50}%`,
-                  "--to": `${50 + ((max - 1) / widest) * 50}%`,
-                } as CSSProperties
-              }
-            />
-          </button>
-        );
-      })}
-    </fieldset>
-  );
-}
 
 interface StatProps {
   range: MutationRange;
@@ -387,25 +332,13 @@ function clamp(value: number, range: MutationRange): number {
   return Math.min(range.max, Math.max(range.min, value));
 }
 
-/** The lowest and highest multiplier a mutaplasmid rolls, over all its attributes. */
-function spreadOf(mutaplasmid: SdeMutaplasmid): { min: number; max: number } {
-  const ranges = [...mutaplasmid.attributes.values()];
-  return {
-    min: Math.min(...ranges.map(({ min }) => min), 1),
-    max: Math.max(...ranges.map(({ max }) => max), 1),
-  };
-}
-
-/** The names without the words they all end in, like "Large Shield Extender Mutaplasmid". */
-function shortNames(names: readonly string[]): string[] {
-  const words = names.map((name) => name.split(" "));
-  let shared = 0;
-  while (
-    words.every((name) => name.length > shared + 1) &&
-    words.every((name) => name.at(-1 - shared) === words[0]!.at(-1 - shared))
-  ) {
-    shared++;
-  }
-  if (names.length === 1) shared = words[0]!.at(-1) === "Mutaplasmid" ? 1 : 0;
-  return words.map((name) => name.slice(0, name.length - shared).join(" "));
+function Dice() {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden>
+      <rect x="1.5" y="1.5" width="13" height="13" rx="2.5" fill="none" stroke="currentColor" />
+      <circle cx="5" cy="5" r="1.3" fill="currentColor" />
+      <circle cx="8" cy="8" r="1.3" fill="currentColor" />
+      <circle cx="11" cy="11" r="1.3" fill="currentColor" />
+    </svg>
+  );
 }

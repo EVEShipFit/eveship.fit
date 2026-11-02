@@ -257,7 +257,7 @@ export const ShowInfo: Story = {
   },
 };
 
-/** Mutate opens next to the slot; the roll counts in the fit, and Remove turns it back. */
+/** Mutate opens next to the slot; picking a mutaplasmid and rolling count in the fit. */
 export const Mutate: Story = {
   parameters: { fit: rifter },
   play: async ({ canvas, userEvent }) => {
@@ -265,15 +265,21 @@ export const Mutate: Story = {
     await fireEvent.contextMenu(extender());
     await userEvent.click(canvas.getByRole("menuitem", { name: "Mutate" }));
     const window = canvas.getByRole("region", { name: "Mutate Small Shield Extender II" });
-    await expect(within(window).getByRole("button", { name: "Decayed" })).toHaveAttribute("aria-pressed", "true");
     await expect(extender()).toHaveAccessibleName("Small Abyssal Shield Extender, online");
 
-    await userEvent.click(within(window).getByRole("button", { name: "Best" }));
-    await expect(within(window).getByText("+10%")).toBeVisible();
+    await userEvent.click(within(window).getByRole("button", { name: "Decayed" }));
+    await userEvent.click(within(window).getByRole("menuitemradio", { name: "Unstable" }));
+    await expect(within(window).queryByRole("menu")).toBeNull();
+    await expect(within(window).getByText("Unstable Small Shield Extender Mutaplasmid")).toBeVisible();
 
-    await userEvent.click(within(window).getByRole("button", { name: "Remove" }));
-    await expect(canvas.queryByRole("region", { name: /^Mutate/ })).toBeNull();
-    await expect(extender()).toHaveAccessibleName("Small Shield Extender II, online");
+    const rolled = () =>
+      within(window)
+        .getAllByRole("slider")
+        .map((slider) => slider.getAttribute("aria-valuetext"))
+        .join();
+    const before = rolled();
+    await userEvent.click(within(window).getByRole("button", { name: "Roll" }));
+    await waitFor(() => expect(rolled()).not.toBe(before));
   },
 };
 
