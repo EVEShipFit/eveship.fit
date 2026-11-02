@@ -276,6 +276,23 @@ cpu 27.876000337600708, damageMultiplier 1.1440403131908177, speedMultiplier 0.9
   });
 });
 
+describe("loadText", () => {
+  test("a Pyfa fit with a mutated module, stats EVE does not have left out", () => {
+    const fit = engine.loadText(`[Punisher, Pyfa]
+
+Entropic Radiation Sink II [1]
+
+[1] Entropic Radiation Sink II
+  Gravid Entropic Radiation Sink Mutaplasmid
+  cpu 27.876000337600708, damageMultiplier 1.1440403131908177, speedMultiplier 0.9305765089869499, dpsIncreaseTurrets 1.2293887736713343
+`);
+
+    const item = fit.items[0]!;
+    expect(item.mutation?.base).toBe(id("Entropic Radiation Sink II"));
+    expect(mutationRollOf(engine.sde, item)?.mutaplasmid).toBe(id("Gravid Entropic Radiation Sink Mutaplasmid"));
+  });
+});
+
 describe("loadMutation", () => {
   test("only the rolled attributes, from ESI", async () => {
     const item: DynamicItem = {

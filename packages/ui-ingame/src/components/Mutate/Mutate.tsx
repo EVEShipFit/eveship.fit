@@ -24,6 +24,7 @@ import {
   useSde,
   type ShownMutation,
 } from "@eveshipfit/react-hooks";
+import type { Sde } from "@eveshipfit/sde-loader";
 import { useEffect, useEffectEvent, useId, useRef, useState, type CSSProperties } from "react";
 
 import { useContextMenu } from "../../primitives/ContextMenu/ContextMenu";
@@ -206,6 +207,7 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
         ) : (
           <Lookup
             slot={slot}
+            current={fitted}
             onFound={(found) => {
               setChosen(found.mutaplasmid);
               setTab("roll");
@@ -282,8 +284,14 @@ function Stat({ range, value, onChange, onFinish }: StatProps) {
   );
 }
 
+interface LookupProps {
+  slot: Slot;
+  current: MutationRoll;
+  onFound: (roll: MutationRoll) => void;
+}
+
 /** Rolls this module like one pasted from Pyfa, or one in game looked up by its link or IDs. */
-function Lookup({ slot, onFound }: { slot: Slot; onFound: (roll: MutationRoll) => void }) {
+function Lookup({ slot, current, onFound }: LookupProps) {
   const engine = useEngine();
   const store = useFitStore();
   const sde = useSde();
@@ -337,8 +345,8 @@ function Lookup({ slot, onFound }: { slot: Slot; onFound: (roll: MutationRoll) =
       <textarea
         id={fieldId}
         className={styles.field}
-        rows={3}
-        placeholder={"Large Shield Extender II\nGravid Large Shield Extender Mutaplasmid\ncpu 40, capacityBonus 3000"}
+        rows={5}
+        placeholder={pyfaText(sde, current)}
         value={text}
         onChange={(event) => {
           setText(event.currentTarget.value);
@@ -359,6 +367,14 @@ function Lookup({ slot, onFound }: { slot: Slot; onFound: (roll: MutationRoll) =
       )}
     </form>
   );
+}
+
+/** A roll as Pyfa copies a mutated module. */
+function pyfaText(sde: Sde, roll: MutationRoll): string {
+  const values = Object.entries(roll.attributes)
+    .map(([id, value]) => `${sde.attribute(Number(id))?.name ?? id} ${Number(value.toFixed(4))}`)
+    .join(", ");
+  return `${sde.type(roll.base)?.name ?? roll.base}\n${sde.type(roll.mutaplasmid)?.name ?? roll.mutaplasmid}\n${values}`;
 }
 
 function refIn(fit: Fit, slot: Slot): number {
