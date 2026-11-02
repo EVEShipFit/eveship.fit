@@ -80,6 +80,7 @@ function InfoCard({ shown: { target, anchor }, onClose }: { shown: ShownInfo; on
         </span>
         <div className={styles.title}>
           <h2 className={styles.name}>{type?.name}</h2>
+          {info.mutatedFrom !== undefined && <span className={styles.muted}>Mutated {info.mutatedFrom.name}</span>}
           {price !== undefined && (
             <span className={styles.muted}>{formatNumber(price, { decimals: 0 })} ISK Est. price</span>
           )}

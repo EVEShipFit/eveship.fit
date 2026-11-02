@@ -1,7 +1,7 @@
 .card {
   max-height: none;
   overflow: visible;
-  width: calc(400 * var(--info-unit));
+  width: calc(460 * var(--info-unit));
 }
 
 .panel {
