@@ -14,10 +14,12 @@ import {
   EsiCharactersContext,
   FitContext,
   LocalFitsContext,
+  MutateContext,
   PreviewContext,
   ZKillboardContext,
   type BrowseRequest,
   type ShownInfo,
+  type ShownMutation,
   type DragItem,
   type Refusal,
   type PreviewState,
@@ -78,6 +80,7 @@ export function EveShipFitProvider({
   const [browse, setBrowse] = useState<BrowseRequest>();
   const [refusal, setRefusal] = useState<Refusal>();
   const [info, setInfo] = useState<ShownInfo>();
+  const [mutating, setMutating] = useState<ShownMutation>();
   const [character, setCharacter] = useState(firstCharacter ?? ALL_SKILLS_V);
   useFlyCharacter(engine, fit ?? ownFit, characters, character, firstCharacter !== undefined);
   const [damageProfile, setDamageProfile] = useState<string>();
@@ -94,11 +97,13 @@ export function EveShipFitProvider({
                   <BrowseContext value={{ request: browse, setRequest: setBrowse }}>
                     <RefusalContext value={{ refusal, setRefusal }}>
                       <InfoContext value={{ shown: info, setShown: setInfo }}>
-                        <DamageProfilesContext value={damageProfiles ?? ownDamageProfiles}>
-                          <DamageProfileContext value={{ current: damageProfile, setCurrent: setDamageProfile }}>
-                            <ZKillboardContext value={zkillboard}>{children}</ZKillboardContext>
-                          </DamageProfileContext>
-                        </DamageProfilesContext>
+                        <MutateContext value={{ shown: mutating, setShown: setMutating }}>
+                          <DamageProfilesContext value={damageProfiles ?? ownDamageProfiles}>
+                            <DamageProfileContext value={{ current: damageProfile, setCurrent: setDamageProfile }}>
+                              <ZKillboardContext value={zkillboard}>{children}</ZKillboardContext>
+                            </DamageProfileContext>
+                          </DamageProfilesContext>
+                        </MutateContext>
                       </InfoContext>
                     </RefusalContext>
                   </BrowseContext>

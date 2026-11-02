@@ -1,4 +1,12 @@
-import type { Fit, ItemRef, Rack } from "@eveshipfit/fitting";
+import {
+  canMutate,
+  mutaplasmidsOf,
+  mutationRollOf,
+  rollMutation,
+  type Fit,
+  type ItemRef,
+  type Rack,
+} from "@eveshipfit/fitting";
 import {
   useBrowse,
   useCanFit,
@@ -6,6 +14,7 @@ import {
   useDrag,
   useFit,
   useFitStore,
+  useMutate,
   usePlacement,
   usePreview,
   useSde,
@@ -62,6 +71,7 @@ export function useFittingSlot(
   const shownCopy = useRef(false);
   const { browse } = useBrowse();
   const { show: showInfo } = useShowInfo();
+  const { show: showMutate } = useMutate();
   const { open, menu } = useContextMenu();
   const item = content?.item;
   const stats = content?.stats;
@@ -96,6 +106,7 @@ export function useFittingSlot(
     preview: content?.preview,
     typeId: item?.type_id,
     typeName: type?.name,
+    mutated: item?.mutation !== undefined,
     chargeTypeId,
     chargeable: charges.length > 0,
     state: stats?.state,
@@ -107,6 +118,7 @@ export function useFittingSlot(
           rack={rack}
           itemRef={ref}
           typeId={item.type_id}
+          mutatedFrom={item.mutation?.base}
           chargeTypeId={item.charge?.type_id}
           state={stats.state}
           maxState={stats.maxState}
@@ -125,6 +137,22 @@ export function useFittingSlot(
       ? (element: HTMLElement) => showInfo({ typeId: chargeTypeId, ref }, { element, side })
       : undefined;
   const removeCharge = ref === undefined ? undefined : () => store.setCharge(ref, undefined);
+  const unmutated = sde.type(item?.mutation?.base ?? item?.type_id ?? -1);
+  const mutable =
+    item !== undefined &&
+    unmutated !== undefined &&
+    canMutate(sde, unmutated) &&
+    (item.mutation === undefined || mutationRollOf(sde, item) !== undefined);
+  const mutate =
+    mutable && ref !== undefined
+      ? (element: HTMLElement) => {
+          const slot = { type: rack, index };
+          if (item.mutation === undefined) {
+            store.setMutation(ref, rollMutation(sde, unmutated.id, mutaplasmidsOf(sde, unmutated.id)[0]!.id, "base"));
+          }
+          showMutate(slot, { element, side });
+        }
+      : undefined;
   const togglePower =
     switchable && stats.maxState !== "offline"
       ? () => store.setState(ref, stats.state === "offline" ? "online" : "offline")
@@ -142,6 +170,10 @@ export function useFittingSlot(
         showChargeInfo && { label: "Show Charge Info", icon: "module-info", onSelect: () => showChargeInfo(anchor) },
         chargeTypeId !== undefined &&
           removeCharge && { label: "Remove Charge", icon: "module-unfit", onSelect: removeCharge },
+        "separator",
+        mutate && { label: item?.mutation ? "Edit Mutation" : "Mutate", onSelect: () => mutate(anchor) },
+        item?.mutation &&
+          ref !== undefined && { label: "Remove Mutation", onSelect: () => store.setMutation(ref, undefined) },
         "separator",
         { label: "Set Filter for Slot", onSelect: () => browse(rack) },
         unfit && { label: "Unfit", icon: "module-unfit", onSelect: unfit },

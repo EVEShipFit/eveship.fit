@@ -1,6 +1,7 @@
 import type { Sde } from "@eveshipfit/sde-loader";
 
 import * as edits from "./edits.js";
+import type { MutationRoll } from "./rules/mutation.js";
 import type { Stats } from "./stats.js";
 import type { Character, DamageProfile, Fit, ItemRef, Slot, State } from "./types.js";
 
@@ -86,6 +87,17 @@ export class FitStore {
     return ref;
   }
 
+  /** Like `fit`, but mutated. */
+  fitMutated(roll: MutationRoll, slot?: Slot): ItemRef | undefined {
+    const { sde } = this.#calculator;
+    const { fit, ref } = edits.fitType(sde, this.#snapshot.fit, this.#snapshot.stats, roll.base, slot);
+    if (ref === undefined) return undefined;
+    const mutated = edits.setMutation(sde, fit, ref, roll);
+    if (mutated === fit) return undefined;
+    this.#commit(mutated);
+    return ref;
+  }
+
   /** To another slot of the same rack, swapping places with what is there. */
   move(ref: ItemRef, slot: Slot) {
     this.#commit(edits.move(this.#snapshot.fit, ref, slot));
@@ -100,6 +112,10 @@ export class FitStore {
   setType(ref: ItemRef, typeId: number) {
     const { sde } = this.#calculator;
     this.#commit(edits.setType(sde, this.#snapshot.fit, this.#snapshot.stats, ref, typeId));
+  }
+
+  setMutation(ref: ItemRef, roll: MutationRoll | undefined) {
+    this.#commit(edits.setMutation(this.#calculator.sde, this.#snapshot.fit, ref, roll));
   }
 
   remove(...refs: ItemRef[]) {
@@ -224,6 +240,7 @@ export class FitStore {
 function equal(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return false;
+  if (a instanceof Map || b instanceof Map) return equal(entries(a), entries(b));
   if (Array.isArray(a) !== Array.isArray(b)) return false;
   const keys = Object.keys(a).filter((key) => (a as Record<string, unknown>)[key] !== undefined);
   const other = Object.keys(b).filter((key) => (b as Record<string, unknown>)[key] !== undefined);
@@ -231,6 +248,10 @@ function equal(a: unknown, b: unknown): boolean {
     keys.length === other.length &&
     keys.every((key) => equal((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key]))
   );
+}
+
+function entries(value: object): Record<string, unknown> {
+  return value instanceof Map ? Object.fromEntries(value) : (value as Record<string, unknown>);
 }
 
 function withoutCharacter({ character: _, ...fit }: Fit): Fit {

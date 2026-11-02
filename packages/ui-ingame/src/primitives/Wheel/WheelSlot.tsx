@@ -39,6 +39,8 @@ export interface WheelSlotProps extends HTMLAttributes<HTMLDivElement> {
   available?: boolean;
   /** Shown, but not fitted yet. */
   preview?: boolean;
+  /** Marks the module as mutated. */
+  mutated?: boolean;
   /** Shown when hovering the slot. */
   tooltip?: ReactNode;
   /** Makes the slot a button, named `label`. */
@@ -68,6 +70,7 @@ export function WheelSlot({
   activatable = false,
   available = true,
   preview = false,
+  mutated = false,
   tooltip,
   onPress,
   onDragStart,
@@ -137,6 +140,7 @@ export function WheelSlot({
     >
       {fitted && <span className={styles.fill} style={texture("classes/fitting/moduleslotfill")} />}
       <span className={styles.frame} style={texture(frameTexture(fitted, preview, state, activatable))} />
+      {fitted && mutated && <span className={styles.mutated} />}
       {fitted &&
         chargeable &&
         ammoBars.map((offset) => (

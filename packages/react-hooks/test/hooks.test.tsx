@@ -553,6 +553,27 @@ test("info of a fitted module is on the fit", () => {
   });
 });
 
+test("info of a mutated module lists what it was mutated from, with the rolled values", () => {
+  const extender = engine.sde.typeByName("Medium Shield Extender II")!.id;
+  const fit = engine.createFit({
+    ship: { type_id: RIFTER },
+    items: [{ type_id: extender, slot: { type: "medium", index: 1 }, state: "active" }],
+  });
+  const gravid = engine.sde.typeByName("Gravid Medium Shield Extender Mutaplasmid")!.id;
+  const power = engine.sde.attributeId("power")!;
+  fit.setMutation(0, { base: extender, mutaplasmid: gravid, attributes: { [power]: 32 } });
+  const abyssal = fit.getSnapshot().fit.items[0]!.type_id;
+  const { result } = render(() => useInfo({ typeId: abyssal, ref: 0 }), { fit });
+
+  expect(result.current.mutatedFrom?.id).toBe(extender);
+  expect(result.current.attributes).toContainEqual({
+    id: power,
+    name: "Powergrid Usage",
+    text: "24 MW",
+    change: "better",
+  });
+});
+
 test("info of a module not fitted is as the SDE has it", () => {
   const extender = engine.sde.typeByName("Medium Shield Extender II")!.id;
   const { result } = render(() => useInfo({ typeId: extender }));

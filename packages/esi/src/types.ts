@@ -93,3 +93,25 @@ export interface FittingItem {
   flag: string;
   quantity: number;
 }
+
+/** A mutated item, as `GET /dogma/dynamic/items/{type_id}/{item_id}` gives it. */
+export interface DynamicItem {
+  created_by: number;
+  /** The type it was before it was mutated. */
+  source_type_id: number;
+  /** The mutaplasmid. */
+  mutator_type_id: number;
+  /** Every attribute of the item, the rolled ones included. */
+  dogma_attributes: DynamicItemAttribute[];
+  dogma_effects: DynamicItemEffect[];
+}
+
+export interface DynamicItemAttribute {
+  attribute_id: number;
+  value: number;
+}
+
+export interface DynamicItemEffect {
+  effect_id: number;
+  is_default: boolean;
+}

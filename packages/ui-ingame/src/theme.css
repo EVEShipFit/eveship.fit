@@ -62,6 +62,7 @@
   --esf-fighter-tube-hover: rgb(255 255 255 / 4%);
   --esf-fighter-full: #78bf42;
   --esf-fighter-empty: #070707;
+  --esf-mutated: #b06cff;
 
   /* EVE's UI scale; 1 is 100%. */
   --esf-scale: 1;

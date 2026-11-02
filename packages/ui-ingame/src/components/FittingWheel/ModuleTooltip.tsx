@@ -12,17 +12,28 @@ export interface ModuleTooltipProps {
   rack: Rack;
   itemRef: ItemRef;
   typeId: number;
+  /** The type the module was before it was mutated. */
+  mutatedFrom?: number;
   chargeTypeId?: number;
   state: SlotState;
   maxState: SlotState;
 }
 
 /** What EVE shows when hovering a fitted module. */
-export function ModuleTooltip({ rack, itemRef, typeId, chargeTypeId, state, maxState }: ModuleTooltipProps) {
+export function ModuleTooltip({
+  rack,
+  itemRef,
+  typeId,
+  mutatedFrom,
+  chargeTypeId,
+  state,
+  maxState,
+}: ModuleTooltipProps) {
   const status = moduleStatus(rack, state, maxState);
   return (
     <span className={styles.tooltip}>
       <TypeRow typeId={typeId} />
+      {mutatedFrom !== undefined && <MutatedFrom typeId={mutatedFrom} />}
       {chargeTypeId !== undefined && <ChargeRow itemRef={itemRef} typeId={chargeTypeId} />}
       <ModuleLines typeId={typeId} itemRef={itemRef} state={state} />
       <span className={styles.status} data-tone={status.tone}>
@@ -42,6 +53,12 @@ export function TypeRow({ typeId, count }: { typeId: number; count?: string }) {
       {count === undefined ? type?.name : `${count} ${type?.name}`}
     </span>
   );
+}
+
+function MutatedFrom({ typeId }: { typeId: number }) {
+  const base = useType(typeId);
+  if (base === undefined) return null;
+  return <span className={`${styles.iconless} ${styles.status}`} data-tone="muted">{`Mutated ${base.name}`}</span>;
 }
 
 /** The loaded charge, with how many; crystals and scripts without. */

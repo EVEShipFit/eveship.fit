@@ -7,6 +7,7 @@ import type {
   Group,
   MarketGroup,
   MetaGroup,
+  Mutaplasmid,
   Type,
 } from "./generated/sde/eve.js";
 import { EffectCategory as RawEffectCategory } from "./generated/sde/eve.js";
@@ -82,6 +83,25 @@ export interface SdeFighterAbilityInfo {
   readonly id: number;
   readonly name: string;
   readonly effectId: number;
+}
+
+/** How far a mutaplasmid can roll an attribute, as a multiplier of its value. */
+export interface SdeMutationRange {
+  readonly min: number;
+  readonly max: number;
+}
+
+/** The types a mutaplasmid works on, and the type they become. */
+export interface SdeMutaplasmidMapping {
+  readonly applicableTypeIds: readonly number[];
+  readonly resultingTypeId: number;
+}
+
+export interface SdeMutaplasmid {
+  readonly id: number;
+  /** By attribute ID. */
+  readonly attributes: ReadonlyMap<number, SdeMutationRange>;
+  readonly mappings: readonly SdeMutaplasmidMapping[];
 }
 
 /**
@@ -219,6 +239,22 @@ export function toMetaGroup(raw: MetaGroup): SdeMetaGroup {
 
 export function toFighterAbility(raw: FighterAbility): SdeFighterAbilityInfo {
   return Object.freeze({ id: raw.id(), name: raw.name() ?? "", effectId: raw.effectId() });
+}
+
+export function toMutaplasmid(raw: Mutaplasmid): SdeMutaplasmid {
+  const attributes = new Map<number, SdeMutationRange>();
+  for (let index = 0; index < raw.attributesLength(); index++) {
+    const attribute = raw.attributes(index)!;
+    attributes.set(attribute.attributeId(), Object.freeze({ min: attribute.min(), max: attribute.max() }));
+  }
+  const mappings = Array.from({ length: raw.mappingsLength() }, (_, index) => {
+    const mapping = raw.mappings(index)!;
+    return Object.freeze({
+      applicableTypeIds: Object.freeze([...(mapping.applicableTypeIdsArray() ?? [])]),
+      resultingTypeId: mapping.resultingTypeId(),
+    });
+  });
+  return Object.freeze({ id: raw.id(), attributes, mappings: Object.freeze(mappings) });
 }
 
 export function toAttribute(raw: DogmaAttribute): SdeAttribute {

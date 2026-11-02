@@ -1,4 +1,11 @@
-import type { CharacterFitting, CharacterSkills, Killmail, MarketPrice, SkillQueueEntry } from "./types.js";
+import type {
+  CharacterFitting,
+  CharacterSkills,
+  DynamicItem,
+  Killmail,
+  MarketPrice,
+  SkillQueueEntry,
+} from "./types.js";
 
 const baseUrl = "https://esi.evetech.net";
 const compatibilityDate = "2026-08-18";
@@ -39,6 +46,12 @@ export class Esi {
   async killmail(id: number, hash: string): Promise<Killmail> {
     const response = await this.#get(`/killmails/${id}/${encodeURIComponent(hash)}`);
     return (await response.json()) as Killmail;
+  }
+
+  /** A mutated item, by its type ID and item ID. */
+  async dynamicItem(typeId: number, itemId: number): Promise<DynamicItem> {
+    const response = await this.#get(`/dogma/dynamic/items/${typeId}/${itemId}`);
+    return (await response.json()) as DynamicItem;
   }
 
   /** A character's skills; needs the `esi-skills.read_skills.v1` scope. */

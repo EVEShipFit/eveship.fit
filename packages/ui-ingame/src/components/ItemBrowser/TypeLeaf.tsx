@@ -1,3 +1,4 @@
+import { canMutate, mutaplasmidsOf, rollMutation } from "@eveshipfit/fitting";
 import {
   formatNumber,
   useDrag,
@@ -5,6 +6,7 @@ import {
   useHasRoom,
   useHullRefuses,
   useImages,
+  useMutate,
   usePreview,
   useRefusal,
   useSde,
@@ -50,6 +52,7 @@ export function useTypeActions(noHullSelected: boolean): {
   const { show, clear } = usePreview();
   const { start, end } = useDrag();
   const { show: showInfo } = useShowInfo();
+  const { show: showMutate } = useMutate();
   const { open, menu } = useContextMenu();
   const [hovered, setHovered] = useState<number>();
   const dragImage = useRef<HTMLSpanElement>(null);
@@ -101,6 +104,19 @@ export function useTypeActions(noHullSelected: boolean): {
         { label: "Show Info", icon: "module-info", onSelect: () => actions.info(type.id, anchor) },
         "separator",
         !noHullSelected && { label: "Fit to Ship", onSelect: () => actions.fit(type.id) },
+        !noHullSelected &&
+          canMutate(sde, type) && {
+            label: "Fit Mutated",
+            onSelect: () => {
+              if (refused(type.id)) {
+                refuse(type.id);
+                return;
+              }
+              const ref = store.fitMutated(rollMutation(sde, type.id, mutaplasmidsOf(sde, type.id)[0]!.id, "base"));
+              const slot = ref === undefined ? undefined : store.getSnapshot().fit.items[ref]?.slot;
+              if (slot !== undefined) showMutate(slot, { element: anchor, side: "right" });
+            },
+          },
       ]);
     },
   };

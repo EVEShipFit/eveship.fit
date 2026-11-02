@@ -23,6 +23,18 @@
   width: calc(var(--slot-size) * var(--wheel-unit));
 }
 
+.mutated {
+  background: var(--esf-mutated);
+  border-radius: var(--wheel-unit);
+  box-shadow: 0 0 calc(5 * var(--wheel-unit)) var(--esf-mutated);
+  height: calc(3 * var(--wheel-unit));
+  left: 50%;
+  position: absolute;
+  top: calc(3 * var(--wheel-unit));
+  translate: -50% 0;
+  width: calc(16 * var(--wheel-unit));
+}
+
 .fill,
 .frame {
   background: var(--colour);

@@ -102,6 +102,22 @@ describe("lookups", () => {
     expect(sde.fighterAbility(-1)).toBeUndefined();
   });
 
+  test("mutaplasmids, with how far they roll each attribute and what they make", () => {
+    const base = sde.typeByName("Large Shield Extender II")!;
+    const names = sde.mutaplasmidsFor(base.id).map(({ id }) => sde.type(id)?.name);
+    expect(names).toContain("Gravid Large Shield Extender Mutaplasmid");
+
+    const gravid = sde.mutaplasmid(sde.typeByName("Gravid Large Shield Extender Mutaplasmid")!.id)!;
+    expect(gravid.attributes.get(sde.attributeId("capacityBonus")!)).toEqual({
+      min: expect.closeTo(0.9),
+      max: expect.closeTo(1.2),
+    });
+    const mapping = gravid.mappings.find(({ applicableTypeIds }) => applicableTypeIds.includes(base.id))!;
+    expect(sde.type(mapping.resultingTypeId)?.name).toBe("Large Abyssal Shield Extender");
+    expect(sde.mutaplasmid(RIFTER)).toBeUndefined();
+    expect(sde.mutaplasmidsFor(RIFTER)).toEqual([]);
+  });
+
   test("the engine's own attributes have negative IDs", () => {
     expect(sde.attribute(-1)?.name).toBe("alignTime");
     expect(sde.attributeId("alignTime")).toBe(-1);

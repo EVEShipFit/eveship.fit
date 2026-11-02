@@ -257,6 +257,64 @@ export const ShowInfo: Story = {
   },
 };
 
+/** Mutate opens next to the slot; picking a mutaplasmid and rolling count in the fit. */
+export const Mutate: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    const extender = () => canvas.getByRole("button", { name: /Shield Extender/ });
+    await fireEvent.contextMenu(extender());
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Mutate" }));
+    const window = canvas.getByRole("region", { name: "Mutate Small Shield Extender II" });
+    await expect(extender()).toHaveAccessibleName("Small Abyssal Shield Extender, online");
+    await expect(within(window).getByText("Fitted · Mid Slot 2")).toBeVisible();
+    await expect(within(window).getAllByText("0%")).toHaveLength(within(window).getAllByRole("slider").length);
+
+    await userEvent.click(within(window).getByRole("button", { name: "Decayed" }));
+    await userEvent.click(within(window).getByRole("menuitemradio", { name: "Unstable" }));
+    await expect(within(window).queryByRole("menu")).toBeNull();
+    await expect(within(window).getByText("Unstable Small Shield Extender Mutaplasmid")).toBeVisible();
+
+    const rolled = () =>
+      within(window)
+        .getAllByRole("slider")
+        .map((slider) => slider.getAttribute("aria-valuetext"))
+        .join();
+    const before = rolled();
+    await userEvent.click(within(window).getByRole("button", { name: "Roll" }));
+    await waitFor(() => expect(rolled()).not.toBe(before));
+
+    await userEvent.click(within(window).getByRole("button", { name: "More Rolls" }));
+    await userEvent.click(within(window).getByRole("menuitem", { name: "Best Roll" }));
+    const slider = (name: string) => within(window).getByRole<HTMLInputElement>("slider", { name });
+    const at = (name: string, end: "min" | "max") =>
+      expect(Number(slider(name).value)).toBeCloseTo(Number(slider(name)[end]));
+    await waitFor(() => at("Shield Hitpoint Bonus", "max"));
+    await at("CPU usage", "min");
+    await expect(canvas.getByRole("region", { name: /^Mutate/ })).toBeVisible();
+  },
+};
+
+/** The Import tab rolls the module like one copied from Pyfa. */
+export const MutateImport: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    await fireEvent.contextMenu(canvas.getByRole("button", { name: /Shield Extender/ }));
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Mutate" }));
+    const window = canvas.getByRole("region", { name: "Mutate Small Shield Extender II" });
+
+    await userEvent.click(within(window).getByRole("tab", { name: "Import" }));
+    await userEvent.type(
+      within(window).getByRole("textbox"),
+      "Small Shield Extender II{Enter}Gravid Small Shield Extender Mutaplasmid{Enter}cpu 20",
+    );
+    await userEvent.click(within(window).getByRole("button", { name: "Apply" }));
+
+    await expect(within(window).getByRole("tab", { name: "Attributes" })).toHaveAttribute("aria-selected", "true");
+    await expect(within(window).getByRole("button", { name: "Gravid" })).toBeVisible();
+    await expect(within(window).getByRole("slider", { name: "CPU usage" })).toHaveAttribute("aria-valuetext", "20 tf");
+  },
+};
+
 /** Show Info on the fit name shows the hull, with the values on the fit. */
 export const ShowInfoHull: Story = {
   parameters: { fit: rifter },

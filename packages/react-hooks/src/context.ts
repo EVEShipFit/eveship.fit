@@ -1,4 +1,4 @@
-import type { Engine, FitStore, ItemRef, Preview, Rack } from "@eveshipfit/fitting";
+import type { Engine, FitStore, ItemRef, Preview, Rack, Slot } from "@eveshipfit/fitting";
 import type { Images } from "@eveshipfit/images";
 import type { Texts } from "@eveshipfit/sde-loader";
 import type { ZKillboard } from "@eveshipfit/zkillboard";
@@ -70,6 +70,17 @@ export interface InfoState {
   setShown: (shown: ShownInfo | undefined) => void;
 }
 
+/** The slot of a fitted module to mutate, and what the window points at. */
+export interface ShownMutation {
+  readonly slot: Slot;
+  readonly anchor?: InfoAnchor;
+}
+
+export interface MutateState {
+  shown: ShownMutation | undefined;
+  setShown: (shown: ShownMutation | undefined) => void;
+}
+
 export interface CharacterState {
   /** The ID of the character flying the fit, as `useCharacters` lists it. */
   current: string;
@@ -89,6 +100,7 @@ export const DragContext = createContext<DragState | undefined>(undefined);
 export const BrowseContext = createContext<BrowseState | undefined>(undefined);
 export const RefusalContext = createContext<RefusalState | undefined>(undefined);
 export const InfoContext = createContext<InfoState | undefined>(undefined);
+export const MutateContext = createContext<MutateState | undefined>(undefined);
 export const CharacterContext = createContext<CharacterState | undefined>(undefined);
 export const DamageProfileContext = createContext<DamageProfileState | undefined>(undefined);
 export const DamageProfilesContext = createContext<DamageProfiles | undefined>(undefined);
