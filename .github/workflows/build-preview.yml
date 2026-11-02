@@ -1,0 +1,61 @@
+name: Build preview
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VITE_PREVIEW: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Use the latest SDE and images
+        run: pnpm update -r --no-save @eveshipfit/sde @eveshipfit/images
+
+      - name: Set the version
+        run: echo "EVESHIPFIT_VERSION=$(git describe --tags)" >> "$GITHUB_ENV"
+
+      - name: Build website
+        run: pnpm --filter @eveshipfit/web build
+
+      - name: Build Storybook
+        run: pnpm --filter @eveshipfit/storybook build
+
+      - name: Upload website preview
+        uses: actions/upload-artifact@v7
+        with:
+          name: preview
+          path: apps/web/dist
+          include-hidden-files: true
+          retention-days: 7
+
+      - name: Upload Storybook preview
+        uses: actions/upload-artifact@v7
+        with:
+          name: storybook-preview
+          path: apps/storybook/dist
+          retention-days: 7

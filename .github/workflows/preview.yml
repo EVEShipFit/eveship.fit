@@ -2,7 +2,7 @@ name: Preview
 
 on:
   workflow_run:
-    workflows: [CI]
+    workflows: [Build preview]
     types: [completed]
 
 # This workflow has secrets, so it never runs code or config from the pull request; it only uploads the files CI built.
@@ -42,7 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # `name` is both the CI artifact and the GitHub environment.
+        # `name` is both the build artifact and the GitHub environment.
         include:
           - app: web
             name: preview
