@@ -27,7 +27,9 @@ export function Fitting({ data, layout, skills }: FittingProps) {
 
   const scale = { "--esf-scale": layout.scale } as CSSProperties;
   const panelScale = { "--esf-scale": layout.panelScale } as CSSProperties;
-  const placeholder = empty ? `To start, select a hull ${layout.stacked ? "below" : "on the left"}.` : undefined;
+  const placeholder = empty
+    ? `To start, right-click a hull ${layout.stacked ? "below" : "on the left"} and pick Simulate Ship.`
+    : undefined;
 
   return (
     <EveShipFitProvider
