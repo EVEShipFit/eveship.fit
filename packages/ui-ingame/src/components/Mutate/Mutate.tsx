@@ -247,7 +247,9 @@ function Stat({ range, value, onChange, onFinish }: StatProps) {
 
   return (
     <div className={styles.stat}>
-      <span className={styles.name}>{name}</span>
+      <span className={styles.name} title={name}>
+        {name}
+      </span>
       <span
         className={styles.slider}
         style={{ "--base": base } as CSSProperties}

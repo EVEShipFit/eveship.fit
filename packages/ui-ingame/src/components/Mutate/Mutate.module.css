@@ -236,7 +236,7 @@
   display: grid;
   font-size: calc(11 * var(--info-unit));
   gap: calc(4 * var(--info-unit)) calc(8 * var(--info-unit));
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto calc(44 * var(--info-unit));
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) calc(84 * var(--info-unit)) calc(44 * var(--info-unit));
 }
 
 .stat {
