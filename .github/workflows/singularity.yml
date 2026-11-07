@@ -1,0 +1,90 @@
+name: Singularity
+
+on:
+  workflow_dispatch:
+    inputs:
+      sde:
+        description: Version or tag of @eveshipfit/sde
+        default: singularity
+      retire:
+        description: Redirect sisi.eveship.fit to eveship.fit
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency: ${{ github.workflow }}
+
+jobs:
+  deploy:
+    if: ${{ !inputs.retire }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Use the Singularity SDE and the latest images
+        env:
+          SDE: ${{ inputs.sde }}
+        run: pnpm update -r --no-save "@eveshipfit/sde@$SDE" @eveshipfit/images
+
+      - name: Require the ESI client ID
+        if: vars.ESI_CLIENT_ID_SINGULARITY == ''
+        run: echo "::error::Set the ESI_CLIENT_ID_SINGULARITY repository variable" && exit 1
+
+      - name: Set the version
+        run: echo "EVESHIPFIT_VERSION=$(git describe --tags)" >> "$GITHUB_ENV"
+
+      - name: Build website
+        env:
+          VITE_PREVIEW: true
+          VITE_ESI_CLIENT_ID: ${{ vars.ESI_CLIENT_ID_SINGULARITY }}
+        run: pnpm --filter @eveshipfit/web build
+
+      - name: Deploy sisi.eveship.fit
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler deploy --config apps/web/wrangler.jsonc --env singularity
+
+  retire:
+    if: ${{ inputs.retire }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Redirect sisi.eveship.fit to eveship.fit
+        working-directory: ${{ runner.temp }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          cat > redirect.js <<'JS'
+          export default {
+            fetch(request) {
+              const url = new URL(request.url);
+              url.hostname = "eveship.fit";
+              return Response.redirect(url, 302);
+            },
+          };
+          JS
+          npx --yes wrangler@4 deploy redirect.js --name eveship-fit-singularity --compatibility-date 2026-09-01 \
+            --domain sisi.eveship.fit
