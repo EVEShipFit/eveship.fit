@@ -18,5 +18,10 @@
       "routes": [{ "pattern": "eveship.fit", "custom_domain": true }],
       "version_metadata": { "binding": "VERSION" },
     },
+    "singularity": {
+      "name": "eveship-fit-singularity",
+      "routes": [{ "pattern": "sisi.eveship.fit", "custom_domain": true }],
+      "version_metadata": { "binding": "VERSION" },
+    },
   },
 }
