@@ -80,8 +80,8 @@ The website's build takes its client ID from `VITE_ESI_CLIENT_ID`.
 - A push to `main` deploys [next.eveship.fit](https://next.eveship.fit) and
   [storybook.eveship.fit](https://storybook.eveship.fit).
 - Publishing a GitHub release deploys [eveship.fit](https://eveship.fit).
-- A Singularity release of `@eveshipfit/sde` deploys [sisi.eveship.fit](https://sisi.eveship.fit). Run the Singularity
-  workflow with `retire` to redirect it to eveship.fit.
+- A Singularity release of `@eveshipfit/sde` or `@eveshipfit/images` deploys
+  [sisi.eveship.fit](https://sisi.eveship.fit). Run the Singularity workflow with `retire` to redirect it to eveship.fit.
 
 ## License
 
