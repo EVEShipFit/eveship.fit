@@ -4,7 +4,6 @@ import {
   useAttribute,
   useCanFit,
   useDrag,
-  useEngine,
   useFit,
   useShownSnapshot,
   useFitStore,
@@ -23,7 +22,7 @@ import {
   type DragItem,
   type SlotContent,
 } from "@eveshipfit/react-hooks";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useContextMenu } from "../../primitives/ContextMenu/ContextMenu";
 import { rackSize, slotAngle, type WheelRack } from "../../primitives/Wheel/layout";
@@ -38,6 +37,7 @@ import { WheelNotice } from "../../primitives/Wheel/WheelNotice";
 import { WheelRackMarker, type MarkedRack } from "../../primitives/Wheel/WheelRackMarker";
 import { WheelSlot } from "../../primitives/Wheel/WheelSlot";
 import { FittingAugmentations } from "./FittingAugmentations";
+import { useFitLink } from "./fitLink";
 import { allowDrop, copyKey, useFittingSlot } from "./fittingSlot";
 import styles from "./FittingWheel.module.css";
 
@@ -98,11 +98,7 @@ function onEveShipFit(): boolean {
 }
 
 function EveShipFitLink({ text = "open on eveship.fit" }: { text?: string }) {
-  const engine = useEngine();
-  const fit = useFit();
-  const href = useMemo(() => `https://eveship.fit/?fit=${engine.saveLink(fit)}`, [engine, fit]);
-
-  return <WheelLink href={href} text={text} />;
+  return <WheelLink href={useFitLink()} text={text} />;
 }
 
 function FittingRack({ rack, readOnly }: { rack: WheelRack; readOnly: boolean }) {
