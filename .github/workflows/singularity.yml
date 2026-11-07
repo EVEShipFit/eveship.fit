@@ -6,6 +6,9 @@ on:
       sde:
         description: Version or tag of @eveshipfit/sde
         default: singularity
+      images:
+        description: Version or tag of @eveshipfit/images
+        default: singularity
       retire:
         description: Redirect sisi.eveship.fit to eveship.fit
         type: boolean
@@ -38,10 +41,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Use the Singularity SDE and the latest images
+      - name: Use the Singularity SDE and images
         env:
           SDE: ${{ inputs.sde }}
-        run: pnpm update -r --no-save "@eveshipfit/sde@$SDE" @eveshipfit/images
+          IMAGES: ${{ inputs.images }}
+        run: pnpm update -r --no-save "@eveshipfit/sde@$SDE" "@eveshipfit/images@$IMAGES"
 
       - name: Require the ESI client ID
         if: vars.ESI_CLIENT_ID_SINGULARITY == ''
