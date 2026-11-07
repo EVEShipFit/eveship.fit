@@ -37,7 +37,9 @@ import { ServiceSlot } from "../../primitives/ServiceSlot/ServiceSlot";
 import { Tooltip, TooltipText } from "../../primitives/Tooltip/Tooltip";
 import { Wheel } from "../../primitives/Wheel/Wheel";
 import { allowDrop, useFittingSlot } from "../FittingWheel/fittingSlot";
+import { useFitLink } from "../FittingWheel/fitLink";
 import { FittingWheel } from "../FittingWheel/FittingWheel";
+import { useCopyText, useFlash } from "../ItemBrowser/copyFit";
 import { ItemInfo } from "../ItemInfo/ItemInfo";
 import { Mutate } from "../Mutate/Mutate";
 import { ShipBonuses } from "../ShipBonuses/ShipBonuses";
@@ -268,7 +270,7 @@ function FitName() {
           <Icon name="module-info" />
         </button>
       </Tooltip>
-      <NotImplementedButton className={styles.icon} icon="link" label="Link Fit" />
+      <LinkFitButton />
       {editing ? (
         <input
           className={styles.fitNameInput}
@@ -381,13 +383,20 @@ function Violations() {
   );
 }
 
-function NotImplementedButton({ className, icon, label }: { className?: string; icon: IconName; label: string }) {
+function LinkFitButton() {
+  const link = useFitLink();
+  const { copy, dialog } = useCopyText("Link Fit", "link", 4);
+  const [copied, flashCopied] = useFlash();
+
   return (
-    <Tooltip label={`${label} (not implemented yet)`}>
-      <button type="button" className={className} aria-label={label} aria-disabled>
-        <Icon name={icon} />
-      </button>
-    </Tooltip>
+    <>
+      <Tooltip label={copied ? "Link copied" : "Link Fit"}>
+        <button type="button" className={styles.icon} aria-label="Link Fit" onClick={() => copy(link, flashCopied)}>
+          <Icon name="link" />
+        </button>
+      </Tooltip>
+      {dialog}
+    </>
   );
 }
 

@@ -12,10 +12,8 @@ import { useEffect, useId, useState } from "react";
 import { Dialog } from "../../primitives/Dialog/Dialog";
 import { Icon } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
-import { useCopyFit } from "./copyFit";
+import { useCopyFit, useFlash } from "./copyFit";
 import styles from "./ItemBrowser.module.css";
-
-const FLASH_MS = 2000;
 
 interface Draft {
   text: string;
@@ -244,18 +242,6 @@ function ImportForm({ draft, onDone }: { draft: Draft; onDone: () => void }) {
       </div>
     </form>
   );
-}
-
-function useFlash(): [boolean, () => void] {
-  const [shown, setShown] = useState(0);
-
-  useEffect(() => {
-    if (shown === 0) return;
-    const timer = setTimeout(() => setShown(0), FLASH_MS);
-    return () => clearTimeout(timer);
-  }, [shown]);
-
-  return [shown > 0, () => setShown(Date.now())];
 }
 
 /** Fits a mutated item from the game in the first free slot of its rack, rolled as it is. */

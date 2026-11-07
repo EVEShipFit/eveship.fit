@@ -330,6 +330,32 @@ export const ShowInfoHull: Story = {
   },
 };
 
+/** The link icon next to the fit name copies a link to the fit. */
+export const LinkFit: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    const writeText = spyOn(navigator.clipboard, "writeText").mockResolvedValue();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Link Fit" }));
+    await expect(writeText).toHaveBeenLastCalledWith(expect.stringMatching(/^https:\/\/eveship\.fit\/\?fit=esf1:/));
+    await expect(await canvas.findByText("Link copied")).toBeVisible();
+  },
+};
+
+/** A refused clipboard shows the link to copy by hand. */
+export const LinkFitRefused: Story = {
+  parameters: { fit: rifter },
+  play: async ({ canvas, userEvent }) => {
+    spyOn(navigator.clipboard, "writeText").mockRejectedValue(new Error("Denied"));
+
+    await userEvent.click(canvas.getByRole("button", { name: "Link Fit" }));
+    const dialog = within(await canvas.findByRole("dialog", { name: "Link Fit" }));
+    await expect(dialog.getByRole<HTMLTextAreaElement>("textbox").value).toMatch(
+      /^https:\/\/eveship\.fit\/\?fit=esf1:/,
+    );
+  },
+};
+
 /** Variations lists the fitted one among the others; double clicking another fits it in its place. */
 export const ShowInfoVariations: Story = {
   parameters: { fit: rifter },
