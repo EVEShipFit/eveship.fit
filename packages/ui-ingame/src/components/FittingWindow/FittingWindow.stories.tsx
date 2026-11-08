@@ -1044,6 +1044,47 @@ export const CargoHold: Story = {
   },
 };
 
+/** Drones mutate per row of the bay; the window can give every drone its own roll. */
+export const MutateDrones: Story = {
+  parameters: {
+    fit: {
+      ship: { type_id: types.Tristan },
+      items: [{ type_id: types["Hobgoblin II"], slot: { type: "drone_bay" }, quantity: 3, state: "active" }],
+    },
+  },
+  play: async ({ canvas, userEvent }) => {
+    const bay = canvas.getByRole("button", { name: "Drone Bay" });
+    await userEvent.click(bay);
+    const row = () => canvas.getByRole("listitem");
+    await fireEvent.contextMenu(row());
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Mutate" }));
+    const window = await canvas.findByRole("region", { name: "Mutate Hobgoblin II" });
+    await expect(window).toBeVisible();
+    await expect(within(window).getByText("Fitted · Drone Bay")).toBeVisible();
+    await expect(within(window).queryByRole("button", { name: /^Drone 1/ })).toBeNull();
+
+    await userEvent.click(within(window).getByRole("button", { name: "Each Drone Its Own Roll" }));
+    const chip = (index: number) => within(window).getByRole("button", { name: new RegExp(`^Drone ${index}`) });
+    await expect(chip(3)).toBeVisible();
+    await userEvent.click(chip(2));
+    await userEvent.click(within(window).getByRole("button", { name: "Roll Drone 2" }));
+    await waitFor(() => expect(chip(2)).not.toHaveTextContent(/0%$/));
+    await expect(chip(1)).toHaveTextContent(/0%$/);
+    await expect(within(window).getByRole("button", { name: "Roll All 3" })).toBeVisible();
+
+    await userEvent.click(within(window).getByRole("button", { name: "One Roll for All 3" }));
+    await expect(within(window).queryByRole("button", { name: /^Drone 1/ })).toBeNull();
+    await userEvent.click(within(window).getByRole("button", { name: "Close" }));
+
+    await userEvent.click(bay);
+    await expect(row()).toHaveTextContent("Mutated Hobgoblin II");
+    await expect(row()).not.toHaveTextContent("rolls");
+    await fireEvent.contextMenu(row());
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Remove Mutation" }));
+    await waitFor(() => expect(row()).not.toHaveTextContent("Mutated"));
+  },
+};
+
 export const DroneTooltip: Story = {
   parameters: {
     fit: {

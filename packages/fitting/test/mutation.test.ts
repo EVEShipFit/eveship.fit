@@ -3,7 +3,9 @@ import { beforeAll, describe, expect, test } from "vitest";
 
 import {
   canMutate,
+  distinctRolls,
   Engine,
+  mutatedDronesOf,
   mutaplasmidsOf,
   mutationRanges,
   mutationRollOf,
@@ -12,7 +14,10 @@ import {
   rollMutation,
   type FitStore,
   type MutationRoll,
+  type RollKind,
 } from "../src/index.js";
+import { loadLink, saveLink } from "../src/link.js";
+import { loadText, saveText } from "../src/text.js";
 import { testEngine, typeIdOf } from "./engine.js";
 
 let engine: Engine;
@@ -182,10 +187,8 @@ describe("canMutate", () => {
     expect(canMutate(engine.sde, engine.sde.type(id("200mm AutoCannon II"))!)).toBe(false);
   });
 
-  test("not drones", () => {
-    const drone = engine.sde.type(id("Hobgoblin II"))!;
-    expect(engine.sde.mutaplasmidsFor(drone.id).length).toBeGreaterThan(0);
-    expect(canMutate(engine.sde, drone)).toBe(false);
+  test("drones with a mutaplasmid", () => {
+    expect(canMutate(engine.sde, engine.sde.type(id("Hobgoblin II"))!)).toBe(true);
   });
 
   test("mutaplasmids, the one that rolls least first", () => {
@@ -314,5 +317,195 @@ describe("loadMutation", () => {
       mutaplasmid: gravid,
       attributes: { [attribute("capacityBonus")]: 3000 },
     });
+  });
+});
+
+function bay(fit: FitStore) {
+  return fit.getSnapshot().fit.items.map(({ quantity, state }) => [quantity, state]);
+}
+
+describe("mutated drones", () => {
+  let hobgoblin: number;
+  let firepower: number;
+
+  beforeAll(() => {
+    hobgoblin = id("Hobgoblin II");
+    firepower = id("Exigent Light Drone Firepower Mutaplasmid");
+  });
+
+  const roll = (kind: RollKind) => rollMutation(engine.sde, hobgoblin, firepower, kind);
+  const drones = (fit: FitStore) => mutatedDronesOf(engine.sde, fit.getSnapshot().fit, hobgoblin)!;
+
+  function vexorWith(count: number): FitStore {
+    const fit = engine.createFit({ ship: id("Vexor") });
+    for (let drone = 0; drone < count; drone++) fit.fit(hobgoblin);
+    return fit;
+  }
+
+  function mutated(count: number): FitStore {
+    const fit = vexorWith(count);
+    fit.setDronesMutation([0], roll("base"));
+    return fit;
+  }
+
+  test("a row mutates as a whole, in one step of the history", () => {
+    const fit = vexorWith(3);
+    const before = fit.historyLength;
+
+    fit.setDronesMutation([0], roll("best"));
+
+    expect(fit.historyLength).toBe(before + 1);
+    expect(drones(fit).rolls).toHaveLength(3);
+    expect(distinctRolls(drones(fit).rolls)).toBe(1);
+  });
+
+  test("every drone can have its own roll, and only those change", () => {
+    const fit = mutated(3);
+    const { rolls } = drones(fit);
+
+    fit.setMutatedDrones(hobgoblin, rolls.with(1, roll("best")));
+
+    expect(distinctRolls(drones(fit).rolls)).toBe(2);
+    expect(bay(fit)).toEqual([
+      [1, "active"],
+      [1, "active"],
+      [1, "active"],
+    ]);
+    expect(drones(fit).rolls[0]!.attributes).toEqual(rolls[0]!.attributes);
+  });
+
+  test("the stats follow each drone's roll", () => {
+    const fit = mutated(2);
+    fit.setMutatedDrones(hobgoblin, [roll("best"), roll("worst")]);
+    const damage = fit.getSnapshot().stats.items.map((item) => item.attributes.get("damageMultiplier")!);
+
+    expect(damage[0]).toBeGreaterThan(damage[1]!);
+  });
+
+  test("the same roll stacks again", () => {
+    const fit = mutated(3);
+    fit.setMutatedDrones(hobgoblin, [roll("best"), roll("worst"), roll("worst")]);
+    expect(fit.getSnapshot().fit.items).toHaveLength(2);
+
+    fit.setMutatedDrones(
+      hobgoblin,
+      drones(fit).rolls.map(() => roll("best")),
+    );
+
+    expect(bay(fit)).toEqual([[3, "active"]]);
+  });
+
+  test("launching keeps the rolls, the first ones first", () => {
+    const fit = mutated(3);
+    fit.setMutatedDrones(hobgoblin, [roll("best"), roll("worst"), roll("worst")]);
+    const { rolls } = drones(fit);
+
+    fit.setActiveMutatedDrones(hobgoblin, 1);
+
+    expect(drones(fit).active).toBe(1);
+    expect(drones(fit).rolls).toEqual(rolls);
+    expect(bay(fit)).toEqual([
+      [1, "active"],
+      [2, "offline"],
+    ]);
+  });
+
+  test("more drones copy the last roll, fewer drop the last ones", () => {
+    const fit = mutated(2);
+    fit.setMutatedDrones(hobgoblin, [roll("best"), roll("worst")]);
+
+    fit.setMutatedDroneQuantity(hobgoblin, 4);
+    expect(drones(fit).rolls).toHaveLength(4);
+    expect(drones(fit).rolls[3]!.attributes).toEqual(drones(fit).rolls[1]!.attributes);
+
+    fit.setMutatedDroneQuantity(hobgoblin, 1);
+    expect(distinctRolls(drones(fit).rolls)).toBe(1);
+    expect(drones(fit).rolls).toHaveLength(1);
+  });
+
+  test("an edit that changes nothing is not in the history", () => {
+    const fit = mutated(2);
+    const before = fit.historyLength;
+
+    fit.setMutatedDrones(hobgoblin, drones(fit).rolls);
+
+    expect(fit.historyLength).toBe(before);
+  });
+
+  test("an edit that changes nothing is not in the history, however the drones are stacked", () => {
+    const fit = engine.createFit({ ship: id("Vexor") });
+    fit.fitMutated(roll("best"));
+    fit.fitMutated(roll("best"));
+    const before = fit.historyLength;
+
+    fit.setMutatedDrones(hobgoblin, drones(fit).rolls);
+
+    expect(fit.historyLength).toBe(before);
+  });
+
+  test("a new drone launches, not an idle one before it", () => {
+    const fit = mutated(3);
+    fit.setMutatedDrones(hobgoblin, [roll("best"), roll("worst"), roll("base")]);
+    fit.setActiveMutatedDrones(hobgoblin, 1);
+    const { rolls } = drones(fit);
+
+    fit.setMutatedDroneQuantity(hobgoblin, 4);
+
+    expect(drones(fit).active).toBe(2);
+    expect(drones(fit).rolls[1]!.attributes).toEqual(rolls[2]!.attributes);
+    expect(drones(fit).rolls[2]!.attributes).toEqual(rolls[1]!.attributes);
+  });
+
+  test("each drone keeps a mutaplasmid that can roll it", () => {
+    const fit = mutated(2);
+    const durability = id("Exigent Light Drone Durability Mutaplasmid");
+    fit.setMutatedDrones(hobgoblin, [roll("best"), rollMutation(engine.sde, hobgoblin, durability, "best")]);
+
+    expect(drones(fit).rolls.map(({ mutaplasmid }) => mutaplasmid)).toEqual([firepower, durability]);
+  });
+
+  test("no mutated drone on a ship without a drone bay", () => {
+    const fit = engine.createFit({ ship: id("Rifter") });
+
+    expect(fit.fitMutated(roll("best"))).toBeUndefined();
+    expect(fit.getSnapshot().fit.items).toHaveLength(0);
+  });
+
+  test("removing the mutation gives plain drones back", () => {
+    const fit = mutated(2);
+    fit.setMutatedDrones(hobgoblin, [roll("best"), roll("worst")]);
+
+    fit.setDronesMutation(drones(fit).refs, undefined);
+
+    const { items } = fit.getSnapshot().fit;
+    expect(items.every(({ type_id, mutation }) => type_id === hobgoblin && mutation === undefined)).toBe(true);
+  });
+
+  test("a mutated drone is added next to plain ones, not over them", () => {
+    const fit = vexorWith(2);
+
+    fit.fitMutated(roll("best"));
+
+    expect(drones(fit).rolls).toHaveLength(1);
+    expect(fit.getSnapshot().fit.items[0]!.type_id).toBe(hobgoblin);
+    expect(fit.getSnapshot().fit.items[0]!.quantity).toBe(2);
+  });
+
+  test.each(["link", "esf"])("different rolls survive the %s format, equal ones stack", async (format) => {
+    const fit = mutated(3);
+    fit.setMutatedDrones(hobgoblin, [roll("best"), roll("best"), roll("worst")]);
+    const saved = fit.getSnapshot().fit;
+    const character = fit.character;
+
+    const loaded =
+      format === "link"
+        ? await loadLink(saveLink(saved), undefined, character)
+        : loadText(saveText(saved, "esf"), character);
+
+    expect(loaded.items.map(({ quantity }) => quantity)).toEqual([2, 1]);
+    const back = mutatedDronesOf(engine.sde, loaded, hobgoblin)!;
+    expect(back.rolls.map(({ attributes }) => attributes)).toEqual(
+      drones(fit).rolls.map(({ attributes }) => attributes),
+    );
   });
 });

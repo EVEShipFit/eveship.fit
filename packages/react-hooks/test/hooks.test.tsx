@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { Esi, type Sso } from "@eveshipfit/esi";
-import { Engine, type FitStore } from "@eveshipfit/fitting";
+import { Engine, rollMutation, type FitStore } from "@eveshipfit/fitting";
 import type { Images } from "@eveshipfit/images";
 import type { MarketGroupNode, ModuleGroupNode, SdeType } from "@eveshipfit/sde-loader";
 import { ZKillboard } from "@eveshipfit/zkillboard";
@@ -251,6 +251,34 @@ test("bay contents are one entry per type, by name", () => {
   ]);
   expect(result.current.drones.map(({ type, quantity, active, refs }) => [type.name, quantity, active, refs])).toEqual([
     ["Warrior II", 5, 2, [1, 3]],
+  ]);
+});
+
+test("bay contents list mutated drones apart from plain ones, with how many rolls they have", () => {
+  const byName = (name: string) => engine.sde.typeByName(name)!;
+  const hobgoblin = byName("Hobgoblin II").id;
+  const plasmid = byName("Exigent Light Drone Firepower Mutaplasmid").id;
+  const roll = (kind: "best" | "worst") => rollMutation(engine.sde, hobgoblin, plasmid, kind);
+  const fit = engine.createFit({
+    ship: { type_id: byName("Vexor").id },
+    items: [{ type_id: hobgoblin, slot: { type: "drone_bay" }, quantity: 2, state: "active" }],
+  });
+  fit.setDronesMutation([0], roll("best"));
+  fit.fit(hobgoblin);
+  fit.setMutatedDrones(hobgoblin, [roll("best"), roll("worst")]);
+
+  const { result } = render(() => useBayContents("droneBay"), { fit });
+
+  expect(
+    result.current.map(({ type, mutatedFrom, quantity, rolls }) => [
+      type.id === hobgoblin,
+      mutatedFrom?.name,
+      quantity,
+      rolls,
+    ]),
+  ).toEqual([
+    [true, undefined, 1, 1],
+    [false, "Hobgoblin II", 2, 2],
   ]);
 });
 

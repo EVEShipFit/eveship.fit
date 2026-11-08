@@ -4,7 +4,15 @@ import { droneRoom } from "./rules/drones.js";
 import { firstFreeTube, squadronSize, tubeTakes } from "./rules/fighters.js";
 import { acceptsCharge } from "./rules/filters.js";
 import { modesOf } from "./rules/modes.js";
-import { canMutate, completeRoll, mutatedTypeOf, rolledValues, type MutationRoll } from "./rules/mutation.js";
+import {
+  canMutate,
+  completeRoll,
+  mutatedDronesOf,
+  mutatedTypeOf,
+  rolledValues,
+  type MutatedDrones,
+  type MutationRoll,
+} from "./rules/mutation.js";
 import { firstFreeIndex, placementOf } from "./rules/placement.js";
 import type { Stats } from "./stats.js";
 import type { Fit, FitItem, ItemRef, Slot, SlotType, State } from "./types.js";
@@ -170,6 +178,100 @@ export function setMutation(sde: Sde, fit: Fit, ref: ItemRef, roll: MutationRoll
     type_id: type.id,
     mutation: { base: roll.base, attributes },
   }));
+}
+
+/** Mutate stacks of drones with one roll, or with `undefined` turn them back. */
+export function setDronesMutation(sde: Sde, fit: Fit, refs: readonly ItemRef[], roll: MutationRoll | undefined): Fit {
+  return refs.reduce((next, ref) => setMutation(sde, next, ref, roll), fit);
+}
+
+/** One more mutated drone, launched while there is room. */
+export function addMutatedDrone(sde: Sde, fit: Fit, stats: Stats, roll: MutationRoll): Placed {
+  const base = sde.type(roll.base);
+  const typeId = mutatedTypeOf(sde, roll.base, roll.mutaplasmid);
+  if (base === undefined || typeId === undefined || !canMutate(sde, base) || stats.droneBay.total === 0) {
+    return { fit, ref: undefined };
+  }
+  return append(fit, {
+    type_id: typeId,
+    slot: { type: "drone_bay" },
+    quantity: 1,
+    state: droneRoom(sde, stats, base) > 0 ? "active" : "offline",
+    mutation: { base: roll.base, attributes: completeRoll(sde, roll).attributes },
+  });
+}
+
+/** The roll of each drone mutated from `base`, in the order of `mutatedDronesOf`. */
+export function setMutatedDrones(sde: Sde, fit: Fit, base: number, rolls: readonly MutationRoll[]): Fit {
+  const drones = mutatedDronesOf(sde, fit, base);
+  return drones ? writeDrones(sde, fit, drones, rolls, drones.active) : fit;
+}
+
+/** Of the drones mutated from `base`, launch the first `count`. */
+export function setActiveMutatedDrones(sde: Sde, fit: Fit, base: number, count: number): Fit {
+  const drones = mutatedDronesOf(sde, fit, base);
+  return drones ? writeDrones(sde, fit, drones, drones.rolls, count) : fit;
+}
+
+/** How many drones are mutated from `base`; new ones copy the last roll and are launched while there is room. */
+export function setMutatedDroneQuantity(sde: Sde, fit: Fit, stats: Stats, base: number, quantity: number): Fit {
+  const type = sde.type(base);
+  const drones = mutatedDronesOf(sde, fit, base);
+  if (type === undefined || drones === undefined || !Number.isSafeInteger(quantity)) return fit;
+  const { rolls, active } = drones;
+  if (quantity <= rolls.length) return writeDrones(sde, fit, drones, rolls.slice(0, Math.max(0, quantity)), active);
+
+  const added = quantity - rolls.length;
+  const launched = Math.min(added, droneRoom(sde, stats, type));
+  const copies = (count: number) => Array.from({ length: count }, () => rolls.at(-1)!);
+  const grown = [...rolls.slice(0, active), ...copies(launched), ...rolls.slice(active), ...copies(added - launched)];
+  return writeDrones(sde, fit, drones, grown, active + launched);
+}
+
+/** The drones become stacks of the same roll and state, where the first one was. */
+function writeDrones(sde: Sde, fit: Fit, drones: MutatedDrones, rolls: readonly MutationRoll[], count: number): Fit {
+  const active = Math.max(0, Math.min(count, rolls.length));
+  const stacks: FitItem[] = [];
+  for (const [index, roll] of rolls.entries()) {
+    const typeId = mutatedTypeOf(sde, roll.base, roll.mutaplasmid);
+    if (typeId === undefined) return fit;
+    const drone: FitItem = {
+      type_id: typeId,
+      slot: { type: "drone_bay" },
+      quantity: 1,
+      state: index < active ? "active" : "offline",
+      mutation: { base: roll.base, attributes: completeRoll(sde, roll).attributes },
+    };
+    const last = stacks.at(-1);
+    if (last !== undefined && sameDrone(last, drone))
+      stacks[stacks.length - 1] = { ...last, quantity: last.quantity! + 1 };
+    else stacks.push(drone);
+  }
+
+  const typeId = fit.items[drones.refs[0]!]!.type_id;
+  const unchanged =
+    active === drones.active &&
+    rolls.length === drones.rolls.length &&
+    stacks.every(({ type_id }) => type_id === typeId) &&
+    rolls.every(
+      (roll, index) =>
+        JSON.stringify(completeRoll(sde, roll).attributes) === JSON.stringify(drones.rolls[index]!.attributes),
+    );
+  if (unchanged) return fit;
+
+  const items = fit.items.flatMap((item, ref) => {
+    if (ref === drones.refs[0]) return stacks;
+    return drones.refs.includes(ref) ? [] : [item];
+  });
+  return { ...fit, items };
+}
+
+function sameDrone(a: FitItem, b: FitItem): boolean {
+  return a.type_id === b.type_id && a.state === b.state && rollKey(a) === rollKey(b);
+}
+
+function rollKey(item: FitItem): string {
+  return JSON.stringify(Object.fromEntries(rolledValues(item.mutation?.attributes)));
 }
 
 export function remove(fit: Fit, ...refs: ItemRef[]): Fit {

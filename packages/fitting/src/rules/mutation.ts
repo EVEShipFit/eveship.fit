@@ -1,9 +1,9 @@
 import type { Sde, SdeMutaplasmid, SdeType } from "@eveshipfit/sde-loader";
 
-import type { FitItem } from "../types.js";
+import type { Fit, FitItem, ItemRef } from "../types.js";
 import { placementOf } from "./placement.js";
 
-/** A mutated module: what it was, the mutaplasmid, and the rolled value of each mutated attribute by attribute ID. */
+/** A mutated module or drone: what it was, the mutaplasmid, and the rolled value of each mutated attribute by attribute ID. */
 export interface MutationRoll {
   readonly base: number;
   readonly mutaplasmid: number;
@@ -20,9 +20,9 @@ export interface MutationRange {
   readonly highIsGood: boolean;
 }
 
-const mutatedRacks: readonly string[] = ["high", "medium", "low"];
+const mutatedRacks: readonly string[] = ["high", "medium", "low", "drone_bay"];
 
-/** Whether a module can be mutated. */
+/** Whether a module or drone can be mutated. */
 export function canMutate(sde: Sde, type: SdeType): boolean {
   const rack = placementOf(sde, type)?.type;
   return rack !== undefined && mutatedRacks.includes(rack) && sde.mutaplasmidsFor(type.id).length > 0;
@@ -122,6 +122,61 @@ export function mutationRollOf(sde: Sde, item: FitItem): MutationRoll | undefine
   );
   const mutaplasmid = fitting ?? mutaplasmids[0];
   return mutaplasmid && completeRoll(sde, { base: mutation.base, mutaplasmid: mutaplasmid.id, attributes: rolled });
+}
+
+/** The mutated drones of one type in the drone bay. */
+export interface MutatedDrones {
+  readonly refs: readonly ItemRef[];
+  /** One per drone, the launched ones first. */
+  readonly rolls: readonly MutationRoll[];
+  /** How many of `rolls` are launched. */
+  readonly active: number;
+}
+
+/** The drones mutated from `base`, each with the narrowest mutaplasmid that covers its roll. */
+export function mutatedDronesOf(sde: Sde, fit: Fit, base: number): MutatedDrones | undefined {
+  const refs = fit.items.flatMap((item, ref) =>
+    item.slot.type === "drone_bay" && item.mutation?.base === base ? [ref] : [],
+  );
+  const items = refs.map((ref) => fit.items[ref]!);
+  const launched = items.filter(({ state }) => state === "active");
+  const rolled = [...launched, ...items.filter(({ state }) => state !== "active")].flatMap(
+    ({ quantity = 1, mutation }) =>
+      Array.from({ length: quantity }, () => Object.fromEntries(rolledValues(mutation?.attributes))),
+  );
+
+  const mutaplasmids = mutaplasmidsOf(sde, base).filter(({ id }) => mutatedTypeOf(sde, base, id) === items[0]?.type_id);
+  const fallback = mutaplasmids[0];
+  if (fallback === undefined) return undefined;
+
+  return {
+    refs,
+    rolls: rolled.map((attributes) => {
+      const mutaplasmid =
+        mutaplasmids.find(({ id }) => rollFits(sde, { base, mutaplasmid: id, attributes })) ?? fallback;
+      return completeRoll(sde, { base, mutaplasmid: mutaplasmid.id, attributes });
+    }),
+    active: launched.reduce((total, { quantity = 1 }) => total + quantity, 0),
+  };
+}
+
+/** How many different rolls there are. */
+export function distinctRolls(rolls: readonly MutationRoll[]): number {
+  return new Set(rolls.map(({ attributes }) => JSON.stringify(attributes))).size;
+}
+
+/** A value kept within what a mutaplasmid can roll. */
+export function clampToRange(value: number, range: MutationRange): number {
+  return Math.min(range.max, Math.max(range.min, value));
+}
+
+/** The roll on another mutaplasmid, every value as near as that one can roll it. */
+export function withMutaplasmid(sde: Sde, roll: MutationRoll, mutaplasmid: number): MutationRoll {
+  const attributes: Record<number, number> = {};
+  for (const range of mutationRanges(sde, roll.base, mutaplasmid)) {
+    attributes[range.attributeId] = clampToRange(roll.attributes[range.attributeId] ?? range.base, range);
+  }
+  return { base: roll.base, mutaplasmid, attributes };
 }
 
 /** Only the attributes the mutaplasmid rolls; a missing one at its base value. */

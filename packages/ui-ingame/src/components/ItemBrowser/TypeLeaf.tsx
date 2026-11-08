@@ -114,7 +114,7 @@ export function useTypeActions(noHullSelected: boolean): {
               }
               const ref = store.fitMutated(rollMutation(sde, type.id, mutaplasmidsOf(sde, type.id)[0]!.id, "base"));
               const slot = ref === undefined ? undefined : store.getSnapshot().fit.items[ref]?.slot;
-              if (slot !== undefined) showMutate(slot, { element: anchor, side: "right" });
+              if (slot !== undefined) showMutate(slot, { element: anchor, side: "right" }, type.id);
             },
           },
       ]);

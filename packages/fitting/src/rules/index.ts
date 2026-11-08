@@ -5,7 +5,10 @@ export { acceptsCharge, canFit, chargesFor } from "./filters.js";
 export { modesOf } from "./modes.js";
 export {
   canMutate,
+  clampToRange,
+  distinctRolls,
   mutaplasmidsOf,
+  mutatedDronesOf,
   mutatedTypeOf,
   mutationRanges,
   mutationRollOf,
@@ -13,6 +16,8 @@ export {
   parseMutationText,
   rollFits,
   rollMutation,
+  withMutaplasmid,
+  type MutatedDrones,
   type MutationRange,
   type MutationRoll,
   type RollKind,

@@ -228,6 +228,76 @@
   justify-content: space-between;
 }
 
+.switch {
+  display: flex;
+}
+
+.switch > button {
+  background: var(--esf-button);
+  border: 1px solid var(--esf-button-edge);
+  color: var(--esf-text);
+  cursor: pointer;
+  flex: 1;
+  font: inherit;
+  padding: calc(4 * var(--info-unit)) calc(8 * var(--info-unit));
+}
+
+.switch > button + button {
+  border-left: none;
+}
+
+.switch > button[aria-pressed="true"] {
+  background: var(--esf-button-active);
+  border-color: var(--esf-button-active-edge);
+}
+
+.switch > button:focus-visible,
+.chip:focus-visible {
+  outline: 1px solid var(--esf-text);
+}
+
+.chips {
+  display: grid;
+  gap: calc(4 * var(--info-unit));
+  grid-template-columns: repeat(auto-fill, minmax(calc(68 * var(--info-unit)), 1fr));
+  max-height: calc(128 * var(--info-unit));
+  overflow-y: auto;
+}
+
+.chip {
+  background: var(--esf-button);
+  border: 1px solid var(--esf-button-edge);
+  color: var(--esf-text-muted);
+  cursor: pointer;
+  display: grid;
+  font: inherit;
+  font-size: calc(11 * var(--info-unit));
+  gap: calc(2 * var(--info-unit));
+  justify-items: center;
+  padding: calc(4 * var(--info-unit));
+}
+
+.chip[data-launched] {
+  color: var(--esf-text);
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--esf-button-active-edge);
+  box-shadow: inset 0 0 0 1px var(--esf-button-active-edge);
+}
+
+.chipBar {
+  background: var(--esf-input-bg);
+  height: calc(3 * var(--info-unit));
+  width: 100%;
+}
+
+.chipBar > span {
+  background: var(--esf-button-active-edge);
+  display: block;
+  height: 100%;
+}
+
 .stats {
   display: grid;
   font-size: calc(11 * var(--info-unit));
@@ -368,6 +438,7 @@
   gap: calc(8 * var(--info-unit));
 }
 
+.panel > .button,
 .import > .button {
   align-self: flex-start;
 }
