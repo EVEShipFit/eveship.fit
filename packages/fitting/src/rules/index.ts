@@ -6,7 +6,6 @@ export { modesOf } from "./modes.js";
 export {
   canMutate,
   clampToRange,
-  distinctRolls,
   mutaplasmidsOf,
   mutatedDronesOf,
   mutatedTypeOf,

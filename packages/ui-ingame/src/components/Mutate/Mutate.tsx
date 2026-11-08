@@ -106,6 +106,7 @@ interface DronesCardProps extends MutateTargetProps {
 /** The mutate window for the drones of a row; what is changed goes for the selected ones. */
 function DronesCard({ shown, typeId, drones: { rolls, active }, onClose }: DronesCardProps) {
   const sde = useSde();
+  const store = useFitStore();
   const [unselected, setUnselected] = useState<ReadonlySet<number>>(new Set());
   const base = rolls[0]!.base;
   const all = rolls.map((_, index) => index);
@@ -126,7 +127,18 @@ function DronesCard({ shown, typeId, drones: { rolls, active }, onClose }: Drone
       shown={shown}
       typeId={typeId}
       roll={rolls[selected[0]!]!}
-      sameRoll={selected.length > 1}
+      setAll={
+        rolls.length > 1
+          ? {
+              disabled: selected.length > 1,
+              set: (roll) =>
+                store.setMutatedDrones(
+                  base,
+                  rolls.map(() => roll),
+                ),
+            }
+          : undefined
+      }
       apply={(target, change) =>
         target.setMutatedDrones(
           base,
@@ -203,22 +215,13 @@ type RollChange = (roll: MutationRoll) => MutationRoll;
 interface MutateCardProps extends MutateTargetProps {
   typeId: number;
   roll: MutationRoll;
-  /** Offers to give everything the roll shown. */
-  sameRoll?: boolean;
+  setAll?: { disabled: boolean; set: (roll: MutationRoll) => void };
   /** Changes the roll in the fit, or in a preview of it. */
   apply: (store: FitStore, change: RollChange) => void;
   above?: ReactNode;
 }
 
-function MutateCard({
-  shown: { slot, anchor },
-  typeId,
-  roll: fitted,
-  sameRoll = false,
-  apply,
-  above,
-  onClose,
-}: MutateCardProps) {
+function MutateCard({ shown: { slot, anchor }, typeId, roll: fitted, setAll, apply, above, onClose }: MutateCardProps) {
   const sde = useSde();
   const store = useFitStore();
   const preview = usePreview();
@@ -325,9 +328,10 @@ function MutateCard({
                     openMenu(event, [
                       { label: "Best Roll", onSelect: () => reroll("best") },
                       { label: "Worst Roll", onSelect: () => reroll("worst") },
-                      sameRoll && {
-                        label: "Same Roll for Selected",
-                        onSelect: () => commit(() => roll, roll.mutaplasmid),
+                      setAll && {
+                        label: "Set All Drones to Selected",
+                        disabled: setAll.disabled,
+                        onSelect: () => setAll.set(roll),
                       },
                     ])
                   }

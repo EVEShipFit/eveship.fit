@@ -160,11 +160,6 @@ export function mutatedDronesOf(sde: Sde, fit: Fit, base: number): MutatedDrones
   };
 }
 
-/** How many different rolls there are. */
-export function distinctRolls(rolls: readonly MutationRoll[]): number {
-  return new Set(rolls.map(({ attributes }) => JSON.stringify(attributes))).size;
-}
-
 /** A value kept within what a mutaplasmid can roll. */
 export function clampToRange(value: number, range: MutationRange): number {
   return Math.min(range.max, Math.max(range.min, value));

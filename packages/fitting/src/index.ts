@@ -13,7 +13,6 @@ export {
   canFit,
   canMutate,
   clampToRange,
-  distinctRolls,
   chargesFor,
   droneRoom,
   fighterKind,

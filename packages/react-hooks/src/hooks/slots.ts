@@ -1,6 +1,4 @@
 import {
-  distinctRolls,
-  mutatedDronesOf,
   type Fit,
   type FitItem,
   type ItemRef,
@@ -120,8 +118,6 @@ export interface BayContent {
   readonly key: string;
   /** The type mutated drones were before. */
   readonly mutatedFrom: SdeType | undefined;
-  /** How many different rolls mutated drones have. */
-  readonly rolls: number;
 }
 
 const baySlots: Record<"cargo" | "droneBay" | "fighterBay", SlotType> = {
@@ -143,22 +139,17 @@ export function useBayContents(bay: "cargo" | "droneBay" | "fighterBay"): readon
       const base = bay === "droneBay" ? item.mutation?.base : undefined;
       const key = base === undefined ? String(type.id) : `mutated-${base}`;
       const mutatedFrom = base === undefined ? undefined : sde.type(base);
-      const content = rows.get(key) ?? { type, quantity: 0, active: 0, refs: [], key, mutatedFrom, rolls: 1 };
+      const content = rows.get(key) ?? { type, quantity: 0, active: 0, refs: [], key, mutatedFrom };
       content.quantity += item.quantity ?? 1;
       if (item.state === "active") content.active += item.quantity ?? 1;
       content.refs.push(ref);
       rows.set(key, content);
     });
-    return [...rows.values()]
-      .map((content) => {
-        const drones = content.mutatedFrom && mutatedDronesOf(sde, fit, content.mutatedFrom.id);
-        return drones ? { ...content, rolls: distinctRolls(drones.rolls) } : content;
-      })
-      .toSorted(
-        (a, b) =>
-          (a.mutatedFrom ?? a.type).name.localeCompare((b.mutatedFrom ?? b.type).name) ||
-          Number(a.mutatedFrom !== undefined) - Number(b.mutatedFrom !== undefined),
-      );
+    return [...rows.values()].toSorted(
+      (a, b) =>
+        (a.mutatedFrom ?? a.type).name.localeCompare((b.mutatedFrom ?? b.type).name) ||
+        Number(a.mutatedFrom !== undefined) - Number(b.mutatedFrom !== undefined),
+    );
   }, [sde, fit, bay]);
 }
 

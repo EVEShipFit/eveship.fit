@@ -254,7 +254,7 @@ test("bay contents are one entry per type, by name", () => {
   ]);
 });
 
-test("bay contents list mutated drones apart from plain ones, with how many rolls they have", () => {
+test("bay contents list mutated drones apart from plain ones", () => {
   const byName = (name: string) => engine.sde.typeByName(name)!;
   const hobgoblin = byName("Hobgoblin II").id;
   const plasmid = byName("Exigent Light Drone Firepower Mutaplasmid").id;
@@ -270,15 +270,10 @@ test("bay contents list mutated drones apart from plain ones, with how many roll
   const { result } = render(() => useBayContents("droneBay"), { fit });
 
   expect(
-    result.current.map(({ type, mutatedFrom, quantity, rolls }) => [
-      type.id === hobgoblin,
-      mutatedFrom?.name,
-      quantity,
-      rolls,
-    ]),
+    result.current.map(({ type, mutatedFrom, quantity }) => [type.id === hobgoblin, mutatedFrom?.name, quantity]),
   ).toEqual([
-    [true, undefined, 1, 1],
-    [false, "Hobgoblin II", 2, 2],
+    [true, undefined, 1],
+    [false, "Hobgoblin II", 2],
   ]);
 });
 

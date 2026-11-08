@@ -1079,9 +1079,16 @@ export const MutateDrones: Story = {
     await expect(chip(1)).toHaveAttribute("aria-pressed", "true");
     await expect(chip(3)).toHaveAttribute("aria-pressed", "false");
 
+    const setAll = () => canvas.getByRole("menuitem", { name: "Set All Drones to Selected" });
     await userEvent.click(within(window).getByRole("button", { name: "More Rolls" }));
-    await userEvent.click(within(window).getByRole("menuitem", { name: "Same Roll for Selected" }));
-    await waitFor(() => expect(chip(2)).toHaveTextContent(/^Drone 2\s*0%$/));
+    await expect(setAll()).toBeDisabled();
+    await userEvent.keyboard("{Escape}");
+
+    await userEvent.click(chip(2));
+    await userEvent.click(within(window).getByRole("button", { name: "More Rolls" }));
+    await userEvent.click(setAll());
+    await waitFor(() => expect(chip(3)).not.toHaveTextContent(/^Drone 3\s*0%$/));
+    await expect(chip(1).textContent.slice("Drone 1".length)).toBe(chip(3).textContent.slice("Drone 3".length));
 
     await userEvent.click(chip(1));
     await userEvent.click(chip(1));
@@ -1092,7 +1099,6 @@ export const MutateDrones: Story = {
 
     await userEvent.click(bay);
     await expect(row()).toHaveTextContent("Mutated Hobgoblin II");
-    await expect(row()).not.toHaveTextContent("rolls");
     await fireEvent.contextMenu(row());
     await userEvent.click(canvas.getByRole("menuitem", { name: "Remove Mutation" }));
     await waitFor(() => expect(row()).not.toHaveTextContent("Mutated"));

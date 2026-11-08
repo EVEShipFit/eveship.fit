@@ -3,7 +3,6 @@ import { beforeAll, describe, expect, test } from "vitest";
 
 import {
   canMutate,
-  distinctRolls,
   Engine,
   mutatedDronesOf,
   mutaplasmidsOf,
@@ -319,6 +318,10 @@ describe("loadMutation", () => {
     });
   });
 });
+
+function distinctRolls(rolls: readonly MutationRoll[]): number {
+  return new Set(rolls.map(({ attributes }) => JSON.stringify(attributes))).size;
+}
 
 function bay(fit: FitStore) {
   return fit.getSnapshot().fit.items.map(({ quantity, state }) => [quantity, state]);

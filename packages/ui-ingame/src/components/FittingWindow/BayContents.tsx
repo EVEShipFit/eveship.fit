@@ -93,7 +93,7 @@ export function BayContents({ id, bay, label }: { id: string; bay: Bay; label: s
       ) : (
         <ul className={styles.list} aria-label={label}>
           {contents.map((content) => {
-            const { type, quantity, refs, key, mutatedFrom, rolls } = content;
+            const { type, quantity, refs, key, mutatedFrom } = content;
             const drag = {
               draggable: mutatedFrom === undefined,
               onDragStart: (event: DragEvent<HTMLElement>) => {
@@ -127,7 +127,6 @@ export function BayContents({ id, bay, label }: { id: string; bay: Bay; label: s
                 <span className={styles.middle} {...drag}>
                   <span className={styles.name} data-mutated={mutatedFrom !== undefined || undefined}>
                     {name}
-                    {rolls > 1 && <span className={styles.rolls}> · {rolls} rolls</span>}
                   </span>
                   {drones && <DroneSelection content={content} max={maxActive} />}
                 </span>

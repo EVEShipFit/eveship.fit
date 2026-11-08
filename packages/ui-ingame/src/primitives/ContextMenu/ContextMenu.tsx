@@ -6,6 +6,7 @@ import styles from "./ContextMenu.module.css";
 export interface ContextMenuItem {
   label: string;
   icon?: IconName;
+  disabled?: boolean;
   onSelect: () => void;
 }
 
@@ -117,6 +118,7 @@ function Menu({ opened, onClose }: { opened: Opened; onClose: () => void }) {
             type="button"
             role="menuitem"
             tabIndex={-1}
+            disabled={entry.disabled}
             onClick={() => select(entry)}
             onPointerMove={(event) => event.currentTarget.focus()}
           >
@@ -130,7 +132,7 @@ function Menu({ opened, onClose }: { opened: Opened; onClose: () => void }) {
 }
 
 function walk(event: KeyboardEvent<HTMLDivElement>) {
-  const items = [...event.currentTarget.querySelectorAll<HTMLElement>("[role=menuitem]")];
+  const items = [...event.currentTarget.querySelectorAll<HTMLElement>("[role=menuitem]:enabled")];
   const index = items.indexOf(document.activeElement as HTMLElement);
   let next: HTMLElement | undefined;
   switch (event.key) {
