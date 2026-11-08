@@ -105,7 +105,7 @@
   border: 1px solid var(--esf-border);
   box-shadow: 0 calc(10 * var(--info-unit)) calc(30 * var(--info-unit)) rgb(0 0 0 / 80%);
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: minmax(0, max-content) minmax(calc(240 * var(--info-unit)), 1fr);
   left: 0;
   position: absolute;
   right: 0;
@@ -122,7 +122,6 @@
 }
 
 .option {
-  white-space: nowrap;
   background: none;
   border: none;
   color: var(--esf-text);
@@ -228,30 +227,6 @@
   justify-content: space-between;
 }
 
-.switch {
-  display: flex;
-}
-
-.switch > button {
-  background: var(--esf-button);
-  border: 1px solid var(--esf-button-edge);
-  color: var(--esf-text);
-  cursor: pointer;
-  flex: 1;
-  font: inherit;
-  padding: calc(4 * var(--info-unit)) calc(8 * var(--info-unit));
-}
-
-.switch > button + button {
-  border-left: none;
-}
-
-.switch > button[aria-pressed="true"] {
-  background: var(--esf-button-active);
-  border-color: var(--esf-button-active-edge);
-}
-
-.switch > button:focus-visible,
 .chip:focus-visible {
   outline: 1px solid var(--esf-text);
 }
@@ -259,7 +234,7 @@
 .chips {
   display: grid;
   gap: calc(4 * var(--info-unit));
-  grid-template-columns: repeat(auto-fill, minmax(calc(68 * var(--info-unit)), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(calc(68 * var(--info-unit)), 1fr));
   max-height: calc(128 * var(--info-unit));
   overflow-y: auto;
 }

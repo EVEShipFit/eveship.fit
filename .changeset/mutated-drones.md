@@ -4,4 +4,4 @@
 "@eveshipfit/ui-ingame": minor
 ---
 
-Mutate drones, with one roll for a row or one per drone
+Mutate drones, one at a time or several at once
