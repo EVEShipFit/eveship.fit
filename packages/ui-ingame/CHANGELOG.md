@@ -1,5 +1,19 @@
 # @eveshipfit/ui-ingame
 
+## 1.14.0
+
+### Minor Changes
+
+- Copy a link to the fit with the link icon next to its name ([#339](https://github.com/EVEShipFit/eveship.fit/pull/339))
+
+- Mutate drones, one at a time or several at once ([#341](https://github.com/EVEShipFit/eveship.fit/pull/341))
+
+### Patch Changes
+
+- Updated dependencies [[`0c74537`](https://github.com/EVEShipFit/eveship.fit/commit/0c74537efd9f15da0d8ddbcd8595ce061703eae9)]:
+  - @eveshipfit/fitting@2.7.0
+  - @eveshipfit/react-hooks@2.7.0
+
 ## 1.13.0
 
 ### Minor Changes
