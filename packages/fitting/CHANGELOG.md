@@ -1,5 +1,11 @@
 # @eveshipfit/fitting
 
+## 2.7.0
+
+### Minor Changes
+
+- Mutate drones, one at a time or several at once ([#341](https://github.com/EVEShipFit/eveship.fit/pull/341))
+
 ## 2.6.0
 
 ### Minor Changes
