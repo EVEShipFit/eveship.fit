@@ -2,6 +2,7 @@ import type { Sde } from "@eveshipfit/sde-loader";
 
 import * as edits from "./edits.js";
 import type { MutationRoll } from "./rules/mutation.js";
+import { placementOf } from "./rules/placement.js";
 import type { Stats } from "./stats.js";
 import type { Character, DamageProfile, Fit, ItemRef, Slot, State } from "./types.js";
 
@@ -90,6 +91,12 @@ export class FitStore {
   /** Like `fit`, but mutated. */
   fitMutated(roll: MutationRoll, slot?: Slot): ItemRef | undefined {
     const { sde } = this.#calculator;
+    const type = sde.type(roll.base);
+    if (type && placementOf(sde, type)?.type === "drone_bay") {
+      const added = edits.addMutatedDrone(sde, this.#snapshot.fit, this.#snapshot.stats, roll);
+      this.#commit(added.fit);
+      return added.ref;
+    }
     const { fit, ref } = edits.fitType(sde, this.#snapshot.fit, this.#snapshot.stats, roll.base, slot);
     if (ref === undefined) return undefined;
     const mutated = edits.setMutation(sde, fit, ref, roll);
@@ -116,6 +123,23 @@ export class FitStore {
 
   setMutation(ref: ItemRef, roll: MutationRoll | undefined) {
     this.#commit(edits.setMutation(this.#calculator.sde, this.#snapshot.fit, ref, roll));
+  }
+
+  setDronesMutation(refs: readonly ItemRef[], roll: MutationRoll | undefined) {
+    this.#commit(edits.setDronesMutation(this.#calculator.sde, this.#snapshot.fit, refs, roll));
+  }
+
+  setMutatedDrones(base: number, rolls: readonly MutationRoll[]) {
+    this.#commit(edits.setMutatedDrones(this.#calculator.sde, this.#snapshot.fit, base, rolls));
+  }
+
+  setActiveMutatedDrones(base: number, count: number) {
+    this.#commit(edits.setActiveMutatedDrones(this.#calculator.sde, this.#snapshot.fit, base, count));
+  }
+
+  setMutatedDroneQuantity(base: number, quantity: number) {
+    const { sde } = this.#calculator;
+    this.#commit(edits.setMutatedDroneQuantity(sde, this.#snapshot.fit, this.#snapshot.stats, base, quantity));
   }
 
   remove(...refs: ItemRef[]) {

@@ -73,6 +73,8 @@ export interface InfoState {
 /** The slot of a fitted module to mutate, and what the window points at. */
 export interface ShownMutation {
   readonly slot: Slot;
+  /** In the drone bay, the type the drones were before they were mutated. */
+  readonly base?: number;
   readonly anchor?: InfoAnchor;
 }
 

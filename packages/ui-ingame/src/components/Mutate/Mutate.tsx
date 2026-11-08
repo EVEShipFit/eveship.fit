@@ -1,12 +1,17 @@
 import {
+  clampToRange,
   mutaplasmidsOf,
+  mutatedDronesOf,
   mutationRanges,
   mutationRollOf,
   parseItemLink,
   parseMutationText,
   rollFits,
   rollMutation,
+  withMutaplasmid,
   type Fit,
+  type FitStore,
+  type MutatedDrones,
   type MutationRange,
   type MutationRoll,
   type RollKind,
@@ -25,7 +30,7 @@ import {
   type ShownMutation,
 } from "@eveshipfit/react-hooks";
 import type { Sde } from "@eveshipfit/sde-loader";
-import { useEffect, useEffectEvent, useId, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useEffectEvent, useId, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 import { useContextMenu } from "../../primitives/ContextMenu/ContextMenu";
 import { Icon } from "../../primitives/Icon/Icon";
@@ -38,45 +43,185 @@ import { MutaplasmidPicker } from "./MutaplasmidPicker";
 
 const PREVIEW_TARGET = "mutate";
 
-/** The window to roll a fitted module's mutation in, next to what asked for it. */
+/** The window to roll a fitted module's or the drones' mutation in, next to what asked for it. */
 export function Mutate() {
   const { shown, close } = useMutate();
-  const fit = useFit();
-  const sde = useSde();
-  const ref = shown === undefined ? -1 : refIn(fit, shown.slot);
-  const item = fit.items[ref];
-  const roll = item && mutationRollOf(sde, item);
-  const gone = shown !== undefined && roll === undefined;
+  if (shown === undefined) return null;
+  if (shown.slot.type === "drone_bay") return <MutateDrones key={shown.base} shown={shown} onClose={close} />;
+  return <MutateModule key={`${shown.slot.type} ${slotIndex(shown.slot)}`} shown={shown} onClose={close} />;
+}
 
-  const closeWhenGone = useEffectEvent(close);
+interface MutateTargetProps {
+  shown: ShownMutation;
+  onClose: () => void;
+}
+
+function useCloseWhenGone(gone: boolean, onClose: () => void) {
+  const closeWhenGone = useEffectEvent(onClose);
   useEffect(() => {
     if (gone) closeWhenGone();
   }, [gone]);
+}
 
-  if (shown === undefined || item === undefined || roll === undefined) return null;
+function MutateModule({ shown, onClose }: MutateTargetProps) {
+  const fit = useFit();
+  const sde = useSde();
+  const ref = refIn(fit, shown.slot);
+  const item = fit.items[ref];
+  const roll = item && mutationRollOf(sde, item);
+  useCloseWhenGone(roll === undefined, onClose);
+
+  if (item === undefined || roll === undefined) return null;
   return (
     <MutateCard
-      key={`${shown.slot.type} ${slotIndex(shown.slot)}`}
       shown={shown}
-      itemRef={ref}
       typeId={item.type_id}
       roll={roll}
-      onClose={close}
+      apply={(store, change) => {
+        const current = store.getSnapshot().fit;
+        const target = refIn(current, shown.slot);
+        const before = current.items[target] && mutationRollOf(sde, current.items[target]);
+        if (before !== undefined) store.setMutation(target, change(before));
+      }}
+      onClose={onClose}
     />
   );
 }
 
-type Tab = "attributes" | "import";
+function MutateDrones({ shown, onClose }: MutateTargetProps) {
+  const fit = useFit();
+  const sde = useSde();
+  const drones = shown.base === undefined ? undefined : mutatedDronesOf(sde, fit, shown.base);
+  useCloseWhenGone(drones === undefined, onClose);
 
-interface MutateCardProps {
-  shown: ShownMutation;
-  itemRef: number;
-  typeId: number;
-  roll: MutationRoll;
-  onClose: () => void;
+  if (drones === undefined) return null;
+  return <DronesCard shown={shown} typeId={fit.items[drones.refs[0]!]!.type_id} drones={drones} onClose={onClose} />;
 }
 
-function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitted, onClose }: MutateCardProps) {
+interface DronesCardProps extends MutateTargetProps {
+  typeId: number;
+  drones: MutatedDrones;
+}
+
+/** The mutate window for the drones of a row; what is changed goes for the selected ones. */
+function DronesCard({ shown, typeId, drones: { rolls, active }, onClose }: DronesCardProps) {
+  const sde = useSde();
+  const store = useFitStore();
+  const [unselected, setUnselected] = useState<ReadonlySet<number>>(new Set());
+  const base = rolls[0]!.base;
+  const all = rolls.map((_, index) => index);
+  const picked = all.filter((index) => !unselected.has(index));
+  const selected = picked.length > 0 ? picked : all;
+
+  const select = (index: number, adding: boolean) => {
+    const only = selected.length === 1 && selected[0] === index;
+    if (adding) {
+      if (!only) setUnselected(new Set(all.filter((other) => selected.includes(other) === (other === index))));
+    } else {
+      setUnselected(new Set(only ? [] : all.filter((other) => other !== index)));
+    }
+  };
+
+  return (
+    <MutateCard
+      shown={shown}
+      typeId={typeId}
+      roll={rolls[selected[0]!]!}
+      setAll={
+        rolls.length > 1
+          ? {
+              disabled: selected.length > 1,
+              set: (roll) =>
+                store.setMutatedDrones(
+                  base,
+                  rolls.map(() => roll),
+                ),
+            }
+          : undefined
+      }
+      apply={(target, change) =>
+        target.setMutatedDrones(
+          base,
+          (mutatedDronesOf(sde, target.getSnapshot().fit, base)?.rolls ?? []).map((roll, index) =>
+            selected.includes(index) ? change(roll) : roll,
+          ),
+        )
+      }
+      above={
+        rolls.length > 1 && (
+          <div className={styles.chips}>
+            {rolls.map((roll, index) => (
+              <DroneChip
+                // oxlint-disable-next-line react/no-array-index-key -- A drone is its place in the row.
+                key={index}
+                index={index}
+                roll={roll}
+                selected={selected.includes(index)}
+                launched={index < active}
+                onSelect={(adding) => select(index, adding)}
+              />
+            ))}
+          </div>
+        )
+      }
+      onClose={onClose}
+    />
+  );
+}
+
+interface DroneChipProps {
+  index: number;
+  roll: MutationRoll;
+  selected: boolean;
+  launched: boolean;
+  onSelect: (adding: boolean) => void;
+}
+
+/** One drone of a row, with how it rolled the stat that matters most. */
+function DroneChip({ index, roll, selected, launched, onSelect }: DroneChipProps) {
+  const sde = useSde();
+  const ranges = mutationRanges(sde, roll.base, roll.mutaplasmid);
+  const range = ranges.find(({ attributeId }) => attributeId === sde.attributeId("damageMultiplier")) ?? ranges[0];
+  const value = range && (roll.attributes[range.attributeId] ?? range.base);
+  const change = range && value !== undefined && range.base !== 0 ? value / range.base - 1 : 0;
+  const width =
+    range && value !== undefined && range.max > range.min ? (value - range.min) / (range.max - range.min) : 0;
+  const percent = formatNumber(Math.abs(change) * 100, { decimals: 1 });
+  const better = change > 0 === (range?.highIsGood ?? true);
+
+  return (
+    <button
+      type="button"
+      className={styles.chip}
+      aria-pressed={selected}
+      data-launched={launched || undefined}
+      title="Click for only this drone, Ctrl+click to add or remove it"
+      onClick={(event) => onSelect(event.ctrlKey || event.metaKey || event.shiftKey)}
+    >
+      Drone {index + 1}
+      <span className={styles.change} data-change={Number(percent) === 0 ? undefined : better ? "better" : "worse"}>
+        {Number(percent) === 0 ? "0%" : `${change > 0 ? "+" : "-"}${percent}%`}
+      </span>
+      <span className={styles.chipBar}>
+        <span style={{ width: `${width * 100}%` }} />
+      </span>
+    </button>
+  );
+}
+
+type Tab = "attributes" | "import";
+type RollChange = (roll: MutationRoll) => MutationRoll;
+
+interface MutateCardProps extends MutateTargetProps {
+  typeId: number;
+  roll: MutationRoll;
+  setAll?: { disabled: boolean; set: (roll: MutationRoll) => void };
+  /** Changes the roll in the fit, or in a preview of it. */
+  apply: (store: FitStore, change: RollChange) => void;
+  above?: ReactNode;
+}
+
+function MutateCard({ shown: { slot, anchor }, typeId, roll: fitted, setAll, apply, above, onClose }: MutateCardProps) {
   const sde = useSde();
   const store = useFitStore();
   const preview = usePreview();
@@ -85,40 +230,39 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
   const tabId = useId();
   const [tab, setTab] = useState<Tab>("attributes");
   const [chosen, setChosen] = useState<number>();
-  const [dragged, setDragged] = useState<MutationRoll>();
+  const [dragged, setDragged] = useState<{ roll: MutationRoll; change: RollChange }>();
   const mutaplasmids = mutaplasmidsOf(sde, fitted.base);
   const mutaplasmid =
     chosen !== undefined && rollFits(sde, { ...fitted, mutaplasmid: chosen }) ? chosen : fitted.mutaplasmid;
-  const roll = dragged ?? { ...fitted, mutaplasmid };
+  const roll = dragged?.roll ?? { ...fitted, mutaplasmid };
   const ranges = mutationRanges(sde, roll.base, roll.mutaplasmid);
   const base = sde.type(roll.base);
 
   const clearPreview = useEffectEvent(() => preview.clear(PREVIEW_TARGET));
   useEffect(() => () => clearPreview(), []);
 
-  const commit = (next: MutationRoll) => {
+  const commit = (change: RollChange, picked: number) => {
     preview.clear(PREVIEW_TARGET);
     setDragged(undefined);
-    setChosen(next.mutaplasmid);
-    store.setMutation(ref, next);
+    setChosen(picked);
+    apply(store, change);
   };
-  const drag = (next: MutationRoll) => {
-    setDragged(next);
-    preview.show((draft) => draft.setMutation(ref, next), PREVIEW_TARGET);
+  const setValue = (range: MutationRange, value: number) => {
+    const clamped = clampToRange(value, range);
+    const change: RollChange = (before) => ({
+      ...before,
+      mutaplasmid,
+      attributes: { ...before.attributes, [range.attributeId]: clamped },
+    });
+    setDragged({ roll: change(roll), change });
+    preview.show((draft) => apply(draft, change), PREVIEW_TARGET);
   };
-  const setValue = (range: MutationRange, value: number) =>
-    drag({ ...roll, attributes: { ...roll.attributes, [range.attributeId]: clamp(value, range) } });
   const finish = () => {
-    if (dragged !== undefined) commit(dragged);
+    if (dragged !== undefined) commit(dragged.change, dragged.roll.mutaplasmid);
   };
-  const reroll = (kind: RollKind) => commit(rollMutation(sde, roll.base, roll.mutaplasmid, kind));
-  const choose = (picked: number) => {
-    const attributes: Record<number, number> = {};
-    for (const range of mutationRanges(sde, roll.base, picked)) {
-      attributes[range.attributeId] = clamp(roll.attributes[range.attributeId] ?? range.base, range);
-    }
-    commit({ base: roll.base, mutaplasmid: picked, attributes });
-  };
+  const reroll = (kind: RollKind) =>
+    commit(() => rollMutation(sde, roll.base, roll.mutaplasmid, kind), roll.mutaplasmid);
+  const choose = (picked: number) => commit((before) => withMutaplasmid(sde, before, picked), picked);
 
   return (
     <section
@@ -184,6 +328,11 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
                     openMenu(event, [
                       { label: "Best Roll", onSelect: () => reroll("best") },
                       { label: "Worst Roll", onSelect: () => reroll("worst") },
+                      setAll && {
+                        label: "Set All Drones to Selected",
+                        disabled: setAll.disabled,
+                        onSelect: () => setAll.set(roll),
+                      },
                     ])
                   }
                 >
@@ -192,6 +341,7 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
               </span>
             </div>
             {menu}
+            {above}
             <div className={styles.stats}>
               {ranges.map((range) => (
                 <Stat
@@ -206,8 +356,8 @@ function MutateCard({ shown: { slot, anchor }, itemRef: ref, typeId, roll: fitte
           </>
         ) : (
           <Import
-            slot={slot}
             current={fitted}
+            apply={(next) => apply(store, () => next)}
             onFound={(found) => {
               setChosen(found.mutaplasmid);
               setTab("attributes");
@@ -285,15 +435,14 @@ function Stat({ range, value, onChange, onFinish }: StatProps) {
 }
 
 interface ImportProps {
-  slot: Slot;
   current: MutationRoll;
+  apply: (roll: MutationRoll) => void;
   onFound: (roll: MutationRoll) => void;
 }
 
-/** Rolls this module like one pasted from Pyfa, or one in game looked up by its link or IDs. */
-function Import({ slot, current, onFound }: ImportProps) {
+/** Rolls this module or drone like one pasted from Pyfa, or one in game looked up by its link or IDs. */
+function Import({ current, apply: applyRoll, onFound }: ImportProps) {
   const engine = useEngine();
-  const store = useFitStore();
   const sde = useSde();
   const fieldId = useId();
   const [text, setText] = useState("");
@@ -302,15 +451,12 @@ function Import({ slot, current, onFound }: ImportProps) {
   const ids = engine.esi === undefined ? undefined : parseItemLink(text);
 
   const apply = (roll: MutationRoll) => {
-    const { fit } = store.getSnapshot();
-    const ref = refIn(fit, slot);
-    const base = fit.items[ref]?.mutation?.base;
-    if (base !== roll.base) {
-      const name = (typeId: number | undefined) => (typeId === undefined ? "module" : sde.type(typeId)?.name);
-      setStatus({ error: `That is a ${name(roll.base)}, not a ${name(base)}` });
+    if (current.base !== roll.base) {
+      const name = (typeId: number) => sde.type(typeId)?.name;
+      setStatus({ error: `That is a ${name(roll.base)}, not a ${name(current.base)}` });
       return;
     }
-    store.setMutation(ref, roll);
+    applyRoll(roll);
     setStatus(undefined);
     onFound(roll);
   };
@@ -339,8 +485,8 @@ function Import({ slot, current, onFound }: ImportProps) {
     >
       <label htmlFor={fieldId}>
         {engine.esi === undefined
-          ? "Paste the module from Pyfa."
-          : "Paste the module from Pyfa or its item link from EVE, or type its type ID and item ID."}
+          ? "Paste the item from Pyfa."
+          : "Paste the item from Pyfa or its item link from EVE, or type its type ID and item ID."}
       </label>
       <textarea
         id={fieldId}
@@ -369,7 +515,7 @@ function Import({ slot, current, onFound }: ImportProps) {
   );
 }
 
-/** A roll as Pyfa copies a mutated module. */
+/** A roll as Pyfa copies a mutated module or drone. */
 function pyfaText(sde: Sde, roll: MutationRoll): string {
   const values = Object.entries(roll.attributes)
     .map(([id, value]) => `${sde.attribute(Number(id))?.name ?? id} ${Number(value.toFixed(4))}`)
@@ -383,10 +529,6 @@ function refIn(fit: Fit, slot: Slot): number {
 
 function slotIndex(slot: Slot): number | undefined {
   return "index" in slot ? slot.index : undefined;
-}
-
-function clamp(value: number, range: MutationRange): number {
-  return Math.min(range.max, Math.max(range.min, value));
 }
 
 function Dice() {

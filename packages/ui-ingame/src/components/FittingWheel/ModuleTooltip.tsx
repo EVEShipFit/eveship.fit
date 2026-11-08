@@ -55,7 +55,7 @@ export function TypeRow({ typeId, count }: { typeId: number; count?: string }) {
   );
 }
 
-function MutatedFrom({ typeId }: { typeId: number }) {
+export function MutatedFrom({ typeId }: { typeId: number }) {
   const base = useType(typeId);
   if (base === undefined) return null;
   return <span className={`${styles.iconless} ${styles.status}`} data-tone="muted">{`Mutated ${base.name}`}</span>;

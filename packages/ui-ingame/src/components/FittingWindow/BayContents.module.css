@@ -150,6 +150,10 @@
   white-space: nowrap;
 }
 
+.name[data-mutated] {
+  color: var(--esf-mutated);
+}
+
 .activeDrones {
   font-weight: 600;
   justify-self: start;

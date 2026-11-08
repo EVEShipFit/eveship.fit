@@ -1,13 +1,17 @@
+import { canMutate, mutaplasmidsOf, mutatedDronesOf, rollMutation } from "@eveshipfit/fitting";
 import {
   useBayContents,
   useDrag,
   useDroneRoom,
   useFitStore,
+  useMutate,
+  useSde,
   useSnapshot,
   type BayContent,
 } from "@eveshipfit/react-hooks";
-import { useRef, useState, type DragEvent, type KeyboardEvent } from "react";
+import { useRef, useState, type DragEvent, type KeyboardEvent, type MouseEvent } from "react";
 
+import { useContextMenu } from "../../primitives/ContextMenu/ContextMenu";
 import { Icon } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
@@ -26,7 +30,10 @@ const emptyText: Record<Bay, string> = {
 /** EVE's list of what is in a bay, as a popover anchored to `--bay-anchor`; the fighter bay's has its tubes above. */
 export function BayContents({ id, bay, label }: { id: string; bay: Bay; label: string }) {
   const store = useFitStore();
+  const sde = useSde();
   const { start, end } = useDrag();
+  const { show: showMutate } = useMutate();
+  const { open, menu } = useContextMenu();
   const contents = useBayContents(bay);
   const panel = useRef<HTMLDivElement>(null);
   const drones = bay === "droneBay";
@@ -44,10 +51,25 @@ export function BayContents({ id, bay, label }: { id: string; bay: Bay; label: s
     );
   }
 
-  const setQuantity = (typeId: number, quantity: number) => {
-    if (drones) store.setDroneQuantity(typeId, quantity);
+  const setQuantity = ({ type: { id: typeId }, mutatedFrom }: BayContent, quantity: number) => {
+    if (mutatedFrom) store.setMutatedDroneQuantity(mutatedFrom.id, quantity);
+    else if (drones) store.setDroneQuantity(typeId, quantity);
     else if (fighters) store.setFighterBayQuantity(typeId, quantity);
     else store.setCargoQuantity(typeId, quantity);
+  };
+
+  const openMenu = (event: MouseEvent, { type, mutatedFrom, refs }: BayContent) => {
+    const unmutated = mutatedFrom ?? type;
+    if (!canMutate(sde, unmutated) || (mutatedFrom && !mutatedDronesOf(sde, fit, mutatedFrom.id))) return;
+    const mutate = () => {
+      if (!mutatedFrom)
+        store.setDronesMutation(refs, rollMutation(sde, type.id, mutaplasmidsOf(sde, type.id)[0]!.id, "base"));
+      showMutate({ type: "drone_bay" }, { element: panel.current!.parentElement!, side: "right" }, unmutated.id);
+    };
+    open(event, [
+      { label: mutatedFrom ? "Edit Mutation" : "Mutate", onSelect: mutate },
+      mutatedFrom && { label: "Remove Mutation", onSelect: () => store.setDronesMutation(refs, undefined) },
+    ]);
   };
 
   return (
@@ -65,14 +87,15 @@ export function BayContents({ id, bay, label }: { id: string; bay: Bay; label: s
         </div>
       )}
       {fighters && <FighterTubes />}
+      {menu}
       {contents.length === 0 ? (
         <div className={styles.none}>{emptyText[bay]}</div>
       ) : (
         <ul className={styles.list} aria-label={label}>
           {contents.map((content) => {
-            const { type, quantity, refs } = content;
+            const { type, quantity, refs, key, mutatedFrom } = content;
             const drag = {
-              draggable: true,
+              draggable: mutatedFrom === undefined,
               onDragStart: (event: DragEvent<HTMLElement>) => {
                 const icon = event.currentTarget.closest("li")!.querySelector(`.${styles.icon}`)!;
                 event.dataTransfer.setDragImage(icon, 0, 0);
@@ -83,22 +106,34 @@ export function BayContents({ id, bay, label }: { id: string; bay: Bay; label: s
               onDragEnd: end,
             };
             const shown = refs.find((ref) => fit.items[ref]?.state === "active") ?? refs[0]!;
+            const name = mutatedFrom ? `Mutated ${mutatedFrom.name}` : type.name;
             return (
-              <li key={type.id} className={styles.row}>
-                <Quantity name={type.name} value={quantity} onChange={(value) => setQuantity(type.id, value)} />
-                <Tooltip label={drones ? <DroneTooltip itemRef={shown} typeId={type.id} /> : undefined}>
+              // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Opens the menu of its row.
+              <li
+                key={key}
+                className={styles.row}
+                onContextMenu={drones ? (event) => openMenu(event, content) : undefined}
+              >
+                <Quantity name={name} value={quantity} onChange={(value) => setQuantity(content, value)} />
+                <Tooltip
+                  label={
+                    drones ? <DroneTooltip itemRef={shown} typeId={type.id} mutatedFrom={mutatedFrom?.id} /> : undefined
+                  }
+                >
                   <span className={styles.icon} {...drag}>
                     <TypeIcon typeId={type.id} />
                   </span>
                 </Tooltip>
                 <span className={styles.middle} {...drag}>
-                  <span className={styles.name}>{type.name}</span>
+                  <span className={styles.name} data-mutated={mutatedFrom !== undefined || undefined}>
+                    {name}
+                  </span>
                   {drones && <DroneSelection content={content} max={maxActive} />}
                 </span>
                 <button
                   type="button"
                   className={styles.remove}
-                  aria-label={`Remove ${type.name}`}
+                  aria-label={`Remove ${name}`}
                   onClick={(event) => {
                     const row = event.currentTarget.closest("li")!;
                     const next = row.nextElementSibling ?? row.previousElementSibling;
@@ -131,13 +166,27 @@ export function BayContents({ id, bay, label }: { id: string; bay: Bay; label: s
 }
 
 /** One box per drone the character can launch. */
-function DroneSelection({ content: { type, quantity, active }, max }: { content: BayContent; max: number }) {
+function DroneSelection({
+  content: { type, quantity, active, mutatedFrom },
+  max,
+}: {
+  content: BayContent;
+  max: number;
+}) {
   const store = useFitStore();
-  const room = useDroneRoom(type);
+  const room = useDroneRoom(mutatedFrom ?? type);
+  const select = (count: number) => {
+    if (mutatedFrom) store.setActiveMutatedDrones(mutatedFrom.id, count);
+    else store.setActiveDrones(type.id, count);
+  };
 
   return (
-    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- A <fieldset> is for form controls.
-    <span className={styles.selection} role="group" aria-label={`Active ${type.name}`}>
+    <span
+      className={styles.selection}
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- A <fieldset> is for form controls.
+      role="group"
+      aria-label={`Active ${mutatedFrom ? `Mutated ${mutatedFrom.name}` : type.name}`}
+    >
       Selected:
       {Array.from({ length: Math.max(max, active) }, (_, index) => {
         const count = index + 1;
@@ -151,7 +200,7 @@ function DroneSelection({ content: { type, quantity, active }, max }: { content:
             aria-pressed={count === active}
             data-state={state}
             disabled={state === "over" || state === "none"}
-            onClick={() => store.setActiveDrones(type.id, count === active ? count - 1 : count)}
+            onClick={() => select(count === active ? count - 1 : count)}
           >
             {count <= active && "×"}
           </button>

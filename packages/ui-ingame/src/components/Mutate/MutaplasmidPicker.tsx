@@ -197,16 +197,11 @@ function upIsGood(range: MutationRange): boolean {
   return range.highIsGood === range.base >= 0;
 }
 
-/** The names without the words they all end in, like "Large Shield Extender Mutaplasmid". */
+/** The names without the words they all have, like "Large Shield Extender Mutaplasmid". */
 function shortNames(names: readonly string[]): string[] {
   const words = names.map((name) => name.split(" "));
-  let shared = 0;
-  while (
-    words.every((name) => name.length > shared + 1) &&
-    words.every((name) => name.at(-1 - shared) === words[0]!.at(-1 - shared))
-  ) {
-    shared++;
-  }
-  if (names.length === 1) shared = words[0]!.at(-1) === "Mutaplasmid" ? 1 : 0;
-  return words.map((name) => name.slice(0, name.length - shared).join(" "));
+  if (words.length === 1) return [words[0]!.filter((word) => word !== "Mutaplasmid").join(" ")];
+  const shared = words[0]!.filter((word) => words.every((name) => name.includes(word)));
+  const short = words.map((name) => name.filter((word) => !shared.includes(word)).join(" "));
+  return short.every((name) => name !== "") ? short : [...names];
 }

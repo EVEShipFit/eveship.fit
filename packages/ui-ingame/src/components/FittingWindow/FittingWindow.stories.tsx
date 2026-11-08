@@ -1044,6 +1044,67 @@ export const CargoHold: Story = {
   },
 };
 
+/** Drones mutate per row of the bay; the window changes the drones selected in it. */
+export const MutateDrones: Story = {
+  parameters: {
+    fit: {
+      ship: { type_id: types.Tristan },
+      items: [{ type_id: types["Hobgoblin II"], slot: { type: "drone_bay" }, quantity: 3, state: "active" }],
+    },
+  },
+  play: async ({ canvas, userEvent }) => {
+    const bay = canvas.getByRole("button", { name: "Drone Bay" });
+    await userEvent.click(bay);
+    const row = () => canvas.getByRole("listitem");
+    await fireEvent.contextMenu(row());
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Mutate" }));
+    const window = await canvas.findByRole("region", { name: "Mutate Hobgoblin II" });
+    await expect(window).toBeVisible();
+    await expect(within(window).getByText("Fitted · Drone Bay")).toBeVisible();
+
+    const chip = (index: number) => within(window).getByRole("button", { name: new RegExp(`^Drone ${index}`) });
+    await expect(chip(1)).toHaveAttribute("aria-pressed", "true");
+    await expect(chip(3)).toHaveAttribute("aria-pressed", "true");
+
+    await userEvent.click(chip(2));
+    await expect(chip(1)).toHaveAttribute("aria-pressed", "false");
+    await expect(chip(2)).toHaveAttribute("aria-pressed", "true");
+    await userEvent.click(within(window).getByRole("button", { name: "Roll" }));
+    await waitFor(() => expect(chip(2)).not.toHaveTextContent(/^Drone 2\s*0%$/));
+    await expect(chip(1)).toHaveTextContent(/^Drone 1\s*0%$/);
+
+    await userEvent.keyboard("{Control>}");
+    await userEvent.click(chip(1));
+    await userEvent.keyboard("{/Control}");
+    await expect(chip(1)).toHaveAttribute("aria-pressed", "true");
+    await expect(chip(3)).toHaveAttribute("aria-pressed", "false");
+
+    const setAll = () => canvas.getByRole("menuitem", { name: "Set All Drones to Selected" });
+    await userEvent.click(within(window).getByRole("button", { name: "More Rolls" }));
+    await expect(setAll()).toBeDisabled();
+    await userEvent.keyboard("{Escape}");
+
+    await userEvent.click(chip(2));
+    await userEvent.click(within(window).getByRole("button", { name: "More Rolls" }));
+    await userEvent.click(setAll());
+    await waitFor(() => expect(chip(3)).not.toHaveTextContent(/^Drone 3\s*0%$/));
+    await expect(chip(1).textContent.slice("Drone 1".length)).toBe(chip(3).textContent.slice("Drone 3".length));
+
+    await userEvent.click(chip(1));
+    await userEvent.click(chip(1));
+    await expect(chip(3)).toHaveAttribute("aria-pressed", "true");
+    await userEvent.click(within(window).getByRole("button", { name: "More Rolls" }));
+    await userEvent.click(within(window).getByRole("menuitem", { name: "Best Roll" }));
+    await userEvent.click(within(window).getByRole("button", { name: "Close" }));
+
+    await userEvent.click(bay);
+    await expect(row()).toHaveTextContent("Mutated Hobgoblin II");
+    await fireEvent.contextMenu(row());
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Remove Mutation" }));
+    await waitFor(() => expect(row()).not.toHaveTextContent("Mutated"));
+  },
+};
+
 export const DroneTooltip: Story = {
   parameters: {
     fit: {

@@ -1,4 +1,13 @@
-import type { Fit, FitItem, ItemRef, ItemStats, Rack, SlotType, Stats, Usage } from "@eveshipfit/fitting";
+import {
+  type Fit,
+  type FitItem,
+  type ItemRef,
+  type ItemStats,
+  type Rack,
+  type SlotType,
+  type Stats,
+  type Usage,
+} from "@eveshipfit/fitting";
 import type { SdeType } from "@eveshipfit/sde-loader";
 import { useMemo } from "react";
 
@@ -105,6 +114,10 @@ export interface BayContent {
   /** How many of `quantity` are active, like launched drones. */
   readonly active: number;
   readonly refs: readonly ItemRef[];
+  /** Tells the rows of a bay apart. */
+  readonly key: string;
+  /** The type mutated drones were before. */
+  readonly mutatedFrom: SdeType | undefined;
 }
 
 const baySlots: Record<"cargo" | "droneBay" | "fighterBay", SlotType> = {
@@ -113,23 +126,30 @@ const baySlots: Record<"cargo" | "droneBay" | "fighterBay", SlotType> = {
   fighterBay: "fighter_bay",
 };
 
-/** What is in a bay, one entry per type, by name; does not follow the preview. */
+/** What is in a bay, one entry per type or per kind of mutated drone, by name; does not follow the preview. */
 export function useBayContents(bay: "cargo" | "droneBay" | "fighterBay"): readonly BayContent[] {
   const sde = useSde();
   const fit = useFit();
 
   return useMemo(() => {
-    const byType = new Map<number, { type: SdeType; quantity: number; active: number; refs: ItemRef[] }>();
+    const rows = new Map<string, BayContent & { quantity: number; active: number; refs: ItemRef[] }>();
     fit.items.forEach((item, ref) => {
       const type = sde.type(item.type_id);
       if (item.slot.type !== baySlots[bay] || type === undefined) return;
-      const content = byType.get(type.id) ?? { type, quantity: 0, active: 0, refs: [] };
+      const base = bay === "droneBay" ? item.mutation?.base : undefined;
+      const key = base === undefined ? String(type.id) : `mutated-${base}`;
+      const mutatedFrom = base === undefined ? undefined : sde.type(base);
+      const content = rows.get(key) ?? { type, quantity: 0, active: 0, refs: [], key, mutatedFrom };
       content.quantity += item.quantity ?? 1;
       if (item.state === "active") content.active += item.quantity ?? 1;
       content.refs.push(ref);
-      byType.set(type.id, content);
+      rows.set(key, content);
     });
-    return [...byType.values()].toSorted((a, b) => a.type.name.localeCompare(b.type.name));
+    return [...rows.values()].toSorted(
+      (a, b) =>
+        (a.mutatedFrom ?? a.type).name.localeCompare((b.mutatedFrom ?? b.type).name) ||
+        Number(a.mutatedFrom !== undefined) - Number(b.mutatedFrom !== undefined),
+    );
   }, [sde, fit, bay]);
 }
 

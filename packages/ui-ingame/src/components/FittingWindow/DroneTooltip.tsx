@@ -6,12 +6,20 @@ import { Attribute } from "../FittingWheel/ModuleLines/parts/Attribute";
 import { DamageTypes } from "../FittingWheel/ModuleLines/parts/Damage";
 import { EffectRange } from "../FittingWheel/ModuleLines/parts/EffectRange";
 import { Tracking } from "../FittingWheel/ModuleLines/parts/Tracking";
-import { TypeRow } from "../FittingWheel/ModuleTooltip";
+import { MutatedFrom, TypeRow } from "../FittingWheel/ModuleTooltip";
 import styles from "../FittingWheel/ModuleTooltip.module.css";
 import { damagePerSecond, unit } from "../ShipStatistics/units";
 
 /** What EVE shows when hovering a drone in the drone bay. */
-export function DroneTooltip({ itemRef, typeId }: { itemRef: ItemRef; typeId: number }) {
+export function DroneTooltip({
+  itemRef,
+  typeId,
+  mutatedFrom,
+}: {
+  itemRef: ItemRef;
+  typeId: number;
+  mutatedFrom?: number;
+}) {
   const sde = useSde();
   const type = useType(typeId);
   const effectId = type?.defaultEffectId;
@@ -28,6 +36,7 @@ export function DroneTooltip({ itemRef, typeId }: { itemRef: ItemRef; typeId: nu
   return (
     <span className={styles.tooltip}>
       <TypeRow typeId={typeId} />
+      {mutatedFrom !== undefined && <MutatedFrom typeId={mutatedFrom} />}
       {effectId !== undefined && <EffectRange itemRef={itemRef} effectId={effectId} />}
       <Attribute name="damageMultiplier">Damage Per Second {dps.text}</Attribute>
       <DamageTypes itemRef={itemRef} />

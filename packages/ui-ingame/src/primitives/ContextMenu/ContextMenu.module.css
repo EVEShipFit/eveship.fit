@@ -35,6 +35,13 @@
   outline: none;
 }
 
+.menu > button:disabled {
+  background: none;
+  color: var(--esf-text-muted);
+  cursor: default;
+  opacity: 0.6;
+}
+
 .icon {
   display: grid;
   flex: none;
