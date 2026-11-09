@@ -335,6 +335,97 @@
   outline: none;
 }
 
+.saveAnchor {
+  anchor-name: --fit-save;
+  display: flex;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.saveMain {
+  align-items: center;
+  display: flex;
+  gap: calc(6 * var(--browser-unit));
+  min-width: 0;
+}
+
+.saveMain > img,
+.saveMenu img {
+  flex: none;
+  height: calc(12 * var(--browser-unit));
+  width: calc(12 * var(--browser-unit));
+}
+
+.saveName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saveArrow {
+  border-left: 0;
+  flex: none;
+  min-width: 0;
+  padding: 0;
+  position: relative;
+  width: calc(26 * var(--browser-unit));
+}
+
+.saveArrow::after {
+  border: calc(4 * var(--browser-unit)) solid transparent;
+  border-top: calc(5 * var(--browser-unit)) solid currentcolor;
+  content: "";
+  left: 50%;
+  position: absolute;
+  top: calc(50% + 2 * var(--browser-unit));
+  transform: translate(-50%, -50%);
+}
+
+.saveMenu {
+  min-width: calc(230 * var(--browser-unit));
+  position-anchor: --fit-save;
+}
+
+.saveMenu > button {
+  align-items: center;
+  display: flex;
+  gap: calc(8 * var(--browser-unit));
+  padding-left: calc(12 * var(--browser-unit));
+  padding-right: calc(12 * var(--browser-unit));
+}
+
+.saveMenu > button[data-off] {
+  color: var(--esf-text-muted);
+}
+
+.tick {
+  color: var(--esf-button-active-edge);
+  flex: none;
+  width: calc(10 * var(--browser-unit));
+}
+
+.saveNote,
+.saveUpgrade {
+  flex: none;
+  font-size: 0.9em;
+  margin-left: auto;
+  padding-left: calc(12 * var(--browser-unit));
+}
+
+.saveNote {
+  color: var(--esf-text-muted);
+}
+
+.saveUpgrade {
+  color: var(--esf-button-active-edge);
+}
+
+.menuRule {
+  border: 0;
+  border-top: var(--browser-unit) solid var(--esf-input-border);
+  margin: calc(5 * var(--browser-unit)) 0;
+}
+
 .form {
   display: flex;
   flex-direction: column;
@@ -370,6 +461,11 @@
 
 .confirm > p {
   margin: 0 0 calc(12 * var(--browser-unit));
+}
+
+.confirm > ul {
+  margin: 0 0 calc(12 * var(--browser-unit));
+  padding-left: calc(18 * var(--browser-unit));
 }
 
 .dialogButtons {

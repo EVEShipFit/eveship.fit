@@ -1,12 +1,5 @@
-import {
-  parseItemLink,
-  parseMutationText,
-  type Engine,
-  type Fit,
-  type FitStore,
-  type TextFormat,
-} from "@eveshipfit/fitting";
-import { useEngine, useFit, useFitStore, useLocalFits } from "@eveshipfit/react-hooks";
+import { parseItemLink, parseMutationText, type Engine, type FitStore, type TextFormat } from "@eveshipfit/fitting";
+import { canSaveFits, useCharacters, useEngine, useFit, useFitStore, type EsiCharacter } from "@eveshipfit/react-hooks";
 import { useEffect, useId, useState } from "react";
 
 import { Dialog } from "../../primitives/Dialog/Dialog";
@@ -14,6 +7,7 @@ import { Icon } from "../../primitives/Icon/Icon";
 import { Tooltip } from "../../primitives/Tooltip/Tooltip";
 import { useCopyFit, useFlash } from "./copyFit";
 import styles from "./ItemBrowser.module.css";
+import { useSaveFit } from "./saveFit";
 
 interface Draft {
   text: string;
@@ -25,26 +19,23 @@ export function FitActions({ noHullSelected, pasteToOpen }: { noHullSelected: bo
   const engine = useEngine();
   const fit = useFit();
   const store = useFitStore();
-  const { fits, save } = useLocalFits();
   const menu = useId();
   const [saved, flashSaved] = useFlash();
   const [copied, flashCopied] = useFlash();
   const [importing, setImporting] = useState<Draft>();
-  const [naming, setNaming] = useState(false);
-  const [overwriting, setOverwriting] = useState<Fit>();
   const { copy: copyFit, dialog: copyDialog } = useCopyFit();
 
-  const saveNow = (named: Fit) => {
-    setOverwriting(undefined);
-    store.setName(named.name ?? "");
-    save(named);
-    flashSaved();
-  };
-
-  const trySave = (named: Fit) => {
-    const existing = fits.find((one) => one.ship.type_id === named.ship.type_id && one.name === named.name);
-    if (existing === undefined || JSON.stringify(existing) === JSON.stringify(named)) saveNow(named);
-    else setOverwriting(named);
+  const saver = useSaveFit();
+  const [savedTo, setSavedTo] = useState("");
+  const saveCurrent = () => {
+    const where = saver.target?.name ?? "browser";
+    saver.save(fit, {
+      onStart: (named) => store.setName(named.name ?? ""),
+      onSaved: () => {
+        setSavedTo(where);
+        flashSaved();
+      },
+    });
   };
 
   useEffect(() => {
@@ -87,14 +78,13 @@ export function FitActions({ noHullSelected, pasteToOpen }: { noHullSelected: bo
 
   return (
     <div className={styles.actions}>
-      <button
-        type="button"
-        className={styles.action}
-        disabled={noHullSelected}
-        onClick={() => (fit.name ? trySave(fit) : setNaming(true))}
-      >
-        {saved ? "Saved" : "Save"}
-      </button>
+      {saver.characters === undefined ? (
+        <button type="button" className={styles.action} disabled={noHullSelected} onClick={saveCurrent}>
+          {saved ? "Saved" : "Save"}
+        </button>
+      ) : (
+        <SaveSplit saver={saver} savedTo={saved ? savedTo : undefined} disabled={noHullSelected} onSave={saveCurrent} />
+      )}
       <button type="button" className={styles.action} onClick={() => setImporting({ text: "" })}>
         Import…
       </button>
@@ -119,66 +109,105 @@ export function FitActions({ noHullSelected, pasteToOpen }: { noHullSelected: bo
           Copy as esf/1
         </button>
       </div>
-      <Dialog open={naming} title="Save Fit" onClose={() => setNaming(false)}>
-        <NameForm
-          onCancel={() => setNaming(false)}
-          onSave={(named) => {
-            setNaming(false);
-            trySave(named);
-          }}
-        />
-      </Dialog>
-      <Dialog open={overwriting !== undefined} title="Overwrite Fit?" onClose={() => setOverwriting(undefined)}>
-        <div className={styles.confirm}>
-          <p>A fit named &quot;{overwriting?.name}&quot; is already saved for this hull. Overwrite it?</p>
-          <div className={styles.dialogButtons}>
-            <button type="button" className={styles.action} onClick={() => setOverwriting(undefined)}>
-              Cancel
-            </button>
-            <button type="button" className={styles.action} onClick={() => overwriting && saveNow(overwriting)}>
-              Overwrite
-            </button>
-          </div>
-        </div>
-      </Dialog>
       <Dialog open={importing !== undefined} title="Import Fit" onClose={() => setImporting(undefined)}>
         <ImportForm draft={importing ?? { text: "" }} onDone={() => setImporting(undefined)} />
       </Dialog>
       {copyDialog}
+      {saver.dialog}
     </div>
   );
 }
 
-function NameForm({ onCancel, onSave }: { onCancel: () => void; onSave: (named: Fit) => void }) {
-  const engine = useEngine();
-  const fit = useFit();
-  const id = useId();
-  const [name, setName] = useState(() => engine.sde.type(fit.ship.type_id)?.name ?? "");
+function SaveSplit({
+  saver: { characters, target, pick, saving },
+  savedTo,
+  disabled,
+  onSave,
+}: {
+  saver: ReturnType<typeof useSaveFit>;
+  savedTo: string | undefined;
+  disabled: boolean;
+  onSave: () => void;
+}) {
+  const menu = useId();
+  const { current, login } = useCharacters();
+  const where = target?.name ?? "browser";
+  const close = () => document.getElementById(menu)?.hidePopover();
+  const choose = (owner: "browser" | number) => {
+    pick(owner);
+    close();
+  };
+  const logIn = (canSave: boolean) => {
+    close();
+    login?.(canSave);
+  };
+  const row = (character: EsiCharacter) => {
+    const writable = canSaveFits(character);
+    return (
+      <button
+        key={character.id}
+        type="button"
+        role={writable ? "menuitemradio" : "menuitem"}
+        aria-checked={writable ? character.id === target?.id : undefined}
+        data-off={!writable || undefined}
+        onClick={
+          writable ? () => choose(character.id) : () => logIn(character.status !== "expired" || character.canWriteFits)
+        }
+      >
+        <span className={styles.tick}>{character.id === target?.id && "✓"}</span>
+        <Icon name="fits-personal" />
+        <span className={styles.saveName}>{character.name}</span>
+        {!writable && (
+          <span className={styles.saveUpgrade}>{character.status === "expired" ? "Log in again" : "Allow saving"}</span>
+        )}
+        {writable && String(character.id) === current && <span className={styles.saveNote}>flying now</span>}
+      </button>
+    );
+  };
 
   return (
-    <form
-      className={styles.form}
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSave({ ...fit, name: name.trim() });
-      }}
-    >
-      <label htmlFor={id}>Name this fit.</label>
-      <input
-        id={id}
-        value={name}
-        onFocus={(event) => event.currentTarget.select()}
-        onChange={(event) => setName(event.target.value)}
-      />
-      <div className={styles.dialogButtons}>
-        <button type="button" className={styles.action} onClick={onCancel}>
-          Cancel
+    <>
+      <span className={styles.saveAnchor}>
+        <button
+          type="button"
+          className={`${styles.action} ${styles.saveMain}`}
+          disabled={disabled}
+          aria-disabled={saving || undefined}
+          onClick={onSave}
+        >
+          <Icon name={target === undefined ? "fits-browser" : "fits-personal"} />
+          <span className={styles.saveName}>
+            {savedTo === undefined ? `Save to ${where}` : `Saved to ${savedTo} ✓`}
+          </span>
         </button>
-        <button type="submit" className={styles.action} disabled={name.trim() === ""}>
-          Save
+        <button
+          type="button"
+          className={`${styles.action} ${styles.saveArrow}`}
+          aria-label="Where to save"
+          popoverTarget={menu}
+        />
+      </span>
+      <div id={menu} className={`${styles.menu} ${styles.saveMenu}`} popover="auto" role="menu">
+        <button
+          type="button"
+          role="menuitemradio"
+          aria-checked={target === undefined}
+          onClick={() => choose("browser")}
+        >
+          <span className={styles.tick}>{target === undefined && "✓"}</span>
+          <Icon name="fits-browser" />
+          This browser
         </button>
+        <hr className={styles.menuRule} />
+        {characters?.map(row)}
+        {characters?.length === 0 && login && (
+          <button type="button" role="menuitem" onClick={() => logIn(true)}>
+            <span className={styles.tick} />
+            <span className={styles.saveUpgrade}>Log in and allow saving</span>
+          </button>
+        )}
       </div>
-    </form>
+    </>
   );
 }
 

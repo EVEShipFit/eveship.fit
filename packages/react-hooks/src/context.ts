@@ -6,7 +6,7 @@ import { createContext, useContext, type Context, type Dispatch, type SetStateAc
 
 import type { DamageProfiles } from "./damage-profiles.js";
 import type { EsiCharacters } from "./esi-characters.js";
-import type { LocalFits } from "./local-fits.js";
+import type { FitOwner, LocalFits } from "./local-fits.js";
 
 export type DragItem =
   | { type: "type"; typeId: number }
@@ -87,6 +87,10 @@ export interface CharacterState {
   /** The ID of the character flying the fit, as `useCharacters` lists it. */
   current: string;
   setCurrent: (id: string) => void;
+  beforeLogin: (() => void) | undefined;
+  /** Who saves go to since it was picked; undefined until then. */
+  saveTo: FitOwner | undefined;
+  setSaveTo: (owner: FitOwner) => void;
 }
 
 export interface DamageProfileState {

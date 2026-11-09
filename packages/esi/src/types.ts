@@ -87,6 +87,9 @@ export interface CharacterFitting {
   items: FittingItem[];
 }
 
+/** A fitting to save for a character. */
+export type NewCharacterFitting = Omit<CharacterFitting, "fitting_id">;
+
 /** An item of a fitting; `flag` is where it sits, like `HiSlot0` or `DroneBay`. */
 export interface FittingItem {
   type_id: number;

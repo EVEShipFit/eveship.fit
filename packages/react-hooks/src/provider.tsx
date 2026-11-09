@@ -28,7 +28,7 @@ import { DamageProfiles } from "./damage-profiles.js";
 import type { EsiCharacters } from "./esi-characters.js";
 import { ALL_SKILLS_V, useFlyCharacter } from "./hooks/characters.js";
 import { useApplyDamageProfile } from "./hooks/damage-profiles.js";
-import { LocalFits } from "./local-fits.js";
+import { LocalFits, type FitOwner } from "./local-fits.js";
 
 const RIFTER = 587;
 
@@ -42,6 +42,8 @@ export interface EveShipFitProviderProps {
   characters?: EsiCharacters;
   /** Who flies the fit at first, as `useCharacters` lists it; All L5 when left out. */
   character?: string;
+  /** Called just before the browser leaves for EVE's login. */
+  beforeLogin?: () => void;
   /** Where the damage profiles people made live; `localStorage` when left out. */
   damageProfiles?: DamageProfiles;
   /** Prices what ESI has none for. */
@@ -55,6 +57,7 @@ export function EveShipFitProvider({
   localFits,
   characters,
   character: firstCharacter,
+  beforeLogin,
   damageProfiles,
   zkillboard,
   children,
@@ -82,6 +85,7 @@ export function EveShipFitProvider({
   const [info, setInfo] = useState<ShownInfo>();
   const [mutating, setMutating] = useState<ShownMutation>();
   const [character, setCharacter] = useState(firstCharacter ?? ALL_SKILLS_V);
+  const [saveTo, setSaveTo] = useState<FitOwner>();
   useFlyCharacter(engine, fit ?? ownFit, characters, character, firstCharacter !== undefined);
   const [damageProfile, setDamageProfile] = useState<string>();
   useApplyDamageProfile(fit ?? ownFit, damageProfiles ?? ownDamageProfiles, damageProfile);
@@ -91,7 +95,7 @@ export function EveShipFitProvider({
       <FitContext value={fit ?? ownFit}>
         <LocalFitsContext value={localFits ?? ownLocalFits}>
           <EsiCharactersContext value={characters}>
-            <CharacterContext value={{ current: character, setCurrent: setCharacter }}>
+            <CharacterContext value={{ current: character, setCurrent: setCharacter, beforeLogin, saveTo, setSaveTo }}>
               <PreviewContext value={previewState}>
                 <DragContext value={{ dragging, setDragging }}>
                   <BrowseContext value={{ request: browse, setRequest: setBrowse }}>

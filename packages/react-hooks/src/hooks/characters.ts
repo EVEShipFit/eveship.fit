@@ -30,8 +30,8 @@ export interface CharactersControls {
   readonly current: string;
   /** Fly the fit with this character. */
   readonly select: (id: string) => void;
-  /** Sends the browser to EVE's login; undefined without the provider's `characters`. */
-  readonly login: (() => void) | undefined;
+  /** Sends the browser to EVE's login, read-only unless `canSave`; undefined without the provider's `characters`. */
+  readonly login: ((canSave?: boolean) => void) | undefined;
   /** Loads a logged-in character's skills again. */
   readonly refresh: (id: string) => void;
   /** Forgets a logged-in character. */
@@ -50,7 +50,7 @@ const noSubscribe = () => () => {};
 export function useCharacters(): CharactersControls {
   const esiCharacters = useContext(EsiCharactersContext);
   const logins = useEsiCharacters(esiCharacters);
-  const { current, setCurrent } = useRequiredContext(CharacterContext);
+  const { current, setCurrent, beforeLogin } = useRequiredContext(CharacterContext);
 
   return {
     characters: [...logins.map((login) => ({ id: String(login.id), name: login.name, login })), ...generic],
@@ -61,8 +61,9 @@ export function useCharacters(): CharactersControls {
     },
     login:
       esiCharacters &&
-      (() => {
-        esiCharacters.login().then(
+      ((canSave) => {
+        beforeLogin?.();
+        esiCharacters.login(canSave).then(
           (url) => location.assign(url),
           (error: unknown) => console.error(error),
         );

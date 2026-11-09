@@ -79,6 +79,37 @@ export class LocalFits {
     });
   }
 
+  /** The ESI fitting ID of the character's `fit`, or else of its fit with that hull and name. */
+  fittingId(characterId: number, fit: Fit): number | undefined {
+    const owned = this.#entries.filter(({ key }) => ownerOf(key) === characterId);
+    const entry =
+      owned.find((one) => JSON.stringify(one.fit) === JSON.stringify(fit)) ??
+      owned.find((one) => one.fit.ship.type_id === fit.ship.type_id && one.fit.name === fit.name);
+    return entry === undefined ? undefined : (entry.key as [number, number])[1];
+  }
+
+  /** Adds a fit of the character by ESI fitting ID, in place of the fitting with ID `replaces`. */
+  addCharacterFit(characterId: number, fittingId: number, fit: Fit, replaces?: number): Promise<void> {
+    const key = [characterId, fittingId];
+    const old = replaces === undefined ? undefined : [characterId, replaces];
+    return this.#change(
+      [...this.#entries.filter((entry) => old === undefined || !same(entry.key, old)), { key, fit }],
+      (store) => {
+        store.put(fit, key);
+        if (old !== undefined) store.delete(old);
+      },
+    );
+  }
+
+  /** Removes a fit of the character by ESI fitting ID. */
+  removeCharacterFit(characterId: number, fittingId: number): Promise<void> {
+    const key = [characterId, fittingId];
+    return this.#change(
+      this.#entries.filter((entry) => !same(entry.key, key)),
+      (store) => store.delete(key),
+    );
+  }
+
   /** Stops listening to other tabs and closes the database. */
   async close() {
     this.#channel.close();

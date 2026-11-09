@@ -1,4 +1,5 @@
 import {
+  EsiError,
   SsoError,
   type CharacterFitting,
   type CharacterSkills,
@@ -47,6 +48,8 @@ export interface EsiCharacter {
   readonly status: EsiCharacterStatus;
   /** Whether the login may read the character's fittings. */
   readonly canReadFits: boolean;
+  /** Whether the login may save fittings for the character. */
+  readonly canWriteFits: boolean;
 }
 
 interface Stored {
@@ -57,9 +60,13 @@ interface Stored {
   scopes?: readonly string[];
   skills?: Record<number, number>;
   updated?: number;
+  /** When a fitting was last saved or deleted, in milliseconds since the epoch. */
+  fitsChanged?: number;
 }
 
 const FITTINGS_SCOPE = "esi-fittings.read_fittings.v1";
+const WRITE_FITTINGS_SCOPE = "esi-fittings.write_fittings.v1";
+const FITTINGS_CACHE_MS = 300_000;
 const SCOPES = ["esi-skills.read_skills.v1", "esi-skills.read_skillqueue.v1", FITTINGS_SCOPE];
 const KEY = "eveshipfit.characters";
 const LOGIN_KEY = "eveshipfit.login";
@@ -116,8 +123,8 @@ export class EsiCharacters {
   };
 
   /** The URL of EVE's login, to send the user to. */
-  async login(): Promise<string> {
-    const { url, state, verifier } = await this.#sso.authorize(SCOPES);
+  async login(canSave = false): Promise<string> {
+    const { url, state, verifier } = await this.#sso.authorize(canSave ? [...SCOPES, WRITE_FITTINGS_SCOPE] : SCOPES);
     this.#session.setItem(LOGIN_KEY, JSON.stringify({ state, verifier }));
     return url;
   }
@@ -170,7 +177,60 @@ export class EsiCharacters {
       }
       await this.#refresh(id, latest);
     };
-    void (this.#locks === undefined ? task() : this.#locks.request(`${LOCK_PREFIX}${id}`, task));
+    void this.#locked(id, task);
+  }
+
+  /** Saves the fit for the character in EVE; with `replace`, in place of its fit with the same hull and name. */
+  saveFit(id: number, fit: Fit, replace = false): Promise<void> {
+    return this.#locked(id, async () => {
+      const character = this.#read().find((one) => one.id === id);
+      const login = character?.refreshToken === undefined ? undefined : await this.#renew(id, character.refreshToken);
+      if (login === undefined) throw new Error("This character needs to log in again");
+
+      const engine = await this.#engine;
+      const replaces = replace ? this.#localFits.fittingId(id, fit) : undefined;
+      const description =
+        replaces === undefined
+          ? ""
+          : ((await this.#esi.characterFittings(id, login.accessToken)).find((one) => one.fitting_id === replaces)
+              ?.description ?? "");
+      const fitting = { ...engine.saveEsiFitting(fit), description };
+      const fittingId = await this.#esi.addCharacterFitting(id, fitting, login.accessToken);
+      this.#update(id, { fitsChanged: Date.now() });
+      const replaced =
+        replaces !== undefined &&
+        (await this.#esi.deleteCharacterFitting(id, replaces, login.accessToken).then(
+          () => true,
+          (error: unknown) => {
+            if (error instanceof EsiError && error.status === 404) return true;
+            console.error(error);
+            return false;
+          },
+        ));
+      await this.#localFits.addCharacterFit(
+        id,
+        fittingId,
+        engine.loadEsiFitting({ fitting_id: fittingId, ...fitting }, this.#flownBy(engine, id)),
+        replaced ? replaces : undefined,
+      );
+    });
+  }
+
+  /** Deletes the character's fit in EVE. */
+  deleteFit(id: number, fit: Fit): Promise<void> {
+    return this.#locked(id, async () => {
+      const character = this.#read().find((one) => one.id === id);
+      const login = character?.refreshToken === undefined ? undefined : await this.#renew(id, character.refreshToken);
+      if (login === undefined) throw new Error("This character needs to log in again");
+
+      const fittingId = this.#localFits.fittingId(id, fit);
+      if (fittingId === undefined) return;
+      await this.#esi.deleteCharacterFitting(id, fittingId, login.accessToken).catch((error: unknown) => {
+        if (!(error instanceof EsiError && error.status === 404)) throw error;
+      });
+      this.#update(id, { fitsChanged: Date.now() });
+      await this.#localFits.removeCharacterFit(id, fittingId);
+    });
   }
 
   /** Forgets the character and its fittings, and revokes its login at EVE. */
@@ -182,27 +242,40 @@ export class EsiCharacters {
     if (refreshToken !== undefined) this.#sso.revoke(refreshToken).catch((error: unknown) => console.error(error));
   }
 
+  #locked(id: number, task: () => Promise<void>): Promise<void> {
+    return this.#locks === undefined ? task() : this.#locks.request(`${LOCK_PREFIX}${id}`, task);
+  }
+
   async #refresh(id: number, refreshToken: string): Promise<void> {
+    let login: SsoLogin | undefined;
+    try {
+      login = await this.#renew(id, refreshToken);
+    } catch (error) {
+      console.error(error);
+      this.#setStatus(id, "failed");
+      return;
+    }
+    if (login !== undefined) await this.#load(login);
+  }
+
+  /** A new login for the character; undefined once EVE no longer accepts the old one. */
+  async #renew(id: number, refreshToken: string): Promise<SsoLogin | undefined> {
     let login: SsoLogin;
     try {
       login = await this.#sso.refresh(refreshToken);
     } catch (error) {
-      if (error instanceof SsoError && error.error === "invalid_grant") {
-        const latest = this.#read().find((character) => character.id === id)?.refreshToken;
-        if (latest !== undefined && latest !== refreshToken) {
-          this.#update(id, { refreshToken: latest });
-          return this.#refresh(id, latest);
-        }
-        this.#status.delete(id);
-        this.#update(id, { refreshToken: undefined });
-      } else {
-        console.error(error);
-        this.#setStatus(id, "failed");
+      if (!(error instanceof SsoError && error.error === "invalid_grant")) throw error;
+      const latest = this.#read().find((character) => character.id === id)?.refreshToken;
+      if (latest !== undefined && latest !== refreshToken) {
+        this.#update(id, { refreshToken: latest });
+        return this.#renew(id, latest);
       }
-      return;
+      this.#status.delete(id);
+      this.#update(id, { refreshToken: undefined });
+      return undefined;
     }
     this.#update(id, { name: login.name, refreshToken: login.refreshToken, scopes: login.scopes });
-    await this.#load(login);
+    return login;
   }
 
   async #load(login: SsoLogin) {
@@ -219,7 +292,8 @@ export class EsiCharacters {
       ]);
       const character = this.#read().find((one) => one.id === characterId);
       if (character === undefined) return;
-      const flownBy = character.skills === undefined ? engine.defaultCharacter : { skills: character.skills };
+      if (Date.now() - (character.fitsChanged ?? 0) < FITTINGS_CACHE_MS) return;
+      const flownBy = this.#flownBy(engine, characterId);
       await this.#localFits.setCharacterFits(
         characterId,
         new Map(fittings.flatMap((one) => fitOf(engine, one, flownBy))),
@@ -227,6 +301,11 @@ export class EsiCharacters {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  #flownBy(engine: Engine, id: number): Character {
+    const skills = this.#read().find((character) => character.id === id)?.skills;
+    return skills === undefined ? engine.defaultCharacter : { skills };
   }
 
   async #loadSkills({ characterId, accessToken }: SsoLogin) {
@@ -291,6 +370,7 @@ export class EsiCharacters {
           updated,
           status: this.#status.get(id) ?? (refreshToken === undefined ? "expired" : "ready"),
           canReadFits: scopes?.includes(FITTINGS_SCOPE) ?? false,
+          canWriteFits: scopes?.includes(WRITE_FITTINGS_SCOPE) ?? false,
         };
       })
       .toSorted((a, b) => a.name.localeCompare(b.name));

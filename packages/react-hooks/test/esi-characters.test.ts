@@ -1,4 +1,4 @@
-import { SsoError, type CharacterFitting, type Esi, type Sso, type SsoLogin } from "@eveshipfit/esi";
+import { EsiError, SsoError, type CharacterFitting, type Esi, type Sso, type SsoLogin } from "@eveshipfit/esi";
 import type { Engine, Fit } from "@eveshipfit/fitting";
 import { afterEach, beforeEach, expect, test, vi, type Mock } from "vitest";
 
@@ -51,9 +51,19 @@ let esi: {
   characterSkills: Mock<Esi["characterSkills"]>;
   characterSkillQueue: Mock<Esi["characterSkillQueue"]>;
   characterFittings: Mock<Esi["characterFittings"]>;
+  addCharacterFitting: Mock<Esi["addCharacterFitting"]>;
+  deleteCharacterFitting: Mock<Esi["deleteCharacterFitting"]>;
 };
-let engine: { loadEsiFitting: Mock<Engine["loadEsiFitting"]> };
-let localFits: { setCharacterFits: Mock<LocalFits["setCharacterFits"]> };
+let engine: {
+  loadEsiFitting: Mock<Engine["loadEsiFitting"]>;
+  saveEsiFitting: Mock<Engine["saveEsiFitting"]>;
+};
+let localFits: {
+  setCharacterFits: Mock<LocalFits["setCharacterFits"]>;
+  addCharacterFit: Mock<LocalFits["addCharacterFit"]>;
+  fittingId: Mock<LocalFits["fittingId"]>;
+  removeCharacterFit: Mock<LocalFits["removeCharacterFit"]>;
+};
 let storage: CharacterStorage;
 let session: CharacterStorage;
 let locks: CharacterLocks;
@@ -77,6 +87,8 @@ beforeEach(() => {
     })),
     characterSkillQueue: vi.fn<Esi["characterSkillQueue"]>(async () => []),
     characterFittings: vi.fn<Esi["characterFittings"]>(async () => [fitting(1, "Fleet Rifter")]),
+    addCharacterFitting: vi.fn<Esi["addCharacterFitting"]>(async () => 2),
+    deleteCharacterFitting: vi.fn<Esi["deleteCharacterFitting"]>(async () => {}),
   };
   engine = {
     loadEsiFitting: vi.fn<Engine["loadEsiFitting"]>((one) => ({
@@ -84,8 +96,19 @@ beforeEach(() => {
       ship: { type_id: one.ship_type_id },
       items: [],
     })),
+    saveEsiFitting: vi.fn<Engine["saveEsiFitting"]>((one) => ({
+      name: one.name ?? "",
+      description: "",
+      ship_type_id: one.ship.type_id,
+      items: [],
+    })),
   };
-  localFits = { setCharacterFits: vi.fn<LocalFits["setCharacterFits"]>(async () => {}) };
+  localFits = {
+    setCharacterFits: vi.fn<LocalFits["setCharacterFits"]>(async () => {}),
+    addCharacterFit: vi.fn<LocalFits["addCharacterFit"]>(async () => {}),
+    fittingId: vi.fn<LocalFits["fittingId"]>(() => undefined),
+    removeCharacterFit: vi.fn<LocalFits["removeCharacterFit"]>(async () => {}),
+  };
   storage = memoryStorage();
   session = memoryStorage();
   locks = memoryLocks();
@@ -125,7 +148,15 @@ test("a login adds the character with its skills, and is kept in storage", async
 
   expect(sso.login).toHaveBeenCalledWith("code", "verifier");
   expect(store.list()).toEqual([
-    { id: PILOT, name: "Pilot", skills: { [GUNNERY]: 3 }, updated: Date.now(), status: "ready", canReadFits: true },
+    {
+      id: PILOT,
+      name: "Pilot",
+      skills: { [GUNNERY]: 3 },
+      updated: Date.now(),
+      status: "ready",
+      canReadFits: true,
+      canWriteFits: false,
+    },
   ]);
   expect(characters().list()).toEqual(store.list());
 });
@@ -368,4 +399,179 @@ test("two tabs loading at once refresh the token one after the other", async () 
 
   expect(sso.refresh.mock.calls).toEqual([["refresh"], ["first"]]);
   expect(otherTab.list()[0]!.status).toBe("ready");
+});
+
+const WRITE_SCOPE = "esi-fittings.write_fittings.v1";
+
+test("a login only asks to write fittings when told to", async () => {
+  const store = characters();
+
+  await store.login();
+  expect(sso.authorize).toHaveBeenLastCalledWith(SCOPES);
+
+  await store.login(true);
+  expect(sso.authorize).toHaveBeenLastCalledWith([...SCOPES, WRITE_SCOPE]);
+});
+
+test("a login keeps whether it may write fittings", async () => {
+  sso.login.mockResolvedValue({ ...login(), scopes: [...SCOPES, WRITE_SCOPE] });
+  const store = await loggedIn();
+
+  expect(store.list()[0]!.canWriteFits).toBe(true);
+  expect(characters().list()[0]!.canWriteFits).toBe(true);
+});
+
+test("saving a fit posts it and keeps it with its new fitting ID", async () => {
+  const store = await loggedIn();
+  const brawler = fit("Brawler");
+
+  await store.saveFit(PILOT, brawler);
+
+  expect(esi.addCharacterFitting).toHaveBeenCalledWith(
+    PILOT,
+    { name: "Brawler", description: "", ship_type_id: RIFTER, items: [] },
+    "access",
+  );
+  expect(esi.deleteCharacterFitting).not.toHaveBeenCalled();
+  expect(localFits.addCharacterFit).toHaveBeenCalledWith(PILOT, 2, brawler, undefined);
+});
+
+test("saving over a fit keeps its description and deletes the old fitting after the new one is saved", async () => {
+  const store = await loggedIn();
+  localFits.fittingId.mockReturnValue(1);
+  esi.characterFittings.mockResolvedValue([{ ...fitting(1, "Fleet Rifter"), description: "Keep this" }]);
+
+  await store.saveFit(PILOT, fit("Fleet Rifter"), true);
+
+  expect(esi.addCharacterFitting).toHaveBeenCalledWith(
+    PILOT,
+    expect.objectContaining({ description: "Keep this" }),
+    "access",
+  );
+
+  expect(esi.addCharacterFitting.mock.invocationCallOrder[0]!).toBeLessThan(
+    esi.deleteCharacterFitting.mock.invocationCallOrder[0]!,
+  );
+  expect(esi.deleteCharacterFitting).toHaveBeenCalledWith(PILOT, 1, "access");
+  expect(localFits.addCharacterFit).toHaveBeenCalledWith(PILOT, 2, fit("Fleet Rifter"), 1);
+});
+
+test("the old fitting stays listed when deleting it fails", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  const store = await loggedIn();
+  localFits.fittingId.mockReturnValue(1);
+  esi.deleteCharacterFitting.mockRejectedValue(new Error("nope"));
+
+  await store.saveFit(PILOT, fit("Fleet Rifter"), true);
+
+  expect(localFits.addCharacterFit).toHaveBeenCalledWith(PILOT, 2, fit("Fleet Rifter"), undefined);
+});
+
+test("a failed save rejects and keeps nothing", async () => {
+  const store = await loggedIn();
+  esi.addCharacterFitting.mockRejectedValue(new Error("nope"));
+
+  await expect(store.saveFit(PILOT, fit("Brawler"))).rejects.toThrow("nope");
+
+  expect(localFits.addCharacterFit).not.toHaveBeenCalled();
+  expect(store.list()[0]!.status).toBe("ready");
+});
+
+test("saving needs a login EVE still accepts", async () => {
+  const store = await loggedIn();
+  sso.refresh.mockRejectedValue(new SsoError(400, "invalid_grant", undefined));
+
+  await expect(store.saveFit(PILOT, fit("Brawler"))).rejects.toThrow("needs to log in again");
+
+  expect(esi.addCharacterFitting).not.toHaveBeenCalled();
+  expect(store.list()[0]!.status).toBe("expired");
+});
+
+test("ESI's cached fittings do not undo a save, until the cache has passed", async () => {
+  const store = await loggedIn();
+  await store.saveFit(PILOT, fit("Brawler"));
+  localFits.setCharacterFits.mockClear();
+
+  store.refresh(PILOT);
+  await vi.advanceTimersByTimeAsync(1000);
+  expect(localFits.setCharacterFits).not.toHaveBeenCalled();
+
+  await vi.advanceTimersByTimeAsync(300_000);
+  store.refresh(PILOT);
+  await vi.advanceTimersByTimeAsync(1000);
+  expect(localFits.setCharacterFits).toHaveBeenCalled();
+});
+
+test("only a save that may replace deletes the fit with the same name", async () => {
+  const store = await loggedIn();
+  localFits.fittingId.mockReturnValue(1);
+
+  await store.saveFit(PILOT, fit("Fleet Rifter"));
+
+  expect(esi.deleteCharacterFitting).not.toHaveBeenCalled();
+  expect(localFits.addCharacterFit).toHaveBeenCalledWith(PILOT, 2, fit("Fleet Rifter"), undefined);
+});
+
+test("a fitting that is already gone counts as replaced", async () => {
+  const store = await loggedIn();
+  localFits.fittingId.mockReturnValue(1);
+  esi.deleteCharacterFitting.mockRejectedValue(new EsiError("/fittings/1", 404, undefined));
+
+  await store.saveFit(PILOT, fit("Fleet Rifter"), true);
+
+  expect(localFits.addCharacterFit).toHaveBeenCalledWith(PILOT, 2, fit("Fleet Rifter"), 1);
+});
+
+test("a save waits for a running refresh, so each uses the newest token", async () => {
+  const store = await loggedIn();
+  sso.refresh.mockClear();
+
+  store.refresh(PILOT);
+  const saving = store.saveFit(PILOT, fit("Brawler"));
+  await vi.runAllTimersAsync();
+  await saving;
+
+  expect(sso.refresh.mock.calls).toEqual([["refresh"], ["rotated"]]);
+});
+
+test("deleting a fit deletes it in EVE and here", async () => {
+  const store = await loggedIn();
+  localFits.fittingId.mockReturnValue(1);
+
+  await store.deleteFit(PILOT, fit("Fleet Rifter"));
+
+  expect(esi.deleteCharacterFitting).toHaveBeenCalledWith(PILOT, 1, "access");
+  expect(localFits.removeCharacterFit).toHaveBeenCalledWith(PILOT, 1);
+});
+
+test("a fit EVE already lost is removed here too", async () => {
+  const store = await loggedIn();
+  localFits.fittingId.mockReturnValue(1);
+  esi.deleteCharacterFitting.mockRejectedValue(new EsiError("/fittings/1", 404, undefined));
+
+  await store.deleteFit(PILOT, fit("Fleet Rifter"));
+
+  expect(localFits.removeCharacterFit).toHaveBeenCalledWith(PILOT, 1);
+});
+
+test("a failed delete rejects and keeps the fit", async () => {
+  const store = await loggedIn();
+  localFits.fittingId.mockReturnValue(1);
+  esi.deleteCharacterFitting.mockRejectedValue(new EsiError("/fittings/1", 500, undefined));
+
+  await expect(store.deleteFit(PILOT, fit("Fleet Rifter"))).rejects.toThrow("HTTP 500");
+
+  expect(localFits.removeCharacterFit).not.toHaveBeenCalled();
+});
+
+test("ESI's cached fittings do not bring back a deleted fit", async () => {
+  const store = await loggedIn();
+  localFits.fittingId.mockReturnValue(1);
+  await store.deleteFit(PILOT, fit("Fleet Rifter"));
+  localFits.setCharacterFits.mockClear();
+
+  store.refresh(PILOT);
+  await vi.advanceTimersByTimeAsync(1000);
+
+  expect(localFits.setCharacterFits).not.toHaveBeenCalled();
 });

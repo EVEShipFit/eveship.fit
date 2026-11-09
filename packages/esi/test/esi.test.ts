@@ -180,3 +180,33 @@ test("a character's skills, skill queue and fittings go with its access token", 
   expect(fetch).toHaveBeenCalledWith("https://esi.evetech.net/characters/90000001/skillqueue", expect.anything());
   expect(fetch).toHaveBeenCalledWith("https://esi.evetech.net/characters/90000001/fittings", expect.anything());
 });
+
+test("saving a character's fitting posts it and gives its ID", async () => {
+  fetch.mockResolvedValue(Response.json({ fitting_id: 7 }, { status: 201 }));
+  const fitting = { name: "Brawler", description: "", ship_type_id: 587, items: [] };
+
+  await expect(esi().addCharacterFitting(90000001, fitting, "token")).resolves.toBe(7);
+
+  expect(fetch).toHaveBeenCalledWith(
+    "https://esi.evetech.net/characters/90000001/fittings",
+    expect.objectContaining({
+      method: "POST",
+      body: JSON.stringify(fitting),
+      headers: expect.objectContaining({ Authorization: "Bearer token", "Content-Type": "application/json" }),
+    }),
+  );
+});
+
+test("deleting a character's fitting", async () => {
+  fetch.mockResolvedValue(new Response(null, { status: 204 }));
+
+  await esi().deleteCharacterFitting(90000001, 7, "token");
+
+  expect(fetch).toHaveBeenCalledWith(
+    "https://esi.evetech.net/characters/90000001/fittings/7",
+    expect.objectContaining({
+      method: "DELETE",
+      headers: expect.objectContaining({ Authorization: "Bearer token" }),
+    }),
+  );
+});

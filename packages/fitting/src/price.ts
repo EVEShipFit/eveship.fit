@@ -32,9 +32,7 @@ export function fitPriceItems(
     add(item.mutation?.base ?? item.type_id, item.quantity ?? 1);
     if (item.charge === undefined) continue;
 
-    const capacity = sde.type(item.type_id)?.capacity ?? 0;
-    const volume = sde.type(item.charge.type_id)?.volume ?? 0;
-    if (volume > 0) add(item.charge.type_id, Math.floor((capacity / volume) * (1 + 1e-6)));
+    add(item.charge.type_id, chargesPerLoad(sde, item.type_id, item.charge.type_id));
   }
 
   const items = [...quantities].map(([typeId, quantity]) => ({ typeId, quantity, price: price(typeId) }));
@@ -43,4 +41,11 @@ export function fitPriceItems(
 
 function itemTotal(item: FitPriceItem): number {
   return item.price === undefined ? -1 : item.price * item.quantity;
+}
+
+/** How many of a charge fit in a module. */
+export function chargesPerLoad(sde: Sde, moduleTypeId: number, chargeTypeId: number): number {
+  const capacity = sde.type(moduleTypeId)?.capacity ?? 0;
+  const volume = sde.type(chargeTypeId)?.volume ?? 0;
+  return volume > 0 ? Math.floor((capacity / volume) * (1 + 1e-6)) : 0;
 }
