@@ -60,8 +60,8 @@ interface Stored {
   scopes?: readonly string[];
   skills?: Record<number, number>;
   updated?: number;
-  /** When a fitting was last saved, in milliseconds since the epoch. */
-  fitsSaved?: number;
+  /** When a fitting was last saved or deleted, in milliseconds since the epoch. */
+  fitsChanged?: number;
 }
 
 const FITTINGS_SCOPE = "esi-fittings.read_fittings.v1";
@@ -196,7 +196,7 @@ export class EsiCharacters {
               ?.description ?? "");
       const fitting = { ...engine.saveEsiFitting(fit), description };
       const fittingId = await this.#esi.addCharacterFitting(id, fitting, login.accessToken);
-      this.#update(id, { fitsSaved: Date.now() });
+      this.#update(id, { fitsChanged: Date.now() });
       const replaced =
         replaces !== undefined &&
         (await this.#esi.deleteCharacterFitting(id, replaces, login.accessToken).then(
@@ -213,6 +213,23 @@ export class EsiCharacters {
         engine.loadEsiFitting({ fitting_id: fittingId, ...fitting }, this.#flownBy(engine, id)),
         replaced ? replaces : undefined,
       );
+    });
+  }
+
+  /** Deletes the character's fit in EVE. */
+  deleteFit(id: number, fit: Fit): Promise<void> {
+    return this.#locked(id, async () => {
+      const character = this.#read().find((one) => one.id === id);
+      const login = character?.refreshToken === undefined ? undefined : await this.#renew(id, character.refreshToken);
+      if (login === undefined) throw new Error("This character needs to log in again");
+
+      const fittingId = this.#localFits.fittingId(id, fit);
+      if (fittingId === undefined) return;
+      await this.#esi.deleteCharacterFitting(id, fittingId, login.accessToken).catch((error: unknown) => {
+        if (!(error instanceof EsiError && error.status === 404)) throw error;
+      });
+      this.#update(id, { fitsChanged: Date.now() });
+      await this.#localFits.removeCharacterFit(id, fittingId);
     });
   }
 
@@ -275,7 +292,7 @@ export class EsiCharacters {
       ]);
       const character = this.#read().find((one) => one.id === characterId);
       if (character === undefined) return;
-      if (Date.now() - (character.fitsSaved ?? 0) < FITTINGS_CACHE_MS) return;
+      if (Date.now() - (character.fitsChanged ?? 0) < FITTINGS_CACHE_MS) return;
       const flownBy = this.#flownBy(engine, characterId);
       await this.#localFits.setCharacterFits(
         characterId,

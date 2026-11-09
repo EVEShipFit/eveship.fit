@@ -79,12 +79,12 @@ export class LocalFits {
     });
   }
 
-  /** The ESI fitting ID of the character's fit with the hull and name of `fit`. */
+  /** The ESI fitting ID of the character's `fit`, or else of its fit with that hull and name. */
   fittingId(characterId: number, fit: Fit): number | undefined {
-    const entry = this.#entries.find(
-      ({ key, fit: one }) =>
-        ownerOf(key) === characterId && one.ship.type_id === fit.ship.type_id && one.name === fit.name,
-    );
+    const owned = this.#entries.filter(({ key }) => ownerOf(key) === characterId);
+    const entry =
+      owned.find((one) => JSON.stringify(one.fit) === JSON.stringify(fit)) ??
+      owned.find((one) => one.fit.ship.type_id === fit.ship.type_id && one.fit.name === fit.name);
     return entry === undefined ? undefined : (entry.key as [number, number])[1];
   }
 
@@ -98,6 +98,15 @@ export class LocalFits {
         store.put(fit, key);
         if (old !== undefined) store.delete(old);
       },
+    );
+  }
+
+  /** Removes a fit of the character by ESI fitting ID. */
+  removeCharacterFit(characterId: number, fittingId: number): Promise<void> {
+    const key = [characterId, fittingId];
+    return this.#change(
+      this.#entries.filter((entry) => !same(entry.key, key)),
+      (store) => store.delete(key),
     );
   }
 

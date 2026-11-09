@@ -463,6 +463,11 @@
   margin: 0 0 calc(12 * var(--browser-unit));
 }
 
+.confirm > ul {
+  margin: 0 0 calc(12 * var(--browser-unit));
+  padding-left: calc(18 * var(--browser-unit));
+}
+
 .dialogButtons {
   display: flex;
   gap: calc(8 * var(--browser-unit));

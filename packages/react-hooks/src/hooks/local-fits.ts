@@ -17,6 +17,8 @@ export interface PersonalFitsValue {
   readonly fits: readonly Fit[];
   /** The logged-in character flying the fit; undefined for All L5 and All L0. */
   readonly character: EsiCharacter | undefined;
+  /** Deletes one of `fits` in EVE; undefined when `character` may not. */
+  readonly remove: ((fit: Fit) => Promise<void>) | undefined;
 }
 
 export interface FitSavingValue {
@@ -72,10 +74,18 @@ export function useFitSaving(): FitSavingValue {
 export function usePersonalFits(): PersonalFitsValue {
   const localFits = useRequiredContext(LocalFitsContext);
   const { current } = useRequiredContext(CharacterContext);
-  const character = useEsiCharacters(useContext(EsiCharactersContext)).find((login) => String(login.id) === current);
+  const esiCharacters = useContext(EsiCharactersContext);
+  const character = useEsiCharacters(esiCharacters).find((login) => String(login.id) === current);
   const fits = useSyncExternalStore(localFits.subscribe, () =>
     character === undefined ? noFits : localFits.list(character.id),
   );
 
-  return { fits, character };
+  return {
+    fits,
+    character,
+    remove:
+      character !== undefined && canSaveFits(character)
+        ? (fit) => esiCharacters!.deleteFit(character.id, fit)
+        : undefined,
+  };
 }

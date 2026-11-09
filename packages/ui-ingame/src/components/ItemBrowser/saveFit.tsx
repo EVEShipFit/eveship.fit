@@ -17,7 +17,10 @@ interface Job extends SaveCallbacks {
   fit: Fit;
 }
 
-type Asking = { kind: "name"; job: Job } | { kind: "mutated"; job: Job; count: number } | { kind: "replace"; job: Job };
+type Asking =
+  | { kind: "name"; job: Job }
+  | { kind: "mutated"; job: Job; modules: readonly string[] }
+  | { kind: "replace"; job: Job };
 
 /** Saves a fit to where saves go, asking what it needs first; render `dialog` once. */
 export function useSaveFit(): Pick<FitSavingValue, "characters" | "target" | "pick"> & {
@@ -26,6 +29,7 @@ export function useSaveFit(): Pick<FitSavingValue, "characters" | "target" | "pi
   dialog: ReactNode;
 } {
   const engine = useEngine();
+  const typeName = (typeId: number) => engine.sde.type(typeId)?.name ?? String(typeId);
   const { characters, target, fits, pick, save: saveToTarget } = useFitSaving();
   const [asking, setAsking] = useState<Asking>();
   const [notice, setNotice] = useState<string>();
@@ -66,8 +70,13 @@ export function useSaveFit(): Pick<FitSavingValue, "characters" | "target" | "pi
   };
 
   const askMutated = (job: Job) => {
-    const count = target === undefined ? 0 : job.fit.items.filter((item) => item.mutation !== undefined).length;
-    if (count > 0) setAsking({ kind: "mutated", job, count });
+    const modules =
+      target === undefined
+        ? []
+        : job.fit.items.flatMap(({ type_id, mutation }) =>
+            mutation === undefined ? [] : [`${typeName(type_id)} → ${typeName(mutation.base)}`],
+          );
+    if (modules.length > 0) setAsking({ kind: "mutated", job, modules });
     else askReplace(job);
   };
 
@@ -105,7 +114,8 @@ export function useSaveFit(): Pick<FitSavingValue, "characters" | "target" | "pi
         </Dialog>
         <Dialog open={asking?.kind === "mutated"} title="Save to EVE?" onClose={close}>
           <Confirm
-            text={`EVE can't store mutated modules. ${asking?.kind === "mutated" ? asking.count : 0} will be saved as the normal module.`}
+            text="EVE can't store mutated modules. These will be saved as the normal module:"
+            list={asking?.kind === "mutated" ? asking.modules : undefined}
             action="Save anyway"
             onCancel={close}
             onConfirm={() => asking && askReplace(asking.job)}
@@ -144,11 +154,13 @@ export function useSaveFit(): Pick<FitSavingValue, "characters" | "target" | "pi
 
 function Confirm({
   text,
+  list,
   action,
   onCancel,
   onConfirm,
 }: {
   text: string;
+  list?: readonly string[];
   action: string;
   onCancel: () => void;
   onConfirm: () => void;
@@ -156,6 +168,13 @@ function Confirm({
   return (
     <div className={styles.confirm}>
       <p>{text}</p>
+      {list !== undefined && (
+        <ul>
+          {list.map((line, index) => (
+            <li key={index}>{line}</li>
+          ))}
+        </ul>
+      )}
       <div className={styles.dialogButtons}>
         <button type="button" className={styles.action} onClick={onCancel}>
           Cancel

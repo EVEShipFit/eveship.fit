@@ -62,6 +62,7 @@ let localFits: {
   setCharacterFits: Mock<LocalFits["setCharacterFits"]>;
   addCharacterFit: Mock<LocalFits["addCharacterFit"]>;
   fittingId: Mock<LocalFits["fittingId"]>;
+  removeCharacterFit: Mock<LocalFits["removeCharacterFit"]>;
 };
 let storage: CharacterStorage;
 let session: CharacterStorage;
@@ -106,6 +107,7 @@ beforeEach(() => {
     setCharacterFits: vi.fn<LocalFits["setCharacterFits"]>(async () => {}),
     addCharacterFit: vi.fn<LocalFits["addCharacterFit"]>(async () => {}),
     fittingId: vi.fn<LocalFits["fittingId"]>(() => undefined),
+    removeCharacterFit: vi.fn<LocalFits["removeCharacterFit"]>(async () => {}),
   };
   storage = memoryStorage();
   session = memoryStorage();
@@ -530,4 +532,46 @@ test("a save waits for a running refresh, so each uses the newest token", async 
   await saving;
 
   expect(sso.refresh.mock.calls).toEqual([["refresh"], ["rotated"]]);
+});
+
+test("deleting a fit deletes it in EVE and here", async () => {
+  const store = await loggedIn();
+  localFits.fittingId.mockReturnValue(1);
+
+  await store.deleteFit(PILOT, fit("Fleet Rifter"));
+
+  expect(esi.deleteCharacterFitting).toHaveBeenCalledWith(PILOT, 1, "access");
+  expect(localFits.removeCharacterFit).toHaveBeenCalledWith(PILOT, 1);
+});
+
+test("a fit EVE already lost is removed here too", async () => {
+  const store = await loggedIn();
+  localFits.fittingId.mockReturnValue(1);
+  esi.deleteCharacterFitting.mockRejectedValue(new EsiError("/fittings/1", 404, undefined));
+
+  await store.deleteFit(PILOT, fit("Fleet Rifter"));
+
+  expect(localFits.removeCharacterFit).toHaveBeenCalledWith(PILOT, 1);
+});
+
+test("a failed delete rejects and keeps the fit", async () => {
+  const store = await loggedIn();
+  localFits.fittingId.mockReturnValue(1);
+  esi.deleteCharacterFitting.mockRejectedValue(new EsiError("/fittings/1", 500, undefined));
+
+  await expect(store.deleteFit(PILOT, fit("Fleet Rifter"))).rejects.toThrow("HTTP 500");
+
+  expect(localFits.removeCharacterFit).not.toHaveBeenCalled();
+});
+
+test("ESI's cached fittings do not bring back a deleted fit", async () => {
+  const store = await loggedIn();
+  localFits.fittingId.mockReturnValue(1);
+  await store.deleteFit(PILOT, fit("Fleet Rifter"));
+  localFits.setCharacterFits.mockClear();
+
+  store.refresh(PILOT);
+  await vi.advanceTimersByTimeAsync(1000);
+
+  expect(localFits.setCharacterFits).not.toHaveBeenCalled();
 });

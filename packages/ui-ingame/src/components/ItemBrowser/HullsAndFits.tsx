@@ -44,7 +44,8 @@ export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
   const { open, menu } = useContextMenu();
   const { copy, dialog: copyDialog } = useCopyFit();
   const { target: saveTarget, save: saveFit, dialog: saveDialog } = useSaveFit();
-  const [deleting, setDeleting] = useState<Fit>();
+  const [deleting, setDeleting] = useState<Listed>();
+  const [deleteFailed, setDeleteFailed] = useState(false);
   const personal = usePersonalFits();
   const { start, end } = useDrag();
   const [search, setSearch] = useState("");
@@ -112,7 +113,10 @@ export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
       { label: "Copy as EFT", onSelect: () => copy(fit, "eft") },
       { label: "Copy as esf/1", onSelect: () => copy(fit, "esf") },
       "separator",
-      kind === "fits-browser" && { label: "Delete Fitting", onSelect: () => setDeleting(fit) },
+      (kind === "fits-browser" || personal.remove !== undefined) && {
+        label: "Delete Fitting",
+        onSelect: () => setDeleting({ fit, kind }),
+      },
     ]);
   };
 
@@ -251,7 +255,10 @@ export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
       {saveDialog}
       <Dialog open={deleting !== undefined} title="Delete Fitting?" onClose={() => setDeleting(undefined)}>
         <div className={styles.confirm}>
-          <p>Delete the fit &quot;{deleting?.name || "Unnamed"}&quot; from this browser?</p>
+          <p>
+            Delete the fit &quot;{deleting?.fit.name || "Unnamed"}&quot; from{" "}
+            {deleting?.kind === "fits-personal" ? `${personal.character?.name} in EVE` : "this browser"}?
+          </p>
           <div className={styles.dialogButtons}>
             <button type="button" className={styles.action} onClick={() => setDeleting(undefined)}>
               Cancel
@@ -260,11 +267,27 @@ export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
               type="button"
               className={styles.action}
               onClick={() => {
-                if (deleting) remove(deleting);
+                if (deleting?.kind === "fits-browser") remove(deleting.fit);
+                else if (deleting) {
+                  personal.remove?.(deleting.fit).catch((error: unknown) => {
+                    console.error(error);
+                    setDeleteFailed(true);
+                  });
+                }
                 setDeleting(undefined);
               }}
             >
               Delete
+            </button>
+          </div>
+        </div>
+      </Dialog>
+      <Dialog open={deleteFailed} title="Delete Fitting" onClose={() => setDeleteFailed(false)}>
+        <div className={styles.confirm}>
+          <p>EVE did not delete this fit. Please try again.</p>
+          <div className={styles.dialogButtons}>
+            <button type="button" className={styles.action} onClick={() => setDeleteFailed(false)}>
+              Close
             </button>
           </div>
         </div>

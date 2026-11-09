@@ -154,3 +154,22 @@ test("adds a character's fit in place of another", async () => {
   const reopened = open(db);
   await vi.waitFor(() => expect(reopened.list(90000001)).toEqual([kiter, newer]));
 });
+
+test("finds a character's exact fit among those with its hull and name, and removes it", async () => {
+  const db = database();
+  const fits = open(db);
+  const other = { ...brawler, items: [{ type_id: 2048, slot: { type: "low", index: 0 }, state: "online" }] } as Fit;
+  await fits.setCharacterFits(
+    90000001,
+    new Map([
+      [1, brawler],
+      [2, other],
+    ]),
+  );
+
+  expect(fits.fittingId(90000001, other)).toBe(2);
+  expect(fits.fittingId(90000001, { ...brawler, items: other.items.concat(other.items) })).toBe(1);
+
+  await fits.removeCharacterFit(90000001, 2);
+  expect(fits.list(90000001)).toEqual([brawler]);
+});
