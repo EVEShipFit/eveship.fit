@@ -1,5 +1,11 @@
 # @eveshipfit/esi
 
+## 1.3.0
+
+### Minor Changes
+
+- Save fits to a character in EVE ([#342](https://github.com/EVEShipFit/eveship.fit/pull/342))
+
 ## 1.2.0
 
 ### Minor Changes

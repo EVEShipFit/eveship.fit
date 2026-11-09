@@ -1,5 +1,17 @@
 # @eveshipfit/react-hooks
 
+## 2.8.0
+
+### Minor Changes
+
+- Save fits to a character in EVE ([#342](https://github.com/EVEShipFit/eveship.fit/pull/342))
+
+### Patch Changes
+
+- Updated dependencies [[`0f8b1c6`](https://github.com/EVEShipFit/eveship.fit/commit/0f8b1c6858d58c61318af15da48627750d61ce81)]:
+  - @eveshipfit/esi@1.3.0
+  - @eveshipfit/fitting@2.8.0
+
 ## 2.7.0
 
 ### Minor Changes
