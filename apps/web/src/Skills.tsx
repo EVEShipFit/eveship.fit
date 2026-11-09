@@ -76,7 +76,7 @@ export function Skills({ loginError, empty }: { loginError?: string; empty: bool
           type="button"
           className={styles.refresh}
           aria-label={`Refresh ${character.name}`}
-          title="Refresh skills"
+          title="Refresh from EVE"
           disabled={character.login.status === "loading"}
           onClick={() => refresh(character.id)}
         >
