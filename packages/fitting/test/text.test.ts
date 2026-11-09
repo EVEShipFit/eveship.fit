@@ -132,3 +132,25 @@ test("a fit as an ESI fitting, with mutated items as what they were mutated from
     items: [{ type_id: base, flag: "LoSlot0", quantity: 1 }],
   });
 });
+
+test("an ESI fitting has a load per module of each loaded charge in cargo", async () => {
+  const engine = await testEngine();
+  const emp = typeIdOf(engine, "EMP S");
+  const cannon = typeIdOf(engine, "200mm AutoCannon II");
+  const load = Math.floor(engine.sde.type(cannon)!.capacity! / engine.sde.type(emp)!.volume!);
+
+  const fit = engine.loadText("[Rifter, Guns]\n\n200mm AutoCannon II, EMP S\n200mm AutoCannon II, EMP S\n");
+
+  expect(engine.saveEsiFitting(fit).items).toContainEqual({ type_id: emp, flag: "Cargo", quantity: 2 * load });
+});
+
+test("an ESI fitting adds no charge the cargo already holds", async () => {
+  const engine = await testEngine();
+  const emp = typeIdOf(engine, "EMP S");
+
+  const fit = engine.loadText("[Rifter, Guns]\n\n200mm AutoCannon II, EMP S\n\nHobgoblin II x2\n\nEMP S x7\n");
+
+  expect(engine.saveEsiFitting(fit).items.filter((item) => item.flag === "Cargo")).toEqual([
+    { type_id: emp, flag: "Cargo", quantity: 7 },
+  ]);
+});

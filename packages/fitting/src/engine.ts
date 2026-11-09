@@ -5,13 +5,14 @@ import init, {
   save_esi_fitting,
   type InitInput,
 } from "@eveshipfit/dogma-engine";
-import type { CharacterFitting, Esi, NewCharacterFitting } from "@eveshipfit/esi";
+import type { CharacterFitting, Esi, FittingItem as EsiFittingItem, NewCharacterFitting } from "@eveshipfit/esi";
 import type { Sde } from "@eveshipfit/sde-loader";
 
 import { allSkills } from "./character.js";
 import { emptyFit } from "./edits.js";
 import { loadLink, saveLink } from "./link.js";
 import { postLoad } from "./post-load.js";
+import { chargesPerLoad } from "./price.js";
 import type { MutationRoll } from "./rules/mutation.js";
 import { Stats } from "./stats.js";
 import { FitStore, type Calculator } from "./store.js";
@@ -107,11 +108,28 @@ export class Engine implements Calculator {
     return postLoad(load_esi_fitting(fitting), character);
   }
 
-  /** The fit as a fitting a character can save in game, with mutated items as what they were mutated from. */
+  /** The fit as a fitting a character can save in game: mutated items as their base, and a load of each charge in cargo. */
   saveEsiFitting(fit: Fit): NewCharacterFitting {
     const items = fit.items.map(({ mutation, ...item }) =>
       mutation === undefined ? item : { ...item, type_id: mutation.base },
     );
-    return { description: "", ...save_esi_fitting({ ...fit, items }) };
+    const saved = save_esi_fitting({ ...fit, items });
+    return { description: "", ...saved, items: [...saved.items, ...cargoCharges(this.sde, fit)] };
   }
+}
+
+/** One load per module of each loaded charge the cargo does not hold, as ESI fitting items. */
+function cargoCharges(sde: Sde, fit: Fit): EsiFittingItem[] {
+  const inCargo = new Set(fit.items.filter((item) => item.slot.type === "cargo").map((item) => item.type_id));
+  const quantities = new Map<number, number>();
+  for (const { type_id, charge } of fit.items) {
+    if (charge === undefined || inCargo.has(charge.type_id)) continue;
+    quantities.set(
+      charge.type_id,
+      (quantities.get(charge.type_id) ?? 0) + chargesPerLoad(sde, type_id, charge.type_id),
+    );
+  }
+  return [...quantities]
+    .filter(([, quantity]) => quantity > 0)
+    .map(([type_id, quantity]) => ({ type_id, flag: "Cargo", quantity }));
 }

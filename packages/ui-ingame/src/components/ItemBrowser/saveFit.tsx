@@ -114,7 +114,7 @@ export function useSaveFit(): Pick<FitSavingValue, "characters" | "target" | "pi
         </Dialog>
         <Dialog open={asking?.kind === "mutated"} title="Save to EVE?" onClose={close}>
           <Confirm
-            text="EVE can't store mutated modules. These will be saved as the normal module:"
+            text="EVE can't store mutated modules. These will be saved as their normal modules:"
             list={asking?.kind === "mutated" ? asking.modules : undefined}
             action="Save anyway"
             onCancel={close}
