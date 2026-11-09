@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import styles from "./App.module.css";
 import type { Data } from "./data";
 import type { Layout } from "./layout";
+import { keepFit } from "./login";
 import { Skills } from "./Skills";
 
 const zkillboard = new ZKillboard();
@@ -40,11 +41,14 @@ export function Fitting({ data, layout, skills }: FittingProps) {
       localFits={data.localFits}
       characters={data.characters}
       character={data.character}
+      beforeLogin={() => {
+        if (!empty) keepFit(data.fit.getSnapshot().fit);
+      }}
       zkillboard={zkillboard}
     >
       <ImagesProvider images={data.images}>
         <TextsProvider texts={data.texts}>
-          {skills !== null && createPortal(<Skills loginError={data.login.error} empty={empty} />, skills)}
+          {skills !== null && createPortal(<Skills loginError={data.login.error} />, skills)}
           {data.linkError !== undefined && (
             <div className={styles.contents} style={scale}>
               <LinkError error={data.linkError} />

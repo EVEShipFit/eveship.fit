@@ -35,7 +35,15 @@ export {
 } from "./hooks/fit.js";
 export { useImages } from "./hooks/images.js";
 export { useInfo, useShowInfo, type Info, type InfoAttribute, type ShowInfo } from "./hooks/info.js";
-export { useLocalFits, usePersonalFits, type LocalFitsControls, type PersonalFitsValue } from "./hooks/local-fits.js";
+export {
+  canSaveFits,
+  useFitSaving,
+  useLocalFits,
+  usePersonalFits,
+  type FitSavingValue,
+  type LocalFitsControls,
+  type PersonalFitsValue,
+} from "./hooks/local-fits.js";
 export { useMutate, type Mutate } from "./hooks/mutate.js";
 export { useFitPrice, useTypePrice, type FitPriceValue } from "./hooks/price.js";
 export { useRefusal, type Refuse } from "./hooks/refusal.js";

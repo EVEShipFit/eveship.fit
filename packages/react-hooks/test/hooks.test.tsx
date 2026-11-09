@@ -35,6 +35,7 @@ import {
   useFit,
   useFitHistory,
   useFitPrice,
+  useFitSaving,
   useFitStore,
   useFighterTubes,
   useFighterTubeUsage,
@@ -487,6 +488,74 @@ test("a logged-in character flies the fit with its own skills, and has its fitti
   expect(result.current.characters.current).toBe("all-skills-v");
   expect(result.current.store.character).toBe(engine.defaultCharacter);
   expect(result.current.personal.fits).toEqual([]);
+});
+
+const pilot = (id: number, name: string, scopes: string[]) => ({
+  characterId: id,
+  name,
+  scopes,
+  accessToken: "access",
+  refreshToken: "refresh",
+});
+
+test("saves follow who flies the fit, until a pick", async () => {
+  const write = ["esi-fittings.write_fittings.v1"];
+  const logins = [pilot(1, "Ana", write), pilot(2, "Bo", write), pilot(3, "Cy", [])];
+  const added: [number, string][] = [];
+  const localFits = new LocalFits({ factory: new IDBFactory() });
+  const characters = new EsiCharacters({
+    esi: {
+      characterSkills: async () => ({ skills: [], total_sp: 0 }),
+      characterSkillQueue: async () => [],
+      addCharacterFitting: async (id: number, fitting: { name: string }) => {
+        added.push([id, fitting.name]);
+        return 1;
+      },
+    } as unknown as Esi,
+    sso: {
+      authorize: async () => ({ url: "https://login.eveonline.com/", state: "state", verifier: "verifier" }),
+      login: async () => logins.shift()!,
+      refresh: async () => pilot(1, "Ana", write),
+    } as unknown as Sso,
+    engine: Promise.resolve(engine),
+    localFits,
+    storage: memoryStorage(),
+    session: memoryStorage(),
+  });
+  for (let count = 0; count < 3; count++) {
+    await characters.login();
+    await characters.finishLogin("code", "state");
+  }
+
+  const { result } = render(() => ({ characters: useCharacters(), saving: useFitSaving() }), {
+    characters,
+    character: "1",
+    localFits,
+  });
+  const target = () => result.current.saving.target?.name;
+
+  expect(target()).toBe("Ana");
+  act(() => result.current.characters.select("2"));
+  expect(target()).toBe("Bo");
+  act(() => result.current.characters.select("3"));
+  expect(target()).toBeUndefined();
+  act(() => result.current.characters.select("all-skills-v"));
+  expect(target()).toBeUndefined();
+
+  act(() => result.current.characters.select("2"));
+  act(() => result.current.saving.pick(1));
+  act(() => result.current.characters.select("3"));
+  expect(target()).toBe("Ana");
+
+  await act(() => result.current.saving.save({ name: "Brawler", ship: { type_id: RIFTER }, items: [] }));
+  expect(added).toEqual([[1, "Brawler"]]);
+
+  act(() => result.current.saving.pick(3));
+  act(() => result.current.characters.select("2"));
+  expect(target()).toBeUndefined();
+
+  act(() => result.current.saving.pick("browser"));
+  expect(target()).toBeUndefined();
 });
 
 test("drag and drop", () => {

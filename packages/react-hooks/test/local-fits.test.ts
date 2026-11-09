@@ -137,3 +137,20 @@ test("works in memory where the browser blocks IndexedDB", async () => {
   await expect(fits.save(brawler)).rejects.toThrow("insecure");
   expect(fits.list()).toEqual([brawler]);
 });
+
+test("adds a character's fit in place of another", async () => {
+  const db = database();
+  const fits = open(db);
+  await fits.setCharacterFits(90000001, new Map([[1, brawler]]));
+
+  expect(fits.fittingId(90000001, brawler)).toBe(1);
+  expect(fits.fittingId(90000001, kiter)).toBeUndefined();
+
+  await fits.addCharacterFit(90000001, 2, kiter);
+  expect(fits.list(90000001)).toEqual([brawler, kiter]);
+
+  const newer = { ...brawler, items: [] };
+  await fits.addCharacterFit(90000001, 3, newer, 1);
+  const reopened = open(db);
+  await vi.waitFor(() => expect(reopened.list(90000001)).toEqual([kiter, newer]));
+});

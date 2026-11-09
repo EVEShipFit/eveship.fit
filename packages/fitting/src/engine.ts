@@ -1,5 +1,11 @@
-import init, { calculate, load_esi_fitting, load_sde, type InitInput } from "@eveshipfit/dogma-engine";
-import type { CharacterFitting, Esi } from "@eveshipfit/esi";
+import init, {
+  calculate,
+  load_esi_fitting,
+  load_sde,
+  save_esi_fitting,
+  type InitInput,
+} from "@eveshipfit/dogma-engine";
+import type { CharacterFitting, Esi, NewCharacterFitting } from "@eveshipfit/esi";
 import type { Sde } from "@eveshipfit/sde-loader";
 
 import { allSkills } from "./character.js";
@@ -99,5 +105,13 @@ export class Engine implements Calculator {
   /** The fit of a fitting a character saved in game. */
   loadEsiFitting(fitting: CharacterFitting, character: Character = this.defaultCharacter): Fit {
     return postLoad(load_esi_fitting(fitting), character);
+  }
+
+  /** The fit as a fitting a character can save in game, with mutated items as what they were mutated from. */
+  saveEsiFitting(fit: Fit): NewCharacterFitting {
+    const items = fit.items.map(({ mutation, ...item }) =>
+      mutation === undefined ? item : { ...item, type_id: mutation.base },
+    );
+    return { description: "", ...save_esi_fitting({ ...fit, items }) };
   }
 }

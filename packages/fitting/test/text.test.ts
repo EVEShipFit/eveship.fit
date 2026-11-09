@@ -112,3 +112,23 @@ test("an ESI fitting gets the states EVE gives an imported fit", async () => {
 
   expect(fit.items.map((item) => item.state)).toEqual(["active", "online"]);
 });
+
+test("a fit as an ESI fitting, with mutated items as what they were mutated from", async () => {
+  const engine = await testEngine();
+  const base = typeIdOf(engine, "Damage Control II");
+  const fit = engine.loadEsiFitting({
+    fitting_id: 1,
+    name: "My Rifter",
+    description: "",
+    ship_type_id: 587,
+    items: [{ type_id: base, flag: "LoSlot0", quantity: 1 }],
+  });
+  const mutated = { ...fit, items: fit.items.map((item) => ({ ...item, type_id: 47702, mutation: { base } })) };
+
+  expect(engine.saveEsiFitting(mutated)).toEqual({
+    name: "My Rifter",
+    description: "",
+    ship_type_id: 587,
+    items: [{ type_id: base, flag: "LoSlot0", quantity: 1 }],
+  });
+});

@@ -1,9 +1,8 @@
-import { useCharacters, useFitStore, type CharacterChoice, type EsiCharacter } from "@eveshipfit/react-hooks";
+import { useCharacters, type CharacterChoice, type EsiCharacter } from "@eveshipfit/react-hooks";
 import { useEffect, useId, useRef, useState } from "react";
 
-import { keepCharacter } from "./character";
+import { keepCanSave, keepCharacter, keptCanSave } from "./character";
 import { CloseIcon, RefreshIcon } from "./icons";
-import { keepFit } from "./login";
 import styles from "./Skills.module.css";
 
 const descriptions: Record<string, string> = {
@@ -11,16 +10,20 @@ const descriptions: Record<string, string> = {
   "All L0": "No skills at all",
 };
 
+const accessLevels = [
+  { canSave: false, title: "View only", detail: "Uses your skills and fittings." },
+  { canSave: true, title: "View and save fits", detail: "Fits you save show up in game." },
+];
+
 const warnings = {
   expired: "Login expired",
   failed: "Could not load skills",
 };
 
 /** The button to pick which character flies the fit, and the card it pops up. */
-export function Skills({ loginError, empty }: { loginError?: string; empty: boolean }) {
+export function Skills({ loginError }: { loginError?: string }) {
   const id = useId();
   const card = useRef<HTMLDialogElement>(null);
-  const store = useFitStore();
   const { characters, current, select, login, refresh, remove } = useCharacters();
   const shown = characters.find((character) => character.id === current);
   const own = characters.filter((character) => character.login !== undefined);
@@ -42,13 +45,6 @@ export function Skills({ loginError, empty }: { loginError?: string; empty: bool
     if (loginError !== undefined) card.current?.showPopover();
   }, [loginError]);
 
-  const startLogin =
-    login &&
-    (() => {
-      if (!empty) keepFit(store.getSnapshot().fit);
-      login();
-    });
-
   const row = (character: CharacterChoice) => (
     <li key={character.id} className={character.id === current ? `${styles.row} ${styles.current}` : styles.row}>
       <button
@@ -66,11 +62,19 @@ export function Skills({ loginError, empty }: { loginError?: string; empty: bool
         </small>
       </button>
       {character.id === current && <span className={styles.check}>✓</span>}
-      {character.login?.status === "expired" && startLogin && (
-        <button type="button" className={styles.relogin} onClick={startLogin}>
+      {character.login?.status === "expired" && login && (
+        <button type="button" className={styles.relogin} onClick={() => login(character.login?.canWriteFits)}>
           Log in again
         </button>
       )}
+      {character.login !== undefined &&
+        character.login.status !== "expired" &&
+        !character.login.canWriteFits &&
+        login && (
+          <button type="button" className={styles.allow} onClick={() => login(true)}>
+            Allow saving
+          </button>
+        )}
       {character.login !== undefined && character.login.status !== "expired" && (
         <button
           type="button"
@@ -125,31 +129,78 @@ export function Skills({ loginError, empty }: { loginError?: string; empty: bool
           <>
             <h2 className={styles.group}>Your characters</h2>
             <ul className={styles.list}>{own.map(row)}</ul>
-            {startLogin && (
-              <button type="button" className={styles.add} onClick={startLogin}>
-                + Add character
-              </button>
-            )}
+            {login && <LoginButton kind={styles.add} label="+ Add character" onLogin={login} />}
             <hr className={styles.rule} />
           </>
         )}
         <h2 className={styles.group}>Generic</h2>
         <ul className={styles.list}>{generic.map(row)}</ul>
-        {own.length === 0 && startLogin && (
+        {own.length === 0 && login && (
           <>
             <hr className={styles.rule} />
             <p className={styles.intro}>
               <strong>Use your own skills and fittings</strong>
-              Log in with EVE Online. We only read your skills, skill queue and fittings. Everything stays in your
-              browser.
+              Log in with EVE Online. Only your skills and fittings are used. Everything stays in your browser.
             </p>
-            <button type="button" className={styles.sso} onClick={startLogin}>
-              Log in with EVE Online
-            </button>
+            <LoginButton kind={styles.sso} label="Log in with EVE Online" onLogin={login} />
           </>
         )}
       </dialog>
       <span className={styles.separator} />
+    </>
+  );
+}
+
+function LoginButton({
+  kind,
+  label,
+  onLogin,
+}: {
+  kind: string | undefined;
+  label: string;
+  onLogin: (canSave: boolean) => void;
+}) {
+  const [canSave, setCanSave] = useState(keptCanSave);
+  const [open, setOpen] = useState(false);
+  const shown = accessLevels.find((level) => level.canSave === canSave);
+
+  return (
+    <>
+      <div className={styles.split}>
+        <button type="button" className={`${kind} ${styles.splitMain}`} onClick={() => onLogin(canSave)}>
+          {label}
+          <small className={styles.access}>{shown?.title}</small>
+        </button>
+        <button
+          type="button"
+          className={`${kind} ${styles.splitArrow}`}
+          aria-label="What to allow"
+          aria-expanded={open}
+          onClick={() => setOpen(!open)}
+        />
+      </div>
+      {open && (
+        <div className={styles.levels}>
+          {accessLevels.map((level) => (
+            <button
+              key={level.title}
+              type="button"
+              className={styles.level}
+              onClick={() => {
+                setCanSave(level.canSave);
+                keepCanSave(level.canSave);
+                setOpen(false);
+              }}
+            >
+              <span className={styles.levelCheck}>{level.canSave === canSave && "✓"}</span>
+              <span>
+                {level.title}
+                <small className={styles.detail}>{level.detail}</small>
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
     </>
   );
 }
@@ -161,8 +212,10 @@ function Status({ login, now }: { login: EsiCharacter; now: number }) {
     case "expired":
     case "failed":
       return <span className={styles.expired}>{warnings[login.status]}</span>;
-    case "ready":
-      return login.updated === undefined ? "No skills yet" : `Updated ${ago(now - login.updated)}`;
+    case "ready": {
+      const updated = login.updated === undefined ? "No skills yet" : `Updated ${ago(now - login.updated)}`;
+      return `${updated} · ${login.canWriteFits ? "View and save fits" : "View only"}`;
+    }
   }
 }
 

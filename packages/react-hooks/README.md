@@ -87,10 +87,10 @@ has a free slot for it, and `useDroneRoom` how many more drones of a type can be
 a whole fit.
 
 To fly with a real character's skills, pass an `EsiCharacters` to the provider. `useCharacters().login` sends the
-browser to EVE's login; when it comes back, call `finishLogin` with the `code` and `state` of the URL, and pass the ID it
+browser to EVE's login, read-only unless given `true`; the provider's `beforeLogin` runs just before it leaves. When it comes back, call `finishLogin` with the `code` and `state` of the URL, and pass the ID it
 returns as the provider's `character`. Characters are kept in `localStorage`. `loadAll` loads every character's skills,
 with what the skill queue finished, and their fittings into the `LocalFits` given, once per page; `refresh` loads one
-again; `remove` logs one out.
+again; `saveFit` saves a fit in EVE for a character that may; `remove` logs one out.
 
 ```tsx
 const localFits = new LocalFits();

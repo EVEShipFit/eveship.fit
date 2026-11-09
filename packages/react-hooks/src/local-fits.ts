@@ -79,6 +79,28 @@ export class LocalFits {
     });
   }
 
+  /** The ESI fitting ID of the character's fit with the hull and name of `fit`. */
+  fittingId(characterId: number, fit: Fit): number | undefined {
+    const entry = this.#entries.find(
+      ({ key, fit: one }) =>
+        ownerOf(key) === characterId && one.ship.type_id === fit.ship.type_id && one.name === fit.name,
+    );
+    return entry === undefined ? undefined : (entry.key as [number, number])[1];
+  }
+
+  /** Adds a fit of the character by ESI fitting ID, in place of the fitting with ID `replaces`. */
+  addCharacterFit(characterId: number, fittingId: number, fit: Fit, replaces?: number): Promise<void> {
+    const key = [characterId, fittingId];
+    const old = replaces === undefined ? undefined : [characterId, replaces];
+    return this.#change(
+      [...this.#entries.filter((entry) => old === undefined || !same(entry.key, old)), { key, fit }],
+      (store) => {
+        store.put(fit, key);
+        if (old !== undefined) store.delete(old);
+      },
+    );
+  }
+
   /** Stops listening to other tabs and closes the database. */
   async close() {
     this.#channel.close();

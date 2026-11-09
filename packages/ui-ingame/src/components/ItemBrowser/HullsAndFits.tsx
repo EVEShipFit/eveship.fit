@@ -22,6 +22,7 @@ import { TreeGroup, TreeLeaf, TreeList } from "../../primitives/TreeList/TreeLis
 import { ShipBonuses } from "../ShipBonuses/ShipBonuses";
 import styles from "./ItemBrowser.module.css";
 import { useCopyFit } from "./copyFit";
+import { useSaveFit } from "./saveFit";
 import { Search } from "./Search";
 
 interface Listed {
@@ -42,6 +43,7 @@ export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
   const { show: showInfo } = useShowInfo();
   const { open, menu } = useContextMenu();
   const { copy, dialog: copyDialog } = useCopyFit();
+  const { target: saveTarget, save: saveFit, dialog: saveDialog } = useSaveFit();
   const [deleting, setDeleting] = useState<Fit>();
   const personal = usePersonalFits();
   const { start, end } = useDrag();
@@ -105,6 +107,8 @@ export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
     open(event, [
       { label: "Simulate Fitting", onSelect: () => store.replace(fit) },
       "separator",
+      kind === "fits-browser" &&
+        saveTarget !== undefined && { label: `Save to ${saveTarget.name}`, onSelect: () => saveFit(fit) },
       { label: "Copy as EFT", onSelect: () => copy(fit, "eft") },
       { label: "Copy as esf/1", onSelect: () => copy(fit, "esf") },
       "separator",
@@ -244,6 +248,7 @@ export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
       </div>
       {menu}
       {copyDialog}
+      {saveDialog}
       <Dialog open={deleting !== undefined} title="Delete Fitting?" onClose={() => setDeleting(undefined)}>
         <div className={styles.confirm}>
           <p>Delete the fit &quot;{deleting?.name || "Unnamed"}&quot; from this browser?</p>

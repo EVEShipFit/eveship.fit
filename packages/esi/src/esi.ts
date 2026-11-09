@@ -4,6 +4,7 @@ import type {
   DynamicItem,
   Killmail,
   MarketPrice,
+  NewCharacterFitting,
   SkillQueueEntry,
 } from "./types.js";
 
@@ -72,6 +73,20 @@ export class Esi {
     return (await response.json()) as CharacterFitting[];
   }
 
+  /** Saves a new fitting for a character, and gives its fitting ID; needs the `esi-fittings.write_fittings.v1` scope. */
+  async addCharacterFitting(characterId: number, fitting: NewCharacterFitting, accessToken: string): Promise<number> {
+    const response = await this.#get(`/characters/${characterId}/fittings`, accessToken, {
+      method: "POST",
+      body: JSON.stringify(fitting),
+    });
+    return ((await response.json()) as { fitting_id: number }).fitting_id;
+  }
+
+  /** Deletes a character's fitting; needs the `esi-fittings.write_fittings.v1` scope. */
+  async deleteCharacterFitting(characterId: number, fittingId: number, accessToken: string): Promise<void> {
+    await this.#get(`/characters/${characterId}/fittings/${fittingId}`, accessToken, { method: "DELETE" });
+  }
+
   /** The price of every type on the market, by type ID. */
   marketPrices(): Promise<ReadonlyMap<number, MarketPrice>> {
     if (this.#prices !== undefined && Date.now() < this.#prices.expires) return this.#prices.value;
@@ -91,18 +106,20 @@ export class Esi {
     return cached.value;
   }
 
-  async #get(path: string, accessToken?: string): Promise<Response> {
+  async #get(path: string, accessToken?: string, write?: Pick<RequestInit, "method" | "body">): Promise<Response> {
     for (let attempt = 0; ; attempt++) {
       for (let paused; (paused = this.#pausedUntil - Date.now()) > 0;) {
         await new Promise((resolve) => setTimeout(resolve, paused));
       }
 
       const response = await fetch(`${baseUrl}${path}`, {
+        ...write,
         headers: {
           "User-Agent": this.#userAgent,
           "X-User-Agent": this.#userAgent,
           "X-Compatibility-Date": compatibilityDate,
           ...(accessToken !== undefined && { Authorization: `Bearer ${accessToken}` }),
+          ...(write?.body !== undefined && { "Content-Type": "application/json" }),
         },
         signal: AbortSignal.timeout(timeout),
       });
