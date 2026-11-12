@@ -1,11 +1,12 @@
 import { EveShipFitProvider, ImagesProvider, TextsProvider } from "@eveshipfit/react-hooks";
-import { Dialog, FittingWindow, ItemBrowser, ShipStatistics } from "@eveshipfit/ui-ingame";
+import type { Images } from "@eveshipfit/images";
+import { Dialog, FittingWindow, FittingWindowLoading, ItemBrowser, ShipStatistics } from "@eveshipfit/ui-ingame";
 import { ZKillboard } from "@eveshipfit/zkillboard";
 import { useEffect, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 
 import styles from "./App.module.css";
-import type { Data } from "./data";
+import { linkInUrl, type Data } from "./data";
 import type { Layout } from "./layout";
 import { keepFit } from "./login";
 import { Skills } from "./Skills";
@@ -82,6 +83,26 @@ export function Fitting({ data, layout, skills }: FittingProps) {
         </TextsProvider>
       </ImagesProvider>
     </EveShipFitProvider>
+  );
+}
+
+/** The empty fitting window while the data loads. */
+export function FittingLoading({ images, layout }: { images: Images; layout: Layout }) {
+  const scale = { "--esf-scale": layout.scale } as CSSProperties;
+  const panelScale = { "--esf-scale": layout.panelScale } as CSSProperties;
+  const linked = linkInUrl(new URL(location.href)) !== undefined;
+
+  return (
+    <ImagesProvider images={images}>
+      <div className={`${styles.panel} ${styles.window}`} style={scale}>
+        <FittingWindowLoading text="Loading ships…" browser={!layout.stacked} statistics={!layout.stacked && linked} />
+      </div>
+      {layout.stacked && (
+        <div className={styles.panels}>
+          <div className={`${styles.panel} ${styles.browser} ${styles.loadingBrowser}`} style={panelScale} />
+        </div>
+      )}
+    </ImagesProvider>
   );
 }
 

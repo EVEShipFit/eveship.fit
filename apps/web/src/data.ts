@@ -32,10 +32,8 @@ export interface Data {
 }
 
 /** Everything the fitting window needs; null when any of it failed to load. */
-export async function loadData(): Promise<Data | null> {
+export async function loadData(esi: Esi, game: Game): Promise<Data | null> {
   try {
-    const esi = createEsi();
-    const game = loadGame(esi);
     const localFits = new LocalFits();
     moveV1Fits(localFits).catch(console.error);
     const characters = loadCharacters(esi, game.engine, localFits);
@@ -73,6 +71,8 @@ export function createEsi(): Esi {
     userAgent: `EVEShip.fit/${import.meta.env.EVESHIPFIT_VERSION} (info@eveship.fit; +https://eveship.fit)`,
   });
 }
+
+export type Game = ReturnType<typeof loadGame>;
 
 /** The SDE, the engine, the images and the texts, each loading. */
 export function loadGame(esi: Esi) {
@@ -127,7 +127,7 @@ async function loadLinkedFit(engine: Engine): Promise<{ fit?: FitStore; error?: 
 }
 
 /** The fit link in `?fit=`, or in a v1 `#fit:`. */
-function linkInUrl(url: URL): string | undefined {
+export function linkInUrl(url: URL): string | undefined {
   const link = url.searchParams.get("fit");
   if (link !== null) return link;
   if (url.hash.startsWith("#fit:")) return url.hash.slice("#fit:".length);

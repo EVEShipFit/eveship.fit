@@ -139,6 +139,11 @@
   height: calc(592px * var(--esf-scale));
 }
 
+/* As wide as the ItemBrowser. */
+.loadingBrowser {
+  width: calc(393px * var(--esf-scale));
+}
+
 .message {
   color: var(--esf-text-muted);
 }

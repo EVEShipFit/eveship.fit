@@ -1,3 +1,4 @@
+import { Images } from "@eveshipfit/images";
 import babel from "@rolldown/plugin-babel";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { createReadStream, readFileSync } from "node:fs";
@@ -37,21 +38,41 @@ function images(): Plugin {
   };
 }
 
-/** Preloads the data files and the WASM. */
+const wheelTextures = [
+  "classes/fitting/fittingbase",
+  "classes/fitting/fittingbase_dotproduct",
+  "classes/fitting/fittingbase_overlay",
+];
+
+/** Preloads the data files, the WASM, and the textures of the empty fitting wheel. */
 function preload(): Plugin {
+  const index = new Images(new Uint8Array(readFileSync(join(imagesDir, "..", "images.dat"))), { baseUrl: "/images/" });
+  const textures = wheelTextures.map((name) => {
+    const url = index.uiTexture(name);
+    if (url === undefined) throw new Error(`No UI texture ${name}`);
+    return url;
+  });
+
   return {
     name: "eveshipfit-preload",
     transformIndexHtml: {
       order: "post",
       handler(_html, { bundle }) {
         if (bundle === undefined) return;
-        return Object.values(bundle)
-          .filter((file) => file.type === "asset" && /\.(dat|wasm)$/.test(file.fileName))
-          .map((file) => ({
+        return [
+          ...textures.map((href) => ({
             tag: "link",
-            attrs: { rel: "preload", href: `/${file.fileName}`, as: "fetch", crossorigin: "" },
-            injectTo: "head",
-          }));
+            attrs: { rel: "preload", href, as: "image", fetchpriority: "high" },
+            injectTo: "head" as const,
+          })),
+          ...Object.values(bundle)
+            .filter((file) => file.type === "asset" && /\.(dat|wasm)$/.test(file.fileName))
+            .map((file) => ({
+              tag: "link",
+              attrs: { rel: "preload", href: `/${file.fileName}`, as: "fetch", crossorigin: "" },
+              injectTo: "head" as const,
+            })),
+        ];
       },
     },
   };

@@ -200,6 +200,43 @@ export function FittingWindow({
   );
 }
 
+export interface FittingWindowLoadingProps {
+  label?: string;
+  text: string;
+  /** Leaves room for the slid out `browser` of the `FittingWindow` to come. */
+  browser?: boolean;
+  /** Leaves room for the slid out `statistics` of the `FittingWindow` to come. */
+  statistics?: boolean;
+}
+
+/** An empty `FittingWindow` while the fit loads; it needs only images. */
+export function FittingWindowLoading({
+  label = "Fitting Window",
+  text,
+  browser = false,
+  statistics = false,
+}: FittingWindowLoadingProps) {
+  return (
+    <section
+      className={styles.window}
+      aria-label={label}
+      aria-busy
+      data-browser={browser || undefined}
+      data-statistics={statistics || undefined}
+    >
+      <div className={styles.frame}>
+        <div className={styles.wheel}>
+          <Wheel label="Fitting">
+            <div className={styles.placeholder}>
+              <p>{text}</p>
+            </div>
+          </Wheel>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /** Picks a hull dropped on the empty wheel. */
 function Placeholder({ text }: { text: string }) {
   const store = useFitStore();
