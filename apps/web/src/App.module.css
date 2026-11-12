@@ -42,6 +42,11 @@
   text-decoration: none;
 }
 
+.logo {
+  margin-right: 8px;
+  vertical-align: -0.4em;
+}
+
 .dash,
 .tagline {
   color: var(--esf-text-muted);
