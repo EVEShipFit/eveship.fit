@@ -1,0 +1,21 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "EVEShip.fit",
+    "identifier": "https://eveship.fit"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:eveship.fit:server:mcp",
+      "displayName": "EVEShip.fit MCP server",
+      "type": "application/mcp-server-card+json",
+      "url": "https://mcp.eveship.fit/mcp/server-card",
+      "description": "Calculates EVE Online ship fits: damage, tank, capacitor, speed, targeting and fitting.",
+      "representativeQueries": [
+        "what is the DPS and tank of this EVE Online fit",
+        "compare these two Rifter fits",
+        "which meta variant of this module fits on my ship"
+      ]
+    }
+  ]
+}

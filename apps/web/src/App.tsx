@@ -89,6 +89,8 @@ export function App({ data }: { data: Data | null | undefined }) {
                 ))}
               </select>
             </label>
+            {" · "}
+            <a href="https://mcp.eveship.fit/">Use with your AI</a>
           </p>
           <p>
             © 2014 CCP hf. All rights reserved. &quot;EVE&quot;, &quot;EVE Online&quot;, &quot;CCP&quot;, and all
