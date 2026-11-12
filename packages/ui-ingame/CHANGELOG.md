@@ -1,5 +1,21 @@
 # @eveshipfit/ui-ingame
 
+## 2.0.0
+
+### Major Changes
+
+- Add an empty fit store, `createFit()`, for before a hull is picked. `ItemBrowser` drops `noHullSelected`; `FittingWindow` shows its `placeholder` (by default "Pick a hull to start.") only while the store is empty, and ignores it otherwise ([#354](https://github.com/EVEShipFit/eveship.fit/pull/354))
+
+### Minor Changes
+
+- Add FittingWindowLoading, an empty fitting window to show while the fit loads ([#350](https://github.com/EVEShipFit/eveship.fit/pull/350))
+
+### Patch Changes
+
+- Updated dependencies [[`67018de`](https://github.com/EVEShipFit/eveship.fit/commit/67018dedd436898edd6bbbb8b7fd43ee0f5ccaed)]:
+  - @eveshipfit/fitting@2.9.0
+  - @eveshipfit/react-hooks@2.9.0
+
 ## 1.15.0
 
 ### Minor Changes

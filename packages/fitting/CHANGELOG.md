@@ -1,5 +1,11 @@
 # @eveshipfit/fitting
 
+## 2.9.0
+
+### Minor Changes
+
+- Add an empty fit store, `createFit()`, for before a hull is picked. `ItemBrowser` drops `noHullSelected`; `FittingWindow` shows its `placeholder` (by default "Pick a hull to start.") only while the store is empty, and ignores it otherwise ([#354](https://github.com/EVEShipFit/eveship.fit/pull/354))
+
 ## 2.8.0
 
 ### Minor Changes
