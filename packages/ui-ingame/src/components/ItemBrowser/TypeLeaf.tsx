@@ -3,6 +3,7 @@ import {
   formatNumber,
   useDrag,
   useFitStore,
+  useHasFit,
   useHasRoom,
   useHullRefuses,
   useImages,
@@ -39,12 +40,13 @@ export interface TypeActions {
 }
 
 /** Previews a type on hover, fits it on double click, drags it to the wheel, shows its info and its menu; render `overlays` once. */
-export function useTypeActions(noHullSelected: boolean): {
+export function useTypeActions(): {
   actions: TypeActions;
   clear: () => void;
   overlays: ReactNode;
 } {
   const store = useFitStore();
+  const noHullSelected = !useHasFit();
   const sde = useSde();
   const refuses = useHullRefuses();
   const hasRoom = useHasRoom();

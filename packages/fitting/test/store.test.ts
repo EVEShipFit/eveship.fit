@@ -827,3 +827,58 @@ test("preview can go to an entry in the history", () => {
   expect(fit.historyPosition).toBe(1);
   expect(fit.historyLength).toBe(2);
 });
+
+describe("empty", () => {
+  test("has no fit, no history, and takes no edits", () => {
+    const fit = engine.createFit();
+    const listener = vi.fn<() => void>();
+    fit.subscribe(listener);
+
+    expect(fit.hasFit).toBe(false);
+    expect(() => fit.getSnapshot()).toThrow("The store has no fit yet");
+    expect(fit.fit(id("Damage Control II"))).toBeUndefined();
+    expect(fit.fitMutated({ base: id("Damage Control II"), mutaplasmid: 0, attributes: {} })).toBeUndefined();
+    expect(() => fit.preview((draft) => draft.setName("Draft"))).toThrow("The store has no fit yet");
+    fit.setName("Brawler");
+    fit.clearHistory();
+    fit.undo();
+    fit.redo();
+    fit.goTo(0);
+    expect(fit.hasFit).toBe(false);
+    expect(fit.historyLength).toBe(0);
+    expect(fit.historyPosition).toBe(-1);
+    expect(fit.canUndo).toBe(false);
+    expect(fit.canRedo).toBe(false);
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  test("tells about a new character", () => {
+    const fit = engine.createFit();
+    const listener = vi.fn<() => void>();
+    fit.subscribe(listener);
+
+    fit.setCharacter({ skills: {} });
+    expect(fit.character).toEqual({ skills: {} });
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  test("replacing it with any fit is the first in the history", () => {
+    const thermal = { em: 0, thermal: 1, kinetic: 0, explosive: 0 };
+    const fit = engine.createFit();
+    fit.setCharacter({ skills: {} });
+    fit.setDamageProfile(thermal);
+    const listener = vi.fn<() => void>();
+    fit.subscribe(listener);
+
+    fit.replace({ ship: { type_id: id("Rifter") }, items: [] });
+    expect(fit.hasFit).toBe(true);
+    expect(fit.getSnapshot().fit).toEqual({ ship: { type_id: id("Rifter") }, items: [] });
+    expect(fit.historyLength).toBe(1);
+    expect(fit.canUndo).toBe(false);
+    expect(listener).toHaveBeenCalledTimes(1);
+    const expected = engine.createFit({ ship: id("Rifter") }, { skills: {} });
+    expected.setDamageProfile(thermal);
+    expect(fit.getSnapshot().stats.ship.get("maxVelocity")).toBe(expected.getSnapshot().stats.ship.get("maxVelocity"));
+    expect(fit.getSnapshot().stats.ship.get("ehp")).toBe(expected.getSnapshot().stats.ship.get("ehp"));
+  });
+});

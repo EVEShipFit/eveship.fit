@@ -12,8 +12,6 @@ import { keptCharacter } from "./character";
 import { finishLogin, type Login } from "./login";
 import { moveV1Fits } from "./v1-fits";
 
-const RIFTER = 587;
-
 export interface Data {
   engine: Engine;
   sde: Sde;
@@ -27,8 +25,6 @@ export interface Data {
   login: Login;
   /** Why the fit in the link could not load. */
   linkError?: string;
-  /** No hull is picked yet; `fit` is a stand-in. */
-  empty: boolean;
 }
 
 /** Everything the fitting window needs; null when any of it failed to load. */
@@ -43,9 +39,8 @@ export async function loadData(esi: Esi, game: Game): Promise<Data | null> {
     });
     const [sde, engine, images, texts] = await Promise.all([game.sde, game.engine, game.images, game.texts]);
     const [linked, loggedIn] = await Promise.all([loadLinkedFit(engine), login]);
-    const shown = linked.fit ?? keptFit(engine, loggedIn.fit);
-    const fit = shown ?? engine.createFit({ ship: RIFTER });
-    keepInUrl(engine, fit, linked.error !== undefined || shown === undefined);
+    const fit = linked.fit ?? keptFit(engine, loggedIn.fit) ?? engine.createFit();
+    keepInUrl(engine, fit, linked.error !== undefined);
     const character = loggedIn.character ?? keptCharacter(characters);
     return {
       engine,
@@ -58,7 +53,6 @@ export async function loadData(esi: Esi, game: Game): Promise<Data | null> {
       character,
       login: loggedIn,
       linkError: linked.error,
-      empty: shown === undefined,
     };
   } catch (error) {
     console.error(error);
@@ -136,8 +130,9 @@ export function linkInUrl(url: URL): string | undefined {
 
 /** Writes the fit into the URL whenever it changes; `keepLink` leaves the link as is until then. */
 function keepInUrl(engine: Engine, store: FitStore, keepLink: boolean) {
-  let fit = keepLink ? store.getSnapshot().fit : undefined;
+  let fit = keepLink && store.hasFit ? store.getSnapshot().fit : undefined;
   const update = () => {
+    if (!store.hasFit) return;
     const snapshot = store.getSnapshot();
     if (snapshot.fit === fit) return;
     fit = snapshot.fit;

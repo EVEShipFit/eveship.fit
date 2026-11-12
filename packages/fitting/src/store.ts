@@ -33,22 +33,30 @@ export class FitStore {
   readonly #calculator: Calculator;
   #character: Character;
   #damageProfile: DamageProfile | undefined;
-  #snapshot: Snapshot;
+  #snapshot: Snapshot | undefined;
   /** Oldest first; an edit goes at the end, also after going back. */
   readonly #history: Fit[];
   #position: number;
   readonly #listeners = new Set<() => void>();
 
-  constructor(calculator: Calculator, fit: Fit, character: Character, damageProfile?: DamageProfile) {
+  constructor(calculator: Calculator, fit: Fit | undefined, character: Character, damageProfile?: DamageProfile) {
     this.#calculator = calculator;
     this.#character = character;
     this.#damageProfile = damageProfile;
-    this.#snapshot = this.#calculate(edits.withMode(calculator.sde, withoutCharacter(fit)));
-    this.#history = [this.#snapshot.fit];
-    this.#position = 0;
+    this.#snapshot = fit && this.#calculate(edits.withMode(calculator.sde, withoutCharacter(fit)));
+    this.#history = this.#snapshot ? [this.#snapshot.fit] : [];
+    this.#position = this.#history.length - 1;
   }
 
-  getSnapshot = (): Snapshot => this.#snapshot;
+  /** Throws while the store is empty. */
+  getSnapshot = (): Snapshot => {
+    if (this.#snapshot === undefined) throw new Error("The store has no fit yet; check `hasFit` first");
+    return this.#snapshot;
+  };
+
+  get hasFit(): boolean {
+    return this.#snapshot !== undefined;
+  }
 
   subscribe = (listener: () => void): (() => void) => {
     this.#listeners.add(listener);
@@ -76,13 +84,14 @@ export class FitStore {
     return this.#history.length;
   }
 
-  /** 0 is the oldest. */
+  /** 0 is the oldest; -1 while empty. */
   get historyPosition(): number {
     return this.#position;
   }
 
   /** Picks the rack and the first free slot, unless `slot` says where. */
   fit(typeId: number, slot?: Slot): ItemRef | undefined {
+    if (this.#snapshot === undefined) return undefined;
     const { fit, ref } = edits.fitType(this.#calculator.sde, this.#snapshot.fit, this.#snapshot.stats, typeId, slot);
     this.#commit(fit);
     return ref;
@@ -90,6 +99,7 @@ export class FitStore {
 
   /** Like `fit`, but mutated. */
   fitMutated(roll: MutationRoll, slot?: Slot): ItemRef | undefined {
+    if (this.#snapshot === undefined) return undefined;
     const { sde } = this.#calculator;
     const type = sde.type(roll.base);
     if (type && placementOf(sde, type)?.type === "drone_bay") {
@@ -107,104 +117,104 @@ export class FitStore {
 
   /** To another slot of the same rack, swapping places with what is there. */
   move(ref: ItemRef, slot: Slot) {
-    this.#commit(edits.move(this.#snapshot.fit, ref, slot));
+    this.#edit((fit) => edits.move(fit, ref, slot));
   }
 
   /** To another slot of the same rack, replacing what is there. */
   copy(ref: ItemRef, slot: Slot) {
-    this.#commit(edits.copy(this.#snapshot.fit, ref, slot));
+    this.#edit((fit) => edits.copy(fit, ref, slot));
   }
 
   /** Another type in the same slot, keeping the state, and the charge when it still fits. */
   setType(ref: ItemRef, typeId: number) {
     const { sde } = this.#calculator;
-    this.#commit(edits.setType(sde, this.#snapshot.fit, this.#snapshot.stats, ref, typeId));
+    this.#edit((fit, stats) => edits.setType(sde, fit, stats, ref, typeId));
   }
 
   setMutation(ref: ItemRef, roll: MutationRoll | undefined) {
-    this.#commit(edits.setMutation(this.#calculator.sde, this.#snapshot.fit, ref, roll));
+    this.#edit((fit) => edits.setMutation(this.#calculator.sde, fit, ref, roll));
   }
 
   setDronesMutation(refs: readonly ItemRef[], roll: MutationRoll | undefined) {
-    this.#commit(edits.setDronesMutation(this.#calculator.sde, this.#snapshot.fit, refs, roll));
+    this.#edit((fit) => edits.setDronesMutation(this.#calculator.sde, fit, refs, roll));
   }
 
   setMutatedDrones(base: number, rolls: readonly MutationRoll[]) {
-    this.#commit(edits.setMutatedDrones(this.#calculator.sde, this.#snapshot.fit, base, rolls));
+    this.#edit((fit) => edits.setMutatedDrones(this.#calculator.sde, fit, base, rolls));
   }
 
   setActiveMutatedDrones(base: number, count: number) {
-    this.#commit(edits.setActiveMutatedDrones(this.#calculator.sde, this.#snapshot.fit, base, count));
+    this.#edit((fit) => edits.setActiveMutatedDrones(this.#calculator.sde, fit, base, count));
   }
 
   setMutatedDroneQuantity(base: number, quantity: number) {
     const { sde } = this.#calculator;
-    this.#commit(edits.setMutatedDroneQuantity(sde, this.#snapshot.fit, this.#snapshot.stats, base, quantity));
+    this.#edit((fit, stats) => edits.setMutatedDroneQuantity(sde, fit, stats, base, quantity));
   }
 
   remove(...refs: ItemRef[]) {
-    this.#commit(edits.remove(this.#snapshot.fit, ...refs));
+    this.#edit((fit) => edits.remove(fit, ...refs));
   }
 
   setState(ref: ItemRef, state: State) {
-    this.#commit(edits.setState(this.#snapshot.fit, ref, state));
+    this.#edit((fit) => edits.setState(fit, ref, state));
   }
 
   setCharge(ref: ItemRef, chargeTypeId: number | undefined) {
-    this.#commit(edits.setCharge(this.#snapshot.fit, ref, chargeTypeId));
+    this.#edit((fit) => edits.setCharge(fit, ref, chargeTypeId));
   }
 
   setQuantity(ref: ItemRef, quantity: number) {
-    this.#commit(edits.setQuantity(this.#snapshot.fit, ref, quantity));
+    this.#edit((fit) => edits.setQuantity(fit, ref, quantity));
   }
 
   setActiveDrones(typeId: number, count: number) {
-    this.#commit(edits.setActiveDrones(this.#snapshot.fit, typeId, count));
+    this.#edit((fit) => edits.setActiveDrones(fit, typeId, count));
   }
 
   setDroneQuantity(typeId: number, quantity: number) {
     const { sde } = this.#calculator;
-    this.#commit(edits.setDroneQuantity(sde, this.#snapshot.fit, this.#snapshot.stats, typeId, quantity));
+    this.#edit((fit, stats) => edits.setDroneQuantity(sde, fit, stats, typeId, quantity));
   }
 
   setCargoQuantity(typeId: number, quantity: number) {
-    this.#commit(edits.setCargoQuantity(this.#snapshot.fit, typeId, quantity));
+    this.#edit((fit) => edits.setCargoQuantity(fit, typeId, quantity));
   }
 
   setFighterBayQuantity(typeId: number, quantity: number) {
-    this.#commit(edits.setFighterBayQuantity(this.#snapshot.fit, typeId, quantity));
+    this.#edit((fit) => edits.setFighterBayQuantity(fit, typeId, quantity));
   }
 
   setSquadronSize(ref: ItemRef, size: number) {
-    this.#commit(edits.setSquadronSize(this.#calculator.sde, this.#snapshot.fit, ref, size));
+    this.#edit((fit) => edits.setSquadronSize(this.#calculator.sde, fit, ref, size));
   }
 
   setName(name: string) {
-    this.#commit(edits.setName(this.#snapshot.fit, name));
+    this.#edit((fit) => edits.setName(fit, name));
   }
 
   /** Only to a mode of the ship. */
   setMode(modeTypeId: number) {
-    this.#commit(edits.setMode(this.#calculator.sde, this.#snapshot.fit, modeTypeId));
+    this.#edit((fit) => edits.setMode(this.#calculator.sde, fit, modeTypeId));
   }
 
   /** Swap in another fit entirely, like an import. */
   replace(fit: Fit) {
     const replacement = edits.withMode(this.#calculator.sde, withoutCharacter(fit));
-    if (equal(replacement, this.#snapshot.fit)) return;
+    if (this.#snapshot !== undefined && equal(replacement, this.#snapshot.fit)) return;
     this.#commit(replacement);
   }
 
   /** Who flies the fit is not an edit of it, so this does not go in the history. */
   setCharacter(character: Character) {
     this.#character = character;
-    this.#publish(this.#calculate(this.#snapshot.fit));
+    this.#recalculate();
   }
 
   /** Like the character, not an edit of the fit. */
   setDamageProfile(damageProfile: DamageProfile | undefined) {
     this.#damageProfile = damageProfile;
-    this.#publish(this.#calculate(this.#snapshot.fit));
+    this.#recalculate();
   }
 
   undo() {
@@ -224,24 +234,29 @@ export class FitStore {
 
   /** Keeps only the current fit in the history. */
   clearHistory() {
-    if (this.#history.length === 1) return;
+    if (this.#snapshot === undefined || this.#history.length === 1) return;
     this.#history.splice(0, this.#history.length, this.#snapshot.fit);
     this.#position = 0;
     // The history follows the snapshot.
     this.#publish(Object.freeze({ ...this.#snapshot }));
   }
 
-  /** What `edit` would do, without doing it. */
+  /** What `edit` would do, without doing it; throws while the store is empty. */
   preview(edit: (fit: FitStore) => void): Preview {
-    const draft = new FitStore(this.#calculator, this.#snapshot.fit, this.#character, this.#damageProfile);
+    const before = this.getSnapshot();
+    const draft = new FitStore(this.#calculator, before.fit, this.#character, this.#damageProfile);
     draft.#history.splice(0, 1, ...this.#history);
     draft.#position = this.#position;
     edit(draft);
-    return { before: this.#snapshot, after: draft.getSnapshot() };
+    return { before, after: draft.getSnapshot() };
+  }
+
+  #edit(change: (fit: Fit, stats: Stats) => Fit) {
+    if (this.#snapshot !== undefined) this.#commit(change(this.#snapshot.fit, this.#snapshot.stats));
   }
 
   #commit(fit: Fit) {
-    if (fit === this.#snapshot.fit) return;
+    if (fit === this.#snapshot?.fit) return;
 
     this.#history.push(fit);
     if (this.#history.length > HISTORY_LIMIT) this.#history.shift();
@@ -255,8 +270,17 @@ export class FitStore {
     return Object.freeze({ fit, stats: this.#calculator.calculate(calculated, this.#character) });
   }
 
+  #recalculate() {
+    if (this.#snapshot === undefined) this.#notify();
+    else this.#publish(this.#calculate(this.#snapshot.fit));
+  }
+
   #publish(snapshot: Snapshot) {
     this.#snapshot = snapshot;
+    this.#notify();
+  }
+
+  #notify() {
     for (const listener of this.#listeners) listener();
   }
 }

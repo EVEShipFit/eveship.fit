@@ -8,6 +8,7 @@ import {
   useFit,
   useFitHistory,
   useFitStore,
+  useHasFit,
   useImages,
   usePlacement,
   usePreview,
@@ -69,7 +70,7 @@ export interface FittingWindowProps {
   statistics?: ReactNode;
   /** Shows the fit without its warnings, history or anything to change it. */
   preview?: boolean;
-  /** Shows an empty wheel with this text, and nothing of the fit. */
+  /** On the empty wheel while the store has no fit. */
   placeholder?: string;
 }
 
@@ -79,9 +80,10 @@ export function FittingWindow({
   browser,
   statistics: givenStatistics,
   preview = false,
-  placeholder,
+  placeholder = "Pick a hull to start.",
 }: FittingWindowProps) {
-  const statistics = placeholder === undefined ? givenStatistics : undefined;
+  const hasFit = useHasFit();
+  const statistics = hasFit ? givenStatistics : undefined;
   const [browserOpen, setBrowserOpen] = useState(true);
   const { request } = useBrowse();
   const [browsed, setBrowsed] = useState(request);
@@ -94,109 +96,133 @@ export function FittingWindow({
   const statisticsId = useId();
   const browserShown = browser !== undefined && browserOpen;
   const statisticsShown = statistics !== undefined && statisticsOpen;
-  const { stats } = useShownSnapshot();
-  const { structure } = stats;
-  const fighters = structure || stats.fighterBay.total > 0;
   const fighterBay = useId();
 
   return (
-    <ManageFightersContext value={fighters && !preview ? () => popover(fighterBay)?.showPopover() : undefined}>
-      <section
-        className={styles.window}
-        aria-label={label}
-        data-browser={browserShown || undefined}
-        data-statistics={statisticsShown || undefined}
-      >
-        {!preview && <ItemInfo />}
-        {!preview && <Mutate />}
-        {browser !== undefined && (
-          <div id={browserId} className={styles.browser} inert={!browserShown}>
-            <div className={styles.slide}>{browser}</div>
-          </div>
-        )}
-        <div className={styles.frame}>
-          <div className={styles.wheel}>
-            {placeholder === undefined ? (
-              <FittingWheel readOnly={preview} credit={preview} />
-            ) : (
-              <Wheel label="Fitting">
-                <Placeholder text={placeholder} />
-              </Wheel>
-            )}
-          </div>
-          {preview && placeholder === undefined && <PreviewName />}
-          {!preview && placeholder === undefined && (
-            <>
-              <FitName />
-              <Violations />
-            </>
-          )}
-          {!preview && browser !== undefined && (
-            <div className={styles.tools}>
-              <Tooltip label="Item Browser">
-                <button
-                  type="button"
-                  className={styles.tool}
-                  aria-label="Item Browser"
-                  aria-expanded={browserShown}
-                  aria-controls={browserId}
-                  onClick={() => setBrowserOpen(!browserShown)}
-                >
-                  <Icon name="hardware" />
-                </button>
-              </Tooltip>
-            </div>
-          )}
-          {!preview && statistics !== undefined && (
-            <div className={styles.panels}>
-              <Tooltip label="Statistics">
-                <button
-                  type="button"
-                  className={styles.tool}
-                  aria-label="Statistics"
-                  aria-expanded={statisticsShown}
-                  aria-controls={statisticsId}
-                  onClick={() => setStatisticsOpen(!statisticsShown)}
-                >
-                  <Icon name="statistics" />
-                </button>
-              </Tooltip>
-            </div>
-          )}
-          {placeholder === undefined && (
-            <>
-              <div className={styles.bays}>
-                {structure ? (
-                  <Bay bay="cargo" icon="ammo-hold" label="Ammo Hold" unlimited readOnly={preview} />
-                ) : (
-                  <Bay bay="cargo" icon="cargo" label="Cargo Hold" readOnly={preview} />
-                )}
-                {fighters ? (
-                  <Bay id={fighterBay} bay="fighterBay" icon="fighter-bay" label="Fighter Bay" readOnly={preview} />
-                ) : (
-                  <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" readOnly={preview} />
-                )}
-              </div>
-              {structure && <ServiceRack readOnly={preview} />}
-              {!preview && (
-                <div className={styles.history}>
-                  <SimulationHistory />
-                </div>
-              )}
-              <div className={styles.resources}>
-                <Resource title="CPU" free="cpuFree" output="cpuOutput" />
-                <Resource title="Power Grid" free="powerFree" output="powerOutput" />
-              </div>
-            </>
+    <section
+      className={styles.window}
+      aria-label={label}
+      data-browser={browserShown || undefined}
+      data-statistics={statisticsShown || undefined}
+    >
+      {!preview && <ItemInfo />}
+      {!preview && <Mutate />}
+      {browser !== undefined && (
+        <div id={browserId} className={styles.browser} inert={!browserShown}>
+          <div className={styles.slide}>{browser}</div>
+        </div>
+      )}
+      <div className={styles.frame}>
+        <div className={styles.wheel}>
+          {hasFit ? (
+            <FittingWheel readOnly={preview} credit={preview} />
+          ) : (
+            <Wheel label="Fitting">
+              <Placeholder text={placeholder} />
+            </Wheel>
           )}
         </div>
-        {statistics !== undefined && (
-          <div id={statisticsId} className={styles.statistics} inert={!statisticsShown}>
-            <div className={styles.slide}>{statistics}</div>
+        {hasFit && preview && <PreviewName />}
+        {hasFit && !preview && (
+          <>
+            <FitName />
+            <Violations />
+          </>
+        )}
+        {!preview && browser !== undefined && (
+          <div className={styles.tools}>
+            <Tooltip label="Item Browser">
+              <button
+                type="button"
+                className={styles.tool}
+                aria-label="Item Browser"
+                aria-expanded={browserShown}
+                aria-controls={browserId}
+                onClick={() => setBrowserOpen(!browserShown)}
+              >
+                <Icon name="hardware" />
+              </button>
+            </Tooltip>
           </div>
         )}
-      </section>
-    </ManageFightersContext>
+        {!preview && statistics !== undefined && (
+          <div className={styles.panels}>
+            <Tooltip label="Statistics">
+              <button
+                type="button"
+                className={styles.tool}
+                aria-label="Statistics"
+                aria-expanded={statisticsShown}
+                aria-controls={statisticsId}
+                onClick={() => setStatisticsOpen(!statisticsShown)}
+              >
+                <Icon name="statistics" />
+              </button>
+            </Tooltip>
+          </div>
+        )}
+        {hasFit && <FitBays fighterBay={fighterBay} readOnly={preview} />}
+      </div>
+      {statistics !== undefined && (
+        <div id={statisticsId} className={styles.statistics} inert={!statisticsShown}>
+          <div className={styles.slide}>
+            <ManageFighters fighterBay={fighterBay} readOnly={preview}>
+              {statistics}
+            </ManageFighters>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function useFighters(): { structure: boolean; fighters: boolean } {
+  const { stats } = useShownSnapshot();
+  return { structure: stats.structure, fighters: stats.structure || stats.fighterBay.total > 0 };
+}
+
+function ManageFighters({
+  fighterBay,
+  readOnly,
+  children,
+}: {
+  fighterBay: string;
+  readOnly: boolean;
+  children: ReactNode;
+}) {
+  const { fighters } = useFighters();
+  const manage = fighters && !readOnly ? () => popover(fighterBay)?.showPopover() : undefined;
+  return <ManageFightersContext value={manage}>{children}</ManageFightersContext>;
+}
+
+function FitBays({ fighterBay, readOnly }: { fighterBay: string; readOnly: boolean }) {
+  const { structure, fighters } = useFighters();
+
+  return (
+    <>
+      <div className={styles.bays}>
+        {structure ? (
+          <Bay bay="cargo" icon="ammo-hold" label="Ammo Hold" unlimited readOnly={readOnly} />
+        ) : (
+          <Bay bay="cargo" icon="cargo" label="Cargo Hold" readOnly={readOnly} />
+        )}
+        {fighters ? (
+          <Bay id={fighterBay} bay="fighterBay" icon="fighter-bay" label="Fighter Bay" readOnly={readOnly} />
+        ) : (
+          <Bay bay="droneBay" icon="drone-bay" label="Drone Bay" readOnly={readOnly} />
+        )}
+      </div>
+      {structure && <ServiceRack readOnly={readOnly} />}
+      {!readOnly && (
+        <div className={styles.history}>
+          <SimulationHistory />
+        </div>
+      )}
+      <div className={styles.resources}>
+        <Resource title="CPU" free="cpuFree" output="cpuOutput" />
+        <Resource title="Power Grid" free="powerFree" output="powerOutput" />
+      </div>
+    </>
   );
 }
 

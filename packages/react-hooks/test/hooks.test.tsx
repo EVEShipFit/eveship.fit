@@ -40,6 +40,7 @@ import {
   useFighterTubes,
   useFighterTubeUsage,
   useHardpoints,
+  useHasFit,
   useHasRoom,
   useHullRefuses,
   useHullTree,
@@ -120,6 +121,44 @@ test("without a fit, the provider starts an empty Rifter", () => {
   expect(result.current.sde).toBe(engine.sde);
   expect(result.current.fit.ship.type_id).toBe(RIFTER);
   expect(result.current.fit.items).toEqual([]);
+});
+
+test("an empty store has no fit until one is put in", () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  const fit = engine.createFit();
+  const { result } = render(
+    () => ({
+      store: useFitStore(),
+      hasFit: useHasFit(),
+      preview: usePreview(),
+      canFit: useCanFit(),
+      refuses: useHullRefuses(),
+      hasRoom: useHasRoom(),
+      charged: useChargedModules(),
+      info: useInfo({ typeId: RIFTER, ref: "ship" }),
+      missing: useMissingSkills(),
+    }),
+    { fit },
+  );
+  expect(() => render(() => useFit(), { fit })).toThrow("There is no fit yet");
+
+  expect(result.current.hasFit).toBe(false);
+  act(() => result.current.preview.show((draft) => void draft.fit(DAMAGE_CONTROL_II)));
+  expect(result.current.preview.preview).toBeUndefined();
+  expect(result.current.canFit(byName("Damage Control II"))).toBe(false);
+  expect(result.current.refuses(byName("Damage Control II"))).toBe(false);
+  expect(result.current.hasRoom(byName("Damage Control II"))).toBe(false);
+  expect(result.current.charged).toEqual([]);
+  expect(result.current.info.ship).toBe(false);
+  expect(result.current.missing([RIFTER])).toEqual([]);
+
+  act(() => result.current.store.setCharacter({ skills: {} }));
+  expect(result.current.missing([RIFTER])).not.toEqual([]);
+
+  act(() => result.current.store.replace({ ship: { type_id: RIFTER }, items: [] }));
+  expect(result.current.hasFit).toBe(true);
+  expect(result.current.canFit(byName("Damage Control II"))).toBe(true);
+  expect(result.current.info.ship).toBe(true);
 });
 
 test("a change to the fit re-renders", () => {

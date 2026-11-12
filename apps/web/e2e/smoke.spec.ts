@@ -95,6 +95,20 @@ test("without a fit, the wheel asks for a hull until one is picked, and the logo
   expect(new URL(page.url()).search).toBe("");
 });
 
+test("without a fit, picking a Rifter picks it", async ({ page }) => {
+  await page.goto("/");
+  const placeholder = page.getByText(/^To start, drag a hull here/);
+  await expect(placeholder).toBeVisible({ timeout: 30_000 });
+
+  const hulls = page.getByRole("list", { name: "Hulls" });
+  await hulls.getByRole("button", { name: "Frigate", exact: true }).click();
+  await hulls.getByRole("button", { name: /^Minmatar/ }).click();
+  await hulls.getByText("Rifter", { exact: true }).click({ button: "right" });
+  await page.getByRole("menuitem", { name: "Simulate Ship" }).click();
+  await expect(placeholder).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Statistics" })).toBeVisible();
+});
+
 test("without a fit, dropping a hull on the wheel picks it", async ({ page }) => {
   await page.goto("/");
   const placeholder = page.getByText(/^To start, drag a hull here/);

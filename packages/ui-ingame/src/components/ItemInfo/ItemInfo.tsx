@@ -2,7 +2,6 @@ import type { FitStore } from "@eveshipfit/fitting";
 import {
   formatNumber,
   useCharges,
-  useFit,
   useFitStore,
   useHullRefuses,
   useImages,
@@ -11,6 +10,7 @@ import {
   useRefusal,
   useSde,
   useShowInfo,
+  useSnapshotIfAny,
   useTypePrice,
   type Info,
   type InfoAttribute,
@@ -149,8 +149,8 @@ function Variations({ shown: { target, anchor }, info: { fitted, variations } }:
   });
   useEffect(() => () => clearPreview(), []);
 
-  const fit = useFit();
-  const module = typeof ref === "number" ? fit.items[ref] : undefined;
+  const fit = useSnapshotIfAny()?.fit;
+  const module = typeof ref === "number" ? fit?.items[ref] : undefined;
   const charges = useCharges(fitted?.charge ? module?.type_id : undefined);
   const swapper = (type: SdeType) => {
     if (fitted === undefined || typeof ref !== "number") return undefined;

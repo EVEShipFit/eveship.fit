@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 import { InfoContext, useRequiredContext, type InfoAnchor, type InfoTarget, type ShownInfo } from "../context.js";
 import { formatAttribute } from "../format.js";
-import { useSnapshot } from "./fit.js";
+import { useSnapshotIfAny } from "./fit.js";
 import { useSde } from "./sde.js";
 
 export interface InfoAttribute {
@@ -42,15 +42,15 @@ export function useShowInfo(): ShowInfo {
 
 export function useInfo(target: InfoTarget): Info {
   const sde = useSde();
-  const { fit, stats } = useSnapshot();
+  const snapshot = useSnapshotIfAny();
   const { typeId, ref } = target;
   const type = sde.type(typeId);
-  const ship = ref === "ship" && fit.ship.type_id === typeId;
-  const item = typeof ref === "number" ? fit.items[ref] : undefined;
+  const ship = ref === "ship" && snapshot?.fit.ship.type_id === typeId;
+  const item = typeof ref === "number" ? snapshot?.fit.items[ref] : undefined;
   const charge = item !== undefined && item.type_id !== typeId && item.charge?.type_id === typeId;
   const fitted = item !== undefined && (item.type_id === typeId || charge) ? { slot: item.slot, charge } : undefined;
-  const itemStats = fitted && typeof ref === "number" ? stats.items[ref] : undefined;
-  const onFit = ship ? stats.ship : charge ? itemStats?.charge : itemStats?.attributes;
+  const itemStats = fitted && typeof ref === "number" ? snapshot?.stats.items[ref] : undefined;
+  const onFit = ship ? snapshot?.stats.ship : charge ? itemStats?.charge : itemStats?.attributes;
   const mutatedFrom = fitted && !charge ? sde.type(item?.mutation?.base ?? -1) : undefined;
   const listed = mutatedFrom ?? type;
 
