@@ -1,5 +1,16 @@
 # @eveshipfit/react-hooks
 
+## 2.9.0
+
+### Minor Changes
+
+- Add an empty fit store, `createFit()`, for before a hull is picked. `ItemBrowser` drops `noHullSelected`; `FittingWindow` shows its `placeholder` (by default "Pick a hull to start.") only while the store is empty, and ignores it otherwise ([#354](https://github.com/EVEShipFit/eveship.fit/pull/354))
+
+### Patch Changes
+
+- Updated dependencies [[`67018de`](https://github.com/EVEShipFit/eveship.fit/commit/67018dedd436898edd6bbbb8b7fd43ee0f5ccaed)]:
+  - @eveshipfit/fitting@2.9.0
+
 ## 2.8.0
 
 ### Minor Changes
