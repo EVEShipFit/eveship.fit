@@ -47,14 +47,40 @@ main {
   padding: 16px;
 }
 
+main h2 {
+  font-size: 96px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  margin: 0;
+  opacity: 0.9;
+}
+
 main p {
   color: var(--esf-text-muted);
   font-size: 15px;
   margin: 0;
 }
 
-main a {
+main .title {
   color: var(--esf-text);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.home {
+  background: var(--esf-button);
+  border: 1px solid var(--esf-button-edge);
+  border-radius: 999px;
+  color: var(--esf-text);
+  margin-top: 12px;
+  padding: 8px 18px;
+  text-decoration: none;
+}
+
+.home:hover,
+.home:focus-visible {
+  background: var(--esf-surface-raised);
 }
 
 footer {
