@@ -11,6 +11,7 @@
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/S5V5BkvNf7)
 
 View, create and share EVE Online ship fits: [eveship.fit](https://eveship.fit).
+Calculate fits from your AI assistant with the [EVEShip.fit MCP server](https://mcp.eveship.fit/).
 
 This repository holds the website and the packages it is built from. The packages are published to npm, so you can use
 them on your own site too.

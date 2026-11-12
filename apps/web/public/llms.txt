@@ -1,0 +1,16 @@
+# EVEShip.fit
+
+> View, create and share EVE Online ship fits. The website needs JavaScript; to calculate fits from an AI assistant, use the EVEShip.fit MCP server.
+
+## MCP server
+
+- [EVEShip.fit for your AI](https://mcp.eveship.fit/): how to add the MCP server at `https://mcp.eveship.fit/mcp` to Claude, ChatGPT, Cursor, VS Code and others. It calculates damage, tank, capacitor, speed, targeting and fitting with the same engine as the website.
+
+## Linking to a fit
+
+- [A Rifter, as a DNA link](https://eveship.fit/?fit=dna:587::): `https://eveship.fit/?fit=dna:<DNA>` opens a fit in DNA format, and `https://eveship.fit/?fit=killmail:<id>/<hash>` the fit of a killmail.
+
+## Source
+
+- [GitHub](https://github.com/EVEShipFit/eveship.fit): the website and its packages.
+- [Embedding](https://github.com/EVEShipFit/eveship.fit/blob/main/docs/embedding.md): show the fitting wheel on your own site.

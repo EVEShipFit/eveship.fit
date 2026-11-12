@@ -12,8 +12,88 @@
     <meta property="og:description" content="View, create and share your EVE Online ship fits online." />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="/favicon.ico" />
+    <noscript>
+      <style>
+        body > #root {
+          display: none;
+        }
+        .noscript {
+          display: flex;
+          flex-direction: column;
+          min-height: 100dvh;
+        }
+        .noscript header {
+          background: rgb(11 13 15 / 80%);
+          border-bottom: 1px solid rgb(255 255 255 / 6%);
+          padding: 10px 20px;
+        }
+        .noscript h1 {
+          font-size: 14px;
+          font-weight: normal;
+          margin: 0;
+        }
+        .noscript h1 a {
+          color: inherit;
+          font-size: 18px;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          text-decoration: none;
+        }
+        .noscript h1 img {
+          margin-right: 8px;
+          vertical-align: -0.4em;
+        }
+        .noscript h1 span {
+          color: var(--esf-text-muted);
+        }
+        .noscript main {
+          align-items: center;
+          display: flex;
+          flex: 1;
+          justify-content: center;
+          padding: 16px;
+        }
+        .noscript main p {
+          color: var(--esf-text-muted);
+          font-size: 15px;
+          margin: 0;
+        }
+        .noscript footer {
+          color: var(--esf-text-muted);
+          font-size: 11px;
+          padding: 16px;
+          text-align: center;
+        }
+        .noscript footer p {
+          margin: 0;
+        }
+        .noscript footer a {
+          color: inherit;
+        }
+      </style>
+    </noscript>
   </head>
   <body>
+    <noscript>
+      <div class="noscript">
+        <header>
+          <h1>
+            <a href="/"><img src="/logo.png" alt="" width="28" height="28" />EVEShip.fit</a>
+            <span> - View, Create, and Share your EVE Online ship fits online</span>
+          </h1>
+        </header>
+        <main>
+          <p>EVEShip.fit needs JavaScript to run.</p>
+        </main>
+        <footer>
+          <p><a href="https://mcp.eveship.fit/">Use EVEShip.fit from your AI assistant</a></p>
+          <p>
+            &copy; 2014 CCP hf. All rights reserved. &quot;EVE&quot;, &quot;EVE Online&quot;, &quot;CCP&quot;, and all
+            related logos and images are trademarks or registered trademarks of CCP hf.
+          </p>
+        </footer>
+      </div>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
