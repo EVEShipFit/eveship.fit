@@ -57,8 +57,8 @@ function preload(): Plugin {
     name: "eveshipfit-preload",
     transformIndexHtml: {
       order: "post",
-      handler(_html, { bundle }) {
-        if (bundle === undefined) return;
+      handler(_html, { bundle, path }) {
+        if (bundle === undefined || path === "/404.html") return;
         return [
           ...textures.map((href) => ({
             tag: "link",
@@ -91,6 +91,7 @@ export default defineConfig({
       input: {
         main: fileURLToPath(new URL("index.html", import.meta.url)),
         og: fileURLToPath(new URL("og.html", import.meta.url)),
+        notFound: fileURLToPath(new URL("404.html", import.meta.url)),
       },
     },
   },
