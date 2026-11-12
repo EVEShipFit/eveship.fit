@@ -1,7 +1,6 @@
 import type { Fit } from "@eveshipfit/fitting";
 import {
   useDrag,
-  useFit,
   useFitStore,
   useHullTree,
   useImages,
@@ -9,6 +8,7 @@ import {
   useMissingSkills,
   usePersonalFits,
   useShowInfo,
+  useSnapshotIfAny,
 } from "@eveshipfit/react-hooks";
 import type { SdeType } from "@eveshipfit/sde-loader";
 import { useMemo, useState, type CSSProperties, type MouseEvent } from "react";
@@ -34,8 +34,9 @@ const noFits: readonly Listed[] = [];
 const SHIPS_MARKET_GROUP_ID = 4;
 
 /** The Hulls & Fits tab of the `ItemBrowser`: EVE's hulls by group and race, with the fits saved for each. */
-export function HullsAndFits({ noHullSelected }: { noHullSelected: boolean }) {
-  const fitShipId = useFit().ship.type_id;
+export function HullsAndFits() {
+  const fitShipId = useSnapshotIfAny()?.fit.ship.type_id;
+  const noHullSelected = fitShipId === undefined;
   const images = useImages();
   const store = useFitStore();
   const missingSkills = useMissingSkills();

@@ -39,6 +39,9 @@ function App() {
 
 Without a `fit`, the provider starts with an empty Rifter.
 
+For an empty store of `createFit()`, `useHasFit` is false and the hooks that read the fit throw; check it before
+showing those.
+
 ### Previews
 
 `usePreview` shows what an edit would do; while it does, `useStats`, `useAttribute` and the slot hooks return the

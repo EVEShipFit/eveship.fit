@@ -573,7 +573,7 @@ export const ImportNoClipboard: Story = {
 
 /** Without a hull, nothing can be saved, copied, fitted or filtered by hull. */
 export const NoHullSelected: Story = {
-  args: { noHullSelected: true },
+  parameters: { fit: null },
   play: async ({ canvas, userEvent }) => {
     const fit = spyOn(FitStore.prototype, "fit");
     await expect(canvas.getByRole("button", { name: "Save" })).toBeDisabled();

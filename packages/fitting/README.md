@@ -40,6 +40,8 @@ The engine can hold only one SDE per page; `createEngine` with another one throw
 
 A fit is flown by a character with every skill at V, unless you pass another to `createFit` or `setCharacter`.
 
+`createFit()` without a fit gives an empty store: `hasFit` is false, `getSnapshot` throws, and only `replace` changes it.
+
 `loadLink` reads the fit of an EVEShip.fit link, or of `dna:<dna>`. A killmail link needs an `Esi` of
 [`@eveshipfit/esi`](https://www.npmjs.com/package/@eveshipfit/esi) in `createEngine`'s `esi` option.
 

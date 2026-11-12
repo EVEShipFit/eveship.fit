@@ -1,5 +1,12 @@
 import { parseItemLink, parseMutationText, type Engine, type FitStore, type TextFormat } from "@eveshipfit/fitting";
-import { canSaveFits, useCharacters, useEngine, useFit, useFitStore, type EsiCharacter } from "@eveshipfit/react-hooks";
+import {
+  canSaveFits,
+  useCharacters,
+  useEngine,
+  useFitStore,
+  useHasFit,
+  type EsiCharacter,
+} from "@eveshipfit/react-hooks";
 import { useEffect, useId, useState } from "react";
 
 import { Dialog } from "../../primitives/Dialog/Dialog";
@@ -15,10 +22,10 @@ interface Draft {
 }
 
 /** The buttons under the `ItemBrowser`: save the fit in the browser, import one, or copy it out. */
-export function FitActions({ noHullSelected, pasteToOpen }: { noHullSelected: boolean; pasteToOpen: boolean }) {
+export function FitActions({ pasteToOpen }: { pasteToOpen: boolean }) {
   const engine = useEngine();
-  const fit = useFit();
   const store = useFitStore();
+  const noHullSelected = !useHasFit();
   const menu = useId();
   const [saved, flashSaved] = useFlash();
   const [copied, flashCopied] = useFlash();
@@ -29,7 +36,7 @@ export function FitActions({ noHullSelected, pasteToOpen }: { noHullSelected: bo
   const [savedTo, setSavedTo] = useState("");
   const saveCurrent = () => {
     const where = saver.target?.name ?? "browser";
-    saver.save(fit, {
+    saver.save(store.getSnapshot().fit, {
       onStart: (named) => store.setName(named.name ?? ""),
       onSaved: () => {
         setSavedTo(where);
@@ -73,7 +80,7 @@ export function FitActions({ noHullSelected, pasteToOpen }: { noHullSelected: bo
 
   const copy = (format: TextFormat) => {
     document.getElementById(menu)?.hidePopover();
-    copyFit(fit, format, flashCopied);
+    copyFit(store.getSnapshot().fit, format, flashCopied);
   };
 
   return (

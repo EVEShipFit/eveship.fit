@@ -198,6 +198,7 @@ export const Placeholder: Story = {
     statistics: <ShipStatistics />,
     placeholder: "To start, drag a hull here from the left,\nor right-click it and pick Simulate Ship.",
   },
+  parameters: { fit: null },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("region", { name: "Fitting" })).toHaveTextContent(
       "To start, drag a hull here from the left, or right-click it and pick Simulate Ship.",
@@ -215,6 +216,7 @@ export const DropHullOnPlaceholder: Story = {
     browser: <ItemBrowser />,
     placeholder: "To start, drag a hull here from the left,\nor right-click it and pick Simulate Ship.",
   },
+  parameters: { fit: null },
   play: async ({ canvas, userEvent }) => {
     await userEvent.type(canvas.getByRole("searchbox", { name: "Search" }), "slasher");
     await userEvent.click(canvas.getByRole("button", { name: "Frigate" }));
@@ -228,6 +230,24 @@ export const DropHullOnPlaceholder: Story = {
       within(canvas.getByRole("list", { name: "Hulls" })).getAllByRole("button", { name: /^Simulate / }),
     ).toHaveLength(1);
     await expect(canvas.getByRole("button", { name: "Simulate Slasher" })).toBeVisible();
+  },
+};
+
+/** Simulate Ship on the placeholder picks the hull, also a Rifter. */
+export const SimulateRifterOnPlaceholder: Story = {
+  args: {
+    browser: <ItemBrowser />,
+    placeholder: "To start, drag a hull here from the left,\nor right-click it and pick Simulate Ship.",
+  },
+  parameters: { fit: null },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Frigate" }));
+    await userEvent.click(canvas.getByRole("button", { name: /^Minmatar/ }));
+    await userEvent.pointer({ keys: "[MouseRight]", target: canvas.getByRole("button", { name: "Rifter" }) });
+    await userEvent.click(canvas.getByRole("menuitem", { name: "Simulate Ship" }));
+
+    await expect(canvas.queryByText(/^To start/)).toBeNull();
+    await expect(canvas.getByRole("group", { name: "Simulation History" })).toBeVisible();
   },
 };
 
@@ -412,6 +432,7 @@ export const ShowInfoWithoutHull: Story = {
     browser: <ItemBrowser />,
     placeholder: "To start, drag a hull here from the left,\nor right-click it and pick Simulate Ship.",
   },
+  parameters: { fit: null },
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("tab", { name: "Modules" }));
     await userEvent.type(within(canvas.getByRole("tabpanel")).getByRole("searchbox"), "damage control ii");

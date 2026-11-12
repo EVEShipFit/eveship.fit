@@ -3,7 +3,7 @@ import type { MarketGroupNode, ModuleGroupNode, Sde, SdeType, ShipGroupNode } fr
 import { useMemo } from "react";
 
 import { EngineContext, useRequiredContext } from "../context.js";
-import { useFit } from "./fit.js";
+import { useSnapshotIfAny } from "./fit.js";
 
 export function useEngine(): Engine {
   return useRequiredContext(EngineContext);
@@ -30,11 +30,12 @@ export function useCharges(typeId: number | undefined): readonly SdeType[] {
 
 const racks: readonly Rack[] = ["high", "medium", "low"];
 
-/** The fitted modules that load charges, each type once, in slot order. */
+/** The fitted modules that load charges, each type once, in slot order; empty without a fit. */
 export function useChargedModules(): readonly SdeType[] {
   const sde = useSde();
-  const fit = useFit();
+  const fit = useSnapshotIfAny()?.fit;
   return useMemo(() => {
+    if (fit === undefined) return noCharges;
     const slotted = fit.items.flatMap(({ type_id, slot }) => {
       const rack = racks.findIndex((each) => each === slot.type);
       return rack === -1 || !("index" in slot) ? [] : [{ typeId: type_id, rack, index: slot.index }];

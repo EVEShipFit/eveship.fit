@@ -12,12 +12,13 @@ import {
 import type { SdeType } from "@eveshipfit/sde-loader";
 import { useMemo } from "react";
 
-import { useShownSnapshot, useSnapshot } from "./fit.js";
+import { useShownSnapshot, useSnapshot, useSnapshotIfAny } from "./fit.js";
 import { useSde, useType } from "./sde.js";
 
 const racks: readonly Rack[] = ["high", "medium", "low", "rig", "subsystem", "service"];
 const bays: readonly SlotType[] = ["cargo", "drone_bay", "fighter_bay"];
 const noModes: readonly SdeType[] = [];
+const never = () => false;
 
 /** Where a type goes when fitted; `undefined` for what cannot be part of a fit, like a ship. */
 export function usePlacement(): (type: SdeType) => Placement | undefined {
@@ -25,15 +26,16 @@ export function usePlacement(): (type: SdeType) => Placement | undefined {
   return useMemo(() => (type: SdeType) => placementOf(sde, type), [sde]);
 }
 
-/** Whether a type may go on the fit's ship: `canFit`, and the ship has a slot or bay for it. */
+/** Whether a type may go on the fit's ship: `canFit`, and the ship has a slot or bay for it; false without a fit. */
 export function useCanFit(): (type: SdeType) => boolean {
   const sde = useSde();
-  const { fit, stats } = useSnapshot();
-  const shipId = fit.ship.type_id;
-  const shipRacks = racks.filter((rack) => stats.slots[rack].total > 0).join(" ");
-  const droneBay = stats.droneBay.total > 0;
+  const snapshot = useSnapshotIfAny();
+  const shipId = snapshot?.fit.ship.type_id;
+  const shipRacks = racks.filter((rack) => (snapshot?.stats.slots[rack].total ?? 0) > 0).join(" ");
+  const droneBay = (snapshot?.stats.droneBay.total ?? 0) > 0;
 
   return useMemo(() => {
+    if (shipId === undefined) return never;
     const ship = sde.type(shipId);
     const has = new Set(shipRacks.split(" "));
 
@@ -47,20 +49,26 @@ export function useCanFit(): (type: SdeType) => boolean {
   }, [sde, shipId, shipRacks, droneBay]);
 }
 
-/** Whether the fit's ship refuses a type that has a place on a fit. */
+/** Whether the fit's ship refuses a type that has a place on a fit; false without a fit. */
 export function useHullRefuses(): (type: SdeType) => boolean {
   const placement = usePlacement();
   const fits = useCanFit();
-  return useMemo(() => (type: SdeType) => placement(type) !== undefined && !fits(type), [placement, fits]);
+  const hasFit = useSnapshotIfAny() !== undefined;
+  return useMemo(
+    () => (hasFit ? (type: SdeType) => placement(type) !== undefined && !fits(type) : never),
+    [hasFit, placement, fits],
+  );
 }
 
-/** Whether the fit has a free slot for a module, or a fitted module for a charge; true for any other type. */
+/** Whether the fit has a free slot for a module, or a fitted module for a charge; true for any other type; false without a fit. */
 export function useHasRoom(): (type: SdeType) => boolean {
   const sde = useSde();
-  const { fit, stats } = useSnapshot();
+  const snapshot = useSnapshotIfAny();
 
-  return useMemo(
-    () => (type: SdeType) => {
+  return useMemo(() => {
+    if (snapshot === undefined) return never;
+    const { fit, stats } = snapshot;
+    return (type: SdeType) => {
       const placement = placementOf(sde, type);
       switch (placement?.type) {
         case "high":
@@ -77,9 +85,8 @@ export function useHasRoom(): (type: SdeType) => boolean {
         default:
           return true;
       }
-    },
-    [sde, fit, stats],
-  );
+    };
+  }, [sde, snapshot]);
 }
 
 /** How many more drones of a type can be active; does not follow the preview. */

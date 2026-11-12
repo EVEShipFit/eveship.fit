@@ -63,8 +63,9 @@ export class Engine implements Calculator {
     return this.#defaultCharacter;
   }
 
-  createFit(fit: Fit | { ship: number }, character: Character = this.defaultCharacter): FitStore {
-    return new FitStore(this, "items" in fit ? fit : emptyFit(fit.ship), character);
+  /** Without `fit`, an empty store until a fit is put in with `replace`. */
+  createFit(fit?: Fit | { ship: number }, character: Character = this.defaultCharacter): FitStore {
+    return new FitStore(this, fit === undefined || "items" in fit ? fit : emptyFit(fit.ship), character);
   }
 
   calculate(fit: Fit, character: Character = this.defaultCharacter): Stats {

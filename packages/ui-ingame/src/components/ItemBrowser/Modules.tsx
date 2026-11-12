@@ -6,7 +6,7 @@ import {
   useModuleSearch,
   useModuleTree,
   usePlacement,
-  useSnapshot,
+  useSnapshotIfAny,
 } from "@eveshipfit/react-hooks";
 import type { SdeType } from "@eveshipfit/sde-loader";
 import { useMemo, useState } from "react";
@@ -31,12 +31,14 @@ const slotFilters: { filter: SlotFilter; icon: IconName; label: string; places: 
 ];
 
 /** The Modules tab of the `ItemBrowser`: what goes on a ship, by market group. */
-export function Modules({ noHullSelected }: { noHullSelected: boolean }) {
-  const { actions, clear, overlays } = useTypeActions(noHullSelected);
+export function Modules() {
+  const { actions, clear, overlays } = useTypeActions();
   const placement = usePlacement();
   const canFit = useCanFit();
   const missingSkills = useMissingSkills();
-  const services = useSnapshot().stats.slots.service.total > 0;
+  const snapshot = useSnapshotIfAny();
+  const noHullSelected = snapshot === undefined;
+  const services = (snapshot?.stats.slots.service.total ?? 0) > 0;
   const shownFilters = slotFilters.filter(({ filter }) => services || filter !== "service");
   const [search, setSearch] = useState("");
   const [slots, setSlots] = useState<ReadonlySet<SlotFilter>>(() => new Set());

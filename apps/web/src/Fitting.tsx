@@ -1,8 +1,8 @@
-import { EveShipFitProvider, ImagesProvider, TextsProvider } from "@eveshipfit/react-hooks";
+import { EveShipFitProvider, ImagesProvider, TextsProvider, useHasFit } from "@eveshipfit/react-hooks";
 import type { Images } from "@eveshipfit/images";
 import { Dialog, FittingWindow, FittingWindowLoading, ItemBrowser, ShipStatistics } from "@eveshipfit/ui-ingame";
 import { ZKillboard } from "@eveshipfit/zkillboard";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 
 import styles from "./App.module.css";
@@ -22,18 +22,15 @@ export interface FittingProps {
 
 /** The fitting window, with its item browser and statistics. */
 export function Fitting({ data, layout, skills }: FittingProps) {
-  const empty = useEmpty(data);
   if (data === null) {
     return <p className={styles.message}>EVEShip.fit could not load. Please reload the page.</p>;
   }
 
   const scale = { "--esf-scale": layout.scale } as CSSProperties;
   const panelScale = { "--esf-scale": layout.panelScale } as CSSProperties;
-  const placeholder = empty
-    ? layout.stacked
-      ? "To start, right-click a hull below and pick Simulate Ship."
-      : "To start, drag a hull here from the left,\nor right-click it and pick Simulate Ship."
-    : undefined;
+  const placeholder = layout.stacked
+    ? "To start, right-click a hull below and pick Simulate Ship."
+    : "To start, drag a hull here from the left,\nor right-click it and pick Simulate Ship.";
 
   return (
     <EveShipFitProvider
@@ -43,7 +40,7 @@ export function Fitting({ data, layout, skills }: FittingProps) {
       characters={data.characters}
       character={data.character}
       beforeLogin={() => {
-        if (!empty) keepFit(data.fit.getSnapshot().fit);
+        if (data.fit.hasFit) keepFit(data.fit.getSnapshot().fit);
       }}
       zkillboard={zkillboard}
     >
@@ -62,19 +59,15 @@ export function Fitting({ data, layout, skills }: FittingProps) {
               </div>
               <div className={styles.panels}>
                 <div className={`${styles.panel} ${styles.browser}`} style={panelScale}>
-                  <ItemBrowser noHullSelected={empty} pasteToOpen />
+                  <ItemBrowser pasteToOpen />
                 </div>
-                {!empty && (
-                  <div className={styles.panel} style={panelScale}>
-                    <ShipStatistics />
-                  </div>
-                )}
+                <StackedStatistics style={panelScale} />
               </div>
             </>
           ) : (
             <div className={`${styles.panel} ${styles.window}`} style={scale}>
               <FittingWindow
-                browser={<ItemBrowser noHullSelected={empty} pasteToOpen />}
+                browser={<ItemBrowser pasteToOpen />}
                 statistics={<ShipStatistics />}
                 placeholder={placeholder}
               />
@@ -106,21 +99,13 @@ export function FittingLoading({ images, layout }: { images: Images; layout: Lay
   );
 }
 
-/** Whether the fit is still the stand-in; the first change to it picks a hull. */
-function useEmpty(data: Data | null): boolean {
-  const [empty, setEmpty] = useState(data?.empty ?? false);
-
-  useEffect(() => {
-    if (!empty || data === null) return;
-    const standIn = data.fit.getSnapshot().fit;
-    return data.fit.subscribe(() => {
-      if (data.fit.getSnapshot().fit === standIn) return;
-      setEmpty(false);
-      data.fit.clearHistory();
-    });
-  }, [data, empty]);
-
-  return empty;
+function StackedStatistics({ style }: { style: CSSProperties }) {
+  if (!useHasFit()) return null;
+  return (
+    <div className={styles.panel} style={style}>
+      <ShipStatistics />
+    </div>
+  );
 }
 
 function LinkError({ error }: { error: string }) {

@@ -21,7 +21,7 @@ import { loadAllImages } from "./images";
 import { loadAllTexts } from "./texts";
 
 /**
- * Every story gets a fresh fit (`parameters.fit`, or an empty Rifter), `parameters.character`, `parameters.localFits`
+ * Every story gets a fresh fit (`parameters.fit`, an empty Rifter, or none for `null`), `parameters.character`, `parameters.localFits`
  * and `parameters.damageProfiles`.
  */
 const withFit: Decorator = (Story, { loaded, parameters }) => (
@@ -50,7 +50,7 @@ const withTexts: Decorator = (Story, { loaded }) => (
 
 interface WithFitProps {
   engine: Engine;
-  fit?: Fit | { ship: number };
+  fit?: Fit | { ship: number } | null;
   character?: Character;
   localFits?: Fit[];
   damageProfiles?: NamedDamageProfile[];
@@ -58,7 +58,7 @@ interface WithFitProps {
 }
 
 function WithFit({ engine, fit, character, localFits = [], damageProfiles = [], children }: WithFitProps) {
-  const [store] = useState(() => engine.createFit(fit ?? { ship: 587 }, character));
+  const [store] = useState(() => engine.createFit(fit === null ? undefined : (fit ?? { ship: 587 }), character));
   const [saved] = useState(() => {
     const fits = new LocalFits({ factory: new IDBFactory(), name: crypto.randomUUID() });
     for (const one of localFits) void fits.save(one);

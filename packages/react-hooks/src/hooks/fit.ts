@@ -8,9 +8,21 @@ export function useFitStore(): FitStore {
   return useRequiredContext(FitContext);
 }
 
+/** Throws while the store has no fit; see `useHasFit`. */
 export function useSnapshot(): Snapshot {
+  const snapshot = useSnapshotIfAny();
+  if (snapshot === undefined) throw new Error("There is no fit yet; check `useHasFit` first");
+  return snapshot;
+}
+
+export function useHasFit(): boolean {
+  return useSnapshotIfAny() !== undefined;
+}
+
+/** Undefined while the store has no fit. */
+export function useSnapshotIfAny(): Snapshot | undefined {
   const store = useFitStore();
-  return useSyncExternalStore(store.subscribe, store.getSnapshot);
+  return useSyncExternalStore(store.subscribe, () => (store.hasFit ? store.getSnapshot() : undefined));
 }
 
 export function useFit(): Fit {
@@ -30,14 +42,17 @@ export interface PreviewControls {
   readonly clear: (target?: string) => void;
 }
 
+/** Shows nothing while the store has no fit. */
 export function usePreview(): PreviewControls {
   const store = useFitStore();
-  const snapshot = useSnapshot();
+  const snapshot = useSnapshotIfAny();
   const { preview, show, clear } = useRequiredContext(PreviewContext);
 
   return {
-    preview: preview?.before === snapshot ? preview : undefined,
-    show: (edit, target) => show(store.preview(edit), target),
+    preview: snapshot !== undefined && preview?.before === snapshot ? preview : undefined,
+    show: (edit, target) => {
+      if (store.hasFit) show(store.preview(edit), target);
+    },
     clear: (target) => clear(target),
   };
 }
