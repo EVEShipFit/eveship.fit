@@ -53,7 +53,7 @@ test("the UI scale defaults to 100%, and keeps what is picked after a reload", a
   await page.setViewportSize({ width: 2400, height: 1400 });
   await page.goto(RIFTER);
   const window = page.getByRole("region", { name: "Fitting Window" });
-  await expect(window).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
   const scale = page.getByRole("combobox", { name: "UI scale" });
   await expect(scale).toHaveValue("1");
   const width = (await window.boundingBox())!.width;
