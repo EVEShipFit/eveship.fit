@@ -1,0 +1,19 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://mcp.eveship.fit/mcp",
+      "service-desc": [
+        {
+          "href": "https://mcp.eveship.fit/mcp/server-card",
+          "type": "application/mcp-server-card+json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://eveship.fit/llms.txt",
+          "type": "text/plain"
+        }
+      ]
+    }
+  ]
+}

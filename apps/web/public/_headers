@@ -6,3 +6,6 @@
 
 /.well-known/*
   Access-Control-Allow-Origin: *
+
+/.well-known/api-catalog
+  Content-Type: application/linkset+json
