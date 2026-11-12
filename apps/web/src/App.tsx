@@ -5,6 +5,7 @@ import type { Data } from "./data";
 import { Fitting } from "./Fitting";
 import { DiscordIcon, GitHubIcon } from "./icons";
 import { keepUiScale, keptUiScale, UI_SCALES, useLayout } from "./layout";
+import logo from "./logo.png";
 import { Support } from "./Support";
 
 /** `data` is undefined while it loads, and null when it failed. */
@@ -34,6 +35,7 @@ export function App({ data }: { data: Data | null | undefined }) {
       <header className={styles.header}>
         <h1 className={styles.title}>
           <a className={styles.brand} href="/">
+            <img className={styles.logo} src={logo} alt="" width={28} height={28} />
             EVEShip.fit
           </a>
           <span className={styles.dash}> - </span>
