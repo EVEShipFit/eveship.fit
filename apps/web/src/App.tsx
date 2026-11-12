@@ -1,15 +1,16 @@
+import type { Images } from "@eveshipfit/images";
 import { useState } from "react";
 
 import styles from "./App.module.css";
 import type { Data } from "./data";
-import { Fitting } from "./Fitting";
+import { Fitting, FittingLoading } from "./Fitting";
 import { DiscordIcon, GitHubIcon } from "./icons";
 import { keepUiScale, keptUiScale, UI_SCALES, useLayout } from "./layout";
 import logo from "./logo.png";
 import { Support } from "./Support";
 
-/** `data` is undefined while it loads, and null when it failed. */
-export function App({ data }: { data: Data | null | undefined }) {
+/** `data` is undefined while it loads, and null when it failed; `images` can come before it. */
+export function App({ data, images }: { data: Data | null | undefined; images?: Images }) {
   const [main, setMain] = useState<HTMLElement | null>(null);
   const [footer, setFooter] = useState<HTMLElement | null>(null);
   const [skills, setSkills] = useState<HTMLElement | null>(null);
@@ -59,7 +60,11 @@ export function App({ data }: { data: Data | null | undefined }) {
       <main ref={setMain} className={styles.main}>
         <div className={styles.stage}>
           {data === undefined ? (
-            <p className={styles.message}>Loading ships…</p>
+            images === undefined ? (
+              <p className={styles.message}>Loading ships…</p>
+            ) : (
+              <FittingLoading images={images} layout={layout} />
+            )
           ) : (
             <Fitting data={data} layout={layout} skills={skills} />
           )}
