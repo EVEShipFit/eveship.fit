@@ -17,23 +17,28 @@ export interface ItemBrowserProps {
 
 type Tab = "hulls" | "modules" | "charges" | "implants";
 
+const NO_TABS: ReadonlySet<Tab> = new Set();
+
 /** EVE's browser of hulls and fits, modules, charges, and implants, left of the fitting wheel. */
 export function ItemBrowser({ label = "Item Browser", pasteToOpen = false }: ItemBrowserProps) {
   const [tab, setTab] = useState<Tab>("hulls");
+  const [opened, setOpened] = useState<ReadonlySet<Tab>>(() => new Set([tab]));
+  if (!opened.has(tab)) setOpened(new Set([...opened, tab]));
+  const rendered = useDeferredValue(opened, NO_TABS);
   const { request } = useBrowse();
   const [browsed, setBrowsed] = useState(request);
+  const [handled] = useState(request);
   if (request !== browsed) {
     setBrowsed(request);
     if (request !== undefined) setTab(typeof request.target === "string" ? "modules" : "implants");
   }
   const id = useId();
-  const ready = useDeferredValue(true, false);
 
   const tabs: { tab: Tab; label: string; panel: ReactNode }[] = [
     { tab: "hulls", label: "Hulls & Fits", panel: <HullsAndFits /> },
-    { tab: "modules", label: "Modules", panel: <Modules /> },
+    { tab: "modules", label: "Modules", panel: <Modules handled={handled} /> },
     { tab: "charges", label: "Charges", panel: <Charges /> },
-    { tab: "implants", label: "Implants", panel: <Implants /> },
+    { tab: "implants", label: "Implants", panel: <Implants handled={handled} /> },
   ];
 
   return (
@@ -78,7 +83,7 @@ export function ItemBrowser({ label = "Item Browser", pasteToOpen = false }: Ite
             }
           }}
         >
-          {ready ? (
+          {rendered.has(each.tab) ? (
             <Activity mode={tab === each.tab ? "visible" : "hidden"}>{each.panel}</Activity>
           ) : (
             <p className={styles.empty}>Loading…</p>
