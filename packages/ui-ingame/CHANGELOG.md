@@ -1,5 +1,11 @@
 # @eveshipfit/ui-ingame
 
+## 2.0.1
+
+### Patch Changes
+
+- `ItemBrowser` renders a tab the first time it is opened; tree rows are at least 24px tall on touch screens ([#355](https://github.com/EVEShipFit/eveship.fit/pull/355))
+
 ## 2.0.0
 
 ### Major Changes
