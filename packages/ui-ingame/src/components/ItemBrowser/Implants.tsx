@@ -1,5 +1,12 @@
 import type { Placement } from "@eveshipfit/fitting";
-import { useBrowse, useImplantSearch, useImplantTree, useMissingSkills, usePlacement } from "@eveshipfit/react-hooks";
+import {
+  useBrowse,
+  useImplantSearch,
+  type BrowseRequest,
+  useImplantTree,
+  useMissingSkills,
+  usePlacement,
+} from "@eveshipfit/react-hooks";
 import type { MarketGroupNode, SdeType } from "@eveshipfit/sde-loader";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -34,7 +41,12 @@ interface SlotTypes {
 }
 
 /** The Implants tab of the `ItemBrowser`: implants and boosters by market group or by slot. */
-export function Implants() {
+export function Implants({
+  handled,
+}: {
+  /** The browse request the item browser already had when it mounted. */
+  handled: BrowseRequest | undefined;
+}) {
   const { actions, clear, overlays } = useTypeActions();
   const placement = usePlacement();
   const missingSkills = useMissingSkills();
@@ -45,7 +57,7 @@ export function Implants() {
   const [collapses, setCollapses] = useState(0);
   const [opened, setOpened] = useState<Opened>();
   const { request } = useBrowse();
-  const [browsed, setBrowsed] = useState(request);
+  const [browsed, setBrowsed] = useState(handled);
   if (request !== browsed) {
     setBrowsed(request);
     const target = request?.target;

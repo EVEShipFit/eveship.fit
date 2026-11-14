@@ -39,6 +39,12 @@
   user-select: none;
 }
 
+@media (pointer: coarse) {
+  .row {
+    min-height: max(24px, calc(24 * var(--tree-unit)));
+  }
+}
+
 /* Past where a group has its chevron. */
 .leaf > .row {
   padding-left: calc(21 * var(--tree-unit));

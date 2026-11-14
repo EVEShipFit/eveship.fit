@@ -69,7 +69,13 @@ function preload(): Plugin {
             .filter((file) => file.type === "asset" && /\.(dat|wasm)$/.test(file.fileName))
             .map((file) => ({
               tag: "link",
-              attrs: { rel: "preload", href: `/${file.fileName}`, as: "fetch", crossorigin: "" },
+              attrs: {
+                rel: "preload",
+                href: `/${file.fileName}`,
+                as: "fetch",
+                crossorigin: "",
+                ...(file.type === "asset" && file.names.includes("sde.dat") && { fetchpriority: "low" }),
+              },
               injectTo: "head" as const,
             })),
         ];

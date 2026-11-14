@@ -1,6 +1,7 @@
 import type { Placement } from "@eveshipfit/fitting";
 import {
   useBrowse,
+  type BrowseRequest,
   useCanFit,
   useMissingSkills,
   useModuleSearch,
@@ -31,7 +32,12 @@ const slotFilters: { filter: SlotFilter; icon: IconName; label: string; places: 
 ];
 
 /** The Modules tab of the `ItemBrowser`: what goes on a ship, by market group. */
-export function Modules() {
+export function Modules({
+  handled,
+}: {
+  /** The browse request the item browser already had when it mounted. */
+  handled: BrowseRequest | undefined;
+}) {
   const { actions, clear, overlays } = useTypeActions();
   const placement = usePlacement();
   const canFit = useCanFit();
@@ -46,7 +52,7 @@ export function Modules() {
   const [flyable, setFlyable] = useState(false);
   const [collapses, setCollapses] = useState(0);
   const { request } = useBrowse();
-  const [browsed, setBrowsed] = useState(request);
+  const [browsed, setBrowsed] = useState(handled);
   if (request !== browsed) {
     setBrowsed(request);
     const target = request?.target;
