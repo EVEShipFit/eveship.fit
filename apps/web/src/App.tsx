@@ -70,9 +70,9 @@ export function App({ data, images }: { data: Data | null | undefined; images?: 
               data={data}
               layout={layout}
               skills={skills}
-              onScale={(scale, done) => {
+              onScale={(scale) => {
                 setUiScale(scale);
-                if (done) keepUiScale(scale);
+                keepUiScale(scale);
               }}
             />
           )}

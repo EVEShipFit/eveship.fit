@@ -15,27 +15,30 @@
   right: 1px;
   touch-action: none;
   width: calc(14px * var(--esf-scale));
+  z-index: 2;
 }
 
 .grip:hover {
   opacity: 1;
 }
 
+.outline {
+  border: 2px dashed var(--esf-text);
+  border-radius: 8px;
+  box-sizing: border-box;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
 .label {
   background: var(--esf-surface-raised);
   border: 1px solid var(--esf-button-edge);
   border-radius: 4px;
-  bottom: 100%;
+  bottom: 8px;
   color: var(--esf-text);
   font-size: 12px;
   padding: 2px 6px;
-  pointer-events: none;
   position: absolute;
-  right: 100%;
-}
-
-@media (max-width: 1023px) {
-  .grip {
-    display: none;
-  }
+  right: 8px;
 }
