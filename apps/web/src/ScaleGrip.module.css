@@ -1,0 +1,41 @@
+.grip {
+  background: linear-gradient(
+    135deg,
+    transparent 0 50%,
+    var(--esf-text) 50% 58%,
+    transparent 58% 70%,
+    var(--esf-text) 70% 78%,
+    transparent 78%
+  );
+  bottom: 1px;
+  cursor: nwse-resize;
+  height: calc(14px * var(--esf-scale));
+  opacity: 0.8;
+  position: absolute;
+  right: 1px;
+  touch-action: none;
+  width: calc(14px * var(--esf-scale));
+}
+
+.grip:hover {
+  opacity: 1;
+}
+
+.label {
+  background: var(--esf-surface-raised);
+  border: 1px solid var(--esf-button-edge);
+  border-radius: 4px;
+  bottom: 100%;
+  color: var(--esf-text);
+  font-size: 12px;
+  padding: 2px 6px;
+  pointer-events: none;
+  position: absolute;
+  right: 100%;
+}
+
+@media (max-width: 1023px) {
+  .grip {
+    display: none;
+  }
+}

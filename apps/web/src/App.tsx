@@ -66,7 +66,15 @@ export function App({ data, images }: { data: Data | null | undefined; images?: 
               <FittingLoading images={images} layout={layout} />
             )
           ) : (
-            <Fitting data={data} layout={layout} skills={skills} />
+            <Fitting
+              data={data}
+              layout={layout}
+              skills={skills}
+              onScale={(scale, done) => {
+                setUiScale(scale);
+                if (done) keepUiScale(scale);
+              }}
+            />
           )}
         </div>
         <footer ref={setFooter} className={styles.footer}>

@@ -124,6 +124,7 @@
 
 .window {
   padding: 0;
+  position: relative;
 }
 
 .panels {

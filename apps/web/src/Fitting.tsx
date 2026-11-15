@@ -9,6 +9,7 @@ import styles from "./App.module.css";
 import { linkInUrl, type Data } from "./data";
 import type { Layout } from "./layout";
 import { keepFit } from "./login";
+import { ScaleGrip } from "./ScaleGrip";
 import { Skills } from "./Skills";
 
 const zkillboard = new ZKillboard();
@@ -18,10 +19,12 @@ export interface FittingProps {
   layout: Layout;
   /** Where to show the skills dropdown. */
   skills: HTMLElement | null;
+  /** Called when the window is dragged to another UI scale. */
+  onScale: (scale: number, done: boolean) => void;
 }
 
 /** The fitting window, with its item browser and statistics. */
-export function Fitting({ data, layout, skills }: FittingProps) {
+export function Fitting({ data, layout, skills, onScale }: FittingProps) {
   if (data === null) {
     return <p className={styles.message}>EVEShip.fit could not load. Please reload the page.</p>;
   }
@@ -71,6 +74,7 @@ export function Fitting({ data, layout, skills }: FittingProps) {
                 statistics={<ShipStatistics />}
                 placeholder={placeholder}
               />
+              <ScaleGrip scale={layout.scale} maxScale={layout.maxScale} onScale={onScale} />
             </div>
           )}
         </TextsProvider>
