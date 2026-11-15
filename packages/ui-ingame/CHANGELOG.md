@@ -1,5 +1,11 @@
 # @eveshipfit/ui-ingame
 
+## 2.0.2
+
+### Patch Changes
+
+- Slide the item browser and statistics in without a jump on the first frame ([#358](https://github.com/EVEShipFit/eveship.fit/pull/358))
+
 ## 2.0.1
 
 ### Patch Changes
