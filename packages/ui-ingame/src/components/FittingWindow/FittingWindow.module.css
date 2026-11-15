@@ -376,20 +376,24 @@
 
 .slide {
   height: 100%;
+  width: 100%;
   transition:
-    transform 200ms ease,
+    margin-left 200ms ease,
     visibility 200ms;
   visibility: hidden;
 }
 
-.browser > .slide,
+.browser > .slide {
+  margin-left: -100%;
+}
+
 .statistics > .slide {
-  transform: translateX(-100%);
+  margin-left: calc(-280 * var(--window-unit));
 }
 
 .window[data-browser] > .browser > .slide,
 .window[data-statistics] > .statistics > .slide {
-  transform: none;
+  margin-left: 0;
   visibility: visible;
 }
 
