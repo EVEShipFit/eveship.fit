@@ -1,0 +1,44 @@
+.grip {
+  background: linear-gradient(
+    135deg,
+    transparent 0 50%,
+    var(--esf-text) 50% 58%,
+    transparent 58% 70%,
+    var(--esf-text) 70% 78%,
+    transparent 78%
+  );
+  bottom: 1px;
+  cursor: nwse-resize;
+  height: calc(14px * var(--esf-scale));
+  opacity: 0.8;
+  position: absolute;
+  right: 1px;
+  touch-action: none;
+  width: calc(14px * var(--esf-scale));
+  z-index: 2;
+}
+
+.grip:hover {
+  opacity: 1;
+}
+
+.outline {
+  border: 2px dashed var(--esf-text);
+  border-radius: 8px;
+  box-sizing: border-box;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
+.label {
+  background: var(--esf-surface-raised);
+  border: 1px solid var(--esf-button-edge);
+  border-radius: 4px;
+  bottom: 8px;
+  color: var(--esf-text);
+  font-size: 12px;
+  padding: 2px 6px;
+  position: absolute;
+  right: 8px;
+}

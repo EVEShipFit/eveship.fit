@@ -40,6 +40,8 @@ export interface Layout {
   scale: number;
   /** EVE's UI scale for the item browser and statistics, when stacked. */
   panelScale: number;
+  /** The largest of the UI scales the window fits at, side by side; none when none fits. */
+  maxScale?: number;
 }
 
 function layoutFor(width: number, height: number, uiScale: number): Layout {
@@ -48,7 +50,12 @@ function layoutFor(width: number, height: number, uiScale: number): Layout {
   const stacked = Math.min(1, uiScale, width / COLLAPSED_WIDTH);
   const portrait = width < height;
   if (sideBySide >= MIN_SIDE_BY_SIDE_SCALE && !(portrait && stacked > sideBySide)) {
-    return { stacked: false, scale: Math.floor(Math.min(uiScale, sideBySide) * 100) / 100, panelScale: 1 };
+    return {
+      stacked: false,
+      scale: Math.floor(Math.min(uiScale, sideBySide) * 100) / 100,
+      panelScale: 1,
+      maxScale: UI_SCALES.findLast((scale) => scale <= sideBySide),
+    };
   }
   const panel = Math.min(1, width / (BROWSER_WIDTH + 2 * PANEL_PADDING));
   return { stacked: true, scale: Math.floor(stacked * 100) / 100, panelScale: Math.floor(panel * 100) / 100 };
@@ -72,7 +79,10 @@ export function useLayout(main: HTMLElement | null, footer: HTMLElement | null, 
         footer.offsetHeight;
       const next = layoutFor(width, height, uiScale);
       setLayout((current) =>
-        current.stacked === next.stacked && current.scale === next.scale && current.panelScale === next.panelScale
+        current.stacked === next.stacked &&
+        current.scale === next.scale &&
+        current.panelScale === next.panelScale &&
+        current.maxScale === next.maxScale
           ? current
           : next,
       );

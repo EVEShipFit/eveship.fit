@@ -2,13 +2,14 @@ import { EveShipFitProvider, ImagesProvider, TextsProvider, useHasFit } from "@e
 import type { Images } from "@eveshipfit/images";
 import { Dialog, FittingWindow, FittingWindowLoading, ItemBrowser, ShipStatistics } from "@eveshipfit/ui-ingame";
 import { ZKillboard } from "@eveshipfit/zkillboard";
-import { useState, type CSSProperties } from "react";
+import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 import styles from "./App.module.css";
 import { linkInUrl, type Data } from "./data";
 import type { Layout } from "./layout";
 import { keepFit } from "./login";
+import { ScaleGrip } from "./ScaleGrip";
 import { Skills } from "./Skills";
 
 const zkillboard = new ZKillboard();
@@ -18,10 +19,12 @@ export interface FittingProps {
   layout: Layout;
   /** Where to show the skills dropdown. */
   skills: HTMLElement | null;
+  /** Called when the window is dragged to another UI scale. */
+  onScale: (scale: number) => void;
 }
 
 /** The fitting window, with its item browser and statistics. */
-export function Fitting({ data, layout, skills }: FittingProps) {
+export function Fitting({ data, layout, skills, onScale }: FittingProps) {
   if (data === null) {
     return <p className={styles.message}>EVEShip.fit could not load. Please reload the page.</p>;
   }
@@ -65,13 +68,16 @@ export function Fitting({ data, layout, skills }: FittingProps) {
               </div>
             </>
           ) : (
-            <div className={`${styles.panel} ${styles.window}`} style={scale}>
+            <SideBySide scale={layout.scale}>
               <FittingWindow
                 browser={<ItemBrowser pasteToOpen />}
                 statistics={<ShipStatistics />}
                 placeholder={placeholder}
               />
-            </div>
+              {layout.maxScale !== undefined && (
+                <ScaleGrip scale={layout.scale} maxScale={layout.maxScale} onScale={onScale} />
+              )}
+            </SideBySide>
           )}
         </TextsProvider>
       </ImagesProvider>
@@ -87,15 +93,46 @@ export function FittingLoading({ images, layout }: { images: Images; layout: Lay
 
   return (
     <ImagesProvider images={images}>
-      <div className={`${styles.panel} ${styles.window}`} style={scale}>
-        <FittingWindowLoading text="Loading ships…" browser={!layout.stacked} statistics={!layout.stacked && linked} />
-      </div>
+      {layout.stacked ? (
+        <div className={`${styles.panel} ${styles.window}`} style={scale}>
+          <FittingWindowLoading text="Loading ships…" />
+        </div>
+      ) : (
+        <SideBySide scale={layout.scale}>
+          <FittingWindowLoading text="Loading ships…" browser statistics={linked} />
+        </SideBySide>
+      )}
       {layout.stacked && (
         <div className={styles.panels}>
           <div className={`${styles.panel} ${styles.browser} ${styles.loadingBrowser}`} style={panelScale} />
         </div>
       )}
     </ImagesProvider>
+  );
+}
+
+/** The window with its item browser and statistics slid out next to it. */
+function SideBySide({ scale, children }: { scale: number; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const shown = useRef(scale);
+
+  useLayoutEffect(() => {
+    if (shown.current === scale) return;
+    shown.current = scale;
+    const element = ref.current!;
+    element.dataset.rescaling = "";
+    element.getBoundingClientRect();
+    delete element.dataset.rescaling;
+  }, [scale]);
+
+  return (
+    <div
+      ref={ref}
+      className={`${styles.panel} ${styles.window} ${styles.sideBySide}`}
+      style={{ "--esf-scale": scale } as CSSProperties}
+    >
+      {children}
+    </div>
   );
 }
 

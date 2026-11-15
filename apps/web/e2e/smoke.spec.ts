@@ -65,6 +65,58 @@ test("the UI scale defaults to 100%, and keeps what is picked after a reload", a
   await expect(page.getByRole("combobox", { name: "UI scale" })).toHaveValue("1.25", { timeout: 30_000 });
 });
 
+test("dragging the window corner outlines and picks a UI scale, while 90% fits", async ({ page }) => {
+  await page.setViewportSize({ width: 2400, height: 1400 });
+  await page.goto(RIFTER);
+  const fittingWindow = page.getByRole("region", { name: "Fitting Window" });
+  await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
+  const grip = page.getByTitle("Drag to scale the UI");
+  await expect(grip).toBeVisible();
+  const box = (await fittingWindow.boundingBox())!;
+  const corner = (await grip.boundingBox())!;
+  const x = corner.x + corner.width / 2;
+  const y = corner.y + corner.height / 2;
+
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + box.width * 0.13, y + box.height * 0.13, { steps: 5 });
+  const outline = page.getByTestId("scale-outline");
+  await expect(outline).toHaveText("125%");
+  const outlined = (await outline.boundingBox())!;
+  expect((await fittingWindow.boundingBox())!.width).toBe(box.width);
+  await page.mouse.up();
+  await expect(page.getByRole("combobox", { name: "UI scale" })).toHaveValue("1.25");
+  await expect(outline).toHaveCount(0);
+  await expect.poll(async () => (await fittingWindow.boundingBox())!.width + 2).toBeCloseTo(outlined.width, 0);
+  expect((await fittingWindow.boundingBox())!.x - 1).toBeCloseTo(outlined.x, 0);
+
+  await page.reload();
+  await expect(page.getByRole("combobox", { name: "UI scale" })).toHaveValue("1.25", { timeout: 30_000 });
+
+  await page.setViewportSize({ width: 1300, height: 900 });
+  await expect(grip).toBeVisible();
+  await page.setViewportSize({ width: 1200, height: 900 });
+  await expect(page.getByRole("button", { name: "Item Browser" })).toBeVisible();
+  await expect(grip).toHaveCount(0);
+});
+
+test("the wheel stays in place when the item browser closes", async ({ page }) => {
+  await page.setViewportSize({ width: 2400, height: 1400 });
+  await page.goto(RIFTER);
+  await expect(page.getByText("Rifter", { exact: true })).toBeVisible({ timeout: 30_000 });
+  const toggle = page.getByRole("button", { name: "Item Browser" });
+  const x = async () => (await toggle.boundingBox())!.x;
+  const before = await x();
+  await expect.poll(x).toBeCloseTo(before, 0);
+
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  for (let i = 0; i < 5; i++) {
+    expect(await x()).toBeCloseTo(before, 0);
+    await page.waitForTimeout(50);
+  }
+});
+
 test("without a fit, the wheel asks for a hull until one is picked, and the logo goes back", async ({ page }) => {
   await page.goto("/");
   await expect(

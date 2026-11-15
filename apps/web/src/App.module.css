@@ -124,6 +124,40 @@
 
 .window {
   padding: 0;
+  position: relative;
+}
+
+/* Lengths are EVE's pixels at 100%, as the FittingWindow measures them. */
+.sideBySide {
+  --browser: 0;
+  --statistics: 0;
+
+  align-self: flex-start;
+  margin-left: clamp(
+    0px,
+    50% - (var(--browser) + 354) * 1px * var(--esf-scale),
+    100% - (708 + var(--browser) + var(--statistics)) * 1px * var(--esf-scale) - 2px
+  );
+  transition: margin-left 200ms ease;
+}
+
+.sideBySide:has(> [data-browser]) {
+  --browser: 400;
+}
+
+.sideBySide:has(> [data-statistics]) {
+  --statistics: 272;
+}
+
+.sideBySide[data-rescaling],
+.sideBySide[data-rescaling] * {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sideBySide {
+    transition: none;
+  }
 }
 
 .panels {
