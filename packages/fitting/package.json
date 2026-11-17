@@ -40,6 +40,6 @@
     "tsdown": "catalog:"
   },
   "peerDependencies": {
-    "@eveshipfit/dogma-engine": "^15.1.0"
+    "@eveshipfit/dogma-engine": "^15.2.0"
   }
 }
