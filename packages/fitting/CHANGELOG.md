@@ -1,5 +1,11 @@
 # @eveshipfit/fitting
 
+## 2.9.2
+
+### Patch Changes
+
+- Require `@eveshipfit/dogma-engine` 15.2.0 ([#362](https://github.com/EVEShipFit/eveship.fit/pull/362))
+
 ## 2.9.1
 
 ### Patch Changes
