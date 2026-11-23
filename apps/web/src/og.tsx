@@ -15,25 +15,13 @@ type Loaded = Awaited<ReturnType<typeof loadOg>>;
 
 const PRICE_WAIT = 3_000;
 
-/** zKillboard, keeping the prices it is still asked for. */
-class AskedZKillboard extends ZKillboard {
-  readonly asked = new Set<Promise<unknown>>();
-
-  override price(typeId: number): Promise<number | undefined> {
-    const price = super.price(typeId);
-    const asked = price.catch(() => undefined).finally(() => this.asked.delete(asked));
-    this.asked.add(asked);
-    return price;
-  }
-}
-
-const zkillboard = new AskedZKillboard();
+const zkillboard = new ZKillboard();
 
 /** The linked fit, flown with All L5; null when it could not load. */
 async function loadOg() {
   try {
     const esi = createEsi();
-    const prices = esi.marketPrices().catch(console.error);
+    const prices = zkillboard.prices().catch(console.error);
     const game = loadGame(esi);
     const [engine, images, texts] = await Promise.all([game.engine, game.images, game.texts]);
     const link = new URL(location.href).searchParams.get("fit");
@@ -73,14 +61,11 @@ function Og({ data }: { data: Promise<Loaded> }) {
   );
 }
 
-/** Once ESI's prices are in, and then every price zKillboard is asked for. */
+/** Once zKillboard's prices are in and shown. */
 async function priced(prices: Promise<unknown>) {
   await prices;
-  do {
-    await nextFrame();
-    await nextFrame();
-    await Promise.all(zkillboard.asked);
-  } while (zkillboard.asked.size > 0);
+  await nextFrame();
+  await nextFrame();
 }
 
 /** Tells the screenshotter the image is done, once its fonts and images are in. */

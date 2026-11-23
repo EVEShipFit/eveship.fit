@@ -1,37 +1,40 @@
 const baseUrl = "https://zkillboard.com/api";
-const timeout = 10_000;
-const spacing = 1_000;
+const timeout = 15_000;
+const day = 86_400_000;
 
 /** A zKillboard client. */
 export class ZKillboard {
-  readonly #prices = new Map<number, Promise<number | undefined>>();
-  #queue: Promise<unknown> = Promise.resolve();
+  #prices: { date: string; value: Promise<ReadonlyMap<number, number>> } | undefined;
 
-  /** zKillboard's current price of a type in ISK; undefined when it has none. */
-  price(typeId: number): Promise<number | undefined> {
-    let price = this.#prices.get(typeId);
-    if (price === undefined) {
-      const asked = this.#queued(() => fetchPrice(typeId));
-      asked.catch(() => {
-        if (this.#prices.get(typeId) === asked) this.#prices.delete(typeId);
-      });
-      this.#prices.set(typeId, asked);
-      price = asked;
-    }
-    return price;
-  }
+  /**
+   * zKillboard's price of every type it knows, in ISK, by type ID.
+   *
+   * The prices are those of yesterday (UTC), as today's are still filling in. They are fetched once, and again when
+   * the day changes. A failed fetch rejects, and the next call tries again.
+   */
+  prices(): Promise<ReadonlyMap<number, number>> {
+    const date = new Date(Date.now() - day).toISOString().slice(0, 10);
+    if (this.#prices?.date === date) return this.#prices.value;
 
-  #queued<T>(request: () => Promise<T>): Promise<T> {
-    const result = this.#queue.then(request);
-    this.#queue = result.catch(() => {}).then(() => new Promise((resolve) => setTimeout(resolve, spacing)));
-    return result;
+    const cached = { date, value: fetchPrices(date) };
+    cached.value.catch(() => {
+      if (this.#prices === cached) this.#prices = undefined;
+    });
+    this.#prices = cached;
+    return cached.value;
   }
 }
 
-async function fetchPrice(typeId: number): Promise<number | undefined> {
-  const response = await fetch(`${baseUrl}/prices/${typeId}/`, { signal: AbortSignal.timeout(timeout) });
-  if (!response.ok) throw new Error(`zKillboard /prices/${typeId}/: HTTP ${response.status}`);
-  const { currentPrice } = (await response.json()) as { currentPrice?: number | string };
-  const price = Number(currentPrice);
-  return price > 0.01 ? price : undefined;
+async function fetchPrices(date: string): Promise<ReadonlyMap<number, number>> {
+  const path = `/prices/date/${date}/`;
+  const response = await fetch(`${baseUrl}${path}`, { signal: AbortSignal.timeout(timeout) });
+  if (!response.ok) throw new Error(`zKillboard ${path}: HTTP ${response.status}`);
+  const prices = (await response.json()) as Record<string, number | string>;
+
+  const known = new Map<number, number>();
+  for (const [typeId, value] of Object.entries(prices)) {
+    const price = Number(value);
+    if (price > 0.01) known.set(Number(typeId), price);
+  }
+  return known;
 }

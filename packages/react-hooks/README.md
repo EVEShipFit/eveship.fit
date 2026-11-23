@@ -113,7 +113,7 @@ characters.loadAll();
 
 ### Price
 
-`useFitPrice` gives the fit's estimated price in ISK, at the prices of the engine's `esi`; `undefined` without one, or until they are in. A type costs ESI's average price, else its adjusted price, else the price of the provider's `zkillboard`, asked only for what is fitted. Like `useAttribute`, it says whether a preview makes it `"better"` (cheaper) or `"worse"`. Its `items` list what the price adds up.
+`useFitPrice` gives the fit's estimated price in ISK, at the prices of the provider's `zkillboard`; `undefined` without one, or until they are in. A type zKillboard has no price for adds nothing. Like `useAttribute`, it says whether a preview makes it `"better"` (cheaper) or `"worse"`. Its `items` list what the price adds up. `useTypePrice` gives one type's price the same way.
 
 ### Saved fits
 

@@ -5,6 +5,7 @@ import { ZKillboard } from "../src/index.js";
 let fetch: Mock<typeof globalThis.fetch>;
 
 beforeEach(() => {
+  vi.useFakeTimers({ now: Date.UTC(2026, 10, 23, 12) });
   fetch = vi.fn<typeof globalThis.fetch>();
   vi.stubGlobal("fetch", fetch);
 });
@@ -14,78 +15,47 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-test("a price is zKillboard's current price", async () => {
-  fetch.mockResolvedValue(Response.json({ "2026-09-01": 144_800_000, currentPrice: "136063333.33", typeID: 41511 }));
+test("the prices are yesterday's, by type ID", async () => {
+  fetch.mockResolvedValue(Response.json({ "587": 600_000, "671": "128364874378.22" }));
 
-  await expect(new ZKillboard().price(41511)).resolves.toBe(136_063_333.33);
-  expect(fetch).toHaveBeenCalledWith("https://zkillboard.com/api/prices/41511/", expect.anything());
+  const prices = await new ZKillboard().prices();
+
+  expect([...prices]).toEqual([
+    [587, 600_000],
+    [671, 128_364_874_378.22],
+  ]);
+  expect(fetch).toHaveBeenCalledWith("https://zkillboard.com/api/prices/date/2026-11-22/", expect.anything());
   expect(fetch.mock.calls[0]?.[1]).not.toHaveProperty("headers");
 });
 
-test("a price zKillboard does not know is undefined", async () => {
-  fetch.mockResolvedValue(Response.json({ currentPrice: 0.01 }));
+test("a price zKillboard does not know is left out", async () => {
+  fetch.mockResolvedValue(Response.json({ "587": 600_000, "123": 0.01 }));
 
-  await expect(new ZKillboard().price(123)).resolves.toBeUndefined();
+  const prices = await new ZKillboard().prices();
+
+  expect(prices.has(123)).toBe(false);
 });
 
-test("a type is asked for once", async () => {
-  fetch.mockImplementation(async () => Response.json({ currentPrice: 1_000 }));
+test("the prices are fetched once a day", async () => {
+  fetch.mockImplementation(async () => Response.json({ "587": 600_000 }));
   const zkillboard = new ZKillboard();
 
-  await Promise.all([zkillboard.price(123), zkillboard.price(123)]);
-  await zkillboard.price(123);
-
-  expect(fetch).toHaveBeenCalledTimes(1);
-});
-
-test("requests go one at a time, a second apart", async () => {
-  vi.useFakeTimers();
-  fetch.mockImplementation(async () => Response.json({ currentPrice: 1_000 }));
-  const zkillboard = new ZKillboard();
-
-  const prices = [zkillboard.price(1), zkillboard.price(2), zkillboard.price(3)];
-  await vi.advanceTimersByTimeAsync(0);
+  const [first, second] = await Promise.all([zkillboard.prices(), zkillboard.prices()]);
+  expect(second).toBe(first);
   expect(fetch).toHaveBeenCalledTimes(1);
 
-  await vi.advanceTimersByTimeAsync(999);
-  expect(fetch).toHaveBeenCalledTimes(1);
-
-  await vi.advanceTimersByTimeAsync(1);
+  vi.setSystemTime(Date.UTC(2026, 10, 24));
+  await zkillboard.prices();
   expect(fetch).toHaveBeenCalledTimes(2);
-
-  await vi.advanceTimersByTimeAsync(1_000);
-  await Promise.all(prices);
-  expect(fetch).toHaveBeenCalledTimes(3);
+  expect(fetch).toHaveBeenLastCalledWith("https://zkillboard.com/api/prices/date/2026-11-23/", expect.anything());
 });
 
-test("a failed request rejects, and the next still waits its turn", async () => {
-  vi.useFakeTimers();
+test("a failed fetch rejects, and is tried again", async () => {
   fetch.mockResolvedValueOnce(new Response(null, { status: 500 }));
-  fetch.mockImplementation(async () => Response.json({ currentPrice: 1_000 }));
+  fetch.mockImplementation(async () => Response.json({ "587": 600_000 }));
   const zkillboard = new ZKillboard();
 
-  const failed = zkillboard.price(1).catch((caught: unknown) => caught);
-  const next = zkillboard.price(2);
-  await vi.advanceTimersByTimeAsync(0);
-  expect(await failed).toMatchObject({ message: "zKillboard /prices/1/: HTTP 500" });
-  expect(fetch).toHaveBeenCalledTimes(1);
-
-  await vi.advanceTimersByTimeAsync(1_000);
-  await expect(next).resolves.toBe(1_000);
-});
-
-test("a failed price is asked for again", async () => {
-  vi.useFakeTimers();
-  fetch.mockResolvedValueOnce(new Response(null, { status: 500 }));
-  fetch.mockImplementation(async () => Response.json({ currentPrice: 1_000 }));
-  const zkillboard = new ZKillboard();
-
-  const failed = zkillboard.price(1).catch(() => undefined);
-  await vi.advanceTimersByTimeAsync(0);
-  await failed;
-
-  const retried = zkillboard.price(1);
-  await vi.advanceTimersByTimeAsync(1_000);
-  await expect(retried).resolves.toBe(1_000);
+  await expect(zkillboard.prices()).rejects.toThrow("zKillboard /prices/date/2026-11-22/: HTTP 500");
+  expect((await zkillboard.prices()).get(587)).toBe(600_000);
   expect(fetch).toHaveBeenCalledTimes(2);
 });
