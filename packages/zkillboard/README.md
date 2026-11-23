@@ -17,11 +17,13 @@ import { ZKillboard } from "@eveshipfit/zkillboard";
 
 const zkillboard = new ZKillboard();
 
-await zkillboard.price(35834); // a Keepstar, in ISK
+const prices = await zkillboard.prices();
+prices.get(35834); // a Keepstar, in ISK
 ```
 
-zKillboard prices what ESI has no market price for, like capital modules and Keepstars. Requests go one at a time, a
-second apart, and each type is asked for once.
+`prices()` gives zKillboard's price of every type it knows, by type ID. They are yesterday's prices (UTC), as today's
+are still filling in. They are fetched once, and again when the day changes. A type zKillboard has no price for is
+left out.
 
 ## License
 

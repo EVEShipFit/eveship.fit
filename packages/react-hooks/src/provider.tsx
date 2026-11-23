@@ -46,7 +46,7 @@ export interface EveShipFitProviderProps {
   beforeLogin?: () => void;
   /** Where the damage profiles people made live; `localStorage` when left out. */
   damageProfiles?: DamageProfiles;
-  /** Prices what ESI has none for. */
+  /** Where prices come from; without it, the fit and its types have no price. */
   zkillboard?: ZKillboard;
   children?: ReactNode;
 }
