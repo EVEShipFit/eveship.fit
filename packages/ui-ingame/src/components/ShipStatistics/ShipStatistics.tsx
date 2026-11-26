@@ -1,5 +1,6 @@
 import { useFitPrice, useShownSnapshot } from "@eveshipfit/react-hooks";
 
+import { BoostsBar } from "./BoostsBar";
 import { CapacitorStats } from "./CapacitorStats";
 import { DefenseStats } from "./DefenseStats";
 import { DroneStats } from "./DroneStats";
@@ -22,6 +23,7 @@ export function ShipStatistics({ label = "Statistics" }: ShipStatisticsProps) {
 
   return (
     <section className={styles.statistics} aria-label={label}>
+      <BoostsBar />
       <div className={styles.sections}>
         <CapacitorStats />
         <OffenseStats />

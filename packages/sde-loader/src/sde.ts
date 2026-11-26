@@ -3,6 +3,7 @@ import { ByteBuffer } from "flatbuffers";
 import {
   Sde as RawSde,
   type Category,
+  type DbuffCollection,
   type DogmaAttribute,
   type DogmaEffect,
   type DogmaUnit,
@@ -15,6 +16,7 @@ import {
 } from "./generated/sde/eve.js";
 import {
   SdeType,
+  toBuff,
   toFighterAbility,
   toAttribute,
   toCategory,
@@ -25,6 +27,7 @@ import {
   toMetaGroup,
   toMutaplasmid,
   toUnit,
+  type SdeBuff,
   type SdeFighterAbilityInfo,
   type SdeAttribute,
   type SdeCategory,
@@ -74,6 +77,7 @@ export class Sde {
   readonly #units: Table<DogmaUnit, SdeUnit>;
   readonly #fighterAbilities: Table<FighterAbility, SdeFighterAbilityInfo>;
   readonly #mutaplasmids: Table<Mutaplasmid, SdeMutaplasmid>;
+  readonly #buffs: Table<DbuffCollection, SdeBuff>;
 
   #attributeIds: Map<string, number> | undefined;
   #typesByName: Map<string, SdeType> | undefined;
@@ -116,6 +120,7 @@ export class Sde {
     this.#units = new Table(raw.dogmaUnitsLength(), (i) => raw.dogmaUnits(i), toUnit);
     this.#fighterAbilities = new Table(raw.fighterAbilitiesLength(), (i) => raw.fighterAbilities(i), toFighterAbility);
     this.#mutaplasmids = new Table(raw.mutaplasmidsLength(), (i) => raw.mutaplasmids(i), toMutaplasmid);
+    this.#buffs = new Table(raw.dbuffCollectionsLength(), (i) => raw.dbuffCollections(i), toBuff);
   }
 
   type(id: number): SdeType | undefined {
@@ -156,6 +161,11 @@ export class Sde {
 
   mutaplasmid(id: number): SdeMutaplasmid | undefined {
     return this.#mutaplasmids.get(id);
+  }
+
+  /** By its ID in `dbuffCollections`, as `Calculation.buffs` of the engine lists it. */
+  buff(id: number): SdeBuff | undefined {
+    return this.#buffs.get(id);
   }
 
   /** The mutaplasmids that work on a type, lowest ID first. */

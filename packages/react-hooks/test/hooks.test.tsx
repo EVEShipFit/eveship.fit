@@ -38,6 +38,7 @@ import {
   useFitSaving,
   useFitStore,
   useFighterTubes,
+  useFleet,
   useFighterTubeUsage,
   useHardpoints,
   useHasFit,
@@ -209,10 +210,10 @@ test("attributes are formatted the way EVE shows them", () => {
     missing: useAttribute("damagePerSecondWithoutReload", { fallback: 0, decimals: 1, fixed: true }),
   }));
 
-  expect(result.current.resonance).toEqual({ value: 1, text: "0 %", change: undefined });
+  expect(result.current.resonance).toEqual({ value: 1, text: "0 %", change: undefined, boosted: false });
   expect(result.current.custom.text).toMatch(/^[\d.]+ CPU$/);
-  expect(result.current.unknown).toEqual({ value: undefined, text: "–", change: undefined });
-  expect(result.current.missing).toEqual({ value: 0, text: "0.0 DPS", change: undefined });
+  expect(result.current.unknown).toEqual({ value: undefined, text: "–", change: undefined, boosted: false });
+  expect(result.current.missing).toEqual({ value: 0, text: "0.0 DPS", change: undefined, boosted: false });
 });
 
 test("attributes say whether a preview makes them better or worse", () => {
@@ -221,7 +222,7 @@ test("attributes say whether a preview makes them better or worse", () => {
   });
 
   act(() => result.current.preview.show((draft) => draft.remove(0)));
-  expect(result.current.resonance).toEqual({ value: 1, text: "0 %", change: "worse" });
+  expect(result.current.resonance).toEqual({ value: 1, text: "0 %", change: "worse", boosted: false });
 
   act(() => result.current.preview.show((draft) => draft.setName("Changed")));
   expect(result.current.resonance.change).toBeUndefined();
@@ -448,6 +449,37 @@ test("a damage profile changes the ehp until it is removed", () => {
   act(() => result.current.profiles.remove("Hot"));
   expect(result.current.profiles.current).toBeUndefined();
   expect(result.current.ehp.value).toBe(uniform);
+});
+
+test("boosters boost the fit, until they are off", () => {
+  const claymore = engine.loadText("[Claymore, Boosts]\nShield Command Burst II, Shield Harmonizing Charge\n");
+  const { result } = render(() => ({ fleet: useFleet(), resonance: useAttribute("shieldEmDamageResonance") }));
+  expect(result.current.fleet).toMatchObject({ boosters: [], buffs: [], on: true });
+
+  act(() => result.current.fleet.add(claymore));
+  expect(result.current.fleet.boosters).toEqual([
+    expect.objectContaining({ off: false, status: "on", bursts: [expect.objectContaining({ ref: 0 })] }),
+  ]);
+  expect(result.current.fleet.buffs).toContainEqual(
+    expect.objectContaining({
+      name: "Shield Resistance Bonus",
+      effect: expect.stringMatching(/^\+[\d.]+ %$/),
+      booster: 0,
+    }),
+  );
+  expect(result.current.resonance.boosted).toBe(true);
+
+  act(() => result.current.fleet.setOn(false));
+  expect(result.current.fleet.boosters[0]?.status).toBe("off");
+  expect(result.current.fleet.buffs).toEqual([]);
+  expect(result.current.resonance).toMatchObject({ value: 1, boosted: false });
+
+  act(() => result.current.fleet.setOn(true));
+  act(() => result.current.fleet.setOff(0, true));
+  expect(result.current.fleet.boosters[0]).toMatchObject({ off: true, status: "off" });
+
+  act(() => result.current.fleet.remove(0));
+  expect(result.current.fleet.boosters).toEqual([]);
 });
 
 test("a character without skills flies the fit worse", () => {

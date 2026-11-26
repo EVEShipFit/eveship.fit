@@ -26,6 +26,7 @@
   color: var(--esf-bad);
 }
 
+.attribute[data-boosted],
 .attribute[data-change="better"],
 .price[data-change="better"] {
   color: var(--esf-good);
@@ -34,6 +35,46 @@
 .attribute[data-change="worse"],
 .price[data-change="worse"] {
   color: var(--esf-bad);
+}
+
+.boosts {
+  align-items: center;
+  background: var(--esf-tree-header);
+  display: flex;
+  gap: calc(6 * var(--statistics-unit));
+  margin-bottom: calc(4 * var(--statistics-unit));
+  padding: calc(2 * var(--statistics-unit)) calc(6 * var(--statistics-unit));
+}
+
+.boostsLabel {
+  color: var(--esf-text-muted);
+}
+
+.buffs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(4 * var(--statistics-unit));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.buff {
+  align-items: center;
+  background: var(--esf-button);
+  border: var(--statistics-unit) solid var(--esf-button-edge);
+  display: flex;
+  height: calc(22 * var(--statistics-unit));
+  justify-content: center;
+  width: calc(22 * var(--statistics-unit));
+}
+
+.buff:focus-visible {
+  outline: var(--statistics-unit) solid var(--esf-text);
+}
+
+.buffEffect {
+  color: var(--esf-good);
 }
 
 .limit[data-over] {

@@ -1,9 +1,11 @@
 export { loadNames, Names } from "./names.js";
 export {
   SdeType,
+  type BuffOperation,
   type EffectCategory,
   type SdeFighterAbilityInfo,
   type SdeAttribute,
+  type SdeBuff,
   type SdeCategory,
   type SdeEffect,
   type SdeFighterAbility,

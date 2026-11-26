@@ -1,5 +1,6 @@
 export { allSkills, missingSkills, typesInUse, type MissingSkill } from "./character.js";
 export { emptyFit } from "./edits.js";
+export { burstsOf, type Boosts, type BoosterStats, type Buff, type Burst } from "./fleet.js";
 export { createEngine, Engine, type EngineOptions } from "./engine.js";
 export { fitPrice, fitPriceItems, type FitPriceItem } from "./price.js";
 export { Attributes, Stats, type ItemStats, type Usage } from "./stats.js";

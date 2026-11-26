@@ -1,5 +1,6 @@
 import type {
   Category,
+  DbuffCollection,
   DogmaAttribute,
   DogmaEffect,
   DogmaUnit,
@@ -10,7 +11,7 @@ import type {
   Mutaplasmid,
   Type,
 } from "./generated/sde/eve.js";
-import { EffectCategory as RawEffectCategory } from "./generated/sde/eve.js";
+import { DbuffDisplay, EffectCategory as RawEffectCategory, ModifierOperation } from "./generated/sde/eve.js";
 
 export interface SdeGroup {
   readonly id: number;
@@ -52,6 +53,30 @@ export interface SdeUnit {
   readonly id: number;
   readonly name: string;
   readonly displayName: string | undefined;
+}
+
+export type BuffOperation =
+  | "pre_assign"
+  | "pre_mul"
+  | "pre_div"
+  | "mod_add"
+  | "mod_sub"
+  | "post_mul"
+  | "post_div"
+  | "post_percent"
+  | "post_assign";
+
+/** A buff, like the ones command bursts hand out; `dbuffCollections` in the SDE. */
+export interface SdeBuff {
+  readonly id: number;
+  readonly name: string | undefined;
+  /** How the buff's value changes the attributes it modifies. */
+  readonly operation: BuffOperation | undefined;
+  /**
+   * How EVE shows the value: as it is, with its sign flipped, or not at all.
+   * A resistance buff of -20 lowers the resonance, which EVE shows as +20%.
+   */
+  readonly display: "normal" | "inverted" | "hidden";
 }
 
 export type EffectCategory = "passive" | "active" | "target" | "area" | "online" | "overload" | "dungeon" | "system";
@@ -255,6 +280,33 @@ export function toMutaplasmid(raw: Mutaplasmid): SdeMutaplasmid {
     });
   });
   return Object.freeze({ id: raw.id(), attributes, mappings: Object.freeze(mappings) });
+}
+
+const buffOperations: Partial<Record<ModifierOperation, BuffOperation>> = {
+  [ModifierOperation.PreAssign]: "pre_assign",
+  [ModifierOperation.PreMul]: "pre_mul",
+  [ModifierOperation.PreDiv]: "pre_div",
+  [ModifierOperation.ModAdd]: "mod_add",
+  [ModifierOperation.ModSub]: "mod_sub",
+  [ModifierOperation.PostMul]: "post_mul",
+  [ModifierOperation.PostDiv]: "post_div",
+  [ModifierOperation.PostPercent]: "post_percent",
+  [ModifierOperation.PostAssign]: "post_assign",
+};
+
+const buffDisplays: Record<DbuffDisplay, SdeBuff["display"]> = {
+  [DbuffDisplay.Normal]: "normal",
+  [DbuffDisplay.Inverted]: "inverted",
+  [DbuffDisplay.Hidden]: "hidden",
+};
+
+export function toBuff(raw: DbuffCollection): SdeBuff {
+  return Object.freeze({
+    id: raw.id(),
+    name: raw.displayName() || undefined,
+    operation: buffOperations[raw.operation()],
+    display: buffDisplays[raw.display()] ?? "normal",
+  });
 }
 
 export function toAttribute(raw: DogmaAttribute): SdeAttribute {

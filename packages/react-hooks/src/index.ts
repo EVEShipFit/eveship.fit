@@ -35,6 +35,13 @@ export {
   type FitHistory,
   type PreviewControls,
 } from "./hooks/fit.js";
+export {
+  useFleet,
+  type FleetBooster,
+  type FleetBoosterStatus,
+  type FleetControls,
+  type LandedBuff,
+} from "./hooks/fleet.js";
 export { useImages } from "./hooks/images.js";
 export { useInfo, useShowInfo, type Info, type InfoAttribute, type ShowInfo } from "./hooks/info.js";
 export {

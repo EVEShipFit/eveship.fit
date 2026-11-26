@@ -118,6 +118,18 @@ describe("lookups", () => {
     expect(sde.mutaplasmidsFor(RIFTER)).toEqual([]);
   });
 
+  test("buffs, with how EVE shows their value", () => {
+    expect(sde.buff(10)).toEqual({
+      id: 10,
+      name: "Shield Resistance Bonus",
+      operation: "post_percent",
+      display: "inverted",
+    });
+    expect(sde.buff(12)).toMatchObject({ name: "Shield HP Bonus", display: "normal" });
+    expect(sde.buff(5)).toMatchObject({ display: "hidden" });
+    expect(sde.buff(-1)).toBeUndefined();
+  });
+
   test("the engine's own attributes have negative IDs", () => {
     expect(sde.attribute(-1)?.name).toBe("alignTime");
     expect(sde.attributeId("alignTime")).toBe(-1);

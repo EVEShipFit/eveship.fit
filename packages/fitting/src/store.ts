@@ -1,6 +1,7 @@
 import type { Sde } from "@eveshipfit/sde-loader";
 
 import * as edits from "./edits.js";
+import { boostsOf, hasBoosters, type Boosts } from "./fleet.js";
 import type { MutationRoll } from "./rules/mutation.js";
 import { placementOf } from "./rules/placement.js";
 import type { Stats } from "./stats.js";
@@ -10,6 +11,9 @@ export interface Snapshot {
   /** Without `character`; who flies the fit is set on the store. */
   readonly fit: Fit;
   readonly stats: Stats;
+  readonly boosts: Boosts;
+  /** The stats without the fit's boosters; undefined when none of them applies. */
+  readonly unboosted: Stats | undefined;
 }
 
 export interface Preview {
@@ -33,16 +37,24 @@ export class FitStore {
   readonly #calculator: Calculator;
   #character: Character;
   #damageProfile: DamageProfile | undefined;
+  #boosts: boolean;
   #snapshot: Snapshot | undefined;
   /** Oldest first; an edit goes at the end, also after going back. */
   readonly #history: Fit[];
   #position: number;
   readonly #listeners = new Set<() => void>();
 
-  constructor(calculator: Calculator, fit: Fit | undefined, character: Character, damageProfile?: DamageProfile) {
+  constructor(
+    calculator: Calculator,
+    fit: Fit | undefined,
+    character: Character,
+    damageProfile?: DamageProfile,
+    boosts = true,
+  ) {
     this.#calculator = calculator;
     this.#character = character;
     this.#damageProfile = damageProfile;
+    this.#boosts = boosts;
     this.#snapshot = fit && this.#calculate(edits.withMode(calculator.sde, withoutCharacter(fit)));
     this.#history = this.#snapshot ? [this.#snapshot.fit] : [];
     this.#position = this.#history.length - 1;
@@ -70,6 +82,11 @@ export class FitStore {
   /** Undefined is uniform. */
   get damageProfile(): DamageProfile | undefined {
     return this.#damageProfile;
+  }
+
+  /** Whether the fit's boosters apply. */
+  get boosts(): boolean {
+    return this.#boosts;
   }
 
   get canUndo(): boolean {
@@ -193,6 +210,27 @@ export class FitStore {
     this.#edit((fit) => edits.setName(fit, name));
   }
 
+  /** Another fit boosting this one, flown with every skill at V. */
+  addBooster(booster: Fit) {
+    this.#edit((fit) => edits.addBooster(this.#calculator.sde, fit, booster));
+  }
+
+  removeBooster(index: number) {
+    this.#edit((fit) => edits.removeBooster(fit, index));
+  }
+
+  /** An off booster stays with the fit, without boosting it. */
+  setBoosterOff(index: number, off: boolean) {
+    this.#edit((fit) => edits.setBoosterOff(fit, index, off));
+  }
+
+  /** Off leaves out every booster, to compare; like the character, not an edit of the fit. */
+  setBoosts(on: boolean) {
+    if (on === this.#boosts) return;
+    this.#boosts = on;
+    this.#recalculate();
+  }
+
   /** Only to a mode of the ship. */
   setMode(modeTypeId: number) {
     this.#edit((fit) => edits.setMode(this.#calculator.sde, fit, modeTypeId));
@@ -238,13 +276,15 @@ export class FitStore {
     this.#history.splice(0, this.#history.length, this.#snapshot.fit);
     this.#position = 0;
     // The history follows the snapshot.
-    this.#publish(Object.freeze({ ...this.#snapshot }));
+    this.#publish(
+      Object.freeze(Object.defineProperties({}, Object.getOwnPropertyDescriptors(this.#snapshot)) as Snapshot),
+    );
   }
 
   /** What `edit` would do, without doing it; throws while the store is empty. */
   preview(edit: (fit: FitStore) => void): Preview {
     const before = this.getSnapshot();
-    const draft = new FitStore(this.#calculator, before.fit, this.#character, this.#damageProfile);
+    const draft = new FitStore(this.#calculator, before.fit, this.#character, this.#damageProfile, this.#boosts);
     draft.#history.splice(0, 1, ...this.#history);
     draft.#position = this.#position;
     edit(draft);
@@ -265,9 +305,23 @@ export class FitStore {
   }
 
   #calculate(fit: Fit): Snapshot {
+    const calculator = this.#calculator;
+    const character = this.#character;
     const environment = this.#damageProfile && { ...fit.environment, damage_profile: this.#damageProfile };
-    const calculated = environment ? { ...fit, environment } : fit;
-    return Object.freeze({ fit, stats: this.#calculator.calculate(calculated, this.#character) });
+    const withEnvironment = environment ? { ...fit, environment } : fit;
+    const unboostedFit = withoutBoosters(withEnvironment);
+    const boosted = this.#boosts && hasBoosters(fit);
+    const stats = calculator.calculate(boosted ? withEnvironment : unboostedFit, character);
+    let unboosted: Stats | undefined;
+    return Object.freeze({
+      fit,
+      stats,
+      boosts: boostsOf(calculator, fit, stats, this.#boosts),
+      get unboosted() {
+        if (boosted) unboosted ??= calculator.calculate(unboostedFit, character);
+        return unboosted;
+      },
+    });
   }
 
   #recalculate() {
@@ -300,6 +354,10 @@ function equal(a: unknown, b: unknown): boolean {
 
 function entries(value: object): Record<string, unknown> {
   return value instanceof Map ? Object.fromEntries(value) : (value as Record<string, unknown>);
+}
+
+function withoutBoosters({ boosters: _, ...fit }: Fit): Fit {
+  return fit;
 }
 
 function withoutCharacter({ character: _, ...fit }: Fit): Fit {
