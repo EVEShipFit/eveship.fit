@@ -107,7 +107,8 @@ export const AllBoostsOff: Story = {
     await meta.play(context);
     const { canvas, userEvent } = context;
     await userEvent.click(canvas.getByRole("switch", { name: "Boosts on" }));
-    await expect(canvas.getByRole("listitem", { name: "Shield Boosts" })).toHaveAttribute("data-status", "off");
+    await expect(canvas.getByRole("listitem", { name: "Shield Boosts" })).toHaveAttribute("data-status", "all-off");
+    await expect(canvas.getByRole("listitem", { name: "Shield Boosts" })).toHaveTextContent("All boosts off");
     await expect(canvas.getByRole("switch", { name: "Boost from Shield Boosts" })).toBeChecked();
   },
 };

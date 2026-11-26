@@ -470,7 +470,7 @@ test("boosters boost the fit, until they are off", () => {
   expect(result.current.resonance.boosted).toBe(true);
 
   act(() => result.current.fleet.setOn(false));
-  expect(result.current.fleet.boosters[0]?.status).toBe("off");
+  expect(result.current.fleet.boosters[0]?.status).toBe("all-off");
   expect(result.current.fleet.buffs).toEqual([]);
   expect(result.current.resonance).toMatchObject({ value: 1, boosted: false });
 
@@ -480,6 +480,18 @@ test("boosters boost the fit, until they are off", () => {
 
   act(() => result.current.fleet.remove(0));
   expect(result.current.fleet.boosters).toEqual([]);
+});
+
+test("a booster is overridden by an equal one before it, and idle without an active burst", () => {
+  const claymore = engine.loadText("[Claymore, Boosts]\nShield Command Burst II, Shield Harmonizing Charge\n");
+  const offline = { ...claymore, items: claymore.items.map((item) => ({ ...item, state: "offline" as const })) };
+  const { result } = render(() => useFleet());
+
+  act(() => result.current.add(claymore));
+  act(() => result.current.add(claymore));
+  act(() => result.current.add(offline));
+  act(() => result.current.add({ ship: { type_id: RIFTER }, items: [] }));
+  expect(result.current.boosters.map((booster) => booster.status)).toEqual(["on", "overridden", "idle", "idle"]);
 });
 
 test("a character without skills flies the fit worse", () => {

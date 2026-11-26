@@ -19,6 +19,7 @@ import browserStyles from "./ItemBrowser.module.css";
 const statusNotes: Record<FleetBooster["status"], string | undefined> = {
   on: undefined,
   off: "Turned off",
+  "all-off": "All boosts off",
   overridden: "Others hand out the same boosts",
   idle: "Hands out no boosts",
 };
@@ -37,7 +38,7 @@ function FleetPanel() {
     <div className={styles.fleet}>
       <div className={styles.header}>
         <span>Boosters</span>
-        {fleet.boosters.length > 0 && (
+        {(fleet.boosters.length > 0 || !fleet.on) && (
           <Switch label="Boosts on" checked={fleet.on} onChange={fleet.setOn}>
             Boosts on
           </Switch>

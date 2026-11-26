@@ -69,10 +69,6 @@
   width: calc(22 * var(--statistics-unit));
 }
 
-.buff:focus-visible {
-  outline: var(--statistics-unit) solid var(--esf-text);
-}
-
 .buffEffect {
   color: var(--esf-good);
 }

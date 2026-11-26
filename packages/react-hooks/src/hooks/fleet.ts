@@ -7,11 +7,12 @@ import { useSde } from "./sde.js";
 
 /**
  * - `on`: a buff it hands out landed.
- * - `off`: it is switched off, or all boosters are.
+ * - `off`: it is switched off.
+ * - `all-off`: all boosters are switched off.
  * - `overridden`: other boosters hand out the same buffs, as strong or stronger.
  * - `idle`: it has no active burst.
  */
-export type FleetBoosterStatus = "on" | "off" | "overridden" | "idle";
+export type FleetBoosterStatus = "on" | "off" | "all-off" | "overridden" | "idle";
 
 export interface FleetBooster {
   readonly fit: Fit;
@@ -26,7 +27,7 @@ export interface FleetBuff {
   readonly name: string;
   /** The value as EVE shows it, like "+25.9 %"; empty for a buff EVE shows no value of. */
   readonly effect: string;
-  /** The index into `boosters` of the booster it came from; undefined when it came from the fit itself. */
+  /** The index into `boosters` of the booster it came from; undefined when it came from the fit itself, or from `incoming`. */
   readonly booster: number | undefined;
   /** The type of the charge that handed it out, when known. */
   readonly charge: number | undefined;
@@ -57,11 +58,13 @@ export function useFleet(): FleetControls {
       const off = booster.off ?? false;
       const status = landed
         ? "on"
-        : off || !boosts.on
+        : off
           ? "off"
-          : !bursts.some((burst) => burst.active)
-            ? "idle"
-            : "overridden";
+          : !boosts.on
+            ? "all-off"
+            : !bursts.some((burst) => burst.active)
+              ? "idle"
+              : "overridden";
       return { fit: booster.fit, off, bursts, status };
     }),
     buffs: boosts.buffs.map((buff) => {
