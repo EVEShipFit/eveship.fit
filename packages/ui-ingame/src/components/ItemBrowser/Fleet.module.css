@@ -1,0 +1,210 @@
+.fleet {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: calc(8 * var(--browser-unit));
+  margin-top: calc(8 * var(--browser-unit));
+  min-height: 0;
+}
+
+.header {
+  align-items: center;
+  background: var(--esf-tree-header);
+  display: flex;
+  height: calc(24 * var(--browser-unit));
+  justify-content: space-between;
+  padding: 0 calc(8 * var(--browser-unit));
+}
+
+.boosters {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8 * var(--browser-unit));
+  list-style: none;
+  margin: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.boosters:empty {
+  display: none;
+}
+
+.hint {
+  color: var(--esf-text-muted);
+  margin: calc(16 * var(--browser-unit)) 0;
+  text-align: center;
+}
+
+.card {
+  border: var(--browser-unit) solid var(--esf-border);
+  display: flex;
+  flex-direction: column;
+  gap: calc(4 * var(--browser-unit));
+  padding: calc(8 * var(--browser-unit));
+}
+
+.card:not([data-status="on"]) :is(.cardHeader > span, .names, .bursts) {
+  opacity: 0.5;
+}
+
+.cardHeader {
+  align-items: center;
+  display: flex;
+  gap: calc(8 * var(--browser-unit));
+}
+
+.names {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.details {
+  color: var(--esf-text-muted);
+}
+
+.bursts {
+  display: flex;
+  flex-direction: column;
+  gap: calc(2 * var(--browser-unit));
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 calc(40 * var(--browser-unit));
+}
+
+.bursts > li {
+  align-items: center;
+  display: flex;
+  gap: calc(6 * var(--browser-unit));
+}
+
+.bursts > li[data-off] {
+  color: var(--esf-text-muted);
+}
+
+.bursts > li[data-off] > span:first-child {
+  opacity: 0.5;
+}
+
+.switch {
+  align-items: center;
+  color: var(--esf-text-muted);
+  display: flex;
+  gap: calc(8 * var(--browser-unit));
+}
+
+.switch > input {
+  appearance: none;
+  background: var(--esf-input-bg);
+  border: var(--browser-unit) solid var(--esf-border);
+  border-radius: calc(8 * var(--browser-unit));
+  cursor: pointer;
+  height: calc(16 * var(--browser-unit));
+  margin: 0;
+  position: relative;
+  width: calc(28 * var(--browser-unit));
+}
+
+.switch > input::after {
+  background: var(--esf-text-muted);
+  border-radius: 50%;
+  content: "";
+  height: calc(10 * var(--browser-unit));
+  left: calc(2 * var(--browser-unit));
+  position: absolute;
+  top: calc(2 * var(--browser-unit));
+  transition: left 0.1s;
+  width: calc(10 * var(--browser-unit));
+}
+
+.switch > input:checked {
+  background: var(--esf-button-active);
+  border-color: var(--esf-button-active-edge);
+}
+
+.switch > input:checked::after {
+  background: var(--esf-text);
+  left: calc(14 * var(--browser-unit));
+}
+
+.switch > input:focus-visible,
+.remove:focus-visible,
+.pick button:focus-visible {
+  outline: var(--browser-unit) solid var(--esf-text);
+}
+
+.remove {
+  background: none;
+  border: none;
+  color: var(--esf-text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: calc(18 * var(--browser-unit));
+  line-height: 1;
+  padding: 0 calc(2 * var(--browser-unit));
+}
+
+.remove:hover {
+  color: var(--esf-text);
+}
+
+.add {
+  display: flex;
+  gap: calc(8 * var(--browser-unit));
+}
+
+.add > button {
+  flex: 1;
+}
+
+.note {
+  color: var(--esf-text-muted);
+  margin: 0;
+}
+
+.pick {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4 * var(--browser-unit));
+  list-style: none;
+  margin: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 0;
+  width: min(calc(360 * var(--browser-unit)), 80vw);
+}
+
+.pick button {
+  align-items: center;
+  background: none;
+  border: var(--browser-unit) solid transparent;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  gap: calc(8 * var(--browser-unit));
+  padding: calc(4 * var(--browser-unit));
+  text-align: left;
+  width: 100%;
+}
+
+.pick button:hover {
+  background: var(--esf-tree-hover);
+  border-color: var(--esf-border);
+}
+
+.pickEmpty {
+  color: var(--esf-text-muted);
+  margin: 0;
+  max-width: min(calc(360 * var(--browser-unit)), 80vw);
+}

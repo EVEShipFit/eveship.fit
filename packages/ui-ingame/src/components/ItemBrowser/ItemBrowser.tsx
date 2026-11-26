@@ -4,6 +4,7 @@ import { Activity, useDeferredValue, useId, useState, type ReactNode } from "rea
 import { focusTree, isTreeRow } from "../../primitives/TreeList/TreeList";
 import { Charges } from "./Charges";
 import { FitActions } from "./FitActions";
+import { Fleet } from "./Fleet";
 import { HullsAndFits } from "./HullsAndFits";
 import { Implants } from "./Implants";
 import styles from "./ItemBrowser.module.css";
@@ -15,11 +16,11 @@ export interface ItemBrowserProps {
   pasteToOpen?: boolean;
 }
 
-type Tab = "hulls" | "modules" | "charges" | "implants";
+type Tab = "hulls" | "modules" | "charges" | "implants" | "fleet";
 
 const NO_TABS: ReadonlySet<Tab> = new Set();
 
-/** EVE's browser of hulls and fits, modules, charges, and implants, left of the fitting wheel. */
+/** EVE's browser of hulls and fits, modules, charges, and implants, left of the fitting wheel; and the fleet boosting the fit. */
 export function ItemBrowser({ label = "Item Browser", pasteToOpen = false }: ItemBrowserProps) {
   const [tab, setTab] = useState<Tab>("hulls");
   const [opened, setOpened] = useState<ReadonlySet<Tab>>(() => new Set([tab]));
@@ -39,6 +40,7 @@ export function ItemBrowser({ label = "Item Browser", pasteToOpen = false }: Ite
     { tab: "modules", label: "Modules", panel: <Modules handled={handled} /> },
     { tab: "charges", label: "Charges", panel: <Charges /> },
     { tab: "implants", label: "Implants", panel: <Implants handled={handled} /> },
+    { tab: "fleet", label: "Fleet", panel: <Fleet /> },
   ];
 
   return (

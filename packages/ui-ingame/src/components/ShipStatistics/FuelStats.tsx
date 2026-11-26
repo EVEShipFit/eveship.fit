@@ -11,6 +11,7 @@ export function FuelStats() {
     value: perDay,
     text: `${formatNumber(perDay, { decimals: 0 })} units/day`,
     change: perDay === before ? undefined : perDay < before ? "better" : "worse",
+    boosted: false,
   };
 
   return (

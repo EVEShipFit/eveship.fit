@@ -220,6 +220,32 @@ test("an edit to the fit updates the url", async ({ page }) => {
   await expect(fitting.getByRole("button", { name: /^Damage Control II,/ })).toBeVisible({ timeout: 30_000 });
 });
 
+test("a booster boosts the fit, also after a reload and in its link", async ({ page, context }) => {
+  const shieldEm = page.getByRole("meter", { name: "Shield EM Resistance" });
+  await page.goto(RIFTER);
+  await expect(shieldEm).toHaveText("0 %", { timeout: 30_000 });
+
+  await page.getByRole("tab", { name: "Fleet" }).click();
+  await page.getByRole("button", { name: "Paste booster fit…" }).click();
+  const dialog = page.getByRole("dialog", { name: "Paste Booster Fit" });
+  await dialog
+    .getByRole("textbox")
+    .fill("[Claymore, Shield Boosts]\nShield Command Burst II, Shield Harmonizing Charge\n");
+  await dialog.getByRole("button", { name: "Add" }).click();
+
+  const boosted = /^[1-9]\d* %$/;
+  await expect(page.getByRole("listitem", { name: "Shield Boosts" })).toHaveAttribute("data-status", "on");
+  await expect(shieldEm).toHaveText(boosted);
+  await expect(page.getByRole("list", { name: "Boosts" }).getByRole("img")).toHaveCount(1);
+
+  await page.reload();
+  await expect(shieldEm).toHaveText(boosted, { timeout: 30_000 });
+
+  const linked = await context.newPage();
+  await linked.goto(page.url());
+  await expect(linked.getByRole("meter", { name: "Shield EM Resistance" })).toHaveText(boosted, { timeout: 30_000 });
+});
+
 test("a broken fit link says so, and keeps the link until the fit changes", async ({ page }) => {
   const link = () => new URL(page.url()).searchParams.get("fit");
   await page.goto("/?fit=v3:broken");

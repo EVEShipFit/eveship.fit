@@ -1,12 +1,14 @@
 import type { Slot } from "@eveshipfit/dogma-engine";
 
 export type {
+  Booster,
   Calculation,
   Character,
   DamageProfile,
   Fit,
   FitItem,
   ItemResult,
+  LandedBuff,
   Rule,
   Slot,
   State,

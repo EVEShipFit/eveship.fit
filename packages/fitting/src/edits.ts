@@ -391,6 +391,26 @@ export function withMode(sde: Sde, fit: Fit): Fit {
   return { ...fit, ship };
 }
 
+/** Another fit boosting this one; it goes in without its character and its own boosters. */
+export function addBooster(sde: Sde, fit: Fit, booster: Fit): Fit {
+  const { character: _, boosters: __, ...plain } = booster;
+  return { ...fit, boosters: [...(fit.boosters ?? []), { fit: withMode(sde, plain) }] };
+}
+
+export function removeBooster(fit: Fit, index: number): Fit {
+  if (fit.boosters?.[index] === undefined) return fit;
+  const boosters = fit.boosters.toSpliced(index, 1);
+  if (boosters.length > 0) return { ...fit, boosters };
+  const { boosters: _, ...rest } = fit;
+  return rest;
+}
+
+export function setBoosterOff(fit: Fit, index: number, off: boolean): Fit {
+  const booster = fit.boosters?.[index];
+  if (booster === undefined || (booster.off ?? false) === off) return fit;
+  return { ...fit, boosters: fit.boosters!.with(index, off ? { ...booster, off } : { fit: booster.fit }) };
+}
+
 function shipModes(sde: Sde, fit: Fit): readonly SdeType[] {
   const ship = sde.type(fit.ship.type_id);
   return ship === undefined ? [] : modesOf(sde, ship);
