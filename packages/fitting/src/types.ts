@@ -1,15 +1,5 @@
 import type { Slot } from "@eveshipfit/dogma-engine";
 
-declare module "@eveshipfit/dogma-engine" {
-  interface Fit {
-    boosters?: Booster[];
-  }
-  interface Booster {
-    fit: Fit;
-    off?: boolean;
-  }
-}
-
 export type {
   Booster,
   Calculation,
@@ -18,7 +8,7 @@ export type {
   Fit,
   FitItem,
   ItemResult,
-  ProjectedBuff,
+  LandedBuff,
   Rule,
   Slot,
   State,

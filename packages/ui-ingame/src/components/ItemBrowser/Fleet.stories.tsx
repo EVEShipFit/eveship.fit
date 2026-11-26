@@ -77,6 +77,30 @@ export const SwitchOffAndRemove: Story = {
   },
 };
 
+export const OfflineBurst: Story = {
+  parameters: {
+    fit: {
+      ship: { type_id: 587 },
+      items: [],
+      boosters: [
+        {
+          fit: {
+            ...claymore,
+            items: claymore.items.map((item, index) => (index === 1 ? { ...item, state: "offline" } : item)),
+          },
+        },
+      ],
+    } satisfies Fit,
+  },
+  play: async (context) => {
+    await meta.play(context);
+    const card = within(context.canvas.getByRole("listitem", { name: "Shield Boosts" }));
+    await expect(card.getByText("Active Shielding Charge").closest("li")).toHaveAttribute("data-off");
+    await expect(card.getByText("offline")).toBeVisible();
+    await expect(card.getByText("Shield Harmonizing Charge").closest("li")).not.toHaveAttribute("data-off");
+  },
+};
+
 export const AllBoostsOff: Story = {
   parameters: { fit: { ship: { type_id: 587 }, items: [], boosters: [{ fit: claymore }] } satisfies Fit },
   play: async (context) => {

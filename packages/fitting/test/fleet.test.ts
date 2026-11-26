@@ -79,20 +79,24 @@ describe("boosters", () => {
     expect(boosters.map((booster) => booster.landed)).toEqual([false, true]);
   });
 
-  test("two boosters handing out the same buff both land", () => {
+  test("of two boosters handing out the same buff, the first lands", () => {
     const fit = rifter();
     fit.addBooster(claymore);
     fit.addBooster(claymore);
 
     const { buffs, boosters } = fit.getSnapshot().boosts;
-    expect(boosters.map((booster) => booster.landed)).toEqual([true, true]);
+    expect(boosters.map((booster) => booster.landed)).toEqual([true, false]);
     expect(buffs.every((buff) => buff.booster === 0)).toBe(true);
   });
 
-  test("a booster without bursts hands out nothing", () => {
+  test("an offline burst hands out nothing", () => {
     const fit = rifter();
-    fit.addBooster({ ship: { type_id: id("Rifter") }, items: [] });
-    expect(fit.getSnapshot().boosts.boosters[0]).toMatchObject({ handsOut: false, landed: false, bursts: [] });
+    const unboosted = shieldEm(fit);
+    fit.addBooster({ ...claymore, items: claymore.items.map((item) => ({ ...item, state: "offline" as const })) });
+
+    expect(shieldEm(fit)).toBe(unboosted);
+    expect(fit.getSnapshot().boosts.boosters[0]).toMatchObject({ landed: false });
+    expect(fit.getSnapshot().boosts.boosters[0]!.bursts.map((burst) => burst.active)).toEqual([false, false]);
   });
 
   test("switching them all off is not an edit, and applies to a preview", () => {
@@ -142,7 +146,14 @@ test("the bursts of a fit are the modules loaded with a buff charge", () => {
       module: id("Shield Command Burst II"),
       charge: id("Shield Harmonizing Charge"),
       buffs: [expect.any(Number)],
+      active: true,
     },
-    { ref: 1, module: id("Shield Command Burst II"), charge: id("Active Shielding Charge"), buffs: expect.any(Array) },
+    {
+      ref: 1,
+      module: id("Shield Command Burst II"),
+      charge: id("Active Shielding Charge"),
+      buffs: expect.any(Array),
+      active: true,
+    },
   ]);
 });

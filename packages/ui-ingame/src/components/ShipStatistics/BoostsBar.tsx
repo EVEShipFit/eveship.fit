@@ -1,4 +1,4 @@
-import { useFleet, useSde, type LandedBuff } from "@eveshipfit/react-hooks";
+import { useFleet, useSde, type FleetBuff } from "@eveshipfit/react-hooks";
 
 import { Tooltip, TooltipText } from "../../primitives/Tooltip/Tooltip";
 import { TypeIcon } from "../../primitives/TypeIcon/TypeIcon";
@@ -10,7 +10,7 @@ export function BoostsBar() {
   const { buffs, boosters } = useFleet();
   if (buffs.length === 0) return null;
 
-  const sourceOf = (buff: LandedBuff) => {
+  const sourceOf = (buff: FleetBuff) => {
     if (buff.booster !== undefined) {
       const fit = boosters[buff.booster]?.fit;
       return fit && (fit.name || sde.type(fit.ship.type_id)?.name);

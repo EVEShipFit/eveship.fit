@@ -19,7 +19,7 @@ import browserStyles from "./ItemBrowser.module.css";
 const statusNotes: Record<FleetBooster["status"], string | undefined> = {
   on: undefined,
   off: "Turned off",
-  overridden: "Others hand out stronger boosts",
+  overridden: "Others hand out the same boosts",
   idle: "Hands out no boosts",
 };
 
@@ -104,9 +104,10 @@ function BoosterCard({
       {booster.bursts.length > 0 && (
         <ul className={styles.bursts}>
           {booster.bursts.map((burst) => (
-            <li key={burst.ref}>
+            <li key={burst.ref} data-off={!burst.active || undefined}>
               <TypeIcon typeId={burst.charge} size={20} marker={false} />
               {sde.type(burst.charge)?.name}
+              {!burst.active && <span className={styles.details}>offline</span>}
             </li>
           ))}
         </ul>

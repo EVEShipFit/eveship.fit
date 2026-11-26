@@ -88,6 +88,14 @@
   gap: calc(6 * var(--browser-unit));
 }
 
+.bursts > li[data-off] {
+  color: var(--esf-text-muted);
+}
+
+.bursts > li[data-off] > span:first-child {
+  opacity: 0.5;
+}
+
 .switch {
   align-items: center;
   color: var(--esf-text-muted);

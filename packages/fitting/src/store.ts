@@ -316,7 +316,7 @@ export class FitStore {
     return Object.freeze({
       fit,
       stats,
-      boosts: boostsOf(calculator, fit, stats, this.#boostersOn),
+      boosts: boostsOf(calculator.sde, fit, stats, this.#boostersOn),
       get unboosted() {
         if (boosted) unboosted ??= calculator.calculate(unboostedFit, character);
         return unboosted;

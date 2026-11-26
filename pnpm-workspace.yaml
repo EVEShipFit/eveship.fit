@@ -48,3 +48,6 @@ onlyBuiltDependencies:
 
 minimumReleaseAgeExclude:
   - "@eveshipfit/*"
+
+overrides:
+  "@eveshipfit/dogma-engine": "file:/home/truebrain/.paseo/worktrees/0lmb2jhm/fleet-boosters/pkg"

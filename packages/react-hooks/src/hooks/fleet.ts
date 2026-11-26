@@ -8,8 +8,8 @@ import { useSde } from "./sde.js";
 /**
  * - `on`: a buff it hands out landed.
  * - `off`: it is switched off, or all boosters are.
- * - `overridden`: other boosters hand out the same buffs, stronger.
- * - `idle`: it hands out no buffs.
+ * - `overridden`: other boosters hand out the same buffs, as strong or stronger.
+ * - `idle`: it has no active burst.
  */
 export type FleetBoosterStatus = "on" | "off" | "overridden" | "idle";
 
@@ -20,7 +20,7 @@ export interface FleetBooster {
   readonly status: FleetBoosterStatus;
 }
 
-export interface LandedBuff {
+export interface FleetBuff {
   readonly id: number;
   readonly value: number;
   readonly name: string;
@@ -36,7 +36,7 @@ export interface FleetControls {
   /** The fits boosting this one, in the order they were added. */
   readonly boosters: readonly FleetBooster[];
   /** The buffs that landed on the fit, following the preview. */
-  readonly buffs: readonly LandedBuff[];
+  readonly buffs: readonly FleetBuff[];
   /** Whether the boosters apply at all. */
   readonly on: boolean;
   readonly add: (fit: Fit) => void;
@@ -53,9 +53,15 @@ export function useFleet(): FleetControls {
 
   return {
     boosters: (fit.boosters ?? []).map((booster, index) => {
-      const { bursts, handsOut, landed } = boosts.boosters[index] ?? { bursts: [], handsOut: false, landed: false };
+      const { bursts, landed } = boosts.boosters[index] ?? { bursts: [], landed: false };
       const off = booster.off ?? false;
-      const status = landed ? "on" : off || !boosts.on ? "off" : !handsOut ? "idle" : "overridden";
+      const status = landed
+        ? "on"
+        : off || !boosts.on
+          ? "off"
+          : !bursts.some((burst) => burst.active)
+            ? "idle"
+            : "overridden";
       return { fit: booster.fit, off, bursts, status };
     }),
     buffs: boosts.buffs.map((buff) => {

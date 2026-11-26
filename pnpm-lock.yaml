@@ -18,9 +18,6 @@ catalogs:
     '@cloudflare/workers-types':
       specifier: ^5.20261031.1
       version: 5.20261031.1
-    '@eveshipfit/dogma-engine':
-      specifier: ^15.2.0
-      version: 15.2.0
     '@eveshipfit/images':
       specifier: ^3.3654997.0
       version: 3.3662168.0
@@ -115,6 +112,9 @@ catalogs:
       specifier: ^4.154.0
       version: 4.154.0
 
+overrides:
+  '@eveshipfit/dogma-engine': file:/home/truebrain/.paseo/worktrees/0lmb2jhm/fleet-boosters/pkg
+
 importers:
 
   .:
@@ -162,8 +162,8 @@ importers:
         specifier: 'catalog:'
         version: 8.0.9
       '@eveshipfit/dogma-engine':
-        specifier: 'catalog:'
-        version: 15.2.0
+        specifier: file:/home/truebrain/.paseo/worktrees/0lmb2jhm/fleet-boosters/pkg
+        version: file:../../0lmb2jhm/fleet-boosters/pkg
       '@eveshipfit/fitting':
         specifier: workspace:*
         version: link:../../packages/fitting
@@ -222,8 +222,8 @@ importers:
   apps/web:
     dependencies:
       '@eveshipfit/dogma-engine':
-        specifier: 'catalog:'
-        version: 15.2.0
+        specifier: file:/home/truebrain/.paseo/worktrees/0lmb2jhm/fleet-boosters/pkg
+        version: file:../../0lmb2jhm/fleet-boosters/pkg
       '@eveshipfit/esi':
         specifier: workspace:*
         version: link:../../packages/esi
@@ -297,6 +297,9 @@ importers:
 
   packages/fitting:
     dependencies:
+      '@eveshipfit/dogma-engine':
+        specifier: file:/home/truebrain/.paseo/worktrees/0lmb2jhm/fleet-boosters/pkg
+        version: file:../../0lmb2jhm/fleet-boosters/pkg
       '@eveshipfit/esi':
         specifier: workspace:*
         version: link:../esi
@@ -304,9 +307,6 @@ importers:
         specifier: workspace:*
         version: link:../sde-loader
     devDependencies:
-      '@eveshipfit/dogma-engine':
-        specifier: 'catalog:'
-        version: 15.2.0
       '@eveshipfit/sde':
         specifier: 'catalog:'
         version: 14.3662168.0
@@ -949,8 +949,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@eveshipfit/dogma-engine@15.2.0':
-    resolution: {integrity: sha512-v3c4PXo8v1/iEy87N+Yg8rIJi9nhlnpJImsr0BqzqU5sy9HgFgu1L+GpmNASyo8gbCMOJXomrsVATsPQA9ThCw==}
+  '@eveshipfit/dogma-engine@file:../../0lmb2jhm/fleet-boosters/pkg':
+    resolution: {directory: ../../0lmb2jhm/fleet-boosters/pkg, type: directory}
 
   '@eveshipfit/images@3.3662168.0':
     resolution: {integrity: sha512-qAYtX4WV4HON/CJI5D7w2WWWLOsCpbsWevt6QsXh0yWY8AbZfWIghdR1DyeAoY5vrQRzomnJ+ttqf5/oiUokaw==}
@@ -3802,7 +3802,7 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
-  '@eveshipfit/dogma-engine@15.2.0': {}
+  '@eveshipfit/dogma-engine@file:../../0lmb2jhm/fleet-boosters/pkg': {}
 
   '@eveshipfit/images@3.3662168.0':
     dependencies:

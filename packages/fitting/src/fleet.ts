@@ -1,10 +1,8 @@
 import type { Sde } from "@eveshipfit/sde-loader";
 
-import { allSkills } from "./character.js";
 import { baseValues } from "./rules/attributes.js";
 import type { Stats } from "./stats.js";
-import type { Calculator } from "./store.js";
-import type { Character, Fit, ItemRef } from "./types.js";
+import type { Fit, ItemRef } from "./types.js";
 
 /** A module with a charge that hands out buffs, like a command burst. */
 export interface Burst {
@@ -13,6 +11,8 @@ export interface Burst {
   readonly charge: number;
   /** The buffs the charge hands out, as `dbuffCollections` in the SDE numbers them. */
   readonly buffs: readonly number[];
+  /** Whether the module is active or overheated; only then does it hand out its buffs. */
+  readonly active: boolean;
 }
 
 /** A buff that landed on the fit. */
@@ -20,19 +20,15 @@ export interface Buff {
   /** As `dbuffCollections` in the SDE numbers it. */
   readonly id: number;
   readonly value: number;
-  /** The index into `fit.boosters` of the booster it came from; undefined when it came from the fit itself. */
+  /** The index into `fit.boosters` of the booster it came from; undefined when it came from the fit itself, or from `incoming`. */
   readonly booster: number | undefined;
   /** The type of the charge that handed it out, when known. */
   readonly charge: number | undefined;
 }
 
-export interface BoosterStats {
-  /** The booster on its own, flown with every skill at V. */
-  readonly stats: Stats;
+export interface BoosterState {
   readonly bursts: readonly Burst[];
-  /** Whether it hands out any buff, as `stats.calculation.outgoing` lists them. */
-  readonly handsOut: boolean;
-  /** Whether a buff it hands out landed; false when it is off, or others hand out stronger ones. */
+  /** Whether a buff it hands out landed; false when it is off, or others hand out the same buffs, as strong or stronger. */
   readonly landed: boolean;
 }
 
@@ -42,7 +38,7 @@ export interface Boosts {
   /** The buffs that landed, ordered by ID. */
   readonly buffs: readonly Buff[];
   /** Index-parallel to `fit.boosters`. */
-  readonly boosters: readonly BoosterStats[];
+  readonly boosters: readonly BoosterState[];
 }
 
 const buffAttributes = ["warfareBuff1ID", "warfareBuff2ID", "warfareBuff3ID", "warfareBuff4ID"] as const;
@@ -54,7 +50,9 @@ export function burstsOf(sde: Sde, fit: Fit): Burst[] {
     if (item.charge === undefined || item.slot.type === "cargo") continue;
     const charge = sde.type(item.charge.type_id);
     const buffs = charge ? baseValues(sde, charge, buffAttributes).filter((id) => id > 0) : [];
-    if (buffs.length > 0) bursts.push({ ref, module: item.type_id, charge: item.charge.type_id, buffs });
+    if (buffs.length === 0) continue;
+    const active = item.state === "active" || item.state === "overload";
+    bursts.push({ ref, module: item.type_id, charge: item.charge.type_id, buffs, active });
   }
   return bursts;
 }
@@ -64,48 +62,23 @@ export function hasBoosters(fit: Fit): boolean {
   return fit.boosters?.some((booster) => !booster.off) ?? false;
 }
 
-const levelFive = new WeakMap<Sde, Character>();
-const calculated = new WeakMap<Calculator, WeakMap<Fit, Stats>>();
-
-/** Where each buff that landed in `stats` came from. */
-export function boostsOf(calculator: Calculator, fit: Fit, stats: Stats, on: boolean): Boosts {
-  const { sde } = calculator;
-  let character = levelFive.get(sde);
-  if (character === undefined) levelFive.set(sde, (character = allSkills(sde, 5)));
-  let cache = calculated.get(calculator);
-  if (cache === undefined) calculated.set(calculator, (cache = new WeakMap()));
-
-  const boosters = (fit.boosters ?? []).map((booster) => {
-    let boosterStats = cache.get(booster.fit);
-    if (boosterStats === undefined)
-      cache.set(booster.fit, (boosterStats = calculator.calculate(booster.fit, character)));
-    return { booster, stats: boosterStats, bursts: burstsOf(sde, booster.fit) };
-  });
+/** The buffs that landed in `stats`, with the charge that sent each. */
+export function boostsOf(sde: Sde, fit: Fit, stats: Stats, on: boolean): Boosts {
+  const boosterBursts = (fit.boosters ?? []).map((booster) => burstsOf(sde, booster.fit));
   const own = burstsOf(sde, fit);
 
-  const buffs = (stats.calculation.buffs ?? []).map(({ id, value }): Buff => {
-    const index = boosters.findIndex(
-      ({ booster, stats: boosterStats }) => on && !booster.off && hands(boosterStats, id, value),
-    );
-    const bursts = index === -1 ? own : boosters[index]!.bursts;
-    const charge = bursts.find((burst) => burst.buffs.includes(id))?.charge;
-    return { id, value, booster: index === -1 ? undefined : index, charge };
+  const buffs = (stats.calculation.buffs ?? []).map(({ id, value, booster }): Buff => {
+    const bursts = (booster === undefined ? own : boosterBursts[booster]) ?? [];
+    const charge = bursts.find((burst) => burst.active && burst.buffs.includes(id))?.charge;
+    return { id, value, booster, charge };
   });
 
   return {
     on,
     buffs,
-    boosters: boosters.map(({ booster, stats: boosterStats, bursts }) => ({
-      stats: boosterStats,
+    boosters: boosterBursts.map((bursts, index) => ({
       bursts,
-      handsOut: (boosterStats.calculation.outgoing?.buffs ?? []).length > 0,
-      landed: on && !booster.off && buffs.some((buff) => hands(boosterStats, buff.id, buff.value)),
+      landed: buffs.some((buff) => buff.booster === index),
     })),
   };
-}
-
-function hands(stats: Stats, id: number, value: number): boolean {
-  return (stats.calculation.outgoing?.buffs ?? []).some(
-    (buff) => buff.id === id && Math.abs(buff.value - value) <= 1e-9 * Math.max(1, Math.abs(value)),
-  );
 }
