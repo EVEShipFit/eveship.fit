@@ -53,9 +53,9 @@ export function useFleet(): FleetControls {
 
   return {
     boosters: (fit.boosters ?? []).map((booster, index) => {
-      const { bursts, landed } = boosts.boosters[index] ?? { bursts: [], landed: false };
+      const { bursts, handsOut, landed } = boosts.boosters[index] ?? { bursts: [], handsOut: false, landed: false };
       const off = booster.off ?? false;
-      const status = landed ? "on" : off || !boosts.on ? "off" : bursts.length === 0 ? "idle" : "overridden";
+      const status = landed ? "on" : off || !boosts.on ? "off" : !handsOut ? "idle" : "overridden";
       return { fit: booster.fit, off, bursts, status };
     }),
     buffs: boosts.buffs.map((buff) => {
@@ -66,7 +66,7 @@ export function useFleet(): FleetControls {
     add: (booster) => store.addBooster(booster),
     remove: (index) => store.removeBooster(index),
     setOff: (index, off) => store.setBoosterOff(index, off),
-    setOn: (on) => store.setBoosts(on),
+    setOn: (on) => store.setBoostersOn(on),
   };
 }
 

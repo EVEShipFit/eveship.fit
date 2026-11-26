@@ -37,7 +37,7 @@ export class FitStore {
   readonly #calculator: Calculator;
   #character: Character;
   #damageProfile: DamageProfile | undefined;
-  #boosts: boolean;
+  #boostersOn: boolean;
   #snapshot: Snapshot | undefined;
   /** Oldest first; an edit goes at the end, also after going back. */
   readonly #history: Fit[];
@@ -49,12 +49,12 @@ export class FitStore {
     fit: Fit | undefined,
     character: Character,
     damageProfile?: DamageProfile,
-    boosts = true,
+    boostersOn = true,
   ) {
     this.#calculator = calculator;
     this.#character = character;
     this.#damageProfile = damageProfile;
-    this.#boosts = boosts;
+    this.#boostersOn = boostersOn;
     this.#snapshot = fit && this.#calculate(edits.withMode(calculator.sde, withoutCharacter(fit)));
     this.#history = this.#snapshot ? [this.#snapshot.fit] : [];
     this.#position = this.#history.length - 1;
@@ -85,8 +85,8 @@ export class FitStore {
   }
 
   /** Whether the fit's boosters apply. */
-  get boosts(): boolean {
-    return this.#boosts;
+  get boostersOn(): boolean {
+    return this.#boostersOn;
   }
 
   get canUndo(): boolean {
@@ -225,9 +225,9 @@ export class FitStore {
   }
 
   /** Off leaves out every booster, to compare; like the character, not an edit of the fit. */
-  setBoosts(on: boolean) {
-    if (on === this.#boosts) return;
-    this.#boosts = on;
+  setBoostersOn(on: boolean) {
+    if (on === this.#boostersOn) return;
+    this.#boostersOn = on;
     this.#recalculate();
   }
 
@@ -284,7 +284,7 @@ export class FitStore {
   /** What `edit` would do, without doing it; throws while the store is empty. */
   preview(edit: (fit: FitStore) => void): Preview {
     const before = this.getSnapshot();
-    const draft = new FitStore(this.#calculator, before.fit, this.#character, this.#damageProfile, this.#boosts);
+    const draft = new FitStore(this.#calculator, before.fit, this.#character, this.#damageProfile, this.#boostersOn);
     draft.#history.splice(0, 1, ...this.#history);
     draft.#position = this.#position;
     edit(draft);
@@ -310,13 +310,13 @@ export class FitStore {
     const environment = this.#damageProfile && { ...fit.environment, damage_profile: this.#damageProfile };
     const withEnvironment = environment ? { ...fit, environment } : fit;
     const unboostedFit = withoutBoosters(withEnvironment);
-    const boosted = this.#boosts && hasBoosters(fit);
+    const boosted = this.#boostersOn && hasBoosters(fit);
     const stats = calculator.calculate(boosted ? withEnvironment : unboostedFit, character);
     let unboosted: Stats | undefined;
     return Object.freeze({
       fit,
       stats,
-      boosts: boostsOf(calculator, fit, stats, this.#boosts),
+      boosts: boostsOf(calculator, fit, stats, this.#boostersOn),
       get unboosted() {
         if (boosted) unboosted ??= calculator.calculate(unboostedFit, character);
         return unboosted;

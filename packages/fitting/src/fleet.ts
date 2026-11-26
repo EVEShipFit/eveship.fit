@@ -30,12 +30,14 @@ export interface BoosterStats {
   /** The booster on its own, flown with every skill at V. */
   readonly stats: Stats;
   readonly bursts: readonly Burst[];
+  /** Whether it hands out any buff, as `stats.calculation.outgoing` lists them. */
+  readonly handsOut: boolean;
   /** Whether a buff it hands out landed; false when it is off, or others hand out stronger ones. */
   readonly landed: boolean;
 }
 
 export interface Boosts {
-  /** Whether the fit's boosters apply at all; see `FitStore.setBoosts`. */
+  /** Whether the fit's boosters apply at all; see `FitStore.setBoostersOn`. */
   readonly on: boolean;
   /** The buffs that landed, ordered by ID. */
   readonly buffs: readonly Buff[];
@@ -93,10 +95,11 @@ export function boostsOf(calculator: Calculator, fit: Fit, stats: Stats, on: boo
   return {
     on,
     buffs,
-    boosters: boosters.map(({ stats: boosterStats, bursts }, index) => ({
+    boosters: boosters.map(({ booster, stats: boosterStats, bursts }) => ({
       stats: boosterStats,
       bursts,
-      landed: buffs.some((buff) => buff.booster === index),
+      handsOut: (boosterStats.calculation.outgoing?.buffs ?? []).length > 0,
+      landed: on && !booster.off && buffs.some((buff) => hands(boosterStats, buff.id, buff.value)),
     })),
   };
 }

@@ -79,14 +79,30 @@ describe("boosters", () => {
     expect(boosters.map((booster) => booster.landed)).toEqual([false, true]);
   });
 
+  test("two boosters handing out the same buff both land", () => {
+    const fit = rifter();
+    fit.addBooster(claymore);
+    fit.addBooster(claymore);
+
+    const { buffs, boosters } = fit.getSnapshot().boosts;
+    expect(boosters.map((booster) => booster.landed)).toEqual([true, true]);
+    expect(buffs.every((buff) => buff.booster === 0)).toBe(true);
+  });
+
+  test("a booster without bursts hands out nothing", () => {
+    const fit = rifter();
+    fit.addBooster({ ship: { type_id: id("Rifter") }, items: [] });
+    expect(fit.getSnapshot().boosts.boosters[0]).toMatchObject({ handsOut: false, landed: false, bursts: [] });
+  });
+
   test("switching them all off is not an edit, and applies to a preview", () => {
     const fit = rifter();
     const unboosted = shieldEm(fit);
     fit.addBooster(claymore);
     const position = fit.historyPosition;
 
-    fit.setBoosts(false);
-    expect(fit.boosts).toBe(false);
+    fit.setBoostersOn(false);
+    expect(fit.boostersOn).toBe(false);
     expect(shieldEm(fit)).toBe(unboosted);
     expect(fit.getSnapshot().boosts).toMatchObject({ on: false, buffs: [] });
     expect(fit.historyPosition).toBe(position);
@@ -94,7 +110,7 @@ describe("boosters", () => {
       unboosted,
     );
 
-    fit.setBoosts(true);
+    fit.setBoostersOn(true);
     expect(shieldEm(fit)).toBeLessThan(unboosted);
   });
 
